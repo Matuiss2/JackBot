@@ -308,19 +308,3 @@ class EarlyAggro(sc2.BotAI):
             for research in research_list:
                 if research in available_research and self.can_afford(research):
                     self.actions.append(pool.first(research))
-
-class WorkerRushBot(sc2.BotAI):
-    async def on_step(self, iteration):
-        if iteration == 0:
-            for worker in self.workers:
-                await self.do(worker.attack(self.enemy_start_locations[0]))
-
-run_game(maps.get("AbyssalReefLE"), [
-    Bot(Race.Zerg, EarlyAggro()),
-    Computer(Race.Protoss, Difficulty.CheatInsane)], realtime=False)
-run_game(maps.get("AbyssalReefLE"), [
-    Bot(Race.Zerg, EarlyAggro()),
-    Computer(Race.Terran, Difficulty.CheatInsane)], realtime=False)
-run_game(maps.get("AbyssalReefLE"), [
-    Bot(Race.Zerg, EarlyAggro()),
-    Computer(Race.Zerg, Difficulty.CheatInsane)], realtime=False)
