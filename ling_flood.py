@@ -12,29 +12,26 @@ RESEARCH_CHITINOUSPLATING
 
 from sc2.player import Bot, Computer
 
-# TODO rebuild LAIR or HIVE if it gets destroyed(test it)
 # TODO add static defense into the priority targets
 # TODO exclude infested terran from targets
 # TODO better ultra cavern placement
-# TODO ffs make it search for bases
+# TODO make it search for bases when starting base is already destroyed
 # TODO add spine crawlers after first push(maybe)
-# TODO replay analisys and improve the timings and values(better second wave of zerglings logic)
-# TODO refactor and organize
-# TODO dont follow the scouting worker ffs(3)
-# TODO not keep attacking when ramp is blocked(3)
+# TODO improve the timings and values(better second wave of zerglings logic)
+# TODO refactor and organize the code
+# TODO dont follow the scouting worker all the way(3)
+# TODO not keep attacking when ramp is blocked or when its an impossible fight(3)
 # TODO better vision spread(3)
-# TODO make overlord when injecting(3)
-# TODO some detection(3)
-# TODO add GGlords(3)
+# TODO improve overlord building logic(3)
+# TODO add some detection(3)
+# TODO add Broodlords(3)
 # TODO 3rd expansion should be earlier(3)
+# TODO creepy spread implementation (will have to modify queen injection logic probably)
 
 class EarlyAggro(sc2.BotAI):
-    """It does an early aggression and tries to make a transition"""
     def __init__(self):
-        self.flag1 = False
         self.flag2 = False
         self.flag3 = False
-        self.flag4 = False
         self.actions = []
         self.close_enemies = []
 
@@ -63,7 +60,7 @@ class EarlyAggro(sc2.BotAI):
         await self.do_actions(self.actions)
 
     async def armor_attack(self):
-        """It researches attack and armor, maybe will need to be expanded later"""
+        """all land upgrades, it works as intended maybe some optimizations are possible"""
         evochamber = self.units(EVOLUTIONCHAMBER)
         if evochamber.ready.idle.exists:
             for evo in evochamber.ready.idle:
@@ -81,7 +78,7 @@ class EarlyAggro(sc2.BotAI):
                             break
 
     async def build_evochamber(self):
-        """It builds evolution chambers, maybe can be brought earlier in the game"""
+        """It builds the evochamber, its probable that its timing is not right"""
         evochamber = self.units(EVOLUTIONCHAMBER)
         pool = self.units(SPAWNINGPOOL)
         if self.can_afford(EVOLUTIONCHAMBER) and self.townhalls.amount >= 3 \
@@ -89,7 +86,8 @@ class EarlyAggro(sc2.BotAI):
             await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
 
     async def build_extrator(self):
-        """It builds extractors, maybe soon it will have to be expanded"""
+        """Couldnt find another way to build the gaisers its way to inefficient
+         and sometimes throws errors when attacked timing can be improved also"""
         gas = self.units(EXTRACTOR)
         if self.townhalls.ready.exists:
             vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
@@ -107,7 +105,8 @@ class EarlyAggro(sc2.BotAI):
                             break
 
     async def build_hatchery(self):
-        """It builds hatcheries, logic for third and more can be improved"""
+        """The third base is placed very slow, the try except wont be needed
+         when updated to next library version"""
         try:
             for hacth in self.townhalls:
                 enemies = self.known_enemy_units.not_structure.closer_than(35, hacth.position).exclude_type([DRONE, SCV, PROBE])
@@ -127,6 +126,7 @@ class EarlyAggro(sc2.BotAI):
             print("damn it")
 
     async def build_infestation_pit(self):
+        """Good enough for now, but some conditions can probably be changed"""
         if self.already_pending(ZERGGROUNDARMORSLEVEL2) > 0.1 and self.can_afford(INFESTATIONPIT)\
             and self.townhalls.exists and not self.already_pending(INFESTATIONPIT)\
             and not self.units(INFESTATIONPIT).exists and self.units(LAIR).ready.exists\
@@ -134,8 +134,8 @@ class EarlyAggro(sc2.BotAI):
             await self.build(INFESTATIONPIT, near=self.units(EVOLUTIONCHAMBER).first.position)
 
     async def build_overlords(self):
-        """It trains overlords maybe it can be improved for later stages
-        and for earlier sometimes it creates much more than needed"""
+        """It needs to be prioritized over zerglings and drones,
+         supply blocks are very common by now"""
         larva = self.units(LARVA)
         if self.can_afford(OVERLORD) and larva.exists and self.supply_left < 5 \
                 and self.supply_cap != 200:
@@ -146,8 +146,9 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(larva.random.train(OVERLORD))
 
     async def build_queens_inject_larva(self):
-        """it builds queens and injects maybe later can be improving by adding queens
-         for creep and transfusions"""
+        """It works perfectly, but can probably be improved since it uses
+         random and have to check queen position constantly(which might be slow), probably
+         will have to be changed too with the introduction of creepy spread queens"""
         queens = self.units(QUEEN)
         hatchery = self.units(HATCHERY)
         if hatchery.exists:
@@ -164,24 +165,29 @@ class EarlyAggro(sc2.BotAI):
                     self.actions.append(queen(EFFECT_INJECTLARVA, selected))
 
     async def build_spawning_pool(self):
-        """It builds a spawning pool, no way to improve"""
+        """Good enough for now, maybe the logic will need to be changed
+         when rush defenses get implemented"""
         hatchery = self.units(HATCHERY)
         if self.can_afford(SPAWNINGPOOL) and not self.units(SPAWNINGPOOL).exists\
         and not self.already_pending(SPAWNINGPOOL) and hatchery.amount == 2:
             await self.build(SPAWNINGPOOL, near=hatchery.first.position.towards(self._game_info.map_center, 5))
 
     async def build_ultralisk(self):
+        """Good for now but it might need to be changed vs particular
+         enemy units compositions"""
         if self.units(ULTRALISKCAVERN).ready.exists:
             if self.units(LARVA).exists and self.can_afford(ULTRALISK) and self.supply_left > 5:
                 self.actions.append(self.units(LARVA).random.train(ULTRALISK))
 
     async def build_ultralisk_cavern(self):
+        """Placement need to be improved, also it might need to be changed vs particular
+         enemy units compositions, vs only flying units, this don't need to be built"""
         if self.units(HIVE).exists and self.can_afford(ULTRALISKCAVERN)\
         and not self.already_pending(ULTRALISKCAVERN) and not self.units(ULTRALISKCAVERN).exists:
             await self.build(ULTRALISKCAVERN, near=self.units(INFESTATIONPIT).first.position)
 
     async def build_workers(self):
-        """It builds workers, can be improved for the transition"""
+        """Good for the beginning, but it doesnt adapt to losses of drones very well"""
         workers_total = self.workers.amount
         larva = self.units(LARVA)
         hatchery = self.units(HATCHERY)
@@ -209,7 +215,7 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(larva.random.train(DRONE))
 
     async def build_zerglings(self):
-        """It trains zergling non-stop, can be improved"""
+        """Needs to be improved so it doesnt block other units(this always get prioritized)"""
         larva = self.units(LARVA)
         if self.units(SPAWNINGPOOL).ready.exists:
             if larva.exists and self.can_afford(ZERGLING) and self.supply_left > 0:
@@ -220,6 +226,7 @@ class EarlyAggro(sc2.BotAI):
                     self.actions.append(larva.random.train(ZERGLING))
 
     async def chitinous_plating(self):
+        """Just like armor_attack, it works perfectly but maybe it can be optimized"""
         cavern = self.units(ULTRALISKCAVERN)
         if cavern.ready.exists:
             available_research = await self.get_available_abilities(cavern.ready.first)
@@ -228,8 +235,7 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(cavern.first(RESEARCH_CHITINOUSPLATING))
 
     async def defend_attack(self):
-        """It defends and attacks with zerglings, can be improved f.e-make the attack periodic,
-           and stronger each time also make the units retreat less"""
+        """Micro function, its just slight better than a-move, need A LOT of improvements"""
         enemy_build = self.known_enemy_structures
         filtered_enemies = self.known_enemy_units.not_structure.exclude_type([ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA])
         '''
@@ -263,6 +269,9 @@ class EarlyAggro(sc2.BotAI):
                         self.actions.append(zergling.move(self.units(HATCHERY).closest_to(zergling.position)))'''
 
     async def defend_worker_rush(self):
+        """Its the way I found to defend simple worker rushes,
+         I don't know if it beats complexes worker rushes like tyr's bot,
+        also it follows scouting workers all the way"""
         if self.known_enemy_units.exists and self.units(HATCHERY).exists:
             enemy_units_close = self.known_enemy_units.closer_than(5, self.units(HATCHERY).first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close.exists and self.townhalls.amount < 2:
@@ -274,6 +283,7 @@ class EarlyAggro(sc2.BotAI):
                         self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
 
     async def is_morphing(self, homecity):
+        """Check if a base is morphing, good enough for now"""
         abilities = await self.get_available_abilities(homecity)
         morphs = [CANCEL_MORPHLAIR, CANCEL_MORPHHIVE]
         for m in morphs:
@@ -282,20 +292,23 @@ class EarlyAggro(sc2.BotAI):
         return False
 
     async def make_hive(self):
+        """Works well, maybe the timing can be improved"""
         if self.units(INFESTATIONPIT).ready.exists and not self.units(HIVE).exists\
             and self.can_afford(HIVE) and not any([await self.is_morphing(h) for h in self.units(LAIR)]) \
             and self.units(ZERGLING).amount > 15 and self.units(LAIR).ready.idle.exists:
             self.actions.append(self.units(LAIR).ready.idle.first(UPGRADETOHIVE_HIVE))
 
     async def make_lair(self):
+        """Good enough for now"""
         if self.townhalls.amount >= 4 and self.can_afford(UPGRADETOLAIR_LAIR)\
             and not (self.units(LAIR).exists or self.units(HIVE).exists)\
             and not any([await self.is_morphing(h) for h in self.units(HATCHERY)]):
             self.actions.append(self.units(HATCHERY).ready.idle.first(UPGRADETOLAIR_LAIR))
 
     async def metabolic_boost(self):
-        """It research zergling speed and distribute workers on and off gas, the former is good
-        the latter can be improved"""
+        """It sends 3 drones at the beginning to the extractor so it
+         immediately research metabolic boost when ready, but I don't know
+          how to take then off it right after needs improvement"""
         if self.units(EXTRACTOR).ready.exists and not self.flag2:
             self.flag2 = True
             extractor = self.units(EXTRACTOR).first
