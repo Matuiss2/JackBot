@@ -1,8 +1,10 @@
 import sc2
+import math
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.constants import *
-
+from sc2.position import Point2, Point3
 from sc2.player import Bot, Computer
+from sc2.data import ActionResult
 
 # TODO add static defense into the priority targets
 # TODO exclude infested terran from targets
@@ -36,6 +38,7 @@ class EarlyAggro(sc2.BotAI):
         await self.build_hatchery()
         await self.build_infestation_pit()
         await self.build_queens_inject_larva()
+        await self.spread_creep()
         await self.build_spawning_pool()
 
         await self.build_units()
@@ -49,7 +52,6 @@ class EarlyAggro(sc2.BotAI):
         await self.make_lair()
         await self.metabolic_boost()
         await self.do_actions(self.actions)
-
 
     async def build_units(self):
         """ Build one unit, the most prioritized at the moment """
@@ -160,9 +162,7 @@ class EarlyAggro(sc2.BotAI):
         return False
 
     async def build_queens_inject_larva(self):
-        """It works perfectly, but can probably be improved since it uses
-         random and have to check queen position constantly(which might be slow), probably
-         will have to be changed too with the introduction of creepy spread queens"""
+        """ Assigns a queen per base and always have one queen to spread creep """
         queens = self.units(QUEEN)
         bases = self.units(HATCHERY) | self.units(LAIR) | self.units(HIVE)
 
@@ -188,15 +188,64 @@ class EarlyAggro(sc2.BotAI):
                 return # Make sure we don't overwrite
             else:
                 #Spread creep
-                if queen.energy >= 25:
-                    pass
+                if queen.is_idle and queen.energy >= 25:
+                    await self.place_tumor(queen)
 
         # Make more queens if needed
-        if base_with_no_queen.amount > queen_with_no_base.amount + self.already_pending(QUEEN):
-            base = base_with_no_queen.noqueue
+        if 1 + base_with_no_queen.amount > queen_with_no_base.amount + self.already_pending(QUEEN):
+            base = base_with_no_queen.noqueue 
+
+            if not base.exists and bases.amount > 1:
+                base = bases.noqueue
+
             if base.exists and self.can_afford(QUEEN) and self.supply_left > 2:
                     self.actions.append(base.random.train(QUEEN))
 
+    async def spread_creep(self):
+        """ Itereate over all tumors to spread itself """
+        tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+        for tumor in tumors:
+            await self.place_tumor(tumor)
+
+
+    async def place_tumor(self, unit):
+        """ Find a nice placement for the tumor and build it if possible. 
+        Makes creep to the center, needs a better value function for the spreading """
+        # Make sure unit can make tumor and what ability it is
+        abilities = await self.get_available_abilities(unit)
+        
+        if BUILD_CREEPTUMOR_QUEEN in abilities:
+            unit_ability = BUILD_CREEPTUMOR_QUEEN
+        elif BUILD_CREEPTUMOR_TUMOR in abilities:
+            unit_ability = BUILD_CREEPTUMOR_TUMOR
+        else: 
+            return
+
+        # defining vars
+        ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
+        locationAttempts = 30
+        spreadDistance = 8
+        location = unit.position
+
+        # Define random positions around unit
+        positions = [Point2((location.x + spreadDistance * math.cos(math.pi * alpha * 2 / locationAttempts), location.y + spreadDistance * math.sin(math.pi * alpha * 2 / locationAttempts))) for alpha in range(locationAttempts)]
+        # check if any of the positions are valid
+        validPlacements = await self._client.query_building_placement(ability, positions)
+        # filter valid results
+        validPlacements = [p for index, p in enumerate(positions) if validPlacements[index] == ActionResult.Success]
+        # now "validPlacements" will contain a list of points where it is possible to place creep tumors
+        # of course creep tumors have a limited range to place creep tumors but queens can move anywhere
+        if validPlacements:
+            tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+            if tumors.amount:
+                validPlacements = sorted(validPlacements, key=lambda pos: pos.distance_to_closest(tumors) - pos.distance_to(self._game_info.map_center), reverse=True)
+            else:
+                validPlacements = sorted(validPlacements, key=lambda pos: pos.distance_to(self._game_info.map_center))
+
+            for location in validPlacements:
+                err = await self.do(unit(unit_ability, location))
+                if not err:
+                    break
 
     async def build_spawning_pool(self):
         """Good enough for now, maybe the logic will need to be changed
