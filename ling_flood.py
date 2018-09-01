@@ -6,9 +6,7 @@ from sc2.position import Point2, Point3
 from sc2.player import Bot, Computer
 from sc2.data import ActionResult
 
-# TODO add static defense into the priority targets
-# TODO exclude infested terran from targets
-# TODO better ultra cavern placement
+# TODO stop rebuilding lair - hive when all upgrades are done already
 # TODO make it search for bases when starting base is already destroyed
 # TODO add spine crawlers after first push(maybe)
 # TODO improve the timings and values(better second wave of zerglings logic)
@@ -23,8 +21,8 @@ from sc2.data import ActionResult
 
 class EarlyAggro(sc2.BotAI):
     def __init__(self):
+        self.flag1 = False
         self.flag2 = False
-        self.flag3 = False
         self.actions = []
         self.close_enemies = []
         self.base_queen_relation = {}
@@ -40,37 +38,16 @@ class EarlyAggro(sc2.BotAI):
         await self.build_queens_inject_larva()
         await self.spread_creep()
         await self.build_spawning_pool()
-
         await self.build_units()
-
+        await self.build_ultralisk_cavern()
         await self.chitinous_plating()
         await self.defend_attack()
         await self.defend_worker_rush()
         await self.distribute_workers()
-        await self.build_ultralisk_cavern()
         await self.make_hive()
         await self.make_lair()
         await self.metabolic_boost()
         await self.do_actions(self.actions)
-
-    async def build_units(self):
-        """ Build one unit, the most prioritized at the moment """
-
-        if not self.units(LARVA).exists:
-            return
-
-        available_units_in_order = [
-            self.build_overlords, 
-            self.build_workers, 
-            self.build_zerglings, 
-            self.build_ultralisk
-            ]
-
-        for build_unit_function in available_units_in_order:
-            """ The function returns if it wants to build the unit and might build it """
-            want_to_built_unit = await build_unit_function()
-            if want_to_built_unit:
-                break
 
     async def armor_attack(self):
         """all land upgrades, it works as intended maybe some optimizations are possible"""
@@ -105,15 +82,18 @@ class EarlyAggro(sc2.BotAI):
         if self.townhalls.ready.exists:
             vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
             for gaiser in vgs:
-                if not self.already_pending(EXTRACTOR) and self.can_afford(EXTRACTOR):
+                if self.can_afford(EXTRACTOR):
                     if not gas.exists and self.units(HATCHERY).amount == 2:
-                        drone = self.select_build_worker(gaiser.position)
-                        self.actions.append(drone.build(EXTRACTOR, gaiser))
-                        break
-                    elif self.units(INFESTATIONPIT).exists:
-                        if self.units(INFESTATIONPIT).first.build_progress > 0.2\
-                        and gas.amount < 7:
+                        if not self.already_pending(EXTRACTOR):
                             drone = self.select_build_worker(gaiser.position)
+                            self.actions.append(drone.build(EXTRACTOR, gaiser))
+                            break
+                    elif self.units(INFESTATIONPIT).exists:
+                        if self.units(INFESTATIONPIT).first.build_progress > 0\
+                        and gas.amount < 8:
+                            drone = self.select_build_worker(gaiser.position)
+                            if not drone:
+                                break
                             self.actions.append(drone.build(EXTRACTOR, gaiser))
                             break
 
@@ -125,15 +105,15 @@ class EarlyAggro(sc2.BotAI):
                 enemies = self.known_enemy_units.not_structure.closer_than(35, hacth.position).exclude_type([DRONE, SCV, PROBE])
                 if len(enemies) > 0:
                     self.close_enemies.append(1)
-            if self.minerals > 175 and self.townhalls.amount < 2 and not self.flag3:
-                self.flag3 = True
+            if self.minerals > 175 and self.townhalls.amount < 2 and not self.flag1:
+                self.flag1 = True
                 self.actions.append(self.workers.first.move(await self.get_next_expansion()))
             if self.can_afford(HATCHERY) and not self.already_pending(HATCHERY)\
                 and len(self.close_enemies) == 0:
                 if self.townhalls.amount < 3:
                     await self.expand_now()
                 elif self.townhalls.amount >= 3\
-                    and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0.3:
+                    and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
                     await self.expand_now()
         except AssertionError:
             print("damn it")
@@ -149,17 +129,16 @@ class EarlyAggro(sc2.BotAI):
     async def build_overlords(self):
         """We do not get supply blocked, but builds one more overlord that needed at some points"""
         larva = self.units(LARVA)
-        if self.supply_left < 5 and not self.supply_cap >= 200:
+        if self.supply_left < 8 and not self.supply_cap >= 200:
             if self.can_afford(OVERLORD) and larva.exists:
-                if self.townhalls.amount == 1 and self.already_pending(OVERLORD):
+                if self.townhalls.amount in [1, 2] and self.already_pending(OVERLORD):
                     return False
-                elif self.already_pending(OVERLORD) >= 2: # Don't make more than two at once
+                elif self.already_pending(OVERLORD) >= 2:  # Don't make more than two at once
                     return False
-
                 self.actions.append(larva.random.train(OVERLORD))
                 return True
-                
         return False
+
 
     async def build_queens_inject_larva(self):
         """ Assigns a queen per base and always have one queen to spread creep """
@@ -268,14 +247,14 @@ class EarlyAggro(sc2.BotAI):
         """Placement need to be improved, also it might need to be changed vs particular
          enemy units compositions, vs only flying units, this don't need to be built"""
         if self.units(HIVE).exists and self.can_afford(ULTRALISKCAVERN)\
-        and not self.already_pending(ULTRALISKCAVERN) and not self.units(ULTRALISKCAVERN).exists:
-            await self.build(ULTRALISKCAVERN, near=self.units(INFESTATIONPIT).first.position)
+        and not self.already_pending(ULTRALISKCAVERN) and not self.units(ULTRALISKCAVERN).exists\
+                and self.units(EVOLUTIONCHAMBER).exists:
+            await self.build(ULTRALISKCAVERN, near=self.units(EVOLUTIONCHAMBER).random.position)
 
     async def build_workers(self):
         """Good for the beginning, but it doesnt adapt to losses of drones very well"""
         workers_total = self.workers.amount
         larva = self.units(LARVA)
-        hatchery = self.units(HATCHERY)
         for hacth in self.townhalls:
             enemies = self.known_enemy_units.not_structure.closer_than(35, hacth.position).exclude_type(
                 [DRONE, SCV, PROBE])
@@ -287,7 +266,7 @@ class EarlyAggro(sc2.BotAI):
                 return True
             elif workers_total in [13, 14, 15] and self.can_afford(DRONE)\
                 and self.supply_left > 0\
-                and larva.closer_than(4, hatchery.first).exists\
+                and larva.exists\
                 and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1:
                 if workers_total == 15:
                     if self.units(EXTRACTOR).exists and self.units(SPAWNINGPOOL).exists:
@@ -297,9 +276,9 @@ class EarlyAggro(sc2.BotAI):
                     self.actions.append(larva.random.train(DRONE))
                     return True
             elif self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1\
-                and workers_total < self.townhalls.amount * 16 \
+                and workers_total < self.townhalls.amount * 16.5 \
                 and larva.exists and workers_total < 86\
-                    and self.units(ZERGLING).amount >= 13.5:
+                    and self.units(ZERGLING).amount > 5:
                 self.actions.append(larva.random.train(DRONE))
                 return True
         return False
@@ -316,7 +295,7 @@ class EarlyAggro(sc2.BotAI):
                 else:
                     self.actions.append(larva.random.train(ZERGLING))
                     return True
-        return False
+            return False
 
     async def chitinous_plating(self):
         """Just like armor_attack, it works perfectly but maybe it can be optimized"""
@@ -329,13 +308,14 @@ class EarlyAggro(sc2.BotAI):
 
     async def defend_attack(self):
         """Micro function, its just slight better than a-move, need A LOT of improvements"""
-        enemy_build = self.known_enemy_structures
-        filtered_enemies = self.known_enemy_units.not_structure.exclude_type([ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA])
-        '''
-        good_health = [z for z in self.units(ZERGLING) if z.health > 10]
+        '''good_health = [z for z in self.units(ZERGLING) if z.health > 10]
         bad_health = (zb for zb in self.units(ZERGLING) if zb.health <= 9)
-        '''
-        target = filtered_enemies.not_flying
+                '''
+        enemy_build = self.known_enemy_structures
+        excluded_units = [ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN, AUTOTURRET]
+        filtered_enemies = self.known_enemy_units.not_structure.exclude_type(excluded_units)
+        static_defence = self.known_enemy_units.of_type([SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS])
+        target = static_defence | filtered_enemies.not_flying
         zergl = self.units(ZERGLING)
         if zergl.exists:
             for zergling in zergl + self.units(ULTRALISK):
@@ -414,3 +394,19 @@ class EarlyAggro(sc2.BotAI):
             for research in research_list:
                 if research in available_research and self.can_afford(research):
                     self.actions.append(pool.first(research))
+
+    async def build_units(self):
+        """ Build one unit, the most prioritized at the moment """
+        if not self.units(LARVA).exists:
+            return
+        available_units_in_order = [
+            self.build_overlords,
+            self.build_workers,
+            self.build_zerglings,
+            self.build_ultralisk
+        ]
+        for build_unit_function in available_units_in_order:
+            """ The function returns if it wants to build the unit and might build it """
+            want_to_built_unit = await build_unit_function()
+            if want_to_built_unit:
+                break
