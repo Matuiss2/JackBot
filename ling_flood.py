@@ -22,7 +22,6 @@ from sc2.player import Bot, Computer
 # TODO dont follow the scouting worker all the way(3)
 # TODO not keep attacking when ramp is blocked or when its an impossible fight(3)
 # TODO better vision spread(3)
-# TODO improve overlord building logic(3)
 # TODO add some detection(3)
 # TODO add Broodlords(3)
 # TODO 3rd expansion should be earlier(3)
@@ -43,21 +42,40 @@ class EarlyAggro(sc2.BotAI):
         await self.build_extrator()
         await self.build_hatchery()
         await self.build_infestation_pit()
-        await self.build_overlords()
         await self.build_queens_inject_larva()
         await self.build_spawning_pool()
-        await self.build_workers()
-        await self.build_zerglings()
+
+        await self.build_units()
+
         await self.chitinous_plating()
         await self.defend_attack()
         await self.defend_worker_rush()
         await self.distribute_workers()
-        await self.build_ultralisk()
         await self.build_ultralisk_cavern()
         await self.make_hive()
         await self.make_lair()
         await self.metabolic_boost()
         await self.do_actions(self.actions)
+
+
+    async def build_units(self):
+        """ Build one unit, the most prioritized at the moment """
+
+        if not self.units(LARVA).exists:
+            return
+
+        available_units_in_order = [
+            self.build_overlords, 
+            self.build_workers, 
+            self.build_zerglings, 
+            self.build_ultralisk
+            ]
+
+        for build_unit_function in available_units_in_order:
+            """ The function returns if it wants to build the unit and might build it """
+            want_to_built_unit = await build_unit_function()
+            if want_to_built_unit:
+                break
 
     async def armor_attack(self):
         """all land upgrades, it works as intended maybe some optimizations are possible"""
@@ -134,16 +152,19 @@ class EarlyAggro(sc2.BotAI):
             await self.build(INFESTATIONPIT, near=self.units(EVOLUTIONCHAMBER).first.position)
 
     async def build_overlords(self):
-        """It needs to be prioritized over zerglings and drones,
-         supply blocks are very common by now"""
+        """We do not get supply blocked, but builds one more overlord that needed at some points"""
         larva = self.units(LARVA)
-        if self.can_afford(OVERLORD) and larva.exists and self.supply_left < 5 \
-                and self.supply_cap != 200:
-            if self.townhalls.amount == 1:
-                if not self.already_pending(OVERLORD):
-                    self.actions.append(larva.random.train(OVERLORD))
-            elif self.already_pending(OVERLORD) <= 2:
+        if self.supply_left < 5 and not self.supply_cap >= 200:
+            if self.can_afford(OVERLORD) and larva.exists:
+                if self.townhalls.amount == 1 and self.already_pending(OVERLORD):
+                    return False
+                elif self.already_pending(OVERLORD) >= 2: # Don't make more than two at once
+                    return False
+
                 self.actions.append(larva.random.train(OVERLORD))
+                return True
+                
+        return False
 
     async def build_queens_inject_larva(self):
         """It works perfectly, but can probably be improved since it uses
@@ -178,6 +199,8 @@ class EarlyAggro(sc2.BotAI):
         if self.units(ULTRALISKCAVERN).ready.exists:
             if self.units(LARVA).exists and self.can_afford(ULTRALISK) and self.supply_left > 5:
                 self.actions.append(self.units(LARVA).random.train(ULTRALISK))
+                return True
+        return False
 
     async def build_ultralisk_cavern(self):
         """Placement need to be improved, also it might need to be changed vs particular
@@ -199,6 +222,7 @@ class EarlyAggro(sc2.BotAI):
         if len(self.close_enemies) == 0:
             if workers_total == 12 and larva.exists and not self.already_pending(DRONE):
                 self.actions.append(larva.random.train(DRONE))
+                return True
             elif workers_total in [13, 14, 15] and self.can_afford(DRONE)\
                 and self.supply_left > 0\
                 and larva.closer_than(4, hatchery.first).exists\
@@ -206,13 +230,17 @@ class EarlyAggro(sc2.BotAI):
                 if workers_total == 15:
                     if self.units(EXTRACTOR).exists and self.units(SPAWNINGPOOL).exists:
                         self.actions.append(larva.random.train(DRONE))
+                        return True
                 else:
                     self.actions.append(larva.random.train(DRONE))
+                    return True
             elif self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1\
                 and workers_total < self.townhalls.amount * 16 \
                 and larva.exists and workers_total < 86\
                     and self.units(ZERGLING).amount >= 13.5:
                 self.actions.append(larva.random.train(DRONE))
+                return True
+        return False
 
     async def build_zerglings(self):
         """Needs to be improved so it doesnt block other units(this always get prioritized)"""
@@ -222,8 +250,11 @@ class EarlyAggro(sc2.BotAI):
                 if self.units(ULTRALISKCAVERN).ready.exists:
                     if self.units(ULTRALISK).amount * 14 > self.units(ZERGLING).amount:
                         self.actions.append(larva.random.train(ZERGLING))
+                        return True
                 else:
                     self.actions.append(larva.random.train(ZERGLING))
+                    return True
+        return False
 
     async def chitinous_plating(self):
         """Just like armor_attack, it works perfectly but maybe it can be optimized"""
