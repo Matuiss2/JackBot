@@ -1,14 +1,6 @@
 import sc2
 from sc2 import run_game, maps, Race, Difficulty
-from sc2.constants import HATCHERY, ZERGLING, QUEEN, LARVA, EFFECT_INJECTLARVA, \
-SPAWNINGPOOL, RESEARCH_ZERGLINGMETABOLICBOOST, OVERLORD, EXTRACTOR, DRONE,\
-QUEENSPAWNLARVATIMER, ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, ZERGLINGMOVEMENTSPEED,\
-EVOLUTIONCHAMBER, RESEARCH_ZERGMELEEWEAPONSLEVEL1, RESEARCH_ZERGGROUNDARMORLEVEL1,\
-ZERGGROUNDARMORSLEVEL1, UPGRADETOLAIR_LAIR, RESEARCH_ZERGGROUNDARMORLEVEL2,\
-RESEARCH_ZERGMELEEWEAPONSLEVEL2, SCV, PROBE, INFESTATIONPIT, HIVE, LAIR, UPGRADETOHIVE_HIVE,\
-ZERGGROUNDARMORSLEVEL2, RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3,\
-RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE,ULTRALISKCAVERN, ULTRALISK,\
-RESEARCH_CHITINOUSPLATING
+from sc2.constants import *
 
 from sc2.player import Bot, Computer
 
@@ -33,6 +25,7 @@ class EarlyAggro(sc2.BotAI):
         self.flag3 = False
         self.actions = []
         self.close_enemies = []
+        self.base_queen_relation = {}
 
     async def on_step(self, iteration):
         self.close_enemies = []
@@ -171,19 +164,39 @@ class EarlyAggro(sc2.BotAI):
          random and have to check queen position constantly(which might be slow), probably
          will have to be changed too with the introduction of creepy spread queens"""
         queens = self.units(QUEEN)
-        hatchery = self.units(HATCHERY)
-        if hatchery.exists:
-            hatcheries_random = self.townhalls.random
-            if self.units(SPAWNINGPOOL).ready.exists:
-                if queens.amount < hatchery.amount and hatcheries_random.is_ready \
-                    and not self.already_pending(QUEEN)\
-                    and hatcheries_random.noqueue and self.supply_left > 1:
-                    if self.can_afford(QUEEN) and not queens.closer_than(8, hatcheries_random):
-                        self.actions.append(hatcheries_random.train(QUEEN))
-            for queen in queens.idle:
-                selected = self.townhalls.closest_to(queen.position)
-                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                    self.actions.append(queen(EFFECT_INJECTLARVA, selected))
+        bases = self.units(HATCHERY) | self.units(LAIR) | self.units(HIVE)
+
+        # Handle injection
+        for base in bases:
+            if base.tag in self.base_queen_relation:
+                queen = self.base_queen_relation[base.tag]
+
+                if not queen: # If queen is dead
+                    del self.base_queen_relation[base.tag]
+
+                if queen.energy >= 25 and not base.has_buff(QUEENSPAWNLARVATIMER):
+                    self.actions.append(queen(EFFECT_INJECTLARVA, base))
+
+        queen_with_no_base = queens.filter(lambda queen: queen.tag not in map(lambda unit: unit.tag, self.base_queen_relation.values()))
+        base_with_no_queen = bases.filter(lambda base: base.tag not in self.base_queen_relation.keys())
+
+        # Match queens to bases
+        for queen in queen_with_no_base:
+            if base_with_no_queen.exists:
+                base = base_with_no_queen.closest_to(queen)
+                self.base_queen_relation[base.tag] = queen_with_no_base.closest_to(base)
+                return # Make sure we don't overwrite
+            else:
+                #Spread creep
+                if queen.energy >= 25:
+                    pass
+
+        # Make more queens if needed
+        if base_with_no_queen.amount > queen_with_no_base.amount + self.already_pending(QUEEN):
+            base = base_with_no_queen.noqueue
+            if base.exists and self.can_afford(QUEEN) and self.supply_left > 2:
+                    self.actions.append(base.random.train(QUEEN))
+
 
     async def build_spawning_pool(self):
         """Good enough for now, maybe the logic will need to be changed
