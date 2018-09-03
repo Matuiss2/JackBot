@@ -143,10 +143,12 @@ class EarlyAggro(sc2.BotAI):
     async def build_queens_inject_larva(self):
         """ Assigns a queen per base and always have one queen to spread creep """
         queens = self.units(QUEEN)
-        bases = self.units(HATCHERY) | self.units(LAIR) | self.units(HIVE)
+
+        queen_with_no_base = queens.filter(lambda queen: queen.tag not in [unit.tag for unit in self.base_queen_relation.values()])
+        base_with_no_queen = self.townhalls.filter(lambda base: base.tag not in self.base_queen_relation.keys())
 
         # Handle injection
-        for base in bases:
+        for base in self.townhalls:
             if base.tag in self.base_queen_relation:
                 queen = self.base_queen_relation[base.tag]
 
@@ -156,8 +158,6 @@ class EarlyAggro(sc2.BotAI):
                 if queen.energy >= 25 and not base.has_buff(QUEENSPAWNLARVATIMER):
                     self.actions.append(queen(EFFECT_INJECTLARVA, base))
 
-        queen_with_no_base = queens.filter(lambda queen: queen.tag not in map(lambda unit: unit.tag, self.base_queen_relation.values()))
-        base_with_no_queen = bases.filter(lambda base: base.tag not in self.base_queen_relation.keys())
 
         # Match queens to bases
         for queen in queen_with_no_base:
@@ -174,10 +174,10 @@ class EarlyAggro(sc2.BotAI):
         if 1 + base_with_no_queen.amount > queen_with_no_base.amount + self.already_pending(QUEEN):
             base = base_with_no_queen.noqueue 
 
-            if not base.exists and bases.amount > 1:
-                base = bases.noqueue
+            if not base.exists and self.townhalls.amount > 1:
+                base = self.townhalls.noqueue
 
-            if base.exists and self.can_afford(QUEEN) and self.supply_left > 2:
+            if base.exists and self.can_afford(QUEEN) and self.supply_left >= 2:
                     self.actions.append(base.random.train(QUEEN))
 
     async def spread_creep(self):
