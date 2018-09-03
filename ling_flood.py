@@ -1,7 +1,16 @@
 import sc2
 import math
 from sc2 import run_game, maps, Race, Difficulty
-from sc2.constants import *
+from sc2.constants import HATCHERY, ZERGLING, QUEEN, LARVA, EFFECT_INJECTLARVA, \
+SPAWNINGPOOL, RESEARCH_ZERGLINGMETABOLICBOOST, OVERLORD, EXTRACTOR, DRONE,\
+QUEENSPAWNLARVATIMER, ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, ZERGLINGMOVEMENTSPEED,\
+EVOLUTIONCHAMBER, RESEARCH_ZERGMELEEWEAPONSLEVEL1, RESEARCH_ZERGGROUNDARMORLEVEL1,\
+ZERGGROUNDARMORSLEVEL1, UPGRADETOLAIR_LAIR, RESEARCH_ZERGGROUNDARMORLEVEL2,\
+RESEARCH_ZERGMELEEWEAPONSLEVEL2, SCV, PROBE, INFESTATIONPIT, HIVE, LAIR, UPGRADETOHIVE_HIVE,\
+ZERGGROUNDARMORSLEVEL2, RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3,\
+RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE,ULTRALISKCAVERN, ULTRALISK,\
+RESEARCH_CHITINOUSPLATING, INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHOTONCANNON, BUNKER,\
+PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED
 from sc2.position import Point2, Point3
 from sc2.player import Bot, Computer
 from sc2.data import ActionResult
@@ -375,7 +384,8 @@ class EarlyAggro(sc2.BotAI):
         """Good enough for now"""
         if self.townhalls.amount >= 4 and self.can_afford(UPGRADETOLAIR_LAIR)\
             and not (self.units(LAIR).exists or self.units(HIVE).exists)\
-            and not any([await self.is_morphing(h) for h in self.units(HATCHERY)]):
+            and not any([await self.is_morphing(h) for h in self.units(HATCHERY)])\
+            and self.units(HATCHERY).ready.idle.exists:
             self.actions.append(self.units(HATCHERY).ready.idle.first(UPGRADETOLAIR_LAIR))
 
     async def metabolic_boost(self):
