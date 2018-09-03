@@ -18,6 +18,5 @@ if __name__ == '__main__':
         print("Starting local game...")
         sc2.run_game(sc2.maps.get("Abyssal Reef LE"), [
             bot,
-            #Bot(Race.Zerg, EarlyAggro())
-            Computer(Race.Terran, Difficulty.CheatVision)
-        ], realtime=False, save_replay_as="Example.SC2Replay")
+            Computer(Race.Protoss, Difficulty.VeryHard)
+        ], realtime=True)
