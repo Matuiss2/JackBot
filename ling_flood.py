@@ -1,4 +1,5 @@
 import sc2
+import math
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.constants import HATCHERY, ZERGLING, QUEEN, LARVA, EFFECT_INJECTLARVA, \
 SPAWNINGPOOL, RESEARCH_ZERGLINGMETABOLICBOOST, OVERLORD, EXTRACTOR, DRONE,\
@@ -6,12 +7,15 @@ QUEENSPAWNLARVATIMER, ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, ZERGLINGMOVEMENTSPE
 EVOLUTIONCHAMBER, RESEARCH_ZERGMELEEWEAPONSLEVEL1, RESEARCH_ZERGGROUNDARMORLEVEL1,\
 ZERGGROUNDARMORSLEVEL1, UPGRADETOLAIR_LAIR, RESEARCH_ZERGGROUNDARMORLEVEL2,\
 RESEARCH_ZERGMELEEWEAPONSLEVEL2, SCV, PROBE, INFESTATIONPIT, HIVE, LAIR, UPGRADETOHIVE_HIVE,\
-RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3, RESEARCH_ZERGLINGADRENALGLANDS,\
-CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, ULTRALISKCAVERN, ULTRALISK, RESEARCH_CHITINOUSPLATING,\
-INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS,\
-AUTOTURRET
+ZERGGROUNDARMORSLEVEL2, RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3,\
+RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE,ULTRALISKCAVERN, ULTRALISK,\
+RESEARCH_CHITINOUSPLATING, INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHOTONCANNON, BUNKER,\
+PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED
 
+from sc2.position import Point2, Point3 # for tumors
 from sc2.player import Bot, Computer
+from sc2.data import ActionResult # for tumors
+
 # TODO stop rebuilding lair - hive when all upgrades are done already
 # TODO make it search for bases when starting base is already destroyed(very important)
 # TODO add spine crawlers after first push(maybe)
@@ -31,6 +35,7 @@ class EarlyAggro(sc2.BotAI):
         self.flag2 = False
         self.actions = []
         self.close_enemies = []
+        self.base_queen_relation = {}
 
     async def on_step(self, iteration):
         self.close_enemies = []
@@ -39,12 +44,12 @@ class EarlyAggro(sc2.BotAI):
         await self.all_upgrades()
         await self.build_extrator()
         await self.build_hatchery()
-        await self.build_queens()
+        await self.build_queens_inject_larva()
+        await self.spread_creep()
         await self.build_units()
         await self.defend_attack()
         await self.defend_worker_rush()
         await self.distribute_workers()
-        await self.inject_larva()
         await self.morphing_townhalls()
         await self.do_actions(self.actions)
 
@@ -170,28 +175,92 @@ class EarlyAggro(sc2.BotAI):
                 return True
         return False
 
-    async def build_queens(self):
-        """Need to be changed so it builds extra queens for creep"""
-        queens = self.units(QUEEN)
-        hatchery = self.units(HATCHERY)
-        if hatchery.exists:
-            hatcheries_random = self.townhalls.random
-            if self.units(SPAWNINGPOOL).ready.exists:
-                if queens.amount < hatchery.amount and hatcheries_random.is_ready \
-                    and not self.already_pending(QUEEN)\
-                    and hatcheries_random.noqueue and self.supply_left > 1:
-                    if self.can_afford(QUEEN) and not queens.closer_than(8, hatcheries_random):
-                        self.actions.append(hatcheries_random.train(QUEEN))
 
-    async def inject_larva(self):
-        """It works perfectly"""
+    async def build_queens_inject_larva(self):
+        """ Assigns a queen per base and always have one queen to spread creep """
         queens = self.units(QUEEN)
-        hatchery = self.units(HATCHERY)
-        if hatchery.exists:
-            for queen in queens.idle:
-                selected = self.townhalls.closest_to(queen.position)
-                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                    self.actions.append(queen(EFFECT_INJECTLARVA, selected))
+
+        queen_with_no_base = queens.filter(lambda queen: queen.tag not in [unit.tag for unit in self.base_queen_relation.values()])
+        base_with_no_queen = self.townhalls.filter(lambda base: base.tag not in self.base_queen_relation.keys())
+
+        # Handle injection
+        for base in self.townhalls:
+            if base.tag in self.base_queen_relation:
+                queen = self.base_queen_relation[base.tag]
+
+                if not queen: # If queen is dead
+                    del self.base_queen_relation[base.tag]
+
+                if queen.energy >= 25 and not base.has_buff(QUEENSPAWNLARVATIMER):
+                    self.actions.append(queen(EFFECT_INJECTLARVA, base))
+
+
+        # Match queens to bases
+        for queen in queen_with_no_base:
+            if base_with_no_queen.exists:
+                base = base_with_no_queen.closest_to(queen)
+                self.base_queen_relation[base.tag] = queen_with_no_base.closest_to(base)
+                return # Make sure we don't overwrite
+            else:
+                #Spread creep
+                if queen.is_idle and queen.energy >= 25:
+                    await self.place_tumor(queen)
+
+        # Make more queens if needed
+        if 1 + base_with_no_queen.amount > queen_with_no_base.amount + self.already_pending(QUEEN):
+            base = base_with_no_queen.noqueue 
+
+            if not base.exists and self.townhalls.amount > 1:
+                base = self.townhalls.noqueue
+
+            if base.exists and self.can_afford(QUEEN) and self.supply_left >= 2:
+                    self.actions.append(base.random.train(QUEEN))
+
+    async def spread_creep(self):
+        """ Itereate over all tumors to spread itself """
+        tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+        for tumor in tumors:
+            await self.place_tumor(tumor)
+
+
+    async def place_tumor(self, unit):
+        """ Find a nice placement for the tumor and build it if possible. 
+        Makes creep to the center, needs a better value function for the spreading """
+        # Make sure unit can make tumor and what ability it is
+        abilities = await self.get_available_abilities(unit)
+        
+        if BUILD_CREEPTUMOR_QUEEN in abilities:
+            unit_ability = BUILD_CREEPTUMOR_QUEEN
+        elif BUILD_CREEPTUMOR_TUMOR in abilities:
+            unit_ability = BUILD_CREEPTUMOR_TUMOR
+        else: 
+            return
+
+        # defining vars
+        ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
+        locationAttempts = 30
+        spreadDistance = 8
+        location = unit.position
+
+        # Define random positions around unit
+        positions = [Point2((location.x + spreadDistance * math.cos(math.pi * alpha * 2 / locationAttempts), location.y + spreadDistance * math.sin(math.pi * alpha * 2 / locationAttempts))) for alpha in range(locationAttempts)]
+        # check if any of the positions are valid
+        validPlacements = await self._client.query_building_placement(ability, positions)
+        # filter valid results
+        validPlacements = [p for index, p in enumerate(positions) if validPlacements[index] == ActionResult.Success]
+        # now "validPlacements" will contain a list of points where it is possible to place creep tumors
+        # of course creep tumors have a limited range to place creep tumors but queens can move anywhere
+        if validPlacements:
+            tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+            if tumors.amount:
+                validPlacements = sorted(validPlacements, key=lambda pos: pos.distance_to_closest(tumors) - pos.distance_to(self._game_info.map_center), reverse=True)
+            else:
+                validPlacements = sorted(validPlacements, key=lambda pos: pos.distance_to(self._game_info.map_center))
+
+            for location in validPlacements:
+                err = await self.do(unit(unit_ability, location))
+                if not err:
+                    break
 
     async def build_ultralisk(self):
         """Good for now but it might need to be changed vs particular
@@ -335,6 +404,40 @@ class EarlyAggro(sc2.BotAI):
             self.actions.append(lair.ready.idle.first(UPGRADETOHIVE_HIVE))
         # Lair
         if self.townhalls.amount >= 4 and self.can_afford(UPGRADETOLAIR_LAIR)\
-            and not (lair.exists or hive.exists)\
-            and not any([await self.is_morphing(h) for h in base]):
-            self.actions.append(base.ready.idle.first(UPGRADETOLAIR_LAIR))
+            and not (self.units(LAIR).exists or self.units(HIVE).exists)\
+            and not any([await self.is_morphing(h) for h in self.units(HATCHERY)])\
+            and base.ready.idle.exists:
+            self.actions.append(self.units(HATCHERY).ready.idle.first(UPGRADETOLAIR_LAIR))
+
+    async def metabolic_boost(self):
+        """It sends 3 drones at the beginning to the extractor so it
+         immediately research metabolic boost when ready, but I don't know
+          how to take then off it right after needs improvement"""
+        if self.units(EXTRACTOR).ready.exists and not self.flag2:
+            self.flag2 = True
+            extractor = self.units(EXTRACTOR).first
+            for drone in self.workers.random_group_of(3):
+                self.actions.append(drone.gather(extractor))
+        pool = self.units(SPAWNINGPOOL)
+        if pool.ready.idle.exists:
+            available_research = await self.get_available_abilities(pool.first)
+            research_list = [RESEARCH_ZERGLINGMETABOLICBOOST, RESEARCH_ZERGLINGADRENALGLANDS]
+            for research in research_list:
+                if research in available_research and self.can_afford(research):
+                    self.actions.append(pool.first(research))
+
+    async def build_units(self):
+        """ Build one unit, the most prioritized at the moment """
+        if not self.units(LARVA).exists:
+            return
+        available_units_in_order = [
+            self.build_overlords,
+            self.build_workers,
+            self.build_zerglings,
+            self.build_ultralisk
+        ]
+        for build_unit_function in available_units_in_order:
+            """ The function returns if it wants to build the unit and might build it """
+            want_to_built_unit = await build_unit_function()
+            if want_to_built_unit:
+                break
