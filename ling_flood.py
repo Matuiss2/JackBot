@@ -425,15 +425,3 @@ class EarlyAggro(sc2.BotAI):
                 and not any([await self.is_morphing(h) for h in base])\
                 and self.units(HATCHERY).ready.idle.exists:
                 self.actions.append(base.ready.idle.first(UPGRADETOLAIR_LAIR))
-
-run_game(maps.get("AbyssalReefLE"), [
-    Bot(Race.Zerg, EarlyAggro()),
-    Computer(Race.Protoss, Difficulty.CheatMoney)], realtime=False)
-
-run_game(maps.get("AbyssalReefLE"), [
-    Bot(Race.Zerg, EarlyAggro()),
-    Computer(Race.Zerg, Difficulty.CheatMoney)], realtime=False)
-
-run_game(maps.get("AbyssalReefLE"), [
-    Bot(Race.Zerg, EarlyAggro()),
-    Computer(Race.Terran, Difficulty.CheatMoney)], realtime=False)
