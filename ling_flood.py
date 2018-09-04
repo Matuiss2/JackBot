@@ -199,6 +199,11 @@ class EarlyAggro(sc2.BotAI):
                     self.actions.append(queen(EFFECT_INJECTLARVA, selected))
                 elif queen.energy > 26:
                     await self.place_tumor(queen)
+            for hatch in hatchery.ready.noqueue:
+                if not queens.closer_than(8, hatch):
+                    for queen in queens:
+                        if not self.townhalls.closer_than(8, queen).exists:
+                            self.actions.append(queen.move(hatch.position))
 
     async def spread_creep(self):
         """ Itereate over all tumors to spread itself """
@@ -404,4 +409,3 @@ class EarlyAggro(sc2.BotAI):
             and not any([await self.is_morphing(h) for h in base])\
             and self.units(HATCHERY).ready.idle.exists:
             self.actions.append(base.ready.idle.first(UPGRADETOLAIR_LAIR))
-            
