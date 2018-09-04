@@ -185,14 +185,13 @@ class EarlyAggro(sc2.BotAI):
         if hatchery.exists:
             hatcheries_random = self.townhalls.random
             if self.units(SPAWNINGPOOL).ready.exists:
-                if queens.amount < hatchery.amount + 1 and hatcheries_random.is_ready \
+                if queens.amount < hatchery.ready.amount + 1 and hatcheries_random.is_ready \
                     and not self.already_pending(QUEEN)\
                     and hatcheries_random.noqueue and self.supply_left > 1:
                     if self.can_afford(QUEEN):
                         if not queens.closer_than(8, hatcheries_random):
                             self.actions.append(hatcheries_random.train(QUEEN))
                         elif queens.amount == hatchery.ready.amount:
-                            print(1)
                             self.actions.append(hatcheries_random.train(QUEEN))
             for queen in queens.idle:
                 selected = self.townhalls.closest_to(queen.position)
@@ -405,3 +404,4 @@ class EarlyAggro(sc2.BotAI):
             and not any([await self.is_morphing(h) for h in base])\
             and self.units(HATCHERY).ready.idle.exists:
             self.actions.append(base.ready.idle.first(UPGRADETOLAIR_LAIR))
+            
