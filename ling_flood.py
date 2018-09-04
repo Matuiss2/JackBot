@@ -133,6 +133,9 @@ class EarlyAggro(sc2.BotAI):
                     and gas.amount < 2 and not self.already_pending(EXTRACTOR):
                         self.actions.append(drone.build(EXTRACTOR, gaiser))
                         break
+                    elif self.time > 900 and gas.amount < 18 and self.already_pending(EXTRACTOR) < 3:
+                        self.actions.append(drone.build(EXTRACTOR, gaiser))
+                        break
                     elif pit.exists:
                         if self.already_pending(EXTRACTOR) < 2\
                         and gas.amount < 6:
@@ -257,9 +260,8 @@ class EarlyAggro(sc2.BotAI):
                 valid_placements = sorted(valid_placements,
                                           key=lambda pos: pos.distance_to(
                                               self.enemy_start_locations[0]))
-
-            for location in valid_placements:
-                self.actions.append(unit(unit_ability, location))
+        if valid_placements:
+            self.actions.append(unit(unit_ability, valid_placements[0]))
 
     async def build_ultralisk(self):
         """Good for now but it might need to be changed vs particular
@@ -423,4 +425,15 @@ class EarlyAggro(sc2.BotAI):
                 and not any([await self.is_morphing(h) for h in base])\
                 and self.units(HATCHERY).ready.idle.exists:
                 self.actions.append(base.ready.idle.first(UPGRADETOLAIR_LAIR))
-                
+
+run_game(maps.get("AbyssalReefLE"), [
+    Bot(Race.Zerg, EarlyAggro()),
+    Computer(Race.Protoss, Difficulty.CheatMoney)], realtime=False)
+
+run_game(maps.get("AbyssalReefLE"), [
+    Bot(Race.Zerg, EarlyAggro()),
+    Computer(Race.Zerg, Difficulty.CheatMoney)], realtime=False)
+
+run_game(maps.get("AbyssalReefLE"), [
+    Bot(Race.Zerg, EarlyAggro()),
+    Computer(Race.Terran, Difficulty.CheatMoney)], realtime=False)
