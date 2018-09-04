@@ -1,32 +1,32 @@
-import sc2
 import math
+import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.constants import HATCHERY, ZERGLING, QUEEN, LARVA, EFFECT_INJECTLARVA, \
 SPAWNINGPOOL, RESEARCH_ZERGLINGMETABOLICBOOST, OVERLORD, EXTRACTOR, DRONE,\
 QUEENSPAWNLARVATIMER, ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, ZERGLINGMOVEMENTSPEED,\
 EVOLUTIONCHAMBER, RESEARCH_ZERGMELEEWEAPONSLEVEL1, RESEARCH_ZERGGROUNDARMORLEVEL1,\
 ZERGGROUNDARMORSLEVEL1, UPGRADETOLAIR_LAIR, RESEARCH_ZERGGROUNDARMORLEVEL2,\
-RESEARCH_ZERGMELEEWEAPONSLEVEL2, SCV, PROBE, INFESTATIONPIT, HIVE, LAIR, UPGRADETOHIVE_HIVE,\
-ZERGGROUNDARMORSLEVEL2, RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3,\
-RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE,ULTRALISKCAVERN, ULTRALISK,\
+RESEARCH_ZERGMELEEWEAPONSLEVEL2, SCV, PROBE, INFESTATIONPIT, HIVE, UPGRADETOHIVE_HIVE,\
+RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3, LAIR, \
+RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, ULTRALISKCAVERN, ULTRALISK,\
 RESEARCH_CHITINOUSPLATING, INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHOTONCANNON, BUNKER,\
-PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED
-
-from sc2.position import Point2, Point3 # for tumors
-from sc2.player import Bot, Computer
+PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, CREEPTUMORQUEEN,\
+CREEPTUMOR, CREEPTUMORBURROWED, OVERSEER, CANCEL_MORPHOVERSEER, MORPH_OVERSEER, ZERGBUILD_CREEPTUMOR
+from sc2.position import Point2 # for tumors
 from sc2.data import ActionResult # for tumors
 
+from sc2.player import Bot, Computer
 # TODO stop rebuilding lair - hive when all upgrades are done already
 # TODO make it search for bases when starting base is already destroyed(very important)
 # TODO add spine crawlers after first push(maybe)
-# TODO improve the wave of attacks(most of time the second and more waves before the ultralisks just suicide without doing much)
+# TODO improve the wave of attacks
 # TODO dont follow the scouting worker all the way(3)
 # TODO not keep attacking when ramp is blocked or when its an impossible fight(3)
-# TODO better vision spread(3)
-# TODO add some detection(3)
-# TODO add Broodlords(3)
-# TODO 3rd expansion should be earlier(3)
-# TODO creepy spread implementation (will have to modify queen injection logic probably)
+# TODO better vision spread
+# TODO add some detection
+# TODO add Broodlords
+# TODO 3rd expansion should be earlier
+# TODO make spore crawlers if the enemy is going air
 
 class EarlyAggro(sc2.BotAI):
     """It makes one attack early then tried to make a very greedy transition"""
@@ -35,7 +35,6 @@ class EarlyAggro(sc2.BotAI):
         self.flag2 = False
         self.actions = []
         self.close_enemies = []
-        self.base_queen_relation = {}
 
     async def on_step(self, iteration):
         self.close_enemies = []
@@ -45,12 +44,12 @@ class EarlyAggro(sc2.BotAI):
         await self.build_extrator()
         await self.build_hatchery()
         await self.build_queens_inject_larva()
-        await self.spread_creep()
         await self.build_units()
-        await self.defend_attack()
         await self.defend_worker_rush()
         await self.distribute_workers()
+        await self.micro()
         await self.morphing_townhalls()
+        await self.spread_creep()
         await self.do_actions(self.actions)
 
     async def all_upgrades(self):
@@ -93,18 +92,22 @@ class EarlyAggro(sc2.BotAI):
         pool = self.units(SPAWNINGPOOL)
         # Evochamber
         if self.can_afford(EVOLUTIONCHAMBER) and self.townhalls.amount >= 3 \
-                and evochamber.amount < 2 and pool.exists and not self.already_pending(EVOLUTIONCHAMBER):
-            await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
+            and evochamber.amount < 2 and pool.exists\
+            and not self.already_pending(EVOLUTIONCHAMBER):
+            await self.build(EVOLUTIONCHAMBER,
+                             near=pool.first.position.towards(self._game_info.map_center, 3))
         # Infestor pit
         if self.can_afford(INFESTATIONPIT)\
-            and self.townhalls.exists and not self.already_pending(INFESTATIONPIT)\
-            and not self.units(INFESTATIONPIT).exists and self.units(LAIR).ready.exists:
-            await self.build(INFESTATIONPIT, near=self.units(EVOLUTIONCHAMBER).first.position)
+        and self.townhalls.exists and not self.already_pending(INFESTATIONPIT):
+            if not self.units(INFESTATIONPIT).exists and self.units(LAIR).ready.exists\
+            and self.units(EVOLUTIONCHAMBER).exists:
+                await self.build(INFESTATIONPIT, near=self.units(EVOLUTIONCHAMBER).first.position)
         # Spawning pool
         hatchery = self.units(HATCHERY)
         if self.can_afford(SPAWNINGPOOL) and not self.units(SPAWNINGPOOL).exists \
                 and not self.already_pending(SPAWNINGPOOL) and hatchery.amount == 2:
-            await self.build(SPAWNINGPOOL, near=hatchery.first.position.towards(self._game_info.map_center, 5))
+            await self.build(SPAWNINGPOOL,
+                             near=hatchery.first.position.towards(self._game_info.map_center, 5))
         # Ultra cavern
         if self.units(HIVE).exists and self.can_afford(ULTRALISKCAVERN)\
         and not self.already_pending(ULTRALISKCAVERN) and not self.units(ULTRALISKCAVERN).exists\
@@ -146,7 +149,8 @@ class EarlyAggro(sc2.BotAI):
         Logic can be improved, the way to check for close enemies is way to inefficient"""
         try:
             for hacth in self.townhalls:
-                enemies = self.known_enemy_units.not_structure.closer_than(35, hacth.position).exclude_type([DRONE, SCV, PROBE])
+                close_enemy = self.known_enemy_units.not_structure.closer_than(35, hacth.position)
+                enemies = close_enemy.exclude_type([DRONE, SCV, PROBE])
                 if enemies:
                     self.close_enemies.append(1)
             if self.minerals > 175 and self.townhalls.amount < 2 and not self.flag1:
@@ -175,46 +179,27 @@ class EarlyAggro(sc2.BotAI):
                 return True
         return False
 
-
     async def build_queens_inject_larva(self):
-        """ Assigns a queen per base and always have one queen to spread creep """
         queens = self.units(QUEEN)
-
-        queen_with_no_base = queens.filter(lambda queen: queen.tag not in [unit.tag for unit in self.base_queen_relation.values()])
-        base_with_no_queen = self.townhalls.filter(lambda base: base.tag not in self.base_queen_relation.keys())
-
-        # Handle injection
-        for base in self.townhalls:
-            if base.tag in self.base_queen_relation:
-                queen = self.base_queen_relation[base.tag]
-
-                if not queen: # If queen is dead
-                    del self.base_queen_relation[base.tag]
-
-                if queen.energy >= 25 and not base.has_buff(QUEENSPAWNLARVATIMER):
-                    self.actions.append(queen(EFFECT_INJECTLARVA, base))
-
-
-        # Match queens to bases
-        for queen in queen_with_no_base:
-            if base_with_no_queen.exists:
-                base = base_with_no_queen.closest_to(queen)
-                self.base_queen_relation[base.tag] = queen_with_no_base.closest_to(base)
-                return # Make sure we don't overwrite
-            else:
-                #Spread creep
-                if queen.is_idle and queen.energy >= 25:
+        hatchery = self.townhalls
+        if hatchery.exists:
+            hatcheries_random = self.townhalls.random
+            if self.units(SPAWNINGPOOL).ready.exists:
+                if queens.amount < hatchery.amount + 1and hatcheries_random.is_ready \
+                    and not self.already_pending(QUEEN)\
+                    and hatcheries_random.noqueue and self.supply_left > 1:
+                    if self.can_afford(QUEEN):
+                        if not queens.closer_than(8, hatcheries_random):
+                            self.actions.append(hatcheries_random.train(QUEEN))
+                        elif queens.amount == hatchery.ready.amount:
+                            print(1)
+                            self.actions.append(hatcheries_random.train(QUEEN))
+            for queen in queens.idle:
+                selected = self.townhalls.closest_to(queen.position)
+                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
+                    self.actions.append(queen(EFFECT_INJECTLARVA, selected))
+                elif queen.energy > 26:
                     await self.place_tumor(queen)
-
-        # Make more queens if needed
-        if 1 + base_with_no_queen.amount > queen_with_no_base.amount + self.already_pending(QUEEN):
-            base = base_with_no_queen.noqueue 
-
-            if not base.exists and self.townhalls.amount > 1:
-                base = self.townhalls.noqueue
-
-            if base.exists and self.can_afford(QUEEN) and self.supply_left >= 2:
-                    self.actions.append(base.random.train(QUEEN))
 
     async def spread_creep(self):
         """ Itereate over all tumors to spread itself """
@@ -222,45 +207,46 @@ class EarlyAggro(sc2.BotAI):
         for tumor in tumors:
             await self.place_tumor(tumor)
 
-
     async def place_tumor(self, unit):
-        """ Find a nice placement for the tumor and build it if possible. 
+        """ Find a nice placement for the tumor and build it if possible.
         Makes creep to the center, needs a better value function for the spreading """
         # Make sure unit can make tumor and what ability it is
         abilities = await self.get_available_abilities(unit)
-        
         if BUILD_CREEPTUMOR_QUEEN in abilities:
             unit_ability = BUILD_CREEPTUMOR_QUEEN
         elif BUILD_CREEPTUMOR_TUMOR in abilities:
             unit_ability = BUILD_CREEPTUMOR_TUMOR
-        else: 
+        else:
             return
-
         # defining vars
         ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
-        locationAttempts = 30
-        spreadDistance = 8
+        location_attempts = 30
+        spread_distance = 8
         location = unit.position
 
         # Define random positions around unit
-        positions = [Point2((location.x + spreadDistance * math.cos(math.pi * alpha * 2 / locationAttempts), location.y + spreadDistance * math.sin(math.pi * alpha * 2 / locationAttempts))) for alpha in range(locationAttempts)]
+        positions = [Point2((location.x + spread_distance * math.cos(math.pi * alpha * 2 / location_attempts),
+                             location.y + spread_distance * math.sin(math.pi * alpha * 2 / location_attempts))) for alpha
+                     in range(location_attempts)]
         # check if any of the positions are valid
-        validPlacements = await self._client.query_building_placement(ability, positions)
+        valid_placements = await self._client.query_building_placement(ability, positions)
         # filter valid results
-        validPlacements = [p for index, p in enumerate(positions) if validPlacements[index] == ActionResult.Success]
-        # now "validPlacements" will contain a list of points where it is possible to place creep tumors
-        # of course creep tumors have a limited range to place creep tumors but queens can move anywhere
-        if validPlacements:
+        valid_placements = [p for index, p in enumerate(positions)
+                            if valid_placements[index] == ActionResult.Success]
+        if valid_placements:
             tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
             if tumors.amount:
-                validPlacements = sorted(validPlacements, key=lambda pos: pos.distance_to_closest(tumors) - pos.distance_to(self._game_info.map_center), reverse=True)
+                valid_placements = sorted(valid_placements,
+                                          key=lambda pos: pos.distance_to_closest(tumors)
+                                          - pos.distance_to(
+                                              self.enemy_start_locations[0]), reverse=True)
             else:
-                validPlacements = sorted(validPlacements, key=lambda pos: pos.distance_to(self._game_info.map_center))
+                valid_placements = sorted(valid_placements,
+                                          key=lambda pos: pos.distance_to(
+                                              self.enemy_start_locations[0]))
 
-            for location in validPlacements:
-                err = await self.do(unit(unit_ability, location))
-                if not err:
-                    break
+            for location in valid_placements:
+                self.actions.append(unit(unit_ability, location))
 
     async def build_ultralisk(self):
         """Good for now but it might need to be changed vs particular
@@ -278,8 +264,9 @@ class EarlyAggro(sc2.BotAI):
         workers_total = self.workers.amount
         larva = self.units(LARVA)
         for hacth in self.townhalls:
-            enemies = self.known_enemy_units.not_structure.closer_than(35, hacth.position).exclude_type(
-                [DRONE, SCV, PROBE])
+            enemies = self.known_enemy_units.not_structure.closer_than(
+                35, hacth.position).exclude_type(
+                    [DRONE, SCV, PROBE])
             if enemies:
                 self.close_enemies.append(1)
         if not self.close_enemies:
@@ -299,7 +286,8 @@ class EarlyAggro(sc2.BotAI):
                     return True
             if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1\
                 and workers_total < self.townhalls.ready.amount * 18 \
-                and larva.exists and workers_total < 89:
+                and larva.exists and workers_total < 89\
+                and self.units(ZERGLING).amount > 13:
                 self.actions.append(larva.random.train(DRONE))
                 return True
         return False
@@ -333,27 +321,60 @@ class EarlyAggro(sc2.BotAI):
             if want_to_built_unit:
                 break
 
-    async def defend_attack(self):
+    async def defend_worker_rush(self):
+        """Its the way I found to defend simple worker rushes,
+         I don't know if it beats complexes worker rushes like tyr's bot,
+        also it follows scouting workers all the way"""
+        base = self.units(HATCHERY)
+        if self.known_enemy_units.exists and base.exists:
+            enemy_units_close = self.known_enemy_units.closer_than(
+                5, base.first).of_type([PROBE, DRONE, SCV])
+            if enemy_units_close.exists and self.townhalls.amount < 2:
+                selected_worker = self.workers.first
+                if len(enemy_units_close) == 1:
+                    self.actions.append(selected_worker.attack(
+                        self.known_enemy_units.closest_to(selected_worker.position)))
+                else:
+                    for worker in self.workers:
+                        self.actions.append(worker.attack(
+                            self.known_enemy_units.closest_to(worker.position)))
+
+    async def is_morphing(self, homecity):
+        """Check if a base is morphing, good enough for now"""
+        abilities = await self.get_available_abilities(homecity)
+        morphing_upgrades = [CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, CANCEL_MORPHOVERSEER]
+        for morph in morphing_upgrades:
+            if morph in abilities:
+                return True
+        return False
+
+    async def micro(self):
         """Micro function, its just slight better than a-move, need A LOT of improvements"""
         '''good_health = [z for z in self.units(ZERGLING) if z.health > 10]
         bad_health = (zb for zb in self.units(ZERGLING) if zb.health <= 9)
-                '''
+        '''
         enemy_build = self.known_enemy_structures
         excluded_units = [ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN, AUTOTURRET]
         filtered_enemies = self.known_enemy_units.not_structure.exclude_type(excluded_units)
         static_defence = self.known_enemy_units.of_type([SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS])
         target = static_defence | filtered_enemies.not_flying
-        zergl = self.units(ZERGLING)
-        if zergl.exists:
-            for zergling in zergl + self.units(ULTRALISK):
-                if target.closer_than(17, zergling.position).exists:
-                    self.actions.append(zergling.attack(target.closest_to(zergling.position)))
-                elif enemy_build.closer_than(35, zergling.position).exists:
-                    self.actions.append(zergling.attack(enemy_build.closest_to(zergling.position)))
-                elif zergl.amount <= 29:
-                    self.actions.append(zergling.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11)))
-                elif zergling.position.distance_to(self.enemy_start_locations[0]) > 0 and zergl.amount > 29:
-                    self.actions.append(zergling.attack(self.enemy_start_locations[0]))
+        atk_force = self.units(ZERGLING)| self.units(ULTRALISK)
+        for attacking_unit in atk_force:
+            if target.closer_than(17, attacking_unit.position).exists:
+                self.actions.append(attacking_unit.attack(
+                    target.closest_to(attacking_unit.position)))
+            elif enemy_build.closer_than(35, attacking_unit.position).exists:
+                self.actions.append(attacking_unit.attack(
+                    enemy_build.closest_to(attacking_unit.position)))
+            elif atk_force.amount <= 27:
+                self.actions.append(attacking_unit.move(
+                    self._game_info.map_center.towards(self.enemy_start_locations[0], 11)))
+            elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0\
+                and atk_force.amount > 27:
+                self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+        for detection in self.units(OVERSEER):
+            if atk_force.exists:
+                self.actions.append(detection.move(atk_force.closest_to(detection.position)))
         '''
         elif zergl.exists:
             for zergling in zergl:
@@ -368,30 +389,6 @@ class EarlyAggro(sc2.BotAI):
                     if self.units(HATCHERY).exists:
                         self.actions.append(zergling.move(self.units(HATCHERY).closest_to(zergling.position)))'''
 
-    async def defend_worker_rush(self):
-        """Its the way I found to defend simple worker rushes,
-         I don't know if it beats complexes worker rushes like tyr's bot,
-        also it follows scouting workers all the way"""
-        base = self.units(HATCHERY)
-        if self.known_enemy_units.exists and base.exists:
-            enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
-            if enemy_units_close.exists and self.townhalls.amount < 2:
-                selected_worker = self.workers.first
-                if len(enemy_units_close) == 1:
-                    self.actions.append(selected_worker.attack(self.known_enemy_units.closest_to(selected_worker.position)))
-                else:
-                    for worker in self.workers:
-                        self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
-
-    async def is_morphing(self, homecity):
-        """Check if a base is morphing, good enough for now"""
-        abilities = await self.get_available_abilities(homecity)
-        morphing_upgrades = [CANCEL_MORPHLAIR, CANCEL_MORPHHIVE]
-        for morph in morphing_upgrades:
-            if morph in abilities:
-                return True
-        return False
-
     async def morphing_townhalls(self):
         """Works well, maybe the timing can be improved"""
         lair = self.units(LAIR)
@@ -404,40 +401,7 @@ class EarlyAggro(sc2.BotAI):
             self.actions.append(lair.ready.idle.first(UPGRADETOHIVE_HIVE))
         # Lair
         if self.townhalls.amount >= 4 and self.can_afford(UPGRADETOLAIR_LAIR)\
-            and not (self.units(LAIR).exists or self.units(HIVE).exists)\
-            and not any([await self.is_morphing(h) for h in self.units(HATCHERY)])\
-            and base.ready.idle.exists:
-            self.actions.append(self.units(HATCHERY).ready.idle.first(UPGRADETOLAIR_LAIR))
-
-    async def metabolic_boost(self):
-        """It sends 3 drones at the beginning to the extractor so it
-         immediately research metabolic boost when ready, but I don't know
-          how to take then off it right after needs improvement"""
-        if self.units(EXTRACTOR).ready.exists and not self.flag2:
-            self.flag2 = True
-            extractor = self.units(EXTRACTOR).first
-            for drone in self.workers.random_group_of(3):
-                self.actions.append(drone.gather(extractor))
-        pool = self.units(SPAWNINGPOOL)
-        if pool.ready.idle.exists:
-            available_research = await self.get_available_abilities(pool.first)
-            research_list = [RESEARCH_ZERGLINGMETABOLICBOOST, RESEARCH_ZERGLINGADRENALGLANDS]
-            for research in research_list:
-                if research in available_research and self.can_afford(research):
-                    self.actions.append(pool.first(research))
-
-    async def build_units(self):
-        """ Build one unit, the most prioritized at the moment """
-        if not self.units(LARVA).exists:
-            return
-        available_units_in_order = [
-            self.build_overlords,
-            self.build_workers,
-            self.build_zerglings,
-            self.build_ultralisk
-        ]
-        for build_unit_function in available_units_in_order:
-            """ The function returns if it wants to build the unit and might build it """
-            want_to_built_unit = await build_unit_function()
-            if want_to_built_unit:
-                break
+            and not (lair.exists or hive.exists)\
+            and not any([await self.is_morphing(h) for h in base])\
+            and self.units(HATCHERY).ready.idle.exists:
+            self.actions.append(base.ready.idle.first(UPGRADETOLAIR_LAIR))
