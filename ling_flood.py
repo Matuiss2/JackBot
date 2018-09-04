@@ -185,7 +185,7 @@ class EarlyAggro(sc2.BotAI):
         if hatchery.exists:
             hatcheries_random = self.townhalls.random
             if self.units(SPAWNINGPOOL).ready.exists:
-                if queens.amount < hatchery.amount + 1and hatcheries_random.is_ready \
+                if queens.amount < hatchery.amount + 1 and hatcheries_random.is_ready \
                     and not self.already_pending(QUEEN)\
                     and hatcheries_random.noqueue and self.supply_left > 1:
                     if self.can_afford(QUEEN):
