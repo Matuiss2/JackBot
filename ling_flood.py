@@ -35,6 +35,7 @@ class EarlyAggro(sc2.BotAI):
         self.flag2 = False
         self.actions = []
         self.close_enemies = []
+        self.used_tumors = []
 
     async def on_step(self, iteration):
         self.close_enemies = []
@@ -220,8 +221,10 @@ class EarlyAggro(sc2.BotAI):
     async def spread_creep(self):
         """ Itereate over all tumors to spread itself """
         tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+
         for tumor in tumors:
-            await self.place_tumor(tumor)
+            if tumor.tag not in self.used_tumors:
+                await self.place_tumor(tumor)
 
     async def place_tumor(self, unit):
         """ Find a nice placement for the tumor and build it if possible.
@@ -262,6 +265,8 @@ class EarlyAggro(sc2.BotAI):
                                               self.enemy_start_locations[0]))
         if valid_placements:
             self.actions.append(unit(unit_ability, valid_placements[0]))
+            if unit_ability == BUILD_CREEPTUMOR_TUMOR: # if tumor
+                self.used_tumors.append(unit.tag)
 
     async def build_ultralisk(self):
         """Good for now but it might need to be changed vs particular
