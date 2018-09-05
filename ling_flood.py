@@ -12,21 +12,21 @@ RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, ULTRALISKCAV
 RESEARCH_CHITINOUSPLATING, INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHOTONCANNON, BUNKER,\
 PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, CREEPTUMORQUEEN,\
 CREEPTUMOR, CREEPTUMORBURROWED, OVERSEER, CANCEL_MORPHOVERSEER, MORPH_OVERSEER, ZERGBUILD_CREEPTUMOR,\
-ZERGGROUNDARMORSLEVEL3, ZERGMELEEWEAPONSLEVEL3, ZERGLINGATTACKSPEED
+ZERGGROUNDARMORSLEVEL3, ZERGMELEEWEAPONSLEVEL3, ZERGLINGATTACKSPEED, OVERLORDCOCOON
 from sc2.position import Point2 # for tumors
 from sc2.data import ActionResult # for tumors
-
 from sc2.player import Bot, Computer
+
 # TODO make it search for bases when starting base is already destroyed(very important)
 # TODO add spine crawlers after first push(maybe)
 # TODO improve the wave of attacks
 # TODO dont follow the scouting worker all the way(3)
 # TODO not keep attacking when ramp is blocked or when its an impossible fight(3)
-# TODO better vision spread
-# TODO add some detection
+# TODO maybe add overlord speed for the overseer(maybe)
 # TODO add Broodlords
 # TODO 3rd expansion should be earlier
 # TODO make spore crawlers if the enemy is going air
+# TODO smarter late vespene gathering
 
 class EarlyAggro(sc2.BotAI):
     """It makes one attack early then tried to make a very greedy transition"""
@@ -46,6 +46,7 @@ class EarlyAggro(sc2.BotAI):
         await self.build_hatchery()
         await self.build_units()
         await self.defend_worker_rush()
+        await self.detection()
         await self.distribute_workers()
         await self.micro()
         await self.morphing_townhalls()
@@ -307,7 +308,7 @@ class EarlyAggro(sc2.BotAI):
             if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1\
                 and workers_total < self.townhalls.ready.amount * 18.5 \
                 and larva.exists and workers_total < 89\
-                and self.units(ZERGLING).amount > 13:
+                and self.units(ZERGLING).amount > 5:
                 self.actions.append(larva.random.train(DRONE))
                 return True
         return False
@@ -359,6 +360,15 @@ class EarlyAggro(sc2.BotAI):
                     for worker in self.workers:
                         self.actions.append(worker.attack(
                             self.known_enemy_units.closest_to(worker.position)))
+
+    async def detection(self):
+        """Morph overseers"""
+        lords = self.units(OVERLORDCOCOON)
+        if self.units(ULTRALISKCAVERN).ready.exists and self.can_afford(OVERSEER) \
+                and self.units(OVERLORD).exists:
+            if not any([await self.is_morphing(h) for h in lords]):
+                if not self.units(OVERSEER).exists:
+                    self.actions.append(self.units(OVERLORD).random(MORPH_OVERSEER))
 
     async def is_morphing(self, homecity):
         """Check if a base is morphing, good enough for now"""
