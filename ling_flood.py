@@ -14,7 +14,7 @@ RESEARCH_CHITINOUSPLATING, INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHO
 PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, CREEPTUMORQUEEN,\
 CREEPTUMOR, CREEPTUMORBURROWED, OVERSEER, CANCEL_MORPHOVERSEER, MORPH_OVERSEER,\
 ZERGBUILD_CREEPTUMOR, ZERGGROUNDARMORSLEVEL3, ZERGMELEEWEAPONSLEVEL3, ZERGLINGATTACKSPEED,\
-OVERLORDCOCOON
+OVERLORDCOCOON, SPORECRAWLER
 from sc2.position import Point2 # for tumors
 from sc2.data import ActionResult # for tumors
 from sc2.player import Bot, Computer
@@ -24,6 +24,7 @@ class EarlyAggro(sc2.BotAI):
     def __init__(self):
         self.flag1 = False
         self.flag2 = False
+        self.flag3 = False
         self.actions = []
         self.close_enemies = []
         self.used_tumors = []
@@ -50,7 +51,7 @@ class EarlyAggro(sc2.BotAI):
         # Evochamber
         evochamber = self.units(EVOLUTIONCHAMBER)
         cavern = self.units(ULTRALISKCAVERN)
-        pool = self.units(SPAWNINGPOOL)
+        pool = self.units(SPAWNINGPOOL).ready
         if evochamber.ready.idle.exists:
             for evo in evochamber.ready.idle:
                 abilities = await self.get_available_abilities(evo)
@@ -71,18 +72,20 @@ class EarlyAggro(sc2.BotAI):
             if RESEARCH_CHITINOUSPLATING in available_research \
                     and self.can_afford(RESEARCH_CHITINOUSPLATING):
                 self.actions.append(cavern.first(RESEARCH_CHITINOUSPLATING))
-        # pool upgrades
-        if pool.ready.idle.exists:
+        # Pool upgrades
+        if pool.idle.exists:
             available_research = await self.get_available_abilities(pool.first)
             research_list = [RESEARCH_ZERGLINGMETABOLICBOOST, RESEARCH_ZERGLINGADRENALGLANDS]
             for research in research_list:
                 if research in available_research and self.can_afford(research):
                     self.actions.append(pool.first(research))
 
+
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
         evochamber = self.units(EVOLUTIONCHAMBER)
         pool = self.units(SPAWNINGPOOL)
+        spores = self.units(SPORECRAWLER)        
         # Evochamber
         if self.can_afford(EVOLUTIONCHAMBER) and self.townhalls.amount >= 3 \
             and evochamber.amount < 2 and pool.exists\
@@ -106,6 +109,15 @@ class EarlyAggro(sc2.BotAI):
         and not self.already_pending(ULTRALISKCAVERN) and not self.units(ULTRALISKCAVERN).exists\
                 and evochamber.exists:
             await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
+        # Spore crawlers
+        if len([au for au in self.known_enemy_units.flying if au.can_attack_ground]) \
+        and not self.flag3: # If any unit of the type exist on any time, it will build the spore crawlers
+            self.flag3 = True
+        if self.townhalls.exists and pool.exists and self.flag3:
+            selected_base = self.townhalls.random
+            if spores.amount < self.townhalls.ready.amount:
+                if not spores.closer_than(8, selected_base.position).exists:
+                    await self.build(SPORECRAWLER, near=selected_base.position)
 
     async def build_extrator(self):
         """Couldnt find another way to build the gaisers its way to inefficient"""
