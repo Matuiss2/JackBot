@@ -11,12 +11,12 @@ TODO improve the wave of attacks
 TODO dont follow the scouting worker all the way
 
 TODO not keep attacking when ramp is blocked or when its an impossible fight
-TODO maybe add overlord speed for the overseer(maybe)
+
+TODO add overlord speed for the overseer(maybe)
 
 TODO add Broodlords
-TODO 3rd expansion should be earlier
 
-TODO make spore crawlers if the enemy is going air
+TODO improve and test spore crawler implementation
 
 TODO smarter late vespene gathering
 
