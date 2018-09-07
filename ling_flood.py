@@ -3,24 +3,26 @@ import math
 import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.constants import HATCHERY, ZERGLING, QUEEN, LARVA, EFFECT_INJECTLARVA, \
-SPAWNINGPOOL, RESEARCH_ZERGLINGMETABOLICBOOST, OVERLORD, EXTRACTOR, DRONE,\
-QUEENSPAWNLARVATIMER, ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, ZERGLINGMOVEMENTSPEED,\
-EVOLUTIONCHAMBER, RESEARCH_ZERGMELEEWEAPONSLEVEL1, RESEARCH_ZERGGROUNDARMORLEVEL1,\
-ZERGGROUNDARMORSLEVEL1, UPGRADETOLAIR_LAIR, RESEARCH_ZERGGROUNDARMORLEVEL2,\
-RESEARCH_ZERGMELEEWEAPONSLEVEL2, SCV, PROBE, INFESTATIONPIT, HIVE, UPGRADETOHIVE_HIVE,\
-RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3, LAIR, \
-RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, ULTRALISKCAVERN, ULTRALISK,\
-RESEARCH_CHITINOUSPLATING, INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHOTONCANNON, BUNKER,\
-PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, CREEPTUMORQUEEN,\
-CREEPTUMOR, CREEPTUMORBURROWED, OVERSEER, CANCEL_MORPHOVERSEER, MORPH_OVERSEER,\
-ZERGBUILD_CREEPTUMOR, ZERGGROUNDARMORSLEVEL3, ZERGMELEEWEAPONSLEVEL3, ZERGLINGATTACKSPEED,\
-OVERLORDCOCOON, SPORECRAWLER
-from sc2.position import Point2 # for tumors
-from sc2.data import ActionResult # for tumors
+    SPAWNINGPOOL, RESEARCH_ZERGLINGMETABOLICBOOST, OVERLORD, EXTRACTOR, DRONE, \
+    QUEENSPAWNLARVATIMER, ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, ZERGLINGMOVEMENTSPEED, \
+    EVOLUTIONCHAMBER, RESEARCH_ZERGMELEEWEAPONSLEVEL1, RESEARCH_ZERGGROUNDARMORLEVEL1, \
+    ZERGGROUNDARMORSLEVEL1, UPGRADETOLAIR_LAIR, RESEARCH_ZERGGROUNDARMORLEVEL2, \
+    RESEARCH_ZERGMELEEWEAPONSLEVEL2, SCV, PROBE, INFESTATIONPIT, HIVE, UPGRADETOHIVE_HIVE, \
+    RESEARCH_ZERGMELEEWEAPONSLEVEL3, RESEARCH_ZERGGROUNDARMORLEVEL3, LAIR, \
+    RESEARCH_ZERGLINGADRENALGLANDS, CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, ULTRALISKCAVERN, \
+    RESEARCH_CHITINOUSPLATING, INFESTEDTERRANSEGG, INFESTEDTERRAN, SPINECRAWLER, PHOTONCANNON, \
+    BUNKER, PLANETARYFORTRESS, AUTOTURRET, BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, \
+    CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, OVERSEER, CANCEL_MORPHOVERSEER, \
+    ZERGBUILD_CREEPTUMOR, ZERGGROUNDARMORSLEVEL3, ZERGMELEEWEAPONSLEVEL3, ZERGLINGATTACKSPEED, \
+    OVERLORDCOCOON, SPORECRAWLER, ULTRALISK, MORPH_OVERSEER
+from sc2.position import Point2  # for tumors
+from sc2.data import ActionResult  # for tumors
 from sc2.player import Bot, Computer
+
 
 class EarlyAggro(sc2.BotAI):
     """It makes one attack early then tried to make a very greedy transition"""
+
     def __init__(self):
         self.flag1 = False
         self.flag2 = False
@@ -80,23 +82,22 @@ class EarlyAggro(sc2.BotAI):
                 if research in available_research and self.can_afford(research):
                     self.actions.append(pool.first(research))
 
-
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
         evochamber = self.units(EVOLUTIONCHAMBER)
         pool = self.units(SPAWNINGPOOL)
-        spores = self.units(SPORECRAWLER)        
+        spores = self.units(SPORECRAWLER)
         # Evochamber
         if self.can_afford(EVOLUTIONCHAMBER) and self.townhalls.amount >= 3 \
-            and evochamber.amount < 2 and pool.exists\
-            and not self.already_pending(EVOLUTIONCHAMBER):
+                and evochamber.amount < 2 and pool.exists \
+                and not self.already_pending(EVOLUTIONCHAMBER):
             await self.build(EVOLUTIONCHAMBER,
                              near=pool.first.position.towards(self._game_info.map_center, 3))
         # Infestor pit
-        if self.can_afford(INFESTATIONPIT)\
-        and self.townhalls.exists and not self.already_pending(INFESTATIONPIT):
-            if not self.units(INFESTATIONPIT).exists and self.units(LAIR).ready.exists\
-            and self.units(EVOLUTIONCHAMBER).exists:
+        if self.can_afford(INFESTATIONPIT) \
+                and self.townhalls.exists and not self.already_pending(INFESTATIONPIT):
+            if not self.units(INFESTATIONPIT).exists and self.units(LAIR).ready.exists \
+                    and self.units(EVOLUTIONCHAMBER).exists:
                 await self.build(INFESTATIONPIT, near=self.units(EVOLUTIONCHAMBER).first.position)
         # Spawning pool
         hatchery = self.units(HATCHERY)
@@ -105,18 +106,20 @@ class EarlyAggro(sc2.BotAI):
             await self.build(SPAWNINGPOOL,
                              near=hatchery.first.position.towards(self._game_info.map_center, 5))
         # Ultra cavern
-        if self.units(HIVE).exists and self.can_afford(ULTRALISKCAVERN)\
-        and not self.already_pending(ULTRALISKCAVERN) and not self.units(ULTRALISKCAVERN).exists\
+        if self.units(HIVE).exists and self.can_afford(ULTRALISKCAVERN) \
+                and not self.already_pending(ULTRALISKCAVERN) \
+                and not self.units(ULTRALISKCAVERN).exists \
                 and evochamber.exists:
             await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
         # Spore crawlers
-        if len([au for au in self.known_enemy_units.flying if au.can_attack_ground]) \
-        and not self.flag3: # If any unit of the type exist on any time, it will build the spore crawlers
+        air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
+        if air_units and not self.flag3:  # If any unit of the type exist build the spore crawlers
             self.flag3 = True
         if self.townhalls.exists and pool.exists and self.flag3:
             selected_base = self.townhalls.random
             if spores.amount < self.townhalls.ready.amount:
-                if not spores.closer_than(8, selected_base.position).exists:
+                if not spores.closer_than(8, selected_base.position).exists \
+                        and self.can_afford(SPORECRAWLER):
                     await self.build(SPORECRAWLER, near=selected_base.position)
 
     async def build_extrator(self):
@@ -134,17 +137,17 @@ class EarlyAggro(sc2.BotAI):
                         if not self.already_pending(EXTRACTOR):
                             self.actions.append(drone.build(EXTRACTOR, gaiser))
                             break
-                    elif self.units(EVOLUTIONCHAMBER).ready.amount == 2\
-                    and gas.amount < 2 and not self.already_pending(EXTRACTOR):
+                    elif self.units(EVOLUTIONCHAMBER).ready.amount == 2 \
+                            and gas.amount < 2 and not self.already_pending(EXTRACTOR):
                         self.actions.append(drone.build(EXTRACTOR, gaiser))
                         break
-                    elif self.time > 900 and gas.amount < 8\
-                        and self.already_pending(EXTRACTOR) < 2:
+                    elif self.time > 900 and gas.amount < 8 \
+                            and self.already_pending(EXTRACTOR) < 2:
                         self.actions.append(drone.build(EXTRACTOR, gaiser))
                         break
                     elif pit.exists:
-                        if not self.already_pending(EXTRACTOR)\
-                        and gas.amount < 7:
+                        if not self.already_pending(EXTRACTOR) \
+                                and gas.amount < 7:
                             self.actions.append(drone.build(EXTRACTOR, gaiser))
                             break
         if gas.ready.exists and not self.flag2:
@@ -165,12 +168,12 @@ class EarlyAggro(sc2.BotAI):
             if self.minerals > 175 and self.townhalls.amount < 2 and not self.flag1:
                 self.flag1 = True
                 self.actions.append(self.workers.first.move(await self.get_next_expansion()))
-            if self.can_afford(HATCHERY) and not self.already_pending(HATCHERY)\
-                and not self.close_enemies:
+            if self.can_afford(HATCHERY) and not self.already_pending(HATCHERY) \
+                    and not self.close_enemies:
                 if self.townhalls.amount < 3:
                     await self.expand_now()
-                elif self.townhalls.amount >= 3\
-                    and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
+                elif self.townhalls.amount >= 3 \
+                        and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
                     await self.expand_now()
         except AssertionError:
             print("damn it")
@@ -196,8 +199,8 @@ class EarlyAggro(sc2.BotAI):
             hatcheries_random = self.townhalls.random
             if self.units(SPAWNINGPOOL).ready.exists:
                 if queens.amount < hatchery.ready.amount + 1 and hatcheries_random.is_ready \
-                    and not self.already_pending(QUEEN)\
-                    and hatcheries_random.noqueue and self.supply_left > 1:
+                        and not self.already_pending(QUEEN) \
+                        and hatcheries_random.noqueue and self.supply_left > 1:
                     if self.can_afford(QUEEN):
                         if not queens.closer_than(8, hatcheries_random):
                             self.actions.append(hatcheries_random.train(QUEEN))
@@ -227,18 +230,17 @@ class EarlyAggro(sc2.BotAI):
         gaiser = self.units(EXTRACTOR)
         for hacth in self.townhalls:
             enemies = self.known_enemy_units.not_structure.closer_than(
-                35, hacth.position).exclude_type(
-                    [DRONE, SCV, PROBE])
+                35, hacth.position).exclude_type([DRONE, SCV, PROBE])
             if enemies:
                 self.close_enemies.append(1)
         if not self.close_enemies:
             if workers_total == 12 and larva.exists and not self.already_pending(DRONE):
                 self.actions.append(larva.random.train(DRONE))
                 return True
-            if workers_total in [13, 14, 15] and self.can_afford(DRONE)\
-                and self.supply_left > 0\
-                and larva.exists\
-                and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1:
+            if workers_total in [13, 14, 15] and self.can_afford(DRONE) \
+                    and self.supply_left > 0 \
+                    and larva.exists \
+                    and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1:
                 if workers_total == 15:
                     if gaiser.exists and self.units(SPAWNINGPOOL).exists:
                         self.actions.append(larva.random.train(DRONE))
@@ -246,10 +248,10 @@ class EarlyAggro(sc2.BotAI):
                 else:
                     self.actions.append(larva.random.train(DRONE))
                     return True
-            if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1\
-                and workers_total < self.townhalls.ready.amount * 19 \
-                and larva.exists and workers_total < 92 - gaiser.amount\
-                and self.units(ZERGLING).exists:
+            if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1 \
+                    and workers_total < self.townhalls.ready.amount * 19 \
+                    and larva.exists and workers_total < 92 - gaiser.amount \
+                    and self.units(ZERGLING).exists:
                 self.actions.append(larva.random.train(DRONE))
                 return True
         return False
@@ -329,7 +331,7 @@ class EarlyAggro(sc2.BotAI):
         static_defence = self.known_enemy_units.of_type([SPINECRAWLER, PHOTONCANNON,
                                                          BUNKER, PLANETARYFORTRESS])
         target = static_defence | filtered_enemies.not_flying
-        atk_force = self.units(ZERGLING)| self.units(ULTRALISK)
+        atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
         for attacking_unit in atk_force:
             if target.closer_than(17, attacking_unit.position).exists:
                 self.actions.append(attacking_unit.attack(
@@ -340,8 +342,8 @@ class EarlyAggro(sc2.BotAI):
             elif atk_force.amount <= 27:
                 self.actions.append(attacking_unit.move(
                     self._game_info.map_center.towards(self.enemy_start_locations[0], 11)))
-            elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0\
-                and atk_force.amount > 27:
+            elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 \
+                    and atk_force.amount > 27:
                 self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
         for detection in self.units(OVERSEER):
             if atk_force.exists:
@@ -352,20 +354,21 @@ class EarlyAggro(sc2.BotAI):
         lair = self.units(LAIR)
         hive = self.units(HIVE)
         base = self.units(HATCHERY)
-        if not(all(i == 1 for i in [self.already_pending(ZERGGROUNDARMORSLEVEL3),
-                                    self.already_pending(ZERGMELEEWEAPONSLEVEL3),
-                                    self.already_pending(ZERGLINGATTACKSPEED)])
-               and self.units(ULTRALISKCAVERN).ready.exists):
+        if not (all(i == 1 for i in [self.already_pending(ZERGGROUNDARMORSLEVEL3),
+                                     self.already_pending(ZERGMELEEWEAPONSLEVEL3),
+                                     self.already_pending(ZERGLINGATTACKSPEED)])
+                and self.units(ULTRALISKCAVERN).ready.exists):
             # Hive
-            if self.units(INFESTATIONPIT).ready.exists and not hive.exists\
-                and self.can_afford(HIVE) and not any([await self.is_morphing(h) for h in lair]) \
-                and lair.ready.idle.exists:
+            if self.units(INFESTATIONPIT).ready.exists and not hive.exists \
+                    and self.can_afford(HIVE) \
+                    and not any([await self.is_morphing(h) for h in lair]) \
+                    and lair.ready.idle.exists:
                 self.actions.append(lair.ready.idle.first(UPGRADETOHIVE_HIVE))
             # Lair
-            if self.townhalls.amount >= 4 and self.can_afford(UPGRADETOLAIR_LAIR)\
-                and not (lair.exists or hive.exists)\
-                and not any([await self.is_morphing(h) for h in base])\
-                and self.units(HATCHERY).ready.idle.exists:
+            if self.townhalls.amount >= 4 and self.can_afford(UPGRADETOLAIR_LAIR) \
+                    and not (lair.exists or hive.exists) \
+                    and not any([await self.is_morphing(h) for h in base]) \
+                    and self.units(HATCHERY).ready.idle.exists:
                 self.actions.append(base.ready.idle.first(UPGRADETOLAIR_LAIR))
 
     async def place_tumor(self, unit):
@@ -397,21 +400,21 @@ class EarlyAggro(sc2.BotAI):
         valid_placements = [p for index, p in enumerate(positions)
                             if valid_placements[index] == ActionResult.Success]
         if valid_placements:
-            tumors = self.units(CREEPTUMORQUEEN)\
-                     | self.units(CREEPTUMOR)\
+            tumors = self.units(CREEPTUMORQUEEN) \
+                     | self.units(CREEPTUMOR) \
                      | self.units(CREEPTUMORBURROWED)
             if tumors.exists:
                 valid_placements = sorted(valid_placements,
                                           key=lambda pos: pos.distance_to_closest(tumors)
-                                          - pos.distance_to(
-                                              self.enemy_start_locations[0]), reverse=True)
+                                          - pos.distance_to(self.enemy_start_locations[0]),
+                                          reverse=True)
             else:
                 valid_placements = sorted(valid_placements,
                                           key=lambda pos: pos.distance_to(
                                               self.enemy_start_locations[0]))
         if valid_placements:
             self.actions.append(unit(unit_ability, valid_placements[0]))
-            if unit_ability == BUILD_CREEPTUMOR_TUMOR: # if tumor
+            if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
                 self.used_tumors.append(unit.tag)
 
     async def queens_abilities(self):
@@ -432,7 +435,7 @@ class EarlyAggro(sc2.BotAI):
 
     async def spread_creep(self):
         """ Iterate over all tumors to spread itself """
-        tumors = self.units(CREEPTUMORQUEEN)\
+        tumors = self.units(CREEPTUMORQUEEN) \
                  | self.units(CREEPTUMOR) \
                  | self.units(CREEPTUMORBURROWED)
         for tumor in tumors:
