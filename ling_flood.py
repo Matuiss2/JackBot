@@ -369,9 +369,12 @@ class EarlyAggro(sc2.BotAI):
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
             else:
-                if self.known_enemy_units.exists:
+                if enemy_build.exists:
                     self.actions.append(attacking_unit.attack(
-                        self.known_enemy_units.closest_to(attacking_unit.position)))
+                        enemy_build.closest_to(attacking_unit.position)))
+                elif target.exists:
+                    self.actions.append(attacking_unit.attack(
+                        target.closest_to(attacking_unit.position)))
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
 
@@ -472,4 +475,3 @@ class EarlyAggro(sc2.BotAI):
         for tumor in tumors:
             if tumor.tag not in self.used_tumors:
                 await self.place_tumor(tumor)
-                
