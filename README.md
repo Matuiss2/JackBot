@@ -12,8 +12,12 @@ TODO dont follow the scouting worker all the way
 
 TODO not keep attacking when ramp is blocked or when its an impossible fight
 
-TODO add Broodlords
+TODO add Broodlords(maybe)
 
-TODO improve and test spore crawler implementation
+TODO improve spore crawler implementation
 
 TODO smarter queen control and building(No need to make more than 2 creep queens)
+
+TODO better micro(very important)
+
+TODO better values / timings(will have to take advise from strong players)
