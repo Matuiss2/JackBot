@@ -481,7 +481,7 @@ class EarlyAggro(sc2.BotAI):
                     )
                 elif (
                     attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0
-                    and atk_force.amount > 25
+                    and atk_force.amount > 27
                 ):
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
             elif self.time < 1000:
