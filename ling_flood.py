@@ -243,31 +243,28 @@ class EarlyAggro(sc2.BotAI):
     async def build_hatchery(self):
         """Good for now, might be way too greedy tho(might need static defense)
         Logic can be improved, the way to check for close enemies is way to inefficient"""
-        try:
-            if not self.worker_to_first_base and self.townhalls.amount < 2 and self.minerals > 175:
-                self.worker_to_first_base = True
-                self.actions.append(self.workers.gathering.first.move(await self.get_next_expansion()))
-            if (
-                self.worker_to_first_base
-                and not self.worker_to_second_base
-                and self.townhalls.amount == 2
-                and self.units(SPAWNINGPOOL)
-                and self.minerals > 125
-            ):
-                self.worker_to_second_base = True
-                self.actions.append(self.workers.gathering.random.move(await self.get_next_expansion()))
-            if self.can_afford(HATCHERY) and not self.close_enemies:
-                if self.townhalls.amount < 3:
+        if not self.worker_to_first_base and self.townhalls.amount < 2 and self.minerals > 175:
+            self.worker_to_first_base = True
+            self.actions.append(self.workers.gathering.first.move(await self.get_next_expansion()))
+        if (
+            self.worker_to_first_base
+            and not self.worker_to_second_base
+            and self.townhalls.amount == 2
+            and self.units(SPAWNINGPOOL)
+            and self.minerals > 125
+        ):
+            self.worker_to_second_base = True
+            self.actions.append(self.workers.gathering.random.move(await self.get_next_expansion()))
+        if self.can_afford(HATCHERY) and not self.close_enemies:
+            if self.townhalls.amount < 3:
+                await self.expand_now()
+            if not self.already_pending(HATCHERY):
+                if self.townhalls.amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
                     await self.expand_now()
-                if not self.already_pending(HATCHERY):
-                    if self.townhalls.amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
-                        await self.expand_now()
-                    elif self.townhalls.amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0.3:
-                        await self.expand_now()
-                    elif self.units(ULTRALISK).amount >= 2:
-                        await self.expand_now()
-        except AssertionError:
-            pass
+                elif self.townhalls.amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0.3:
+                    await self.expand_now()
+                elif self.units(ULTRALISK).amount >= 2:
+                    await self.expand_now()
 
     async def build_overlords(self):
         """We do not get supply blocked, but builds one more overlord than needed at some points"""
@@ -425,14 +422,14 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 230:
-                # if atk_force.amount <= 27:
-                #     self.actions.append(
-                #         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
-                #     )
-                #     continue
-                # elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 27:
-                #     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                continue
+                if atk_force.amount <= 27:
+                    self.actions.append(
+                        attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
+                    )
+                    continue
+                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 27:
+                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    continue
             elif self.time < 1000:
                 if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
@@ -440,6 +437,7 @@ class EarlyAggro(sc2.BotAI):
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
+
             else:
                 if enemy_build:
                     self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
@@ -450,10 +448,10 @@ class EarlyAggro(sc2.BotAI):
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
-
         for detection in self.units(OVERSEER):
             if atk_force:
                 self.actions.append(detection.move(atk_force.closest_to(detection.position)))
+                continue
 
     async def morphing_townhalls(self):
         """Works well, maybe the timing can be improved"""
@@ -563,4 +561,3 @@ class EarlyAggro(sc2.BotAI):
         for tumor in tumors:
             if tumor.tag not in self.used_tumors:
                 await self.place_tumor(tumor)
-
