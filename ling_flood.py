@@ -141,7 +141,7 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(cavern.idle.first(RESEARCH_CHITINOUSPLATING))
             if (
                 self.units(HATCHERY)
-                and self.already_pending_upgrade(OVERLORDSPEED) == 0
+                and not self.already_pending_upgrade(OVERLORDSPEED)
                 and self.can_afford(RESEARCH_PNEUMATIZEDCARAPACE)
             ):
                 chosen_base = self.units(HATCHERY).random
@@ -307,21 +307,16 @@ class EarlyAggro(sc2.BotAI):
         since I removed it from the build_units function, I might be able to remove the returns"""
         queens = self.units(QUEEN)
         hatchery = self.townhalls.exclude_type(LAIR)
-        if hatchery:
-            if self.units(SPAWNINGPOOL).ready:
-                hatcheries_random = self.townhalls.random
-                if (
-                    queens.amount < hatchery.ready.amount + 1
-                    and hatcheries_random.is_ready
-                    and not self.already_pending(QUEEN)
-                    and hatcheries_random.noqueue
-                    and self.supply_left > 1
-                    and self.can_afford(QUEEN)
-                ):
-                    if not queens.closer_than(8, hatcheries_random):
-                        self.actions.append(hatcheries_random.train(QUEEN))
-                    if queens.amount == hatchery.ready.amount:
-                        self.actions.append(hatcheries_random.train(QUEEN))
+        if hatchery and self.units(SPAWNINGPOOL).ready:
+            hatcheries_random = self.townhalls.ready.noqueue.random
+            if (
+                queens.amount < hatchery.ready.amount + 1
+                and not self.already_pending(QUEEN)
+                and self.can_feed(QUEEN)
+                and self.can_afford(QUEEN)
+            ):
+                if not queens.closer_than(8, hatcheries_random):
+                    self.actions.append(hatcheries_random.train(QUEEN))
 
     async def build_ultralisk(self):
         """Good for now but it might need to be changed vs particular
@@ -468,10 +463,12 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(
                     attacking_unit.attack(target.closest_to(attacking_unit.position))
                 )
+                continue # these continues are needed so a unit doesnt get multiple orders per step
             elif enemy_build.closer_than(27, attacking_unit.position):
                 self.actions.append(
                     attacking_unit.attack(enemy_build.closest_to(attacking_unit.position))
                 )
+                continue
             elif self.time < 230:
                 if atk_force.amount <= 27:
                     self.actions.append(
@@ -479,27 +476,34 @@ class EarlyAggro(sc2.BotAI):
                             self._game_info.map_center.towards(self.enemy_start_locations[0], 11)
                         )
                     )
+                    continue
                 elif (
                     attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0
                     and atk_force.amount > 27
                 ):
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    continue
             elif self.time < 1000:
                 if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
+                    continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    continue
             else:
                 if enemy_build:
                     self.actions.append(
                         attacking_unit.attack(enemy_build.closest_to(attacking_unit.position))
                     )
+                    continue
                 elif target:
                     self.actions.append(
                         attacking_unit.attack(target.closest_to(attacking_unit.position))
                     )
+                    continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    continue
 
         for detection in self.units(OVERSEER):
             if atk_force:
