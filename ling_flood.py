@@ -1,6 +1,5 @@
-"""SC2 zerg bot by Matuiss and Thommath"""
+"""SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
-
 import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.constants import (
@@ -72,10 +71,12 @@ from sc2.player import Bot, Computer
 from sc2.position import Point2  # for tumors
 
 
+# noinspection PyMissingConstructor
 class EarlyAggro(sc2.BotAI):
     """It makes one attack early then tried to make a very greedy transition"""
 
     def __init__(self):
+
         self.worker_to_first_base = False
         self.workers_to_first_extractor = False
         self.enemy_flying_dmg_units = False
@@ -306,17 +307,16 @@ class EarlyAggro(sc2.BotAI):
         """Its really bad at the moment, but this will do for now,
         since I removed it from the build_units function, I might be able to remove the returns"""
         queens = self.units(QUEEN)
-        hatchery = self.townhalls.exclude_type(LAIR)
-        if hatchery and self.units(SPAWNINGPOOL).ready:
-            hatcheries_random = self.townhalls.ready.noqueue.random
+        hatchery = self.townhalls.exclude_type(LAIR).ready
+        if hatchery.noqueue and self.units(SPAWNINGPOOL).ready:
+            hatcheries_random = hatchery.noqueue.random
             if (
-                queens.amount < hatchery.ready.amount + 1
+                queens.amount < hatchery.amount + 1
                 and not self.already_pending(QUEEN)
                 and self.can_feed(QUEEN)
                 and self.can_afford(QUEEN)
             ):
-                if not queens.closer_than(8, hatcheries_random):
-                    self.actions.append(hatcheries_random.train(QUEEN))
+                self.actions.append(hatcheries_random.train(QUEEN))
 
     async def build_ultralisk(self):
         """Good for now but it might need to be changed vs particular
@@ -629,4 +629,4 @@ class EarlyAggro(sc2.BotAI):
         )
         for tumor in tumors:
             if tumor.tag not in self.used_tumors:
-                await self.place_tumor(tumor)
+                await self.place_tumor(tumor)                
