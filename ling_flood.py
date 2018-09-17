@@ -255,7 +255,7 @@ class EarlyAggro(sc2.BotAI):
         ):
             self.worker_to_second_base = True
             self.actions.append(self.workers.gathering.random.move(await self.get_next_expansion()))
-        if self.can_afford(HATCHERY) and not self.close_enemies:
+        if self.townhalls.exists and self.can_afford(HATCHERY) and not self.close_enemies:
             if self.townhalls.amount < 3:
                 await self.expand_now()
             if not self.already_pending(HATCHERY):
@@ -422,12 +422,12 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 230:
-                if atk_force.amount <= 25:
+                if atk_force.amount <= 27:
                     self.actions.append(
                         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
                     )
                     continue
-                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
+                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 27:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
             elif self.time < 1000:
