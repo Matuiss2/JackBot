@@ -333,7 +333,7 @@ class EarlyAggro(sc2.BotAI):
                     self.actions.append(larva.random.train(DRONE))
                     return True
 
-           if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
+            if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
                 optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysir]), 92)
                 if workers_total + self.already_pending(DRONE) < optimal_workers:
                     self.actions.append(larva.random.train(DRONE))
