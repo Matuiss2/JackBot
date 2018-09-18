@@ -316,8 +316,7 @@ class EarlyAggro(sc2.BotAI):
         Logic can be improved, the way to check for close enemies is way to inefficient"""
         workers_total = self.workers.amount
         larva = self.units(LARVA)
-        geysir = self.units(EXTRACTOR)
-        optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysir]), 90)
+        geysirs = self.units(EXTRACTOR)
         if not self.close_enemies and self.can_afford(DRONE) and self.can_feed(DRONE):
             if workers_total == 12 and not self.already_pending(DRONE):
                 self.actions.append(larva.random.train(DRONE))
@@ -327,18 +326,18 @@ class EarlyAggro(sc2.BotAI):
                 and self.supply_left > 0
                 and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1
             ):
-                if workers_total == 15 and geysir.exists and self.units(SPAWNINGPOOL).exists:
+                if workers_total == 15 and geysirs.exists and self.units(SPAWNINGPOOL).exists:
                     self.actions.append(larva.random.train(DRONE))
                     return True
                 else:
                     self.actions.append(larva.random.train(DRONE))
                     return True
-            if (
-                self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1
-                and workers_total + self.already_pending(DRONE) < optimal_workers
-            ):
-                self.actions.append(larva.random.train(DRONE))
-                return True
+
+           if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
+                optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysir]), 92)
+                if workers_total + self.already_pending(DRONE) < optimal_workers:
+                    self.actions.append(larva.random.train(DRONE))
+                    return True
 
     async def build_zerglings(self):
         """good enough for now"""
