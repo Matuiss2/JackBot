@@ -318,7 +318,7 @@ class EarlyAggro(sc2.BotAI):
         larva = self.units(LARVA)
         geysir = self.units(EXTRACTOR)
         optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysir]), 90)
-        if not self.close_enemies and self.can_afford(DRONE):
+        if not self.close_enemies and self.can_afford(DRONE) and self.can_feed(DRONE):
             if workers_total == 12 and not self.already_pending(DRONE):
                 self.actions.append(larva.random.train(DRONE))
                 return True
@@ -430,13 +430,13 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 230:
-                # if atk_force.amount <= 25:
-                #     self.actions.append(
-                #         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
-                #     )
-                #     continue
-                # elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
-                #     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                if atk_force.amount <= 25:
+                    self.actions.append(
+                        attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
+                    )
+                    continue
+                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
+                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                 continue
             elif self.time < 1000:
                 if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
