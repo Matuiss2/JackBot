@@ -1,73 +1,74 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
+
 import sc2
-from sc2 import run_game, maps, Race, Difficulty
+from sc2 import Difficulty, Race, maps, run_game  # do we need these here?
 from sc2.constants import (
-    HATCHERY,
-    ZERGLING,
-    QUEEN,
-    LARVA,
-    EFFECT_INJECTLARVA,
-    SPAWNINGPOOL,
-    RESEARCH_ZERGLINGMETABOLICBOOST,
-    OVERLORD,
-    EXTRACTOR,
-    DRONE,
-    QUEENSPAWNLARVATIMER,
     ADEPTPHASESHIFT,
-    DISRUPTORPHASED,
-    EGG,
-    ZERGLINGMOVEMENTSPEED,
-    EVOLUTIONCHAMBER,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL1,
-    RESEARCH_ZERGGROUNDARMORLEVEL1,
-    ZERGGROUNDARMORSLEVEL1,
-    UPGRADETOLAIR_LAIR,
-    RESEARCH_ZERGGROUNDARMORLEVEL2,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL2,
-    SCV,
-    PROBE,
-    INFESTATIONPIT,
-    HIVE,
-    UPGRADETOHIVE_HIVE,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL3,
-    RESEARCH_ZERGGROUNDARMORLEVEL3,
-    LAIR,
-    RESEARCH_ZERGLINGADRENALGLANDS,
-    CANCEL_MORPHLAIR,
-    CANCEL_MORPHHIVE,
-    ULTRALISKCAVERN,
-    RESEARCH_CHITINOUSPLATING,
-    INFESTEDTERRANSEGG,
-    INFESTEDTERRAN,
-    SPINECRAWLER,
-    PHOTONCANNON,
-    BUNKER,
-    PLANETARYFORTRESS,
     AUTOTURRET,
     BUILD_CREEPTUMOR_QUEEN,
     BUILD_CREEPTUMOR_TUMOR,
-    CREEPTUMORQUEEN,
+    BUNKER,
+    CANCEL,
+    CANCEL_MORPHHIVE,
+    CANCEL_MORPHLAIR,
+    CANCEL_MORPHOVERSEER,
+    CHITINOUSPLATING,
     CREEPTUMOR,
     CREEPTUMORBURROWED,
-    OVERSEER,
-    CANCEL_MORPHOVERSEER,
-    ZERGBUILD_CREEPTUMOR,
-    ZERGGROUNDARMORSLEVEL3,
-    ZERGMELEEWEAPONSLEVEL3,
-    ZERGLINGATTACKSPEED,
+    CREEPTUMORQUEEN,
+    DISRUPTORPHASED,
+    DRONE,
+    EFFECT_INJECTLARVA,
+    EGG,
+    EVOLUTIONCHAMBER,
+    EXTRACTOR,
+    HATCHERY,
+    HIVE,
+    INFESTATIONPIT,
+    INFESTEDTERRAN,
+    INFESTEDTERRANSEGG,
+    LAIR,
+    LARVA,
+    MORPH_OVERSEER,
+    OVERLORD,
     OVERLORDCOCOON,
+    OVERLORDSPEED,
+    OVERSEER,
+    PHOTONCANNON,
+    PLANETARYFORTRESS,
+    PROBE,
+    QUEEN,
+    QUEENSPAWNLARVATIMER,
+    RESEARCH_CHITINOUSPLATING,
+    RESEARCH_PNEUMATIZEDCARAPACE,
+    RESEARCH_ZERGGROUNDARMORLEVEL1,
+    RESEARCH_ZERGGROUNDARMORLEVEL2,
+    RESEARCH_ZERGGROUNDARMORLEVEL3,
+    RESEARCH_ZERGLINGADRENALGLANDS,
+    RESEARCH_ZERGLINGMETABOLICBOOST,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL1,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL2,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL3,
+    SCV,
+    SPAWNINGPOOL,
+    SPINECRAWLER,
     SPORECRAWLER,
     ULTRALISK,
-    MORPH_OVERSEER,
-    RESEARCH_PNEUMATIZEDCARAPACE,
-    CANCEL,
-    CHITINOUSPLATING,
-    OVERLORDSPEED,
+    ULTRALISKCAVERN,
+    UPGRADETOHIVE_HIVE,
+    UPGRADETOLAIR_LAIR,
+    ZERGBUILD_CREEPTUMOR,
+    ZERGGROUNDARMORSLEVEL1,
     ZERGGROUNDARMORSLEVEL2,
+    ZERGGROUNDARMORSLEVEL3,
+    ZERGLING,
+    ZERGLINGATTACKSPEED,
+    ZERGLINGMOVEMENTSPEED,
+    ZERGMELEEWEAPONSLEVEL3,
 )
 from sc2.data import ActionResult  # for tumors
-from sc2.player import Bot, Computer
+from sc2.player import Bot, Computer  # do we need these?
 from sc2.position import Point2  # for tumors
 
 
@@ -187,13 +188,19 @@ class EarlyAggro(sc2.BotAI):
                         ):
                             await self.build(SPORECRAWLER, near=selected_base.position)
         # Infestor pit
-        if self.can_afford(INFESTATIONPIT) and self.townhalls and not self.already_pending(INFESTATIONPIT):
-            if not self.units(INFESTATIONPIT) and self.units(LAIR).ready and evochamber:
-                await self.build(INFESTATIONPIT, near=evochamber.first.position)
+        if (
+            not self.units(INFESTATIONPIT)
+            and self.can_afford(INFESTATIONPIT)
+            and not self.already_pending(INFESTATIONPIT)
+            and self.units(LAIR).ready
+            and self.townhalls
+            and evochamber
+        ):
+            await self.build(INFESTATIONPIT, near=evochamber.first.position)
         # Spawning pool
         if (
-            self.can_afford(SPAWNINGPOOL)
-            and not pool
+            not pool
+            and self.can_afford(SPAWNINGPOOL)
             and not self.already_pending(SPAWNINGPOOL)
             and hatchery.amount >= 2
         ):
@@ -201,9 +208,9 @@ class EarlyAggro(sc2.BotAI):
         # Ultra cavern
         if (
             self.units(HIVE)
+            and not self.units(ULTRALISKCAVERN)
             and self.can_afford(ULTRALISKCAVERN)
             and not self.already_pending(ULTRALISKCAVERN)
-            and not self.units(ULTRALISKCAVERN)
             and evochamber
         ):
             await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
@@ -309,28 +316,26 @@ class EarlyAggro(sc2.BotAI):
         Logic can be improved, the way to check for close enemies is way to inefficient"""
         workers_total = self.workers.amount
         larva = self.units(LARVA)
-        geyser = self.units(EXTRACTOR)
-        if not self.close_enemies:
+        geysir = self.units(EXTRACTOR)
+        optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysir]), 90)
+        if not self.close_enemies and self.can_afford(DRONE):
             if workers_total == 12 and not self.already_pending(DRONE):
                 self.actions.append(larva.random.train(DRONE))
                 return True
             if (
                 workers_total in (13, 14, 15)
-                and self.can_afford(DRONE)
                 and self.supply_left > 0
                 and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1
             ):
-                if workers_total == 15:
-                    if geyser.exists and self.units(SPAWNINGPOOL).exists:
-                        self.actions.append(larva.random.train(DRONE))
-                        return True
+                if workers_total == 15 and geysir.exists and self.units(SPAWNINGPOOL).exists:
+                    self.actions.append(larva.random.train(DRONE))
+                    return True
                 else:
                     self.actions.append(larva.random.train(DRONE))
                     return True
             if (
                 self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1
-                and workers_total < self.townhalls.ready.amount * 18
-                and workers_total + self.already_pending(DRONE) < 88 - geyser.amount
+                and workers_total + self.already_pending(DRONE) < optimal_workers
             ):
                 self.actions.append(larva.random.train(DRONE))
                 return True
@@ -354,18 +359,17 @@ class EarlyAggro(sc2.BotAI):
 
     async def build_units(self):
         """ Build one unit, the most prioritized at the moment """
-        if not self.units(LARVA).exists:
-            return
-        available_units_in_order = (
-            self.build_ultralisk,
-            self.build_overlords,
-            self.build_workers,
-            self.build_zerglings,
-        )
-        for build_unit_function in available_units_in_order:
-            want_to_built_unit = await build_unit_function()
-            if want_to_built_unit:
-                break
+        if self.units(LARVA):
+            available_units_in_order = (
+                self.build_ultralisk,
+                self.build_overlords,
+                self.build_workers,
+                self.build_zerglings,
+            )
+            for build_unit_function in available_units_in_order:
+                want_to_built_unit = await build_unit_function()
+                if want_to_built_unit:
+                    break
 
     async def cancel_attacked_hatcheries(self):
         """find the hatcheries that are building, and have low health. And cancel then"""
@@ -392,10 +396,14 @@ class EarlyAggro(sc2.BotAI):
     async def detection(self):
         """Morph overseers"""
         lords = self.units(OVERLORD)
-        if self.units(ULTRALISKCAVERN).ready and self.can_afford(OVERSEER) and lords:
-            if not self.units(OVERSEER):
-                if not any([await self.is_morphing(h) for h in self.units(OVERLORDCOCOON)]):
-                    self.actions.append(lords.random(MORPH_OVERSEER))
+        if (
+            self.units(ULTRALISKCAVERN).ready
+            and self.can_afford(OVERSEER)
+            and lords
+            and not self.units(OVERSEER)
+            and not any([await self.is_morphing(h) for h in self.units(OVERLORDCOCOON)])
+        ):
+            self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def is_morphing(self, homecity):
         """Check if a base is morphing, good enough for now"""
@@ -422,14 +430,14 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 230:
-                if atk_force.amount <= 25:
-                    self.actions.append(
-                        attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
-                    )
-                    continue
-                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                    continue
+                # if atk_force.amount <= 25:
+                #     self.actions.append(
+                #         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
+                #     )
+                #     continue
+                # elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
+                #     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                continue
             elif self.time < 1000:
                 if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
