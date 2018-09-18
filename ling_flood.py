@@ -230,7 +230,7 @@ class EarlyAggro(sc2.BotAI):
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
                     elif pit:
-                        if gas.amount < 6:
+                        if gas.amount < 7:
                             self.actions.append(drone.build(EXTRACTOR, geyser))
                             break
         if not self.workers_to_first_extractor:
@@ -298,7 +298,7 @@ class EarlyAggro(sc2.BotAI):
         """Good for now but it might need to be changed vs particular
          enemy units compositions"""
         if self.units(ULTRALISKCAVERN).ready:
-            if self.can_afford(ULTRALISK) and self.supply_left > 5:
+            if self.can_afford(ULTRALISK) and self.can_feed(ULTRALISK):
                 self.actions.append(self.units(LARVA).random.train(ULTRALISK))
                 return True
             return False
@@ -317,7 +317,7 @@ class EarlyAggro(sc2.BotAI):
             if (
                 workers_total in (13, 14, 15)
                 and self.can_afford(DRONE)
-                and self.supply_left > 0
+                and self.can_feed(DRONE)
                 and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1
             ):
                 if workers_total == 15:
@@ -329,8 +329,8 @@ class EarlyAggro(sc2.BotAI):
                     return True
             if (
                 self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1
-                and workers_total < self.townhalls.ready.amount * 18
-                and workers_total + self.already_pending(DRONE) < 88 - geyser.amount
+                and workers_total < self.townhalls.ready.amount * 17
+                and workers_total + self.already_pending(DRONE) < 92 - geyser.amount
             ):
                 self.actions.append(larva.random.train(DRONE))
                 return True
@@ -339,10 +339,8 @@ class EarlyAggro(sc2.BotAI):
         """good enough for now"""
         larva = self.units(LARVA)
         if self.units(SPAWNINGPOOL).ready:
-            if (
-                self.can_afford(ZERGLING) and self.supply_left > 0 and self.units(ZERGLING).amount < 106
-            ) or self.supply_used in range(195, 200):
-                if self.units(ULTRALISKCAVERN).ready:
+            if self.can_afford(ZERGLING) and self.can_feed(ZERGLING) and self.units(ZERGLING).amount < 106:
+                if self.units(ULTRALISKCAVERN).ready and self.time < 1380:
                     if self.units(ULTRALISK).amount * 8 > self.units(ZERGLING).amount:
                         self.actions.append(larva.random.train(ZERGLING))
                         return True
@@ -421,13 +419,13 @@ class EarlyAggro(sc2.BotAI):
             elif enemy_build.closer_than(27, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
-            elif self.time < 230:
-                if atk_force.amount <= 27:
+            elif self.time < 235:
+                if atk_force.amount <= 25:
                     self.actions.append(
                         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
                     )
                     continue
-                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 27:
+                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
             elif self.time < 1000:
