@@ -6,13 +6,13 @@ TODO see replay and figure out why it loses to terran build in AI sometimes(Chea
 
 TODO make it search for bases when starting base is already destroyed(very important)
 
-TODO dont follow the scouting worker all the way
+TODO dont follow the scouting worker all the way(fixed for workers, not for lings)
 
 TODO not keep attacking when ramp is blocked or when its an impossible fight
 
 TODO add Broodlords(maybe)
 
-TODO smarter queen control and building(No need to make more than 2 creep queens)
+TODO smarter queen control (No need to send all unsigned queens to unsigned bases, just 1)
 
 TODO better micro(very important)
 
