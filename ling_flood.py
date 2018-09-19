@@ -1,6 +1,5 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
-
 import sc2
 from sc2 import Difficulty, Race, maps, run_game  # do we need these here?
 from sc2.constants import (
@@ -219,7 +218,7 @@ class EarlyAggro(sc2.BotAI):
         """Couldnt find another way to build the geysers its way to inefficient"""
         gas = self.units(EXTRACTOR)
         pit = self.units(INFESTATIONPIT)
-        # check for ressources here to not always call "closer_than"
+        # check for resources here to not always call "closer_than"
         if self.townhalls.ready and self.can_afford(EXTRACTOR) and not self.already_pending(EXTRACTOR):
             vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
             for geyser in vgs:
@@ -262,7 +261,7 @@ class EarlyAggro(sc2.BotAI):
         ):
             self.worker_to_second_base = True
             self.actions.append(self.workers.gathering.random.move(await self.get_next_expansion()))
-        if self.townhalls.exists and self.can_afford(HATCHERY) and not self.close_enemies:
+        if self.townhalls and self.can_afford(HATCHERY) and not self.close_enemies:
             if self.townhalls.amount < 3:
                 await self.expand_now()
             if not self.already_pending(HATCHERY):
@@ -327,15 +326,16 @@ class EarlyAggro(sc2.BotAI):
                 and self.can_feed(DRONE)
                 and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1
             ):
-                if workers_total == 15 and geysirs.exists and self.units(SPAWNINGPOOL).exists:
+                if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL):
                     self.actions.append(larva.random.train(DRONE))
                     return True
                 else:
                     self.actions.append(larva.random.train(DRONE))
                     return True
-                  
+
             if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
-                optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92)
+                # - geysers.amount is needed since the game stop counting the drone when its inside the geyser
+                optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - geysirs.amount)
                 if workers_total + self.already_pending(DRONE) < optimal_workers:
                     self.actions.append(larva.random.train(DRONE))
                     return True
@@ -376,17 +376,14 @@ class EarlyAggro(sc2.BotAI):
 
     async def defend_worker_rush(self):
         """Its the way I found to defend simple worker rushes,
-         I don't know if it beats complexes worker rushes like tyr's bot,
-        also it follows scouting workers all the way"""
+         I don't know if it beats complexes worker rushes like tyr's bot"""
         base = self.units(HATCHERY)
         if self.known_enemy_units and base:
             enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close and self.townhalls.amount < 2:
                 if len(enemy_units_close) == 1:
                     selected_worker = self.workers.first
-                    self.actions.append(
-                        selected_worker.attack(self.known_enemy_units.closest_to(selected_worker.position))
-                    )
+                    self.actions.append(selected_worker.attack(enemy_units_close.closest_to(selected_worker.position)))
                 else:
                     for worker in self.workers:
                         self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
@@ -435,7 +432,7 @@ class EarlyAggro(sc2.BotAI):
                     continue
                 elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                continue
+                    continue
             elif self.time < 1000:
                 if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
@@ -453,11 +450,10 @@ class EarlyAggro(sc2.BotAI):
                     continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                    continue
+
         for detection in self.units(OVERSEER):
             if atk_force:
                 self.actions.append(detection.move(atk_force.closest_to(detection.position)))
-                continue
 
     async def morphing_townhalls(self):
         """Works well, maybe the timing can be improved"""
@@ -468,9 +464,9 @@ class EarlyAggro(sc2.BotAI):
             all(
                 i == 1
                 for i in (
-                    self.already_pending(ZERGGROUNDARMORSLEVEL3),
-                    self.already_pending(ZERGMELEEWEAPONSLEVEL3),
-                    self.already_pending(ZERGLINGATTACKSPEED),
+                    self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3),
+                    self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL3),
+                    self.already_pending_upgrade(ZERGLINGATTACKSPEED),
                 )
             )
             and self.units(ULTRALISKCAVERN).ready
@@ -551,9 +547,10 @@ class EarlyAggro(sc2.BotAI):
                 selected = hatchery.closest_to(queen.position)
                 if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                     self.actions.append(queen(EFFECT_INJECTLARVA, selected))
-
+                    continue
                 elif queen.energy > 26:
                     await self.place_tumor(queen)
+
             for hatch in hatchery.ready.noqueue:
                 if not queens.closer_than(8, hatch):
                     for queen in queens:
