@@ -276,7 +276,16 @@ class EarlyAggro(sc2.BotAI):
         """We do not get supply blocked, but builds one more overlord than needed at some points"""
         if not self.supply_cap >= 200 and self.supply_left < 8:
             if self.can_afford(OVERLORD):
-                if self.townhalls.amount in (1, 2) and self.already_pending(OVERLORD):
+                if self.units(DRONE).ready.amount == 14:
+                    return False
+                if self.units(OVERLORD).amount == 2 and self.townhalls.amount == 1:
+                    return False
+                if self.townhalls.amount == 2 and not self.units(SPAWNINGPOOL):
+                    return False
+                if (
+                    self.townhalls.amount in (1, 2)
+                    and self.already_pending(OVERLORD)
+                ):
                     return False
                 if self.already_pending(OVERLORD) >= 2:
                     return False
@@ -316,12 +325,7 @@ class EarlyAggro(sc2.BotAI):
             if workers_total == 12 and not self.already_pending(DRONE):
                 self.actions.append(larva.random.train(DRONE))
                 return True
-            if (
-                workers_total in (13, 14, 15)
-                and self.can_afford(DRONE)
-                and self.can_feed(DRONE)
-                and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1
-            ):
+            if workers_total in (13, 14, 15) and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1:
                 if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL):
                     self.actions.append(larva.random.train(DRONE))
                     return True
