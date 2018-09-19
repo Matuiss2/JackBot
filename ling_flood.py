@@ -283,11 +283,9 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(self.units(LARVA).random.train(OVERLORD))
                 return True
             return False
-        return False
 
     async def build_queens(self):
-        """Its really bad at the moment, but this will do for now,
-        since I removed it from the build_units function, I might be able to remove the returns"""
+        """It possibly can get better but it seems good enough for now"""
         queens = self.units(QUEEN)
         hatchery = self.townhalls.exclude_type(LAIR).ready
         if hatchery.noqueue and self.units(SPAWNINGPOOL).ready:
@@ -308,11 +306,9 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(self.units(LARVA).random.train(ULTRALISK))
                 return True
             return False
-        return False
 
     async def build_workers(self):
-        """Good for the beginning, but it doesnt adapt to losses of drones very well,
-        Logic can be improved, the way to check for close enemies is way to inefficient"""
+        """Good for the beginning, but it doesnt adapt to losses of drones very well"""
         workers_total = self.workers.amount
         larva = self.units(LARVA)
         geysirs = self.units(EXTRACTOR)
@@ -353,7 +349,6 @@ class EarlyAggro(sc2.BotAI):
                     self.actions.append(larva.random.train(ZERGLING))
                     return True
             return False
-        return False
 
     async def build_units(self):
         """ Build one unit, the most prioritized at the moment """
@@ -370,7 +365,9 @@ class EarlyAggro(sc2.BotAI):
                     break
 
     async def cancel_attacked_hatcheries(self):
-        """find the hatcheries that are building, and have low health. And cancel then"""
+        """find the hatcheries that are building, and have low health and cancel then,
+        can be better, its easy to burst 150 hp, but if I put more it might cancel itself,
+        will look into that later"""
         for building in self.units(HATCHERY).filter(lambda x: 0.3 < x.build_progress < 1 and x.health < 150):
             self.actions.append(building(CANCEL))
 
@@ -401,7 +398,7 @@ class EarlyAggro(sc2.BotAI):
             self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def is_morphing(self, homecity):
-        """Check if a base is morphing, good enough for now"""
+        """Check if a base or overlord is morphing, good enough for now"""
         abilities = await self.get_available_abilities(homecity)
         morphing_upgrades = (CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, CANCEL_MORPHOVERSEER)
         for morph in morphing_upgrades:
@@ -491,8 +488,8 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(base.ready.idle.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))
 
     async def place_tumor(self, unit):
-        """ Find a nice placement for the tumor and build it if possible.
-        Makes creep to the center, needs a better value function for the spreading """
+        """ Find a nice placement for the tumor and build it if possible, avoid expansion locations
+        Makes creep to the enemy base, needs a better value function for the spreading"""
         # Make sure unit can make tumor and what ability it is
         abilities = await self.get_available_abilities(unit)
         if BUILD_CREEPTUMOR_QUEEN in abilities:
@@ -506,7 +503,6 @@ class EarlyAggro(sc2.BotAI):
         location_attempts = 30
         spread_distance = 8
         location = unit.position
-
         # Define random positions around unit
         positions = [
             Point2(
@@ -533,8 +529,12 @@ class EarlyAggro(sc2.BotAI):
                 valid_placements = sorted(
                     valid_placements, key=lambda pos: pos.distance_to(self.enemy_start_locations[0])
                 )
-        if valid_placements:
-            self.actions.append(unit(unit_ability, valid_placements[0]))
+            # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
+            for c_location in valid_placements:
+                if all(c_location.distance_to(el) > 8.5 for el in self.expansion_locations):
+                    # 8.5 it doesnt get in the way of the injection
+                    self.actions.append(unit(unit_ability, c_location))
+                    break
             if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
                 self.used_tumors.append(unit.tag)
 
@@ -559,7 +559,7 @@ class EarlyAggro(sc2.BotAI):
                             break
 
     async def spread_creep(self):
-        """ Iterate over all tumors to spread itself """
+        """ Iterate over all tumors to spread itself remove used creeps"""
         tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
         for tumor in tumors:
             if tumor.tag not in self.used_tumors:
