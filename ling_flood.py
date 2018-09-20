@@ -97,12 +97,15 @@ class EarlyAggro(sc2.BotAI):
     async def on_step(self, iteration):
         self.close_enemies = []
         self.actions = []
+        if iteration == 0:
+            self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
         if self.known_enemy_units.not_structure:  # I only go to the loop if possibly needed
             for hatch in self.townhalls:
-                close_enemy = self.known_enemy_units.not_structure.closer_than(35, hatch.position)
+                close_enemy = self.known_enemy_units.not_structure.closer_than(40, hatch.position)
                 enemies = close_enemy.exclude_type([DRONE, SCV, PROBE])
                 if enemies:
                     self.close_enemies.append(1)
+                    break
         await self.all_buildings()
         await self.all_upgrades()
         await self.build_extractor()
@@ -257,7 +260,7 @@ class EarlyAggro(sc2.BotAI):
             and not self.worker_to_second_base
             and self.townhalls.amount == 2
             and self.units(SPAWNINGPOOL)
-            and self.minerals > 125
+            and self.minerals > 155
         ):
             self.worker_to_second_base = True
             self.actions.append(self.workers.gathering.random.move(await self.get_next_expansion()))
@@ -267,7 +270,7 @@ class EarlyAggro(sc2.BotAI):
             if not self.already_pending(HATCHERY):
                 if self.townhalls.amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
                     await self.expand_now()
-                elif self.townhalls.amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0.3:
+                elif self.townhalls.amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0:
                     await self.expand_now()
                 elif self.units(ULTRALISK).amount >= 2:
                     await self.expand_now()
@@ -336,7 +339,7 @@ class EarlyAggro(sc2.BotAI):
             if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
                 # - geysers.amount is needed since the game stop counting the drone when its inside the geyser
                 optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - geysirs.amount)
-                if workers_total + self.already_pending(DRONE) < optimal_workers:
+                if workers_total + self.already_pending(DRONE) < optimal_workers and self.units(ZERGLING):
                     self.actions.append(larva.random.train(DRONE))
                     return True
 
