@@ -285,10 +285,7 @@ class EarlyAggro(sc2.BotAI):
                     return False
                 if self.townhalls.amount == 2 and not self.units(SPAWNINGPOOL):
                     return False
-                if (
-                    self.townhalls.amount in (1, 2)
-                    and self.already_pending(OVERLORD)
-                ):
+                if self.townhalls.amount in (1, 2) and self.already_pending(OVERLORD):
                     return False
                 if self.already_pending(OVERLORD) >= 2:
                     return False
@@ -538,10 +535,14 @@ class EarlyAggro(sc2.BotAI):
                 )
             # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
             for c_location in valid_placements:
+                # 8.5 it doesnt get in the way of the injection
                 if all(c_location.distance_to(el) > 8.5 for el in self.expansion_locations):
-                    # 8.5 it doesnt get in the way of the injection
-                    self.actions.append(unit(unit_ability, c_location))
-                    break
+                    if not tumors:
+                        self.actions.append(unit(unit_ability, c_location))
+                        break
+                    if c_location.distance_to_closest(tumors) > 4:
+                        self.actions.append(unit(unit_ability, c_location))
+                        break
             if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
                 self.used_tumors.append(unit.tag)
 
