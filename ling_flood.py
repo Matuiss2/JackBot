@@ -152,13 +152,14 @@ class EarlyAggro(sc2.BotAI, army_control):
         evochamber = self.units(EVOLUTIONCHAMBER)
         pool = self.units(SPAWNINGPOOL)
         spores = self.units(SPORECRAWLER)
-        hatchery = self.units(HATCHERY)
+        base = self.townhalls  # so it just access the library once every loop instead of several
         if pool.ready:
+            finished_base_amount = base.ready.amount  # same as above, calculate just once
             # Evochamber
             if (
                 self.abilities_list
                 and self.can_afford(EVOLUTIONCHAMBER)
-                and self.townhalls.ready.amount >= 3
+                and finished_base_amount >= 3
                 and evochamber.amount < 2
                 and not self.already_pending(EVOLUTIONCHAMBER)
             ):
@@ -170,42 +171,37 @@ class EarlyAggro(sc2.BotAI, army_control):
                     if air_units:
                         self.enemy_flying_dmg_units = True
             else:
-                if self.townhalls:
-                    selected_base = self.townhalls.random
-                    if spores.amount < self.townhalls.ready.amount:
+                if base:
+                    selected_base = base.random
+                    if spores.amount < finished_base_amount:
                         if (
                             not spores.closer_than(15, selected_base.position)
                             and self.can_afford(SPORECRAWLER)
                             and not self.already_pending(SPORECRAWLER)
                         ):
                             await self.build(SPORECRAWLER, near=selected_base.position)
-        # Infestor pit
-        if (
-            not self.units(INFESTATIONPIT)
-            and self.can_afford(INFESTATIONPIT)
-            and not self.already_pending(INFESTATIONPIT)
-            and self.units(LAIR).ready
-            and self.townhalls
-            and evochamber
-        ):
-            await self.build(INFESTATIONPIT, near=evochamber.first.position)
+        if evochamber:
+            # Infestor pit
+            if (
+                not self.units(INFESTATIONPIT)
+                and self.can_afford(INFESTATIONPIT)
+                and not self.already_pending(INFESTATIONPIT)
+                and self.units(LAIR).ready
+                and base
+            ):
+                await self.build(INFESTATIONPIT, near=evochamber.first.position)
+            # Ultra cavern
+            if (
+                self.units(HIVE)
+                and not self.units(ULTRALISKCAVERN)
+                and self.can_afford(ULTRALISKCAVERN)
+                and not self.already_pending(ULTRALISKCAVERN)
+            ):
+                await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
+
         # Spawning pool
-        if (
-            not pool
-            and self.can_afford(SPAWNINGPOOL)
-            and not self.already_pending(SPAWNINGPOOL)
-            and hatchery.amount >= 2
-        ):
-            await self.build(SPAWNINGPOOL, near=hatchery.first.position.towards(self._game_info.map_center, 5))
-        # Ultra cavern
-        if (
-            self.units(HIVE)
-            and not self.units(ULTRALISKCAVERN)
-            and self.can_afford(ULTRALISKCAVERN)
-            and not self.already_pending(ULTRALISKCAVERN)
-            and evochamber
-        ):
-            await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
+        if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and base.amount >= 2:
+            await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
 
     async def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient"""
@@ -213,25 +209,24 @@ class EarlyAggro(sc2.BotAI, army_control):
         pit = self.units(INFESTATIONPIT)
         # check for resources here to not always call "closer_than"
         if self.townhalls.ready and self.can_afford(EXTRACTOR) and not self.already_pending(EXTRACTOR):
+            gas_amount = gas.amount  # so it calculate just once per step
             vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
             for geyser in vgs:
-                if self.can_afford(EXTRACTOR):
-                    drone = self.select_build_worker(geyser.position)
-                    if not drone:
-                        break
-                    if not gas and self.units(HATCHERY).amount == 2:
-                        self.actions.append(drone.build(EXTRACTOR, geyser))
-                        break
-                    elif gas.amount < 2 and self.units(EVOLUTIONCHAMBER).ready.amount == 2:
-                        self.actions.append(drone.build(EXTRACTOR, geyser))
-                        break
-                    elif self.time > 900 and gas.amount < 9:
-                        self.actions.append(drone.build(EXTRACTOR, geyser))
-                        break
-                    elif pit:
-                        if gas.amount < 7:
-                            self.actions.append(drone.build(EXTRACTOR, geyser))
-                            break
+                drone = self.select_build_worker(geyser.position)
+                if not drone:
+                    break
+                if not gas and self.units(HATCHERY).amount == 2:
+                    self.actions.append(drone.build(EXTRACTOR, geyser))
+                    break
+                if gas_amount < 2 and self.units(EVOLUTIONCHAMBER).ready.amount == 2:
+                    self.actions.append(drone.build(EXTRACTOR, geyser))
+                    break
+                if self.time > 900 and gas_amount < 9:
+                    self.actions.append(drone.build(EXTRACTOR, geyser))
+                    break
+                if pit and gas_amount < 7:
+                    self.actions.append(drone.build(EXTRACTOR, geyser))
+                    break
         if not self.workers_to_first_extractor:
             if gas.ready:
                 self.workers_to_first_extractor = True
@@ -242,25 +237,26 @@ class EarlyAggro(sc2.BotAI, army_control):
     async def build_hatchery(self):
         """Good for now, might be way too greedy tho(might need static defense)
         Logic can be improved, the way to check for close enemies is way to inefficient"""
-        if not self.worker_to_first_base and self.townhalls.amount < 2 and self.minerals > 175:
+        base_amount = self.townhalls.amount # so it just calculate once per loop
+        if not self.worker_to_first_base and base_amount < 2 and self.minerals > 175:
             self.worker_to_first_base = True
             self.actions.append(self.workers.gathering.first.move(await self.get_next_expansion()))
         if (
             self.worker_to_first_base
             and not self.worker_to_second_base
-            and self.townhalls.amount == 2
+            and base_amount == 2
             and self.units(SPAWNINGPOOL)
             and self.minerals > 155
         ):
             self.worker_to_second_base = True
             self.actions.append(self.workers.gathering.random.move(await self.get_next_expansion()))
         if self.townhalls and self.can_afford(HATCHERY) and not self.close_enemies:
-            if self.townhalls.amount < 3:
+            if base_amount < 3:
                 await self.expand_now()
             if not self.already_pending(HATCHERY):
-                if self.townhalls.amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
+                if base_amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
                     await self.expand_now()
-                elif self.townhalls.amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0:
+                elif base_amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0:
                     await self.expand_now()
                 elif self.units(ULTRALISK).amount >= 2:
                     await self.expand_now()
@@ -269,15 +265,16 @@ class EarlyAggro(sc2.BotAI, army_control):
         """We do not get supply blocked, but builds one more overlord than needed at some points"""
         if not self.supply_cap >= 200 and self.supply_left < 8:
             if self.can_afford(OVERLORD):
-                if self.units(DRONE).ready.amount == 14:
+                base_amount = self.townhalls.amount  # so it just calculate once per loop
+                if (
+                    self.units(DRONE).ready.amount == 14
+                    or (self.units(OVERLORD).amount == 2 and base_amount == 1)
+                    or (base_amount == 2 and not self.units(SPAWNINGPOOL))
+                ):
                     return False
-                if self.units(OVERLORD).amount == 2 and self.townhalls.amount == 1:
-                    return False
-                if self.townhalls.amount == 2 and not self.units(SPAWNINGPOOL):
-                    return False
-                if self.townhalls.amount in (1, 2) and self.already_pending(OVERLORD):
-                    return False
-                if self.already_pending(OVERLORD) >= 2:
+                if (base_amount in (1, 2) and self.already_pending(OVERLORD)) or (
+                    self.already_pending(OVERLORD) >= 2
+                ):
                     return False
                 self.actions.append(self.units(LARVA).random.train(OVERLORD))
                 return True
@@ -319,9 +316,8 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL):
                     self.actions.append(larva.random.train(DRONE))
                     return True
-                else:
-                    self.actions.append(larva.random.train(DRONE))
-                    return True
+                self.actions.append(larva.random.train(DRONE))
+                return True
 
             if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
                 # - geysers.amount is needed since the game stop counting the drone when its inside the geyser
@@ -362,16 +358,16 @@ class EarlyAggro(sc2.BotAI, army_control):
         """find the hatcheries that are building, and have low health and cancel then,
         can be better, its easy to burst 150 hp, but if I put more it might cancel itself,
         will look into that later"""
-        for building in self.units(HATCHERY).filter(lambda x: 0.3 < x.build_progress < 1 and x.health < 150):
+        for building in self.units(HATCHERY).filter(lambda x: 0.2 < x.build_progress < 1 and x.health < 400):
             self.actions.append(building(CANCEL))
 
     async def defend_worker_rush(self):
         """Its the way I found to defend simple worker rushes,
          I don't know if it beats complexes worker rushes like tyr's bot"""
         base = self.units(HATCHERY)
-        if self.known_enemy_units and base:
+        if self.known_enemy_units and base and self.townhalls.amount < 2:
             enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
-            if enemy_units_close and self.townhalls.amount < 2:
+            if enemy_units_close:
                 if len(enemy_units_close) == 1:
                     selected_worker = self.workers.first
                     self.actions.append(selected_worker.attack(enemy_units_close.closest_to(selected_worker.position)))
