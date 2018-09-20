@@ -1,6 +1,5 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
-
 import sc2
 from sc2 import Difficulty, Race, maps, run_game  # do we need these here?
 from sc2.constants import (
@@ -98,12 +97,15 @@ class EarlyAggro(sc2.BotAI):
     async def on_step(self, iteration):
         self.close_enemies = []
         self.actions = []
+        if iteration == 0:
+            self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
         if self.known_enemy_units.not_structure:  # I only go to the loop if possibly needed
             for hatch in self.townhalls:
-                close_enemy = self.known_enemy_units.not_structure.closer_than(35, hatch.position)
+                close_enemy = self.known_enemy_units.not_structure.closer_than(40, hatch.position)
                 enemies = close_enemy.exclude_type([DRONE, SCV, PROBE])
                 if enemies:
                     self.close_enemies.append(1)
+                    break
         await self.all_buildings()
         await self.all_upgrades()
         await self.build_extractor()
@@ -219,7 +221,7 @@ class EarlyAggro(sc2.BotAI):
         """Couldnt find another way to build the geysers its way to inefficient"""
         gas = self.units(EXTRACTOR)
         pit = self.units(INFESTATIONPIT)
-        # check for ressources here to not always call "closer_than"
+        # check for resources here to not always call "closer_than"
         if self.townhalls.ready and self.can_afford(EXTRACTOR) and not self.already_pending(EXTRACTOR):
             vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
             for geyser in vgs:
@@ -258,17 +260,17 @@ class EarlyAggro(sc2.BotAI):
             and not self.worker_to_second_base
             and self.townhalls.amount == 2
             and self.units(SPAWNINGPOOL)
-            and self.minerals > 125
+            and self.minerals > 155
         ):
             self.worker_to_second_base = True
             self.actions.append(self.workers.gathering.random.move(await self.get_next_expansion()))
-        if self.townhalls.exists and self.can_afford(HATCHERY) and not self.close_enemies:
+        if self.townhalls and self.can_afford(HATCHERY) and not self.close_enemies:
             if self.townhalls.amount < 3:
                 await self.expand_now()
             if not self.already_pending(HATCHERY):
                 if self.townhalls.amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
                     await self.expand_now()
-                elif self.townhalls.amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0.3:
+                elif self.townhalls.amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0:
                     await self.expand_now()
                 elif self.units(ULTRALISK).amount >= 2:
                     await self.expand_now()
@@ -277,6 +279,12 @@ class EarlyAggro(sc2.BotAI):
         """We do not get supply blocked, but builds one more overlord than needed at some points"""
         if not self.supply_cap >= 200 and self.supply_left < 8:
             if self.can_afford(OVERLORD):
+                if self.units(DRONE).ready.amount == 14:
+                    return False
+                if self.units(OVERLORD).amount == 2 and self.townhalls.amount == 1:
+                    return False
+                if self.townhalls.amount == 2 and not self.units(SPAWNINGPOOL):
+                    return False
                 if self.townhalls.amount in (1, 2) and self.already_pending(OVERLORD):
                     return False
                 if self.already_pending(OVERLORD) >= 2:
@@ -284,11 +292,9 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(self.units(LARVA).random.train(OVERLORD))
                 return True
             return False
-        return False
 
     async def build_queens(self):
-        """Its really bad at the moment, but this will do for now,
-        since I removed it from the build_units function, I might be able to remove the returns"""
+        """It possibly can get better but it seems good enough for now"""
         queens = self.units(QUEEN)
         hatchery = self.townhalls.exclude_type(LAIR).ready
         if hatchery.noqueue and self.units(SPAWNINGPOOL).ready:
@@ -309,11 +315,9 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(self.units(LARVA).random.train(ULTRALISK))
                 return True
             return False
-        return False
 
     async def build_workers(self):
-        """Good for the beginning, but it doesnt adapt to losses of drones very well,
-        Logic can be improved, the way to check for close enemies is way to inefficient"""
+        """Good for the beginning, but it doesnt adapt to losses of drones very well"""
         workers_total = self.workers.amount
         larva = self.units(LARVA)
         geysirs = self.units(EXTRACTOR)
@@ -321,22 +325,18 @@ class EarlyAggro(sc2.BotAI):
             if workers_total == 12 and not self.already_pending(DRONE):
                 self.actions.append(larva.random.train(DRONE))
                 return True
-            if (
-                workers_total in (13, 14, 15)
-                and self.can_afford(DRONE)
-                and self.can_feed(DRONE)
-                and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1
-            ):
-                if workers_total == 15 and geysirs.exists and self.units(SPAWNINGPOOL).exists:
+            if workers_total in (13, 14, 15) and self.units(OVERLORD).amount + self.already_pending(OVERLORD) > 1:
+                if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL):
                     self.actions.append(larva.random.train(DRONE))
                     return True
                 else:
                     self.actions.append(larva.random.train(DRONE))
                     return True
-                  
+
             if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
-                optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92)
-                if workers_total + self.already_pending(DRONE) < optimal_workers:
+                # - geysers.amount is needed since the game stop counting the drone when its inside the geyser
+                optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - geysirs.amount)
+                if workers_total + self.already_pending(DRONE) < optimal_workers and self.units(ZERGLING):
                     self.actions.append(larva.random.train(DRONE))
                     return True
 
@@ -353,7 +353,6 @@ class EarlyAggro(sc2.BotAI):
                     self.actions.append(larva.random.train(ZERGLING))
                     return True
             return False
-        return False
 
     async def build_units(self):
         """ Build one unit, the most prioritized at the moment """
@@ -370,23 +369,22 @@ class EarlyAggro(sc2.BotAI):
                     break
 
     async def cancel_attacked_hatcheries(self):
-        """find the hatcheries that are building, and have low health. And cancel then"""
+        """find the hatcheries that are building, and have low health and cancel then,
+        can be better, its easy to burst 150 hp, but if I put more it might cancel itself,
+        will look into that later"""
         for building in self.units(HATCHERY).filter(lambda x: 0.3 < x.build_progress < 1 and x.health < 150):
             self.actions.append(building(CANCEL))
 
     async def defend_worker_rush(self):
         """Its the way I found to defend simple worker rushes,
-         I don't know if it beats complexes worker rushes like tyr's bot,
-        also it follows scouting workers all the way"""
+         I don't know if it beats complexes worker rushes like tyr's bot"""
         base = self.units(HATCHERY)
         if self.known_enemy_units and base:
             enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close and self.townhalls.amount < 2:
                 if len(enemy_units_close) == 1:
                     selected_worker = self.workers.first
-                    self.actions.append(
-                        selected_worker.attack(self.known_enemy_units.closest_to(selected_worker.position))
-                    )
+                    self.actions.append(selected_worker.attack(enemy_units_close.closest_to(selected_worker.position)))
                 else:
                     for worker in self.workers:
                         self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
@@ -404,7 +402,7 @@ class EarlyAggro(sc2.BotAI):
             self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def is_morphing(self, homecity):
-        """Check if a base is morphing, good enough for now"""
+        """Check if a base or overlord is morphing, good enough for now"""
         abilities = await self.get_available_abilities(homecity)
         morphing_upgrades = (CANCEL_MORPHLAIR, CANCEL_MORPHHIVE, CANCEL_MORPHOVERSEER)
         for morph in morphing_upgrades:
@@ -435,7 +433,7 @@ class EarlyAggro(sc2.BotAI):
                     continue
                 elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                continue
+                    continue
             elif self.time < 1000:
                 if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
@@ -453,11 +451,10 @@ class EarlyAggro(sc2.BotAI):
                     continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                    continue
+
         for detection in self.units(OVERSEER):
             if atk_force:
                 self.actions.append(detection.move(atk_force.closest_to(detection.position)))
-                continue
 
     async def morphing_townhalls(self):
         """Works well, maybe the timing can be improved"""
@@ -468,9 +465,9 @@ class EarlyAggro(sc2.BotAI):
             all(
                 i == 1
                 for i in (
-                    self.already_pending(ZERGGROUNDARMORSLEVEL3),
-                    self.already_pending(ZERGMELEEWEAPONSLEVEL3),
-                    self.already_pending(ZERGLINGATTACKSPEED),
+                    self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3),
+                    self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL3),
+                    self.already_pending_upgrade(ZERGLINGATTACKSPEED),
                 )
             )
             and self.units(ULTRALISKCAVERN).ready
@@ -495,8 +492,8 @@ class EarlyAggro(sc2.BotAI):
                 self.actions.append(base.ready.idle.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))
 
     async def place_tumor(self, unit):
-        """ Find a nice placement for the tumor and build it if possible.
-        Makes creep to the center, needs a better value function for the spreading """
+        """ Find a nice placement for the tumor and build it if possible, avoid expansion locations
+        Makes creep to the enemy base, needs a better value function for the spreading"""
         # Make sure unit can make tumor and what ability it is
         abilities = await self.get_available_abilities(unit)
         if BUILD_CREEPTUMOR_QUEEN in abilities:
@@ -505,12 +502,12 @@ class EarlyAggro(sc2.BotAI):
             unit_ability = BUILD_CREEPTUMOR_TUMOR
         else:
             return
+
         # defining vars
         ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
         location_attempts = 30
         spread_distance = 8
         location = unit.position
-
         # Define random positions around unit
         positions = [
             Point2(
@@ -537,8 +534,20 @@ class EarlyAggro(sc2.BotAI):
                 valid_placements = sorted(
                     valid_placements, key=lambda pos: pos.distance_to(self.enemy_start_locations[0])
                 )
-        if valid_placements:
-            self.actions.append(unit(unit_ability, valid_placements[0]))
+            # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
+            for c_location in valid_placements:
+                # 8.5 it doesnt get in the way of the injection
+                if all(c_location.distance_to(el) > 8.5 for el in self.expansion_locations):
+                    if not tumors:
+                        self.actions.append(unit(unit_ability, c_location))
+                        break
+                    if unit_ability == BUILD_CREEPTUMOR_QUEEN:
+                        self.actions.append(unit(unit_ability, c_location))
+                        break
+                    if c_location.distance_to_closest(tumors) > 5:
+                        self.actions.append(unit(unit_ability, c_location))
+                        break
+
             if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
                 self.used_tumors.append(unit.tag)
 
@@ -551,9 +560,10 @@ class EarlyAggro(sc2.BotAI):
                 selected = hatchery.closest_to(queen.position)
                 if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                     self.actions.append(queen(EFFECT_INJECTLARVA, selected))
-
+                    continue
                 elif queen.energy > 26:
                     await self.place_tumor(queen)
+
             for hatch in hatchery.ready.noqueue:
                 if not queens.closer_than(8, hatch):
                     for queen in queens:
@@ -562,7 +572,7 @@ class EarlyAggro(sc2.BotAI):
                             break
 
     async def spread_creep(self):
-        """ Iterate over all tumors to spread itself """
+        """ Iterate over all tumors to spread itself remove used creeps"""
         tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
         for tumor in tumors:
             if tumor.tag not in self.used_tumors:
