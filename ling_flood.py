@@ -3,11 +3,8 @@ import math
 import sc2
 from sc2 import Difficulty, Race, maps, run_game  # do we need these here?
 from sc2.constants import (
-    ADEPTPHASESHIFT,
-    AUTOTURRET,
     BUILD_CREEPTUMOR_QUEEN,
     BUILD_CREEPTUMOR_TUMOR,
-    BUNKER,
     CANCEL,
     CANCEL_MORPHHIVE,
     CANCEL_MORPHLAIR,
@@ -16,17 +13,13 @@ from sc2.constants import (
     CREEPTUMOR,
     CREEPTUMORBURROWED,
     CREEPTUMORQUEEN,
-    DISRUPTORPHASED,
     DRONE,
     EFFECT_INJECTLARVA,
-    EGG,
     EVOLUTIONCHAMBER,
     EXTRACTOR,
     HATCHERY,
     HIVE,
     INFESTATIONPIT,
-    INFESTEDTERRAN,
-    INFESTEDTERRANSEGG,
     LAIR,
     LARVA,
     MORPH_OVERSEER,
@@ -34,8 +27,6 @@ from sc2.constants import (
     OVERLORDCOCOON,
     OVERLORDSPEED,
     OVERSEER,
-    PHOTONCANNON,
-    PLANETARYFORTRESS,
     PROBE,
     QUEEN,
     QUEENSPAWNLARVATIMER,
@@ -51,7 +42,6 @@ from sc2.constants import (
     RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     SCV,
     SPAWNINGPOOL,
-    SPINECRAWLER,
     SPORECRAWLER,
     ULTRALISK,
     ULTRALISKCAVERN,
@@ -69,10 +59,10 @@ from sc2.constants import (
 from sc2.data import ActionResult  # for tumors
 from sc2.player import Bot, Computer  # do we need these?
 from sc2.position import Point2  # for tumors
-
+from army import army_control
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI):
+class EarlyAggro(sc2.BotAI, army_control):
     """It makes one attack early then tried to make a very greedy transition"""
 
     def __init__(self):
@@ -116,7 +106,7 @@ class EarlyAggro(sc2.BotAI):
         await self.defend_worker_rush()
         await self.detection()
         await self.distribute_workers()
-        await self.micro()
+        await self.army_micro()
         await self.morphing_townhalls()
         await self.queens_abilities()
         await self.spread_creep()
@@ -409,52 +399,6 @@ class EarlyAggro(sc2.BotAI):
             if morph in abilities:
                 return True
         return False
-
-    async def micro(self):
-        """Micro function, its just slight better than a-move, need A LOT of improvements"""
-        enemy_build = self.known_enemy_structures
-        excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN, AUTOTURRET}
-        filtered_enemies = self.known_enemy_units.not_structure.exclude_type(excluded_units)
-        static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-        target = static_defence | filtered_enemies.not_flying
-        atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
-        for attacking_unit in atk_force:
-            if target.closer_than(47, attacking_unit.position):
-                self.actions.append(attacking_unit.attack(target.closest_to(attacking_unit.position)))
-                continue  # these continues are needed so a unit doesnt get multiple orders per step
-            elif enemy_build.closer_than(27, attacking_unit.position):
-                self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
-                continue
-            elif self.time < 235:
-                if atk_force.amount <= 25:
-                    self.actions.append(
-                        attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
-                    )
-                    continue
-                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                    continue
-            elif self.time < 1000:
-                if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
-                    self.actions.append(attacking_unit.move(self._game_info.map_center))
-                    continue
-                else:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-                    continue
-
-            else:
-                if enemy_build:
-                    self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
-                    continue
-                elif target:
-                    self.actions.append(attacking_unit.attack(target.closest_to(attacking_unit.position)))
-                    continue
-                else:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-
-        for detection in self.units(OVERSEER):
-            if atk_force:
-                self.actions.append(detection.move(atk_force.closest_to(detection.position)))
 
     async def morphing_townhalls(self):
         """Works well, maybe the timing can be improved"""
