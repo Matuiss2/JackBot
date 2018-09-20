@@ -502,6 +502,7 @@ class EarlyAggro(sc2.BotAI):
             unit_ability = BUILD_CREEPTUMOR_TUMOR
         else:
             return
+
         # defining vars
         ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
         location_attempts = 30
@@ -540,9 +541,13 @@ class EarlyAggro(sc2.BotAI):
                     if not tumors:
                         self.actions.append(unit(unit_ability, c_location))
                         break
-                    if c_location.distance_to_closest(tumors) > 4:
+                    if unit_ability == BUILD_CREEPTUMOR_QUEEN:
                         self.actions.append(unit(unit_ability, c_location))
                         break
+                    if c_location.distance_to_closest(tumors) > 5:
+                        self.actions.append(unit(unit_ability, c_location))
+                        break
+
             if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
                 self.used_tumors.append(unit.tag)
 
