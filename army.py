@@ -34,16 +34,16 @@ class army_control:
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 235:
-                if atk_force.amount <= 25:
+                if len(atk_force) <= 25:
                     self.actions.append(
                         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
                     )
                     continue
-                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and atk_force.amount > 25:
+                elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and len(atk_force) > 25:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
             elif self.time < 1000:
-                if self.units(ULTRALISK).amount < 4 and self.supply_used not in range(198, 201):
+                if len(self.units(ULTRALISK)) < 4 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
                     continue
                 else:
