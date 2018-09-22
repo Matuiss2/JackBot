@@ -27,9 +27,15 @@ class army_control:
         static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         target = static_defence | filtered_enemies.not_flying
         atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
+        close_to_center = self.known_enemy_units.not_structure.closer_than(10, self._game_info.map_center)
         "enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})"
         for attacking_unit in atk_force:
-            if not self.close_enemies and self.townhalls and attacking_unit.health_percentage < 0.16:
+            if (
+                not self.close_enemies
+                and self.townhalls
+                and attacking_unit.health_percentage < 0.20
+                and not close_to_center
+            ):
                 self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
                 continue
             if attacking_unit.type_id == ZERGLING and attacking_unit.health <= 5:
@@ -42,7 +48,7 @@ class army_control:
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 235:
-                if len(atk_force) <= 25 and not self.close_enemies:
+                if len(atk_force) <= 25 and not self.close_enemies and not close_to_center:
                     self.actions.append(
                         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
                     )
