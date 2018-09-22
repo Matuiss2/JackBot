@@ -29,13 +29,9 @@ class army_control:
         atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
         "enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})"
         for attacking_unit in atk_force:
-            if not self.close_enemies:
-                if self.townhalls:
-                    if (attacking_unit.type_id == ZERGLING and attacking_unit.health <= 5) or (
-                        attacking_unit.type_id == ULTRALISK and attacking_unit.health <= 85
-                    ):
-                        self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
-                        continue
+            if not self.close_enemies and self.townhalls and attacking_unit.health_percentage < 0.16:
+                self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
+                continue
             if attacking_unit.type_id == ZERGLING and attacking_unit.health <= 5:
                 self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
                 continue
