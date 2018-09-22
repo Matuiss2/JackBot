@@ -38,9 +38,6 @@ class army_control:
             ):
                 self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
                 continue
-            if attacking_unit.type_id == ZERGLING and attacking_unit.health <= 5:
-                self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
-                continue
             if target.closer_than(47, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(target.closest_to(attacking_unit.position)))
                 continue  # these continues are needed so a unit doesnt get multiple orders per step
