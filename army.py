@@ -33,7 +33,7 @@ class army_control:
             if (
                 not self.close_enemies
                 and self.townhalls
-                and attacking_unit.health_percentage < 0.20
+                and 0.1 < attacking_unit.health_percentage < 0.2
                 and not close_to_center
             ):
                 self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
