@@ -5,6 +5,7 @@ from sc2 import Difficulty, Race, maps, run_game  # do we need these here?
 from sc2.constants import (
     BUILD_CREEPTUMOR_QUEEN,
     BUILD_CREEPTUMOR_TUMOR,
+    BURROW,
     CANCEL,
     CANCEL_MORPHHIVE,
     CANCEL_MORPHLAIR,
@@ -23,6 +24,7 @@ from sc2.constants import (
     LAIR,
     LARVA,
     MORPH_OVERSEER,
+    OBSERVER,
     OVERLORD,
     OVERLORDCOCOON,
     OVERLORDSPEED,
@@ -30,6 +32,7 @@ from sc2.constants import (
     PROBE,
     QUEEN,
     QUEENSPAWNLARVATIMER,
+    RESEARCH_BURROW,
     RESEARCH_CHITINOUSPLATING,
     RESEARCH_PNEUMATIZEDCARAPACE,
     RESEARCH_ZERGGROUNDARMORLEVEL1,
@@ -96,7 +99,8 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if enemies:
                     self.close_enemies.append(1)
                     break
-        await self.all_buildings()
+        if iteration % 5 == 0:
+            await self.all_buildings()
         await self.all_upgrades()
         await self.build_extractor()
         await self.build_hatchery()
@@ -105,7 +109,8 @@ class EarlyAggro(sc2.BotAI, army_control):
         await self.cancel_attacked_hatcheries()
         await self.defend_worker_rush()
         await self.detection()
-        await self.distribute_workers()
+        if iteration % 7 == 0:
+            await self.distribute_workers()
         await self.army_micro()
         await self.morphing_townhalls()
         await self.queens_abilities()
@@ -131,14 +136,14 @@ class EarlyAggro(sc2.BotAI, army_control):
         if cavern:
             if self.already_pending_upgrade(CHITINOUSPLATING) == 0 and self.can_afford(CHITINOUSPLATING):
                 self.actions.append(cavern.idle.first(RESEARCH_CHITINOUSPLATING))
-            if (
-                self.units(HATCHERY)
-                and not self.already_pending_upgrade(OVERLORDSPEED)
-                and self.can_afford(RESEARCH_PNEUMATIZEDCARAPACE)
-            ):
-                chosen_base = self.units(HATCHERY).random
-                self.actions.append(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
-        # Pool upgrades
+            if self.units(HATCHERY):
+                if not self.already_pending_upgrade(OVERLORDSPEED) and self.can_afford(RESEARCH_PNEUMATIZEDCARAPACE):
+                    chosen_base = self.units(HATCHERY).random
+                    self.actions.append(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
+                """
+                if not self.already_pending_upgrade(BURROW) and self.can_afford(RESEARCH_BURROW):
+                    chosen_base = self.units(HATCHERY).random
+                    self.actions.append(chosen_base(RESEARCH_BURROW))"""
         if self.research_list and pool.idle:
             available_research = await self.get_available_abilities(pool.first)
             for research in self.research_list:
@@ -149,59 +154,60 @@ class EarlyAggro(sc2.BotAI, army_control):
 
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
-        evochamber = self.units(EVOLUTIONCHAMBER)
-        pool = self.units(SPAWNINGPOOL)
-        spores = self.units(SPORECRAWLER)
-        base = self.townhalls  # so it just access the library once every loop instead of several
-        if pool.ready:
-            finished_base_amount = len(base.ready)  # same as above, calculate just once
-            # Evochamber
-            if (
-                self.abilities_list
-                and self.can_afford(EVOLUTIONCHAMBER)
-                and finished_base_amount >= 3
-                and len(evochamber) < 2
-                and not self.already_pending(EVOLUTIONCHAMBER)
-            ):
-                await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
-            # Spore crawlers
-            if not self.enemy_flying_dmg_units:
-                if self.known_enemy_units.flying:
-                    air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
-                    if air_units:
-                        self.enemy_flying_dmg_units = True
-            else:
-                if base:
-                    selected_base = base.random
-                    if len(spores) < finished_base_amount:
-                        if (
-                            not spores.closer_than(15, selected_base.position)
-                            and self.can_afford(SPORECRAWLER)
-                            and not self.already_pending(SPORECRAWLER)
-                        ):
-                            await self.build(SPORECRAWLER, near=selected_base.position)
-        if evochamber:
-            # Infestor pit
-            if (
-                not self.units(INFESTATIONPIT)
-                and self.can_afford(INFESTATIONPIT)
-                and not self.already_pending(INFESTATIONPIT)
-                and self.units(LAIR).ready
-                and base
-            ):
-                await self.build(INFESTATIONPIT, near=evochamber.first.position)
-            # Ultra cavern
-            if (
-                self.units(HIVE)
-                and not self.units(ULTRALISKCAVERN)
-                and self.can_afford(ULTRALISKCAVERN)
-                and not self.already_pending(ULTRALISKCAVERN)
-            ):
-                await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
+        if not self.close_enemies:
+            evochamber = self.units(EVOLUTIONCHAMBER)
+            pool = self.units(SPAWNINGPOOL)
+            spores = self.units(SPORECRAWLER)
+            base = self.townhalls  # so it just access the library once every loop instead of several
+            if pool.ready:
+                finished_base_amount = len(base.ready)  # same as above, calculate just once
+                # Evochamber
+                if (
+                    self.abilities_list
+                    and self.can_afford(EVOLUTIONCHAMBER)
+                    and finished_base_amount >= 3
+                    and len(evochamber) < 2
+                    and not self.already_pending(EVOLUTIONCHAMBER)
+                ):
+                    await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
+                # Spore crawlers
+                if not self.enemy_flying_dmg_units:
+                    if self.known_enemy_units.flying:
+                        air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
+                        if air_units:
+                            self.enemy_flying_dmg_units = True
+                else:
+                    if base:
+                        selected_base = base.random
+                        if len(spores) < finished_base_amount:
+                            if (
+                                not spores.closer_than(15, selected_base.position)
+                                and self.can_afford(SPORECRAWLER)
+                                and not self.already_pending(SPORECRAWLER)
+                            ):
+                                await self.build(SPORECRAWLER, near=selected_base.position)
+            if evochamber:
+                # Infestor pit
+                if (
+                    not self.units(INFESTATIONPIT)
+                    and self.can_afford(INFESTATIONPIT)
+                    and not self.already_pending(INFESTATIONPIT)
+                    and self.units(LAIR).ready
+                    and base
+                ):
+                    await self.build(INFESTATIONPIT, near=evochamber.first.position)
+                # Ultra cavern
+                if (
+                    self.units(HIVE)
+                    and not self.units(ULTRALISKCAVERN)
+                    and self.can_afford(ULTRALISKCAVERN)
+                    and not self.already_pending(ULTRALISKCAVERN)
+                ):
+                    await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
 
-        # Spawning pool
-        if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
-            await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
+            # Spawning pool
+            if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
+                await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
 
     async def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient"""
@@ -320,7 +326,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             if self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) == 1:
                 # - geysers.amount is needed since the game stop counting the drone when its inside the geyser
                 optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - len(geysirs))
-                if workers_total + self.already_pending(DRONE) < optimal_workers and len(self.units(ZERGLING)) > 13:
+                if workers_total + self.already_pending(DRONE) < optimal_workers and self.units(ZERGLING):
                     self.actions.append(larva.random.train(DRONE))
                     return True
 
@@ -364,14 +370,22 @@ class EarlyAggro(sc2.BotAI, army_control):
          I don't know if it beats complexes worker rushes like tyr's bot"""
         base = self.units(HATCHERY)
         if self.known_enemy_units and base and len(self.townhalls) < 2:
+            workers_attacking = self.workers.filter(lambda drn: drn.is_attacking in self.workers)
             enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close:
                 if len(enemy_units_close) == 1:
-                    selected_worker = self.workers.first
-                    self.actions.append(selected_worker.attack(enemy_units_close.closest_to(selected_worker.position)))
+                    if not workers_attacking:
+                        selected_worker = self.workers.first
+                        self.actions.append(
+                            selected_worker.attack(enemy_units_close.closest_to(selected_worker.position))
+                        )
                 else:
+
                     for worker in self.workers:
-                        self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
+                        if workers_attacking and not enemy_units_close:
+                            self.actions.append(worker.gather(self.state.mineral_field.closest_to(worker)))
+                        else:
+                            self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
 
     async def detection(self):
         """Morph overseers"""
