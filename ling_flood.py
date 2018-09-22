@@ -64,6 +64,7 @@ from sc2.player import Bot, Computer  # do we need these?
 from sc2.position import Point2  # for tumors
 from army import army_control
 
+
 # noinspection PyMissingConstructor
 class EarlyAggro(sc2.BotAI, army_control):
     """It makes one attack early then tried to make a very greedy transition"""
@@ -154,60 +155,60 @@ class EarlyAggro(sc2.BotAI, army_control):
 
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
-        if not self.close_enemies:
-            evochamber = self.units(EVOLUTIONCHAMBER)
-            pool = self.units(SPAWNINGPOOL)
-            spores = self.units(SPORECRAWLER)
-            base = self.townhalls  # so it just access the library once every loop instead of several
-            if pool.ready:
-                finished_base_amount = len(base.ready)  # same as above, calculate just once
-                # Evochamber
-                if (
-                    self.abilities_list
-                    and self.can_afford(EVOLUTIONCHAMBER)
-                    and finished_base_amount >= 3
-                    and len(evochamber) < 2
-                    and not self.already_pending(EVOLUTIONCHAMBER)
-                ):
-                    await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
-                # Spore crawlers
-                if not self.enemy_flying_dmg_units:
-                    if self.known_enemy_units.flying:
-                        air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
-                        if air_units:
-                            self.enemy_flying_dmg_units = True
-                else:
-                    if base:
-                        selected_base = base.random
-                        if len(spores) < finished_base_amount:
-                            if (
-                                not spores.closer_than(15, selected_base.position)
-                                and self.can_afford(SPORECRAWLER)
-                                and not self.already_pending(SPORECRAWLER)
-                            ):
-                                await self.build(SPORECRAWLER, near=selected_base.position)
-            if evochamber:
-                # Infestor pit
-                if (
-                    not self.units(INFESTATIONPIT)
-                    and self.can_afford(INFESTATIONPIT)
-                    and not self.already_pending(INFESTATIONPIT)
-                    and self.units(LAIR).ready
-                    and base
-                ):
-                    await self.build(INFESTATIONPIT, near=evochamber.first.position)
-                # Ultra cavern
-                if (
-                    self.units(HIVE)
-                    and not self.units(ULTRALISKCAVERN)
-                    and self.can_afford(ULTRALISKCAVERN)
-                    and not self.already_pending(ULTRALISKCAVERN)
-                ):
-                    await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
 
-            # Spawning pool
-            if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
-                await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
+        evochamber = self.units(EVOLUTIONCHAMBER)
+        pool = self.units(SPAWNINGPOOL)
+        spores = self.units(SPORECRAWLER)
+        base = self.townhalls  # so it just access the library once every loop instead of several
+        if pool.ready:
+            finished_base_amount = len(base.ready)  # same as above, calculate just once
+            # Evochamber
+            if (
+                self.abilities_list
+                and self.can_afford(EVOLUTIONCHAMBER)
+                and finished_base_amount >= 3
+                and len(evochamber) < 2
+                and not self.already_pending(EVOLUTIONCHAMBER)
+            ):
+                await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
+            # Spore crawlers
+            if not self.enemy_flying_dmg_units:
+                if self.known_enemy_units.flying:
+                    air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
+                    if air_units:
+                        self.enemy_flying_dmg_units = True
+            else:
+                if base:
+                    selected_base = base.random
+                    if len(spores) < finished_base_amount:
+                        if (
+                            not spores.closer_than(15, selected_base.position)
+                            and self.can_afford(SPORECRAWLER)
+                            and not self.already_pending(SPORECRAWLER)
+                        ):
+                            await self.build(SPORECRAWLER, near=selected_base.position)
+        if evochamber:
+            # Infestor pit
+            if (
+                not self.units(INFESTATIONPIT)
+                and self.can_afford(INFESTATIONPIT)
+                and not self.already_pending(INFESTATIONPIT)
+                and self.units(LAIR).ready
+                and base
+            ):
+                await self.build(INFESTATIONPIT, near=evochamber.first.position)
+            # Ultra cavern
+            if (
+                self.units(HIVE)
+                and not self.units(ULTRALISKCAVERN)
+                and self.can_afford(ULTRALISKCAVERN)
+                and not self.already_pending(ULTRALISKCAVERN)
+            ):
+                await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
+
+        # Spawning pool
+        if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
+            await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
 
     async def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient"""
