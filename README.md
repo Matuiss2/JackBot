@@ -4,6 +4,8 @@ Its a bot that focus on early agro, then tries to make a transition
 
 TODO make it search for bases when starting base is already destroyed(very important)
 
+TODO dont follow the scouting worker all the way(fixed for workers, not for lings)
+
 TODO not keep attacking when ramp is blocked or when its an impossible fight
 
 TODO add Broodlords(maybe)
