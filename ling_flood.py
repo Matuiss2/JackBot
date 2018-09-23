@@ -119,6 +119,13 @@ class EarlyAggro(sc2.BotAI, army_control):
         await self.spread_creep()
         await self.do_actions(self.actions)
 
+    def attack_lowHP(self, unit, enemies):
+        """Attack enemie with lowest HP"""
+        lowesthp = min(enemie.health for enemie in enemies)
+        lowEnemies = enemies.filter(lambda x: x.health == lowesthp)
+        target = lowEnemies.closest_to(unit)
+        self.actions.append(unit.attack(target))
+
     async def all_upgrades(self):
         """All used upgrades, maybe can be optimized"""
         # Evochamber
@@ -169,10 +176,9 @@ class EarlyAggro(sc2.BotAI, army_control):
                 and len(base) >= 4
                 and len(evochamber) < 2
                 and not self.already_pending(EVOLUTIONCHAMBER)
-
             ):
                 await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
-             # Spore crawlers
+            # Spore crawlers
             if not self.enemy_flying_dmg_units:
                 if self.known_enemy_units.flying:
                     air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
@@ -386,19 +392,6 @@ class EarlyAggro(sc2.BotAI, army_control):
         #                     self.actions.append(worker.gather(self.state.mineral_field.closest_to(worker)))
         #                 else:
         #                     self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
-        async def defend_worker_rush(self):
-        """Its the way I found to defend simple worker rushes,
-        I don't know if it beats complexes worker rushes like tyr's bot"""
-        # base = self.units(HATCHERY)
-        # if self.known_enemy_units and base:
-        #     enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
-        #     if enemy_units_close and self.townhalls.amount < 2:
-        #         if len(enemy_units_close) == 1:
-        #             selected_worker = self.workers.first
-        #             self.actions.append(selected_worker.attack(enemy_units_close.closest_to(selected_worker.position)))
-        #         else:
-        #             for worker in self.workers:
-        #                 self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
         base = self.units(HATCHERY)
         if self.known_enemy_units and base:
             enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
