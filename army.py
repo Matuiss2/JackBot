@@ -50,7 +50,7 @@ class army_control:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
             elif self.time < 1000 and not self.close_enemies:
-                if len(self.units(ULTRALISK)) < 4 and self.supply_used not in range(198, 201):
+                if len(self.units(ULTRALISK).ready) < 2 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
                     continue
                 else:
