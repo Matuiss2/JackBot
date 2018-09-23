@@ -45,6 +45,7 @@ from sc2.constants import (
     RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     SCV,
     SPAWNINGPOOL,
+    SPINECRAWLER,
     SPORECRAWLER,
     ULTRALISK,
     ULTRALISKCAVERN,
@@ -155,7 +156,6 @@ class EarlyAggro(sc2.BotAI, army_control):
 
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
-
         evochamber = self.units(EVOLUTIONCHAMBER)
         pool = self.units(SPAWNINGPOOL)
         spores = self.units(SPORECRAWLER)
@@ -166,12 +166,13 @@ class EarlyAggro(sc2.BotAI, army_control):
             if (
                 self.abilities_list
                 and self.can_afford(EVOLUTIONCHAMBER)
-                and finished_base_amount >= 3
+                and len(base) >= 4
                 and len(evochamber) < 2
                 and not self.already_pending(EVOLUTIONCHAMBER)
+
             ):
                 await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
-            # Spore crawlers
+             # Spore crawlers
             if not self.enemy_flying_dmg_units:
                 if self.known_enemy_units.flying:
                     air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
@@ -261,11 +262,9 @@ class EarlyAggro(sc2.BotAI, army_control):
             if base_amount < 3:
                 await self.expand_now()
             if not self.already_pending(HATCHERY):
-                if base_amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
+                if base_amount == 3:
                     await self.expand_now()
-                elif base_amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0:
-                    await self.expand_now()
-                elif len(self.units(ULTRALISK)) >= 2:
+                elif self.units(ULTRALISK):
                     await self.expand_now()
 
     async def build_overlords(self):
@@ -335,7 +334,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         """good enough for now"""
         larva = self.units(LARVA)
         if self.units(SPAWNINGPOOL).ready:
-            if self.can_afford(ZERGLING) and self.can_feed(ZERGLING) and len(self.units(ZERGLING)) < 106:
+            if self.can_afford(ZERGLING) and self.can_feed(ZERGLING):
                 if self.units(ULTRALISKCAVERN).ready and self.time < 1380:
                     if len(self.units(ULTRALISK)) * 8 > len(self.units(ZERGLING)):
                         self.actions.append(larva.random.train(ZERGLING))
