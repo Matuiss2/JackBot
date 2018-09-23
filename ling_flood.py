@@ -75,8 +75,8 @@ class EarlyAggro(sc2.BotAI, army_control):
         self.workers_to_first_extractor = False
         self.enemy_flying_dmg_units = False
         self.worker_to_second_base = False
+        self.close_enemies = False
         self.actions = []
-        self.close_enemies = []
         self.used_tumors = []
         self.abilities_list = {
             RESEARCH_ZERGMELEEWEAPONSLEVEL1,
@@ -89,8 +89,8 @@ class EarlyAggro(sc2.BotAI, army_control):
         self.research_list = {RESEARCH_ZERGLINGMETABOLICBOOST, RESEARCH_ZERGLINGADRENALGLANDS}
 
     async def on_step(self, iteration):
-        self.close_enemies = []
         self.actions = []
+        self.close_enemies = False
         if iteration == 0:
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
         if self.known_enemy_units.not_structure:  # I only go to the loop if possibly needed
@@ -98,7 +98,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                 close_enemy = self.known_enemy_units.not_structure.closer_than(40, hatch.position)
                 enemies = close_enemy.exclude_type([DRONE, SCV, PROBE])
                 if enemies:
-                    self.close_enemies.append(1)
+                    self.close_enemies = True
                     break
         if iteration % 5 == 0:
             await self.all_buildings()
