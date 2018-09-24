@@ -168,8 +168,8 @@ class EarlyAggro(sc2.BotAI, army_control):
                 self.abilities_list
                 and self.can_afford(EVOLUTIONCHAMBER)
                 and finished_base_amount >= 3
-                and len(evochamber) < 2
-                and not self.already_pending(EVOLUTIONCHAMBER)
+                and len(self.workers) >= 48
+                and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
             ):
                 await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
             # Spore crawlers
@@ -379,7 +379,9 @@ class EarlyAggro(sc2.BotAI, army_control):
         if self.known_enemy_units and base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             drones = self.units(DRONE)
-            if len(enemy_units_close) >= 2:
+            if enemy_units_close and base.amount < 2:
+                if enemy_units_close == 1:
+                    self.actions.append(drones.closest_to(enemy_units_close[0].position).attack(enemy_units_close[0]))
                 for drone in drones:
                     # 6 hp is the lowest you can take a hit and still survive
                     if drone.health <= 6:
@@ -532,20 +534,20 @@ class EarlyAggro(sc2.BotAI, army_control):
         if hatchery:
             lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.3)
             for queen in queens.idle:
-                if not lowhp_ultralisks.closer_than(8, queen.position):
+                if not lowhp_ultralisks.closer_than(5, queen.position):
                     selected = hatchery.closest_to(queen.position)
                     if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                         self.actions.append(queen(EFFECT_INJECTLARVA, selected))
-                        continue
+                        break
                     elif queen.energy >= 26:
                         await self.place_tumor(queen)
                 elif queen.energy >= 50:
                     self.actions.append(queen(TRANSFUSION_TRANSFUSION, lowhp_ultralisks.closest_to(queen.position)))
 
             for hatch in hatchery.ready.noqueue:
-                if not queens.closer_than(8, hatch):
+                if not queens.closer_than(4, hatch):
                     for queen in queens:
-                        if not self.townhalls.closer_than(8, queen):
+                        if not self.townhalls.closer_than(4, queen):
                             self.actions.append(queen.move(hatch.position))
                             break
 
