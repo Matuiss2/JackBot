@@ -430,9 +430,10 @@ class EarlyAggro(sc2.BotAI, army_control):
     async def finding_bases(self):
         if self.time >= 630 and self.time % 30 == 0:
             location = self.locations[self.location_index]
-            selected_worker = self.workers.closest_to(location)
-            self.actions.append(selected_worker.move(location))
-            self.location_index = (self.location_index + 1) % len(self.locations)
+            if self.workers:
+                selected_worker = self.workers.closest_to(location)
+                self.actions.append(selected_worker.move(location))
+                self.location_index = (self.location_index + 1) % len(self.locations)
 
     async def is_morphing(self, homecity):
         """Check if a base or overlord is morphing, good enough for now"""
