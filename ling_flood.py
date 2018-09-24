@@ -428,7 +428,7 @@ class EarlyAggro(sc2.BotAI, army_control):
 
 
     async def finding_bases(self):
-        if self.time >= 720 and self.time % 20 == 0:
+        if self.time >= 630 and self.time % 30 == 0:
             location = self.locations[self.location_index]
             selected_worker = self.workers.closest_to(location)
             self.actions.append(selected_worker.move(location))
