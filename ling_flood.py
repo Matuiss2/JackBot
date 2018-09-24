@@ -119,11 +119,11 @@ class EarlyAggro(sc2.BotAI, army_control):
         await self.spread_creep()
         await self.do_actions(self.actions)
 
-    def attack_lowHP(self, unit, enemies):
+    def attack_lowhp(self, unit, enemies):
         """Attack enemie with lowest HP"""
-        lowesthp = min(enemie.health for enemie in enemies)
-        lowEnemies = enemies.filter(lambda x: x.health == lowesthp)
-        target = lowEnemies.closest_to(unit)
+        lowesthp = min(enemy.health for enemy in enemies)
+        low_enemies = enemies.filter(lambda x: x.health == lowesthp)
+        target = low_enemies.closest_to(unit)
         self.actions.append(unit.attack(target))
 
     async def all_upgrades(self):
@@ -396,32 +396,32 @@ class EarlyAggro(sc2.BotAI, army_control):
         if self.known_enemy_units and base:
             enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
             drones = self.units(DRONE)
-            if enemy_units_close.amount > 1 and self.base.amount < 2:
+            if enemy_units_close.amount > 1 and base.amount < 2:
                 for drone in drones:
                     if drone.health < 10:
                         if not drone.is_collecting:
                             mineral_field = self.state.mineral_field.closest_to(base.first.position)
-                            self.combinedActions.append(drone.gather(mineral_field))
+                            self.actions.append(drone.gather(mineral_field))
                         else:
                             pass
                     else:
                         if drone.weapon_cooldown == 0:
                             targets_close = enemy_units_close.in_attack_range_of(drone)
                             if targets_close:
-                                self.attack_lowHP(drone, targets_close)
+                                self.attack_lowhp(drone, targets_close)
                                 continue
                             else:
                                 target = enemy_units_close.closest_to(drone)
                                 if target:
-                                    self.attack_lowHP(drone, target)
+                                    self.actions.append(drone.attack(target))
                                     continue
                         else:
                             lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health))
-                            self.combinedActions.append(drone.move(lowest_hp_enemy))
+                            self.actions.append(drone.move(lowest_hp_enemy))
                             continue
             else:
                 for drone in drones.filter(lambda x: x.is_attacking):
-                    self.combinedActions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
+                    self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
                     continue
 
     async def detection(self):
