@@ -47,6 +47,7 @@ from sc2.constants import (
     SPAWNINGPOOL,
     SPINECRAWLER,
     SPORECRAWLER,
+    TRANSFUSION_TRANSFUSION,
     ULTRALISK,
     ULTRALISKCAVERN,
     UPGRADETOHIVE_HIVE,
@@ -378,7 +379,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         if self.known_enemy_units and base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             drones = self.units(DRONE)
-            if enemy_units_close and base.amount < 2:
+            if len(enemy_units_close) >= 2:
                 for drone in drones:
                     # 6 hp is the lowest you can take a hit and still survive
                     if drone.health <= 6:
@@ -400,7 +401,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                                     self.actions.append(drone.attack(target))
                                     continue
                         else:
-                            lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health))
+                            lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
                             self.actions.append(drone.move(lowest_hp_enemy))
                             continue
             else:
@@ -529,13 +530,17 @@ class EarlyAggro(sc2.BotAI, army_control):
         queens = self.units(QUEEN)
         hatchery = self.townhalls
         if hatchery:
+            lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.3)
             for queen in queens.idle:
-                selected = hatchery.closest_to(queen.position)
-                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                    self.actions.append(queen(EFFECT_INJECTLARVA, selected))
-                    continue
-                elif queen.energy > 26:
-                    await self.place_tumor(queen)
+                if not lowhp_ultralisks.closer_than(8, queen.position):
+                    selected = hatchery.closest_to(queen.position)
+                    if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
+                        self.actions.append(queen(EFFECT_INJECTLARVA, selected))
+                        continue
+                    elif queen.energy >= 26:
+                        await self.place_tumor(queen)
+                elif queen.energy >= 50:
+                    self.actions.append(queen(TRANSFUSION_TRANSFUSION, lowhp_ultralisks.closest_to(queen.position)))
 
             for hatch in hatchery.ready.noqueue:
                 if not queens.closer_than(8, hatch):
