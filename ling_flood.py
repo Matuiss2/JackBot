@@ -271,7 +271,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             if not self.already_pending(HATCHERY):
                 if base_amount == 3:
                     await self.expand_now()
-                elif self.units(ULTRALISK):
+                elif self.units(ULTRALISKCAVERN).ready:
                     await self.expand_now()
 
     async def build_overlords(self):
@@ -532,9 +532,9 @@ class EarlyAggro(sc2.BotAI, army_control):
         queens = self.units(QUEEN)
         hatchery = self.townhalls
         if hatchery:
-            lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.3)
+            lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.27)
             for queen in queens.idle:
-                if not lowhp_ultralisks.closer_than(5, queen.position):
+                if not lowhp_ultralisks.closer_than(8, queen.position):
                     selected = hatchery.closest_to(queen.position)
                     if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                         self.actions.append(queen(EFFECT_INJECTLARVA, selected))
