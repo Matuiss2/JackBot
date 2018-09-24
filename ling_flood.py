@@ -376,14 +376,16 @@ class EarlyAggro(sc2.BotAI, army_control):
          I don't know if it beats complexes worker rushes like tyr's bot"""
         base = self.units(HATCHERY)
         if self.known_enemy_units and base:
-            enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
+            enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             drones = self.units(DRONE)
-            if enemy_units_close.amount > 1 and base.amount < 2:
+            if enemy_units_close and base.amount < 2:
                 for drone in drones:
-                    if drone.health < 10:
+                    # 6 hp is the lowest you can take a hit and still survive
+                    if drone.health <= 6:
                         if not drone.is_collecting:
                             mineral_field = self.state.mineral_field.closest_to(base.first.position)
                             self.actions.append(drone.gather(mineral_field))
+                            continue
                         else:
                             pass
                     else:
@@ -391,6 +393,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                             targets_close = enemy_units_close.in_attack_range_of(drone)
                             if targets_close:
                                 self.attack_lowhp(drone, targets_close)
+                                continue
                             else:
                                 target = enemy_units_close.closest_to(drone)
                                 if target:
