@@ -1,7 +1,7 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
 import sc2
-from sc2 import Difficulty, Race, maps, run_game  # do we need these here?
+from sc2 import Difficulty, Race, maps, run_game
 from sc2.constants import (
     BUILD_CREEPTUMOR_QUEEN,
     BUILD_CREEPTUMOR_TUMOR,
@@ -61,7 +61,7 @@ from sc2.constants import (
     ZERGMELEEWEAPONSLEVEL3,
 )
 from sc2.data import ActionResult  # for tumors
-from sc2.player import Bot, Computer  # do we need these?
+from sc2.player import Bot, Computer
 from sc2.position import Point2  # for tumors
 from army import army_control
 
@@ -119,13 +119,6 @@ class EarlyAggro(sc2.BotAI, army_control):
         await self.spread_creep()
         await self.do_actions(self.actions)
 
-    def attack_lowHP(self, unit, enemies):
-        """Attack enemie with lowest HP"""
-        lowesthp = min(enemie.health for enemie in enemies)
-        lowEnemies = enemies.filter(lambda x: x.health == lowesthp)
-        target = lowEnemies.closest_to(unit)
-        self.actions.append(unit.attack(target))
-
     async def all_upgrades(self):
         """All used upgrades, maybe can be optimized"""
         # Evochamber
@@ -173,7 +166,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             if (
                 self.abilities_list
                 and self.can_afford(EVOLUTIONCHAMBER)
-                and len(base) >= 4
+                and finished_base_amount >= 3
                 and len(evochamber) < 2
                 and not self.already_pending(EVOLUTIONCHAMBER)
             ):
@@ -216,6 +209,13 @@ class EarlyAggro(sc2.BotAI, army_control):
         # Spawning pool
         if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
             await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
+
+    def attack_lowhp(self, unit, enemies):
+        """Attack enemie with lowest HP"""
+        lowesthp = min(enemy.health for enemy in enemies)
+        low_enemies = enemies.filter(lambda x: x.health == lowesthp)
+        target = low_enemies.closest_to(unit)
+        self.actions.append(unit.attack(target))
 
     async def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient"""
@@ -284,7 +284,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                     or (base_amount == 2 and not self.units(SPAWNINGPOOL))
                 ):
                     return False
-                if (base_amount in (1, 2) and self.already_pending(OVERLORD)) or (self.already_pending(OVERLORD) >= 2):
+                if (base_amount in (1, 2) and self.already_pending(OVERLORD)) or (self.already_pending(OVERLORD) >= 3):
                     return False
                 self.actions.append(self.units(LARVA).random.train(OVERLORD))
                 return True
@@ -374,54 +374,35 @@ class EarlyAggro(sc2.BotAI, army_control):
     async def defend_worker_rush(self):
         """Its the way I found to defend simple worker rushes,
          I don't know if it beats complexes worker rushes like tyr's bot"""
-        # base = self.units(HATCHERY)
-        # if self.known_enemy_units and base and len(self.townhalls) < 2:
-        #     workers_attacking = self.workers.filter(lambda drn: drn.is_attacking in self.workers)
-        #     enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
-        #     if enemy_units_close:
-        #         if len(enemy_units_close) == 1:
-        #             if not workers_attacking:
-        #                 selected_worker = self.workers.first
-        #                 self.actions.append(
-        #                     selected_worker.attack(enemy_units_close.closest_to(selected_worker.position))
-        #                 )
-        #         else:
-
-        #             for worker in self.workers:
-        #                 if workers_attacking and not enemy_units_close:
-        #                     self.actions.append(worker.gather(self.state.mineral_field.closest_to(worker)))
-        #                 else:
-        #                     self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
         base = self.units(HATCHERY)
         if self.known_enemy_units and base:
             enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
             drones = self.units(DRONE)
-            if enemy_units_close.amount > 1 and self.base.amount < 2:
+            if enemy_units_close.amount > 1 and base.amount < 2:
                 for drone in drones:
                     if drone.health < 10:
                         if not drone.is_collecting:
                             mineral_field = self.state.mineral_field.closest_to(base.first.position)
-                            self.combinedActions.append(drone.gather(mineral_field))
+                            self.actions.append(drone.gather(mineral_field))
                         else:
                             pass
                     else:
                         if drone.weapon_cooldown == 0:
                             targets_close = enemy_units_close.in_attack_range_of(drone)
                             if targets_close:
-                                self.attack_lowHP(drone, targets_close)
-                                continue
+                                self.attack_lowhp(drone, targets_close)
                             else:
                                 target = enemy_units_close.closest_to(drone)
                                 if target:
-                                    self.attack_lowHP(drone, target)
+                                    self.actions.append(drone.attack(target))
                                     continue
                         else:
                             lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health))
-                            self.combinedActions.append(drone.move(lowest_hp_enemy))
+                            self.actions.append(drone.move(lowest_hp_enemy))
                             continue
             else:
                 for drone in drones.filter(lambda x: x.is_attacking):
-                    self.combinedActions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
+                    self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
                     continue
 
     async def detection(self):
