@@ -1,7 +1,7 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
 import sc2
-from sc2 import Difficulty, Race, maps, run_game  # do we need these here?
+from sc2 import Difficulty, Race, maps, run_game
 from sc2.constants import (
     BUILD_CREEPTUMOR_QUEEN,
     BUILD_CREEPTUMOR_TUMOR,
@@ -45,7 +45,9 @@ from sc2.constants import (
     RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     SCV,
     SPAWNINGPOOL,
+    SPINECRAWLER,
     SPORECRAWLER,
+    TRANSFUSION_TRANSFUSION,
     ULTRALISK,
     ULTRALISKCAVERN,
     UPGRADETOHIVE_HIVE,
@@ -60,7 +62,7 @@ from sc2.constants import (
     ZERGMELEEWEAPONSLEVEL3,
 )
 from sc2.data import ActionResult  # for tumors
-from sc2.player import Bot, Computer  # do we need these?
+from sc2.player import Bot, Computer
 from sc2.position import Point2  # for tumors
 from army import army_control
 
@@ -155,7 +157,6 @@ class EarlyAggro(sc2.BotAI, army_control):
 
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
-
         evochamber = self.units(EVOLUTIONCHAMBER)
         pool = self.units(SPAWNINGPOOL)
         spores = self.units(SPORECRAWLER)
@@ -210,6 +211,13 @@ class EarlyAggro(sc2.BotAI, army_control):
         if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
             await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
 
+    def attack_lowhp(self, unit, enemies):
+        """Attack enemie with lowest HP"""
+        lowesthp = min(enemy.health for enemy in enemies)
+        low_enemies = enemies.filter(lambda x: x.health == lowesthp)
+        target = low_enemies.closest_to(unit)
+        self.actions.append(unit.attack(target))
+
     async def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient"""
         gas = self.units(EXTRACTOR)
@@ -261,11 +269,9 @@ class EarlyAggro(sc2.BotAI, army_control):
             if base_amount < 3:
                 await self.expand_now()
             if not self.already_pending(HATCHERY):
-                if base_amount == 3 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) > 0:
+                if base_amount == 3:
                     await self.expand_now()
-                elif base_amount == 4 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0:
-                    await self.expand_now()
-                elif len(self.units(ULTRALISK)) >= 2:
+                elif self.units(ULTRALISK):
                     await self.expand_now()
 
     async def build_overlords(self):
@@ -279,7 +285,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                     or (base_amount == 2 and not self.units(SPAWNINGPOOL))
                 ):
                     return False
-                if (base_amount in (1, 2) and self.already_pending(OVERLORD)) or (self.already_pending(OVERLORD) >= 2):
+                if (base_amount in (1, 2) and self.already_pending(OVERLORD)) or (self.already_pending(OVERLORD) >= 3):
                     return False
                 self.actions.append(self.units(LARVA).random.train(OVERLORD))
                 return True
@@ -335,7 +341,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         """good enough for now"""
         larva = self.units(LARVA)
         if self.units(SPAWNINGPOOL).ready:
-            if self.can_afford(ZERGLING) and self.can_feed(ZERGLING) and len(self.units(ZERGLING)) < 106:
+            if self.can_afford(ZERGLING) and self.can_feed(ZERGLING):
                 if self.units(ULTRALISKCAVERN).ready and self.time < 1380:
                     if len(self.units(ULTRALISK)) * 8 > len(self.units(ZERGLING)):
                         self.actions.append(larva.random.train(ZERGLING))
@@ -370,23 +376,38 @@ class EarlyAggro(sc2.BotAI, army_control):
         """Its the way I found to defend simple worker rushes,
          I don't know if it beats complexes worker rushes like tyr's bot"""
         base = self.units(HATCHERY)
-        if self.known_enemy_units and base and len(self.townhalls) < 2:
-            workers_attacking = self.workers.filter(lambda drn: drn.is_attacking in self.workers)
-            enemy_units_close = self.known_enemy_units.closer_than(5, base.first).of_type([PROBE, DRONE, SCV])
-            if enemy_units_close:
-                if len(enemy_units_close) == 1:
-                    if not workers_attacking:
-                        selected_worker = self.workers.first
-                        self.actions.append(
-                            selected_worker.attack(enemy_units_close.closest_to(selected_worker.position))
-                        )
-                else:
-
-                    for worker in self.workers:
-                        if workers_attacking and not enemy_units_close:
-                            self.actions.append(worker.gather(self.state.mineral_field.closest_to(worker)))
+        if self.known_enemy_units and base:
+            enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
+            drones = self.units(DRONE)
+            if len(enemy_units_close) >= 2:
+                for drone in drones:
+                    # 6 hp is the lowest you can take a hit and still survive
+                    if drone.health <= 6:
+                        if not drone.is_collecting:
+                            mineral_field = self.state.mineral_field.closest_to(base.first.position)
+                            self.actions.append(drone.gather(mineral_field))
+                            continue
                         else:
-                            self.actions.append(worker.attack(self.known_enemy_units.closest_to(worker.position)))
+                            pass
+                    else:
+                        if drone.weapon_cooldown == 0:
+                            targets_close = enemy_units_close.in_attack_range_of(drone)
+                            if targets_close:
+                                self.attack_lowhp(drone, targets_close)
+                                continue
+                            else:
+                                target = enemy_units_close.closest_to(drone)
+                                if target:
+                                    self.actions.append(drone.attack(target))
+                                    continue
+                        else:
+                            lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
+                            self.actions.append(drone.move(lowest_hp_enemy))
+                            continue
+            else:
+                for drone in drones.filter(lambda x: x.is_attacking):
+                    self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
+                    continue
 
     async def detection(self):
         """Morph overseers"""
@@ -509,13 +530,17 @@ class EarlyAggro(sc2.BotAI, army_control):
         queens = self.units(QUEEN)
         hatchery = self.townhalls
         if hatchery:
+            lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.3)
             for queen in queens.idle:
-                selected = hatchery.closest_to(queen.position)
-                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                    self.actions.append(queen(EFFECT_INJECTLARVA, selected))
-                    continue
-                elif queen.energy > 26:
-                    await self.place_tumor(queen)
+                if not lowhp_ultralisks.closer_than(8, queen.position):
+                    selected = hatchery.closest_to(queen.position)
+                    if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
+                        self.actions.append(queen(EFFECT_INJECTLARVA, selected))
+                        continue
+                    elif queen.energy >= 26:
+                        await self.place_tumor(queen)
+                elif queen.energy >= 50:
+                    self.actions.append(queen(TRANSFUSION_TRANSFUSION, lowhp_ultralisks.closest_to(queen.position)))
 
             for hatch in hatchery.ready.noqueue:
                 if not queens.closer_than(8, hatch):
