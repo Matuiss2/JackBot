@@ -31,7 +31,7 @@ class army_control:
         "enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})"
         for attacking_unit in atk_force:
             if not self.close_enemies and not close_to_center:
-                if self.townhalls and attacking_unit.health_percentage < 0.25:
+                if self.townhalls and attacking_unit.type_id == ULTRALISK and attacking_unit.health_percentage < 0.25:
                     self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
                     continue
             if target.closer_than(47, attacking_unit.position):
