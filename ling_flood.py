@@ -167,7 +167,6 @@ class EarlyAggro(sc2.BotAI, army_control):
                 self.abilities_list
                 and self.can_afford(EVOLUTIONCHAMBER)
                 and finished_base_amount >= 3
-                and len(self.workers) >= 30
                 and len(evochamber) < 2
                 and not self.already_pending(EVOLUTIONCHAMBER)
             ):
@@ -210,6 +209,13 @@ class EarlyAggro(sc2.BotAI, army_control):
         # Spawning pool
         if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
             await self.build(SPAWNINGPOOL, near=base.first.position.towards(self._game_info.map_center, 5))
+
+    def attack_lowhp(self, unit, enemies):
+        """Attack enemie with lowest HP"""
+        lowesthp = min(enemy.health for enemy in enemies)
+        low_enemies = enemies.filter(lambda x: x.health == lowesthp)
+        target = low_enemies.closest_to(unit)
+        self.actions.append(unit.attack(target))
 
     async def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient"""
@@ -384,11 +390,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                         if drone.weapon_cooldown == 0:
                             targets_close = enemy_units_close.in_attack_range_of(drone)
                             if targets_close:
-                                lowesthp = min(enemy.health for enemy in targets_close)
-                                low_enemies = targets_close.filter(lambda x: x.health == lowesthp)
-                                target = low_enemies.closest_to(drone)
-                                self.actions.append(drone.attack(target))
-                                continue
+                                self.attack_lowhp(drone, targets_close)
                             else:
                                 target = enemy_units_close.closest_to(drone)
                                 if target:
