@@ -32,7 +32,7 @@ class army_control:
         for attacking_unit in atk_force:
             if not self.close_enemies and not close_to_center:
                 if self.townhalls and attacking_unit.health_percentage < 0.27:
-                    if attacking_unit.type_id == ULTRALISK:
+                    if attacking_unit.type_id == ULTRALISK and self.time < 870:
                         self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
                         continue
                     if attacking_unit.type_id == ZERGLING and self.time < 280:
