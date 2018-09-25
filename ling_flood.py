@@ -1,5 +1,7 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
+from typing import List, Any
+
 import sc2
 from sc2 import Difficulty, Race, maps, run_game
 from sc2.constants import (
@@ -424,11 +426,10 @@ class EarlyAggro(sc2.BotAI, army_control):
             self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def finding_bases(self):
-        if self.time >= 630 and self.time % 30 == 0:
+        if self.time >= 600 and not self.known_enemy_units:
             location = self.locations[self.location_index]
-            if self.workers:
-                selected_worker = self.workers.closest_to(location)
-                self.actions.append(selected_worker.move(location))
+            if self.units(ZERGLING):
+                self.actions.append(self.units(ZERGLING).closest_to(location).move(location))
                 self.location_index = (self.location_index + 1) % len(self.locations)
 
     async def is_morphing(self, homecity):
@@ -603,7 +604,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         if deficit_bases and workers_to_distribute:
             mineral_fields_deficit = [mf for mf in self.state.mineral_field.closer_than(8, deficit_bases[0][0])]
             # order target mineral fields, first by if someone is there already, second by mineral content
-            mineral_fields_deficit = sorted(
+            mineral_fields_deficit: List[Any] = sorted(
                 mineral_fields_deficit,
                 key=lambda mineral_field: (
                     mineral_field.tag not in worker_order_targets,
