@@ -425,7 +425,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def finding_bases(self):
-        if self.time >= 600 and not self.known_enemy_units.not_flying:
+        if self.time >= 600 and not self.known_enemy_units.not_flying and self.time % 20 == 0:
             location = self.locations[self.location_index]
             if self.units(ZERGLING):
                 self.actions.append(self.units(ZERGLING).closest_to(location).move(location))
