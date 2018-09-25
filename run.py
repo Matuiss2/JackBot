@@ -23,3 +23,4 @@ if __name__ == "__main__":
         sc2.run_game(
             sc2.maps.get("Abyssal Reef LE"), [bot, Computer(Race.Protoss, Difficulty.VeryHard)], realtime=False
         )
+        # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)
