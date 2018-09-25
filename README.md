@@ -2,9 +2,7 @@
 
 Its a bot that focus on early agro, then tries to make a transition
 
-TODO improve base searching
-
-TODO implement worker rush follow up 
+TODO implement worker rush follow up
 
 TODO not keep attacking when ramp is blocked or when its an impossible fight
 
