@@ -30,22 +30,14 @@ class army_control:
         close_to_center = self.known_enemy_units.not_structure.closer_than(15, self._game_info.map_center)
         "enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})"
         for attacking_unit in atk_force:
-            if not self.close_enemies and not close_to_center:
-                if self.townhalls and attacking_unit.health_percentage < 0.27:
-                    if attacking_unit.type_id == ULTRALISK and self.time < 870:
-                        self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
-                        continue
-                    if attacking_unit.type_id == ZERGLING and self.time < 280:
-                        self.actions.append(attacking_unit.move(self.townhalls.closest_to(attacking_unit.position)))
-                        continue
             if target.closer_than(47, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(target.closest_to(attacking_unit.position)))
                 continue  # these continues are needed so a unit doesnt get multiple orders per step
             elif enemy_build.closer_than(27, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
-            elif self.time < 235:
-                if len(atk_force) <= 25 and not self.close_enemies and not close_to_center:
+            elif self.time < 220:
+                if len(atk_force) <= 25 and not self.close_enemies_to_base and not close_to_center:
                     self.actions.append(
                         attacking_unit.move(self._game_info.map_center.towards(self.enemy_start_locations[0], 11))
                     )
@@ -53,7 +45,7 @@ class army_control:
                 elif attacking_unit.position.distance_to(self.enemy_start_locations[0]) > 0 and len(atk_force) > 25:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
-            elif self.time < 1000 and not self.close_enemies:
+            elif self.time < 1000 and not self.close_enemies_to_base:
                 if len(self.units(ULTRALISK).ready) < 2 and self.supply_used not in range(198, 201):
                     self.actions.append(attacking_unit.move(self._game_info.map_center))
                     continue
