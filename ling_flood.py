@@ -107,8 +107,8 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if enemies:
                     self.close_enemies_to_base = True
                     break
-        if iteration % 5 == 0:
-            await self.all_buildings()
+
+        await self.all_buildings()
         await self.all_upgrades()
         await self.army_micro()
         await self.build_extractor()
@@ -118,8 +118,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         await self.cancel_attacked_hatcheries()
         await self.defend_worker_rush()
         await self.detection()
-        if iteration % 7 == 0:
-            await self.distribute_workers()
+        await self.distribute_workers()
         await self.finding_bases()
         await self.morphing_townhalls()
         await self.queens_abilities()
@@ -426,7 +425,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def finding_bases(self):
-        if self.time >= 600 and not self.known_enemy_units:
+        if self.time >= 600 and not self.known_enemy_units.not_flying:
             location = self.locations[self.location_index]
             if self.units(ZERGLING):
                 self.actions.append(self.units(ZERGLING).closest_to(location).move(location))
@@ -576,7 +575,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         mineral_tags = {mf.tag for mf in self.state.mineral_field}
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
 
-        # check places to collect from whether there are not optimal worker coumts
+        # check places to collect from whether there are not optimal worker counts
         for mining_place in mining_bases | self.units(EXTRACTOR).ready:
             difference = mining_place.surplus_harvesters
             # if too many workers, put extra workers in workers_to_distribute
@@ -604,7 +603,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         if deficit_bases and workers_to_distribute:
             mineral_fields_deficit = [mf for mf in self.state.mineral_field.closer_than(8, deficit_bases[0][0])]
             # order target mineral fields, first by if someone is there already, second by mineral content
-            mineral_fields_deficit: sorted(
+            mineral_fields_deficit = sorted(
                 mineral_fields_deficit,
                 key=lambda mineral_field: (
                     mineral_field.tag not in worker_order_targets,
