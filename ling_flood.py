@@ -599,19 +599,6 @@ class EarlyAggro(sc2.BotAI, army_control):
                     mineral_field.mineral_contents,
                 ),
             )
-        # if more than enough workers
-        if len(workers_to_distribute) > len(deficit_bases) + len(deficit_extractors):
-            mineral_fields_all = [
-                mf for mf in [self.state.mineral_field.closer_than(8, base) for base in mining_bases][0]
-            ]
-            # order target mineral fields, first by if someone is there already, second by mineral content)
-            mineral_fields_all = sorted(
-                mineral_fields_all,
-                key=lambda mineral_field: (
-                    mineral_field.tag not in worker_order_targets,
-                    -mineral_field.mineral_contents,
-                ),
-            )
         for worker in workers_to_distribute:
             # distribute to refineries
             if self.units(EXTRACTOR).ready and deficit_extractors:
@@ -629,9 +616,4 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if deficit_bases[0][1] == 0:
                     del deficit_bases[0]
             else:
-                # extra workers on other mineral fields
-                if mineral_fields_all:
-                    drone_target = mineral_fields_all[0]
-                    if len(mineral_fields_all) >= 2:
-                        del mineral_fields_all[0]
-                    self.actions.append(worker.gather(drone_target))
+                pass
