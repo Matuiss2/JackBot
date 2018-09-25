@@ -604,7 +604,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         if deficit_bases and workers_to_distribute:
             mineral_fields_deficit = [mf for mf in self.state.mineral_field.closer_than(8, deficit_bases[0][0])]
             # order target mineral fields, first by if someone is there already, second by mineral content
-            mineral_fields_deficit: List[Any] = sorted(
+            mineral_fields_deficit: sorted(
                 mineral_fields_deficit,
                 key=lambda mineral_field: (
                     mineral_field.tag not in worker_order_targets,
