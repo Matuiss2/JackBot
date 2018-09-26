@@ -1,7 +1,6 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import math
 from typing import List, Any
-
 import sc2
 from sc2 import Difficulty, Race, maps, run_game
 from sc2.constants import (
@@ -66,6 +65,7 @@ from sc2.constants import (
 from sc2.data import ActionResult  # for tumors
 from sc2.player import Bot, Computer
 from sc2.position import Point2  # for tumors
+
 from army import army_control
 
 
@@ -74,7 +74,9 @@ class EarlyAggro(sc2.BotAI, army_control):
     """It makes one attack early then tried to make a very greedy transition"""
 
     def __init__(self):
-
+        self.defense_mode = False
+        self.defenders = None
+        self.defender_tags = None
         self.worker_to_first_base = False
         self.workers_to_first_extractor = False
         self.enemy_flying_dmg_units = False
@@ -148,10 +150,10 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if not self.already_pending_upgrade(OVERLORDSPEED) and self.can_afford(RESEARCH_PNEUMATIZEDCARAPACE):
                     chosen_base = self.units(HATCHERY).random
                     self.actions.append(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
-                """
-                if not self.already_pending_upgrade(BURROW) and self.can_afford(RESEARCH_BURROW):
-                    chosen_base = self.units(HATCHERY).random
-                    self.actions.append(chosen_base(RESEARCH_BURROW))"""
+                # if not self.already_pending_upgrade(BURROW) and self.can_afford(RESEARCH_BURROW):
+                #     chosen_base = self.units(HATCHERY).random
+                #     self.actions.append(chosen_base(RESEARCH_BURROW))
+
         if self.research_list and pool.idle:
             available_research = await self.get_available_abilities(pool.first)
             for research in self.research_list:
@@ -375,42 +377,62 @@ class EarlyAggro(sc2.BotAI, army_control):
 
     async def defend_worker_rush(self):
         """Its the way I found to defend simple worker rushes,
-         I don't know if it beats complexes worker rushes like tyr's bot"""
+            I don't know if it beats complexes worker rushes like tyr's bot"""
         base = self.units(HATCHERY)
-        if self.known_enemy_units and base:
-            enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
-            drones = self.units(DRONE)
-            if enemy_units_close and base.ready.amount < 2:
-                if enemy_units_close == 1:
-                    self.actions.append(drones.closest_to(enemy_units_close[0].position).attack(enemy_units_close[0]))
-                for drone in drones:
-                    # 6 hp is the lowest you can take a hit and still survive
-                    if drone.health <= 6:
-                        if not drone.is_collecting:
-                            mineral_field = self.state.mineral_field.closest_to(base.first.position)
-                            self.actions.append(drone.gather(mineral_field))
-                            continue
-                        else:
-                            pass
+        enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
+        if enemy_units_close and not self.defense_mode:
+            self.defense_mode = True
+            self.defender_tags = [unit.tag for unit in self.units(DRONE).random_group_of(2 * (len(enemy_units_close)))]
+        if self.defense_mode and not enemy_units_close:
+            self.defense_mode = False
+            self.defender_tags = []
+            self.defenders = None
+        if self.defense_mode:
+            self.defenders = self.units(DRONE).filter(
+                lambda drone: drone.tag in self.defender_tags and drone.health > 0
+            )
+            defender_deficit = min(len(self.units(DRONE)) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
+            if defender_deficit > 0:
+                additional_drones = [
+                    unit.tag
+                    for unit in self.units(DRONE)
+                    .filter(lambda drone: drone.tag not in self.defender_tags)
+                    .random_group_of(defender_deficit)
+                ]
+                self.defender_tags = self.defender_tags + additional_drones
+            for drone in self.defenders:
+                # 6 hp is the lowest you can take a hit and still survive
+                if drone.health <= 6:
+                    if not drone.is_collecting:
+                        mineral_field = self.state.mineral_field.closest_to(base.first.position)
+                        self.actions.append(drone.gather(mineral_field))
+                        continue
                     else:
-                        if drone.weapon_cooldown == 0:
-                            targets_close = enemy_units_close.in_attack_range_of(drone)
-                            if targets_close:
-                                self.attack_lowhp(drone, targets_close)
-                                continue
-                            else:
-                                target = enemy_units_close.closest_to(drone)
-                                if target:
-                                    self.actions.append(drone.attack(target))
-                                    continue
-                        else:
-                            lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
-                            self.actions.append(drone.move(lowest_hp_enemy))
+                        pass
+                else:
+                    if drone.weapon_cooldown == 0:
+                        targets_close = enemy_units_close.in_attack_range_of(drone)
+                        if targets_close:
+                            self.attack_lowhp(drone, targets_close)
                             continue
-            else:
-                for drone in drones.filter(lambda x: x.is_attacking):
+                        else:
+                            target = enemy_units_close.closest_to(drone)
+                            if target:
+                                self.actions.append(drone.attack(target))
+                                continue
+                    else:
+                        lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
+                        self.actions.append(drone.move(lowest_hp_enemy))
+                        continue
+        else:
+            if self.defenders:
+                for drone in self.defenders:
                     self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
                     continue
+                self.defenders = None
+                self.defender_tags = []
+            else:
+                self.defender_tags = []
 
     async def detection(self):
         """Morph overseers"""
