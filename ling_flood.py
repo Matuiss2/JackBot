@@ -97,8 +97,8 @@ class EarlyAggro(sc2.BotAI, army_control):
     async def on_step(self, iteration):
         self.actions = []
         self.close_enemies = False
-        # if iteration == 0:
-        #     self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
+        if iteration == 0:
+            self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
         if self.known_enemy_units.not_structure:  # I only go to the loop if possibly needed
             for hatch in self.townhalls:
                 close_enemy = self.known_enemy_units.not_structure.closer_than(40, hatch.position)
@@ -106,21 +106,21 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if enemies:
                     self.close_enemies = True
                     break
-        # if iteration % 5 == 0:
-        #     await self.all_buildings()
-        # await self.all_upgrades()
-        # await self.build_extractor()
-        # await self.build_hatchery()
-        # await self.build_units()
-        # await self.build_queens()
-        # await self.cancel_attacked_hatcheries()
+        if iteration % 5 == 0:
+            await self.all_buildings()
+        await self.all_upgrades()
+        await self.build_extractor()
+        await self.build_hatchery()
+        await self.build_units()
+        await self.build_queens()
+        await self.cancel_attacked_hatcheries()
         await self.defend_worker_rush()
-        # await self.detection()
+        await self.detection()
         if iteration % 7 == 0:
             await self.distribute_workers()
         await self.army_micro()
-        # await self.morphing_townhalls()
-        # await self.queens_abilities()
+        await self.morphing_townhalls()
+        await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
 
