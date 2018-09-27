@@ -67,16 +67,15 @@ from sc2.player import Bot, Computer
 from sc2.position import Point2  # for tumors
 
 from army import army_control
+from worker import worker_control
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, army_control):
+class EarlyAggro(sc2.BotAI, army_control, worker_control):
     """It makes one attack early then tried to make a very greedy transition"""
 
     def __init__(self):
-        self.defense_mode = False
-        self.defenders = None
-        self.defender_tags = None
+        worker_control.__init__(self)
         self.worker_to_first_base = False
         self.workers_to_first_extractor = False
         self.enemy_flying_dmg_units = False
@@ -125,11 +124,6 @@ class EarlyAggro(sc2.BotAI, army_control):
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
-
-    async def split_workers(self):
-        for drone in self.units(DRONE):
-            closest_mineral_patch = self.state.mineral_field.closest_to(drone)
-            self.actions.append(drone.gather(closest_mineral_patch))
 
     async def all_upgrades(self):
         """All used upgrades, maybe can be optimized"""
@@ -231,13 +225,6 @@ class EarlyAggro(sc2.BotAI, army_control):
         if not pool and self.can_afford(SPAWNINGPOOL) and not self.already_pending(SPAWNINGPOOL) and len(base) >= 2:
             await self.build(SPAWNINGPOOL, base.first.position.towards(self._game_info.map_center, 5))
 
-    def attack_lowhp(self, unit, enemies):
-        """Attack enemy with lowest HP"""
-        lowesthp = min(enemy.health for enemy in enemies)
-        low_enemies = enemies.filter(lambda x: x.health == lowesthp)
-        target = low_enemies.closest_to(unit)
-        self.actions.append(unit.attack(target))
-
     async def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient
         Check for resources here to not always call "closer_than" """
@@ -259,7 +246,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if self.time > 900 and gas_amount < 9:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
-                
+
                 pit = self.units(INFESTATIONPIT)
                 if pit and gas_amount + self.already_pending(EXTRACTOR) < 7:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
@@ -379,68 +366,6 @@ class EarlyAggro(sc2.BotAI, army_control):
         for building in self.units(HATCHERY).filter(lambda x: 0.2 < x.build_progress < 1 and x.health < 400):
             self.actions.append(building(CANCEL))
 
-    async def defend_worker_rush(self):
-        """Its the way I found to defend simple worker rushes,
-            I don't know if it beats complexes worker rushes like tyr's bot"""
-        base = self.units(HATCHERY)
-        if base:
-            enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
-            if enemy_units_close and not self.defense_mode:
-                self.defense_mode = True
-                self.defender_tags = [
-                    unit.tag for unit in self.units(DRONE).random_group_of(2 * (len(enemy_units_close)))
-                ]
-            if self.defense_mode and not enemy_units_close:
-                self.defense_mode = False
-                self.defender_tags = []
-                self.defenders = None
-            if self.defense_mode:
-                self.defenders = self.units(DRONE).filter(
-                    lambda worker: worker.tag in self.defender_tags and worker.health > 0
-                )
-                defender_deficit = min(len(self.units(DRONE)) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
-                if defender_deficit > 0:
-                    additional_drones = [
-                        unit.tag
-                        for unit in self.units(DRONE)
-                        .filter(lambda worker: worker.tag not in self.defender_tags)
-                        .random_group_of(defender_deficit)
-                    ]
-                    self.defender_tags = self.defender_tags + additional_drones
-                for drone in self.defenders:
-                    # 6 hp is the lowest you can take a hit and still survive
-                    if drone.health <= 6:
-                        if not drone.is_collecting:
-                            mineral_field = self.state.mineral_field.closest_to(base.first.position)
-                            self.actions.append(drone.gather(mineral_field))
-                            continue
-                        else:
-                            pass
-                    else:
-                        if drone.weapon_cooldown == 0:
-                            targets_close = enemy_units_close.in_attack_range_of(drone)
-                            if targets_close:
-                                self.attack_lowhp(drone, targets_close)
-                                continue
-                            else:
-                                target = enemy_units_close.closest_to(drone)
-                                if target:
-                                    self.actions.append(drone.attack(target))
-                                    continue
-                        else:
-                            lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
-                            self.actions.append(drone.move(lowest_hp_enemy))
-                            continue
-            else:
-                if self.defenders:
-                    for drone in self.defenders:
-                        self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
-                        continue
-                    self.defenders = None
-                    self.defender_tags = []
-                else:
-                    self.defender_tags = []
-
     async def detection(self):
         """Morph overseers"""
         lords = self.units(OVERLORD)
@@ -482,7 +407,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             )
             and self.units(ULTRALISKCAVERN).ready
         ):
-            
+
             lair = self.units(LAIR)
             hive = self.units(HIVE)
             base = self.units(HATCHERY)
@@ -570,19 +495,19 @@ class EarlyAggro(sc2.BotAI, army_control):
         queens = self.units(QUEEN)
         hatchery = self.townhalls
         if hatchery:
-            "lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.27)"
+            # lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.27)
             for queen in queens.idle:
-                "if not lowhp_ultralisks.closer_than(8, queen.position):"
+                # if not lowhp_ultralisks.closer_than(8, queen.position):
                 selected = hatchery.closest_to(queen.position)
                 if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                     self.actions.append(queen(EFFECT_INJECTLARVA, selected))
                     continue
                 elif queen.energy >= 26:
                     await self.place_tumor(queen)
-                """
-                elif queen.energy >= 50:
-                    self.actions.append(queen(TRANSFUSION_TRANSFUSION, lowhp_ultralisks.closest_to(queen.position)))
-                """
+
+                # elif queen.energy >= 50:
+                #     self.actions.append(queen(TRANSFUSION_TRANSFUSION, lowhp_ultralisks.closest_to(queen.position)))
+
             for hatch in hatchery.ready.noqueue:
                 if not queens.closer_than(4, hatch):
                     for queen in queens:
@@ -596,75 +521,3 @@ class EarlyAggro(sc2.BotAI, army_control):
         for tumor in tumors:
             if tumor.tag not in self.used_tumors:
                 await self.place_tumor(tumor)
-
-    async def distribute_workers(self):
-        workers_to_distribute = [drone for drone in self.units(DRONE).idle]
-        deficit_bases = []
-        deficit_extractors = []
-        mineral_fields_deficit = []
-        extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
-        mineral_tags = {mf.tag for mf in self.state.mineral_field}
-        mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
-        mineral_fields = self.state.mineral_field.filter(
-            lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
-        )
-        # check places to collect from whether there are not optimal worker counts
-        for mining_place in mining_bases | self.units(EXTRACTOR).ready:
-            difference = mining_place.surplus_harvesters
-            # if too many workers, put extra workers in workers_to_distribute
-            if difference > 0:
-                for _ in range(difference):
-                    if mining_place.name == "Extractor":
-                        moving_drone = self.units(DRONE).filter(
-                            lambda x: x.order_target in extractor_tags and x not in workers_to_distribute
-                        )
-                    else:
-                        moving_drone = self.units(DRONE).filter(
-                            lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
-                        )
-                    if moving_drone:
-                        workers_to_distribute.append(moving_drone.closest_to(mining_place))
-            # too few workers, put place to mine in deficit list
-            elif difference < 0:
-                if mining_place.name == "Extractor":
-                    deficit_extractors.append([mining_place, difference])
-                else:
-                    deficit_bases.append([mining_place, difference])
-
-        if len(deficit_bases) + len(deficit_extractors) == 0:
-            # no deficits so only move idle workers, not surplus and idle
-            for drone in self.units(DRONE).idle:
-                if mineral_fields:
-                    mf = mineral_fields.closest_to(drone)
-                    self.actions.append(drone.gather(mf))
-            return
-        worker_order_targets = {worker.order_target for worker in self.units(DRONE).collecting}
-        # order mineral fields for scvs to prefer the ones with no worker and most minerals
-        if deficit_bases and workers_to_distribute:
-            mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]
-            # order target mineral fields, first by if someone is there already, second by mineral content
-            mineral_fields_deficit = sorted(
-                mineral_fields_deficit,
-                key=lambda mineral_field: (
-                    mineral_field.tag not in worker_order_targets,
-                    mineral_field.mineral_contents,
-                ),
-            )
-        for worker in workers_to_distribute:
-            # distribute to refineries
-            if self.units(EXTRACTOR).ready and deficit_extractors:
-                self.actions.append(worker.gather(deficit_extractors[0][0]))
-                deficit_extractors[0][1] += 1
-                if deficit_extractors[0][1] == 0:
-                    del deficit_extractors[0]
-            # distribute to mineral fields
-            elif mining_bases and deficit_bases and mineral_fields_deficit:
-                drone_target = mineral_fields_deficit[0]
-                if len(mineral_fields_deficit) >= 2:
-                    del mineral_fields_deficit[0]
-                self.actions.append(worker.gather(drone_target))
-                deficit_bases[0][1] += 1
-                if deficit_bases[0][1] == 0:
-                    del deficit_bases[0]
-            else:
-                pass
