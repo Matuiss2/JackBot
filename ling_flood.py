@@ -101,6 +101,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         if iteration == 0:
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
+            await self.split_workers()
         if self.known_enemy_units.not_structure:  # I only go to the loop if possibly needed
             for hatch in self.townhalls:
                 close_enemy = self.known_enemy_units.not_structure.closer_than(40, hatch.position)
@@ -124,6 +125,11 @@ class EarlyAggro(sc2.BotAI, army_control):
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
+
+    async def split_workers(self):
+        for drone in self.units(DRONE):
+            closest_mineral_patch = self.state.mineral_field.closest_to(drone)
+            self.actions.append(drone.gather(closest_mineral_patch))
 
     async def all_upgrades(self):
         """All used upgrades, maybe can be optimized"""
