@@ -27,7 +27,6 @@ class army_control:
         static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         target = static_defence | filtered_enemies.not_flying
         atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
-        close_to_center = self.known_enemy_units.not_structure.closer_than(15, self._game_info.map_center)
         "enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})"
         for attacking_unit in atk_force:
             if target.closer_than(47, attacking_unit.position):
@@ -37,7 +36,7 @@ class army_control:
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 1000 and not self.close_enemies_to_base:
-                if len(self.units(ULTRALISK).ready) < 2 and self.supply_used not in range(198, 201):
+                if len(self.units(ULTRALISK).ready) < 4 and self.supply_used not in range(198, 201):
                     self.actions.append(
                         attacking_unit.move(
                             self.townhalls.closest_to(self._game_info.map_center).position.towards(
@@ -49,7 +48,6 @@ class army_control:
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
-
             else:
                 if enemy_build:
                     self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
@@ -59,7 +57,6 @@ class army_control:
                     continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-
         for detection in self.units(OVERSEER):
             if atk_force:
                 self.actions.append(detection.move(atk_force.closest_to(detection.position)))
