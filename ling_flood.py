@@ -387,7 +387,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                 self.defenders = None
             if self.defense_mode:
                 self.defenders = self.units(DRONE).filter(
-                    lambda worker: worker.tag in self.defender_tags and drone.health > 0
+                    lambda worker: worker.tag in self.defender_tags and worker.health > 0
                 )
                 defender_deficit = min(len(self.units(DRONE)) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
                 if defender_deficit > 0:
@@ -589,13 +589,14 @@ class EarlyAggro(sc2.BotAI, army_control):
 
     async def distribute_workers(self):
         workers_to_distribute = [drone for drone in self.units(DRONE).idle]
-        mineral_fields_deficit = []
         deficit_bases = []
         deficit_extractors = []
         extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
         mineral_tags = {mf.tag for mf in self.state.mineral_field}
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
-
+        mineral_fields = self.state.mineral_field.filter(
+                lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
+            )
         # check places to collect from whether there are not optimal worker counts
         for mining_place in mining_bases | self.units(EXTRACTOR).ready:
             difference = mining_place.surplus_harvesters
@@ -619,10 +620,16 @@ class EarlyAggro(sc2.BotAI, army_control):
                 else:
                     deficit_bases.append([mining_place, difference])
 
+        if len(deficit_bases) + len(deficit_extractors) == 0:
+            # no deficits so only move idle workers, not surplus and idle
+            for drone in self.units(DRONE).idle: 
+                mf = mineral_fields.closest_to(drone)
+                self.actions.append(drone.gather(mf))
+            return
         worker_order_targets = {worker.order_target for worker in self.units(DRONE).collecting}
         # order mineral fields for scvs to prefer the ones with no worker and most minerals
         if deficit_bases and workers_to_distribute:
-            mineral_fields_deficit = [mf for mf in self.state.mineral_field.closer_than(8, deficit_bases[0][0])]
+            mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]
             # order target mineral fields, first by if someone is there already, second by mineral content
             mineral_fields_deficit = sorted(
                 mineral_fields_deficit,
@@ -639,7 +646,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if deficit_extractors[0][1] == 0:
                     del deficit_extractors[0]
             # distribute to mineral fields
-            elif mining_bases and deficit_bases and mineral_fields_deficit:
+            elif mining_bases and deficit_bases:
                 drone_target = mineral_fields_deficit[0]
                 if len(mineral_fields_deficit) >= 2:
                     del mineral_fields_deficit[0]
@@ -649,3 +656,4 @@ class EarlyAggro(sc2.BotAI, army_control):
                     del deficit_bases[0]
             else:
                 pass
+
