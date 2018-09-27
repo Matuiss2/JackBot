@@ -130,7 +130,7 @@ class EarlyAggro(sc2.BotAI, army_control):
     async def split_workers(self):
         for drone in self.units(DRONE):
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
-            self.combinedActions.append(drone.gather(closest_mineral_patch))
+            self.actions.append(drone.gather(closest_mineral_patch))
 
     async def all_upgrades(self):
         """All used upgrades, maybe can be optimized"""
