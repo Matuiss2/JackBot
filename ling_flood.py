@@ -185,7 +185,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             ):
                 if not evochamber:
                     await self.build(EVOLUTIONCHAMBER, pool.first.position.towards(self._game_info.map_center, 3))
-                elif self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL1) > 0.2:
+                elif self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL1) > .25:
                     await self.build(EVOLUTIONCHAMBER, pool.first.position.towards(self._game_info.map_center, 3))
             # Spore crawlers
             if not self.enemy_flying_dmg_units:
@@ -200,7 +200,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                         if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
                             await self.build(SPORECRAWLER, near=selected_base.position)
             if len(base.ready) >= 2 and self.time < 360:
-                if len(self.units(SPINECRAWLER)) < 2 and not self.already_pending(SPINECRAWLER):
+                if len(self.units(SPINECRAWLER)) < 3 and not self.already_pending(SPINECRAWLER):
                     await self.build(
                         SPINECRAWLER,
                         self.townhalls.closest_to(self._game_info.map_center).position.towards(
@@ -277,7 +277,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             and not self.close_enemies_to_base
             and not self.already_pending(HATCHERY)
         ):
-            if base_amount <= 3:
+            if base_amount <= 4:
                 await self.expand_now()
             elif self.units(ULTRALISKCAVERN):
                 await self.expand_now()
