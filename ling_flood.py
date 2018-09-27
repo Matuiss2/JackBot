@@ -260,7 +260,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if self.time > 900 and gas_amount < 9:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
-                if pit and gas_amount + self.already_pending(EXTRACTOR) < 6:
+                if pit and gas_amount + self.already_pending(EXTRACTOR) < 7:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
 
@@ -453,7 +453,7 @@ class EarlyAggro(sc2.BotAI, army_control):
             self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def finding_bases(self):
-        if self.time >= 600  and self.time % 20 == 0:
+        if self.time >= 720 and self.time % 20 == 0:
             location = self.locations[self.location_index]
             if self.workers:
                 self.actions.append(self.workers.closest_to(location).move(location))
@@ -599,6 +599,7 @@ class EarlyAggro(sc2.BotAI, army_control):
         workers_to_distribute = [drone for drone in self.units(DRONE).idle]
         deficit_bases = []
         deficit_extractors = []
+        mineral_fields_deficit = []
         extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
         mineral_tags = {mf.tag for mf in self.state.mineral_field}
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
@@ -655,7 +656,7 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if deficit_extractors[0][1] == 0:
                     del deficit_extractors[0]
             # distribute to mineral fields
-            elif mining_bases and deficit_bases:
+            elif mining_bases and deficit_bases and mineral_fields_deficit:
                 drone_target = mineral_fields_deficit[0]
                 if len(mineral_fields_deficit) >= 2:
                     del mineral_fields_deficit[0]
