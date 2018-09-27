@@ -7,7 +7,6 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
-    OBSERVER,
     OVERSEER,
     PHOTONCANNON,
     PLANETARYFORTRESS,
@@ -27,7 +26,7 @@ class army_control:
         static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         targets = static_defence | filtered_enemies.not_flying
         atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
-        "enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})"
+        # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if targets.closer_than(47, attacking_unit.position):
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
