@@ -22,7 +22,6 @@ class kill_switch(object):
 
     @classmethod
     def add(cls, value):
-        logger.debug("kill_switch: Add switch")
         cls._to_kill.append(value)
 
     @classmethod
