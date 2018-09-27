@@ -232,18 +232,17 @@ class EarlyAggro(sc2.BotAI, army_control):
             await self.build(SPAWNINGPOOL, base.first.position.towards(self._game_info.map_center, 5))
 
     def attack_lowhp(self, unit, enemies):
-        """Attack enemie with lowest HP"""
+        """Attack enemy with lowest HP"""
         lowesthp = min(enemy.health for enemy in enemies)
         low_enemies = enemies.filter(lambda x: x.health == lowesthp)
         target = low_enemies.closest_to(unit)
         self.actions.append(unit.attack(target))
 
     async def build_extractor(self):
-        """Couldnt find another way to build the geysers its way to inefficient"""
-        gas = self.units(EXTRACTOR)
-        pit = self.units(INFESTATIONPIT)
-        # check for resources here to not always call "closer_than"
+        """Couldnt find another way to build the geysers its way to inefficient
+        Check for resources here to not always call "closer_than" """
         if self.townhalls.ready and self.can_afford(EXTRACTOR):
+            gas = self.units(EXTRACTOR)
             gas_amount = len(gas)  # so it calculate just once per step
             vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
             for geyser in vgs:
@@ -260,6 +259,8 @@ class EarlyAggro(sc2.BotAI, army_control):
                 if self.time > 900 and gas_amount < 9:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
+                
+                pit = self.units(INFESTATIONPIT)
                 if pit and gas_amount + self.already_pending(EXTRACTOR) < 7:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
@@ -470,9 +471,6 @@ class EarlyAggro(sc2.BotAI, army_control):
 
     async def morphing_townhalls(self):
         """Works well, maybe the timing can be improved"""
-        lair = self.units(LAIR)
-        hive = self.units(HIVE)
-        base = self.units(HATCHERY)
         if not (
             all(
                 i == 1
@@ -484,6 +482,10 @@ class EarlyAggro(sc2.BotAI, army_control):
             )
             and self.units(ULTRALISKCAVERN).ready
         ):
+            
+            lair = self.units(LAIR)
+            hive = self.units(HIVE)
+            base = self.units(HATCHERY)
             # Hive
             if (
                 self.units(INFESTATIONPIT).ready
