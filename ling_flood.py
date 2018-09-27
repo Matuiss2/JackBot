@@ -310,27 +310,6 @@ class EarlyAggro(sc2.BotAI, army_control, worker_control):
                 return True
             return False
 
-    async def build_workers(self):
-        """Good for the beginning, but it doesnt adapt to losses of drones very well"""
-        workers_total = len(self.workers)
-        larva = self.units(LARVA)
-        geysirs = self.units(EXTRACTOR)
-        if not self.close_enemies_to_base and self.can_afford(DRONE) and self.can_feed(DRONE):
-            if workers_total == 12 and not self.already_pending(DRONE):
-                self.actions.append(larva.random.train(DRONE))
-                return True
-            if workers_total in (13, 14, 15) and len(self.units(OVERLORD)) + self.already_pending(OVERLORD) > 1:
-                if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL):
-                    self.actions.append(larva.random.train(DRONE))
-                    return True
-                self.actions.append(larva.random.train(DRONE))
-                return True
-
-            optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - len(geysirs))
-            if workers_total + self.already_pending(DRONE) < optimal_workers and self.units(ZERGLING).exists:
-                self.actions.append(larva.random.train(DRONE))
-                return True
-
     async def build_zerglings(self):
         """good enough for now"""
         larva = self.units(LARVA)
