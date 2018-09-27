@@ -25,13 +25,17 @@ class army_control:
         excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN, AUTOTURRET}
         filtered_enemies = self.known_enemy_units.not_structure.exclude_type(excluded_units)
         static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-        target = static_defence | filtered_enemies.not_flying
+        targets = static_defence | filtered_enemies.not_flying
         atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
         "enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})"
         for attacking_unit in atk_force:
-            if target.closer_than(47, attacking_unit.position):
-                self.actions.append(attacking_unit.attack(target.closest_to(attacking_unit.position)))
-                continue  # these continues are needed so a unit doesnt get multiple orders per step
+            if targets.closer_than(47, attacking_unit.position):
+                in_range_targets = targets.in_attack_range_of(attacking_unit)
+                if in_range_targets:
+                    self.attack_lowhp(attacking_unit, in_range_targets)
+                    continue  # these continues are needed so a unit doesnt get multiple orders per step
+                else:
+                    self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
             elif enemy_build.closer_than(27, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
@@ -52,8 +56,8 @@ class army_control:
                 if enemy_build:
                     self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                     continue
-                elif target:
-                    self.actions.append(attacking_unit.attack(target.closest_to(attacking_unit.position)))
+                elif targets:
+                    self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
