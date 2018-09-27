@@ -1,3 +1,4 @@
+import random
 import sys
 
 import sc2
@@ -20,7 +21,16 @@ if __name__ == "__main__":
     else:
         # Local game
         print("Starting local game...")
-        sc2.run_game(
-            sc2.maps.get("Abyssal Reef LE"), [bot, Computer(Race.Protoss, Difficulty.VeryHard)], realtime=False
+        random_map = random.choice(
+            [
+                "AcidPlantLE",
+                "BlueshiftLE",
+                "CeruleanFallLE",
+                "DreamcatcherLE",
+                "FractureLE",
+                "LostAndFoundLE",
+                "ParaSiteLE",
+            ]
         )
+        sc2.run_game(sc2.maps.get(random_map), [bot, Computer(Race.Protoss, Difficulty.VeryHard)], realtime=False)
         # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)

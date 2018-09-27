@@ -31,8 +31,11 @@ class army_control:
         for attacking_unit in atk_force:
             if targets.closer_than(47, attacking_unit.position):
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
-                self.attack_lowhp(drone, in_range_targets)
-                continue  # these continues are needed so a unit doesnt get multiple orders per step
+                if in_range_targets:
+                    self.attack_lowhp(attacking_unit, in_range_targets)
+                    continue  # these continues are needed so a unit doesnt get multiple orders per step
+                else:
+                    self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
             elif enemy_build.closer_than(27, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
