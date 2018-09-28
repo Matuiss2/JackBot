@@ -29,14 +29,14 @@ class army_control:
         atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
-            if targets.closer_than(47, attacking_unit.position):
+            if targets.closer_than(17, attacking_unit.position):
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
                 if in_range_targets:
                     self.attack_lowhp(attacking_unit, in_range_targets)
                     continue  # these continues are needed so a unit doesnt get multiple orders per step
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-            elif enemy_build.closer_than(27, attacking_unit.position):
+            elif enemy_build.closer_than(37, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 1000 and not self.close_enemies_to_base:
