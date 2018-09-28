@@ -1,3 +1,4 @@
+"""Everything related to workers behavior"""
 from sc2.constants import HATCHERY, PROBE, DRONE, SCV, EXTRACTOR, LAIR, HIVE, LARVA, OVERLORD, SPAWNINGPOOL, ZERGLING
 
 
@@ -7,7 +8,7 @@ class worker_control:
         self.defenders = None
         self.defender_tags = None
 
-    async def build_workers(self):
+    async def build_workers(self):  # send to hatchery.py when there is one
         """Good for the beginning, but it doesnt adapt to losses of drones very well"""
         workers_total = len(self.workers)
         larva = self.units(LARVA)
@@ -29,6 +30,7 @@ class worker_control:
                 return True
 
     async def split_workers(self):
+        """Split the workers on the beginning """
         for drone in self.units(DRONE):
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
             self.actions.append(drone.gather(closest_mineral_patch))
@@ -100,6 +102,7 @@ class worker_control:
                             continue
 
     async def distribute_workers(self):
+        """Distribute workers, according to available bases and geysers"""
         workers_to_distribute = [drone for drone in self.units(DRONE).idle]
         deficit_bases = []
         deficit_extractors = []
