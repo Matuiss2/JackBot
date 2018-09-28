@@ -101,7 +101,7 @@ class worker_control:
                             self.actions.append(drone.move(lowest_hp_enemy))
                             continue
 
-    async def distribute_workers(self):
+    async def distribute_drones(self):
         """Distribute workers, according to available bases and geysers"""
         workers_to_distribute = [drone for drone in self.units(DRONE).idle]
         deficit_bases = []
