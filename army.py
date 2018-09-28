@@ -1,4 +1,4 @@
-"""Everything related to army bahvior"""
+"""Everything related to army behavior"""
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -68,3 +68,4 @@ class army_control:
         for detection in self.units(OVERSEER):
             if atk_force:
                 self.actions.append(detection.move(atk_force.closest_to(detection.position)))
+
