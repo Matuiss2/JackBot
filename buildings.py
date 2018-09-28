@@ -57,12 +57,12 @@ class builder:
                     if not gas and self.units(SPAWNINGPOOL).ready:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
-                if self.time > 850 and gas_amount < 9:
+                if self.time > 900 and gas_amount < 9:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
 
                 pit = self.units(INFESTATIONPIT)
-                if pit and gas_amount + self.already_pending(EXTRACTOR) < 6:
+                if pit and gas_amount + self.already_pending(EXTRACTOR) < 7:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
 
