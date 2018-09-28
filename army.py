@@ -1,4 +1,4 @@
-"""Everything related to army behavior"""
+"""Everything related to army bahvior"""
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -43,7 +43,7 @@ class army_control:
                 if (
                     len(self.units(ULTRALISK).ready) < 4
                     and self.supply_used not in range(198, 201)
-                    and len(self.units(ZERGLING).ready) < 40
+                    and len(self.units(ZERGLING).ready) < 41
                 ):
                     self.actions.append(
                         attacking_unit.move(
@@ -68,4 +68,3 @@ class army_control:
         for detection in self.units(OVERSEER):
             if atk_force:
                 self.actions.append(detection.move(atk_force.closest_to(detection.position)))
-

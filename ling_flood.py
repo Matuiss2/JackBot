@@ -262,3 +262,30 @@ class EarlyAggro(sc2.BotAI, army_control, worker_control, creep_control, upgrade
                         if not self.townhalls.closer_than(4, queen):
                             self.actions.append(queen.move(hatch.position))
                             break
+
+
+# v1 vs ladder 1234 ELO
+# 18-0
+
+for it in range(327):
+    run_game(
+        maps.get("AbyssalReefLE"),
+        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.CheatVision)],
+        realtime=False,
+    )
+
+    run_game(
+        maps.get("AbyssalReefLE"),
+        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Zerg, Difficulty.CheatVision)],
+        realtime=False,
+    )
+
+    run_game(
+        maps.get("AbyssalReefLE"),
+        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Terran, Difficulty.CheatVision)],
+        realtime=False,
+    )
+
+run_game(
+    maps.get("AbyssalReefLE"), [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.Hard)], realtime=False
+)
