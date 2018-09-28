@@ -57,12 +57,12 @@ class builder:
                     if not gas and self.units(SPAWNINGPOOL):
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
-                if self.time > 900 and gas_amount < 9:
+                if self.time > 800 and gas_amount < 9:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
 
                 pit = self.units(INFESTATIONPIT)
-                if pit and gas_amount + self.already_pending(EXTRACTOR) < 7:
+                if pit and gas_amount + self.already_pending(EXTRACTOR) < 6:
                     self.actions.append(drone.build(EXTRACTOR, geyser))
                     break
 
@@ -127,7 +127,7 @@ class builder:
                         if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
                             await self.build(SPORECRAWLER, near=selected_base.position)
             if len(base.ready) >= 2 and self.time < 360:
-                if len(self.units(SPINECRAWLER)) < 3 and not self.already_pending(SPINECRAWLER):
+                if len(self.units(SPINECRAWLER)) < 2 and not self.already_pending(SPINECRAWLER):
                     await self.build(
                         SPINECRAWLER,
                         self.townhalls.closest_to(self._game_info.map_center).position.towards(
