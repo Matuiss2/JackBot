@@ -38,13 +38,9 @@ class builder:
             and self.abilities_list
             and self.can_afford(EVOLUTIONCHAMBER)
             and len(self.townhalls.ready) == 3
-            and len(evochamber) < 2
-            and not self.already_pending(EVOLUTIONCHAMBER)
+            and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
         ):
-            if not evochamber:
-                await self.build(EVOLUTIONCHAMBER, pool.first.position.towards(self._game_info.map_center, 3))
-            elif self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL1) > .25:
-                await self.build(EVOLUTIONCHAMBER, pool.first.position.towards(self._game_info.map_center, 3))
+            await self.build(EVOLUTIONCHAMBER, pool.first.position.towards(self._game_info.map_center, 3))
 
     def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient
@@ -58,10 +54,7 @@ class builder:
                 if not drone:
                     break
                 if not self.already_pending(EXTRACTOR):
-                    if not gas and len(self.townhalls) >= 3:
-                        self.actions.append(drone.build(EXTRACTOR, geyser))
-                        break
-                    if gas_amount < 2 and len(self.workers) >= 40:
+                    if not gas and self.units(SPAWNINGPOOL):
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
                 if self.time > 900 and gas_amount < 9:
@@ -87,7 +80,11 @@ class builder:
             and not self.already_pending(HATCHERY)
         ):
             if base_amount <= 4:
-                await self.expand_now()
+                if base_amount == 2:
+                    if self.units(SPINECRAWLER):
+                        await self.expand_now()
+                else:
+                    await self.expand_now()
             elif self.units(ULTRALISKCAVERN):
                 await self.expand_now()
 

@@ -24,7 +24,7 @@ class worker_control:
                 self.actions.append(larva.random.train(DRONE))
                 return True
 
-            optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - len(geysirs))
+            optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 98 - len(geysirs))
             if workers_total + self.already_pending(DRONE) < optimal_workers and self.units(ZERGLING).exists:
                 self.actions.append(larva.random.train(DRONE))
                 return True
@@ -101,7 +101,7 @@ class worker_control:
                             self.actions.append(drone.move(lowest_hp_enemy))
                             continue
 
-    async def distribute_workers(self):
+    async def distribute_drones(self):
         """Distribute workers, according to available bases and geysers"""
         workers_to_distribute = [drone for drone in self.units(DRONE).idle]
         deficit_bases = []

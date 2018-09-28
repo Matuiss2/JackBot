@@ -82,15 +82,16 @@ class EarlyAggro(sc2.BotAI, army_control, worker_control, creep_control, upgrade
                 if enemies:
                     self.close_enemies_to_base = True
                     break
-        await self.all_buildings()
-        await self.all_upgrades()
+        if iteration % 10 == 0:
+            await self.all_buildings()
+            await self.all_upgrades()
         await self.army_micro()
         await self.build_units()
         await self.build_queens()
         await self.cancel_attacked_hatcheries()
         await self.defend_worker_rush()
         await self.detection()
-        await self.distribute_workers()
+        await self.distribute_drones()
         await self.finding_bases()
         await self.morphing_townhalls()
         await self.queens_abilities()
