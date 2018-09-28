@@ -25,7 +25,7 @@ class worker_control:
                 return True
 
             optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - len(geysirs))
-            if workers_total + self.already_pending(DRONE) < optimal_workers:
+            if workers_total + self.already_pending(DRONE) < optimal_workers and self.units(ZERGLING).exists:
                 self.actions.append(larva.random.train(DRONE))
                 return True
 
