@@ -74,30 +74,3 @@ class EarlyAggro(
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
-
-
-# v1 vs ladder 1234 ELO
-# 47-7 rework
-
-for it in range(315):
-    run_game(
-        maps.get("AbyssalReefLE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.CheatVision)],
-        realtime=False,
-    )
-
-    run_game(
-        maps.get("AbyssalReefLE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Zerg, Difficulty.CheatVision)],
-        realtime=False,
-    )
-
-    run_game(
-        maps.get("AbyssalReefLE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Terran, Difficulty.CheatVision)],
-        realtime=False,
-    )
-
-run_game(
-    maps.get("AbyssalReefLE"), [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.Hard)], realtime=False
-)
