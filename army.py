@@ -47,6 +47,7 @@ class army_control:
                     len(self.units(ULTRALISK).ready) < 4
                     and self.supply_used not in range(198, 201)
                     and len(self.units(ZERGLING).ready) < 41
+                    and self.townhalls
                 ):
                     self.actions.append(
                         attacking_unit.move(
