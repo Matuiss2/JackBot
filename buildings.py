@@ -9,7 +9,6 @@ from sc2.constants import (
     SPINECRAWLER,
     SPORECRAWLER,
     ULTRALISKCAVERN,
-    ZERGMELEEWEAPONSLEVEL1,
     ZERGGROUNDARMORSLEVEL2,
 )
 
@@ -45,26 +44,27 @@ class builder:
     def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient
         Check for resources here to not always call "closer_than" """
-        if self.townhalls.ready and self.can_afford(EXTRACTOR):
-            gas = self.units(EXTRACTOR)
-            gas_amount = len(gas)  # so it calculate just once per step
-            vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
-            for geyser in vgs:
-                drone = self.select_build_worker(geyser.position)
-                if not drone:
-                    break
-                if not self.already_pending(EXTRACTOR):
-                    if not gas and self.units(SPAWNINGPOOL).ready:
+        if self.vespene < self.minerals * 2:
+            if self.townhalls.ready and self.can_afford(EXTRACTOR):
+                gas = self.units(EXTRACTOR)
+                gas_amount = len(gas)  # so it calculate just once per step
+                vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
+                for geyser in vgs:
+                    drone = self.select_build_worker(geyser.position)
+                    if not drone:
+                        break
+                    if not self.already_pending(EXTRACTOR):
+                        if not gas and self.units(SPAWNINGPOOL).ready:
+                            self.actions.append(drone.build(EXTRACTOR, geyser))
+                            break
+                    if self.time > 850 and gas_amount < 9:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
-                if self.time > 900 and gas_amount < 9:
-                    self.actions.append(drone.build(EXTRACTOR, geyser))
-                    break
 
-                pit = self.units(INFESTATIONPIT)
-                if pit and gas_amount + self.already_pending(EXTRACTOR) < 7:
-                    self.actions.append(drone.build(EXTRACTOR, geyser))
-                    break
+                    pit = self.units(INFESTATIONPIT)
+                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 6:
+                        self.actions.append(drone.build(EXTRACTOR, geyser))
+                        break
 
     async def build_hatchery(self):
         """Good for now, might be way too greedy tho(might need static defense)

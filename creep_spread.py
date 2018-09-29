@@ -12,6 +12,8 @@ from sc2.constants import (
 
 
 class creep_control:
+    def __init__(self):
+        self.used_tumors = []
     async def spread_creep(self):
         """ Iterate over all tumors to spread itself remove used creeps"""
         tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
@@ -29,7 +31,7 @@ class creep_control:
         elif BUILD_CREEPTUMOR_TUMOR in abilities:
             unit_ability = BUILD_CREEPTUMOR_TUMOR
         else:
-            return
+            return None
 
         # defining vars
         ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]

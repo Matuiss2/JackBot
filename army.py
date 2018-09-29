@@ -4,6 +4,7 @@ from sc2.constants import (
     AUTOTURRET,
     BUNKER,
     DISRUPTORPHASED,
+    EFFECT_INJECTLARVA,
     EGG,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
@@ -11,6 +12,8 @@ from sc2.constants import (
     OVERSEER,
     PHOTONCANNON,
     PLANETARYFORTRESS,
+    QUEEN,
+    QUEENSPAWNLARVATIMER,
     SPINECRAWLER,
     ULTRALISK,
     ZERGLING,
@@ -68,3 +71,28 @@ class army_control:
         for detection in self.units(OVERSEER):
             if atk_force:
                 self.actions.append(detection.move(atk_force.closest_to(detection.position)))
+
+    async def queens_abilities(self):
+        """Injection and creep spread"""
+        queens = self.units(QUEEN)
+        hatchery = self.townhalls
+        if hatchery:
+            # lowhp_ultralisks = self.units(ULTRALISK).filter(lambda lhpu: lhpu.health_percentage < 0.27)
+            for queen in queens.idle:
+                # if not lowhp_ultralisks.closer_than(8, queen.position):
+                selected = hatchery.closest_to(queen.position)
+                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
+                    self.actions.append(queen(EFFECT_INJECTLARVA, selected))
+                    continue
+                elif queen.energy >= 26:
+                    await self.place_tumor(queen)
+
+                # elif queen.energy >= 50:
+                #     self.actions.append(queen(TRANSFUSION_TRANSFUSION, lowhp_ultralisks.closest_to(queen.position)))
+
+            for hatch in hatchery.ready.noqueue:
+                if not queens.closer_than(4, hatch):
+                    for queen in queens:
+                        if not self.townhalls.closer_than(4, queen):
+                            self.actions.append(queen.move(hatch.position))
+                            break
