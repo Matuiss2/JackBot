@@ -44,14 +44,6 @@ class extra_things:
         ):
             self.actions.append(lords.random(MORPH_OVERSEER))
 
-    def finding_bases(self):
-        """Find hidden bases, slowly"""
-        if self.time >= 720 and self.time % 20 == 0:
-            location = self.locations[self.location_index]
-            if self.workers:
-                self.actions.append(self.workers.closest_to(location).move(location))
-                self.location_index = (self.location_index + 1) % len(self.locations)
-
     async def is_morphing(self, homecity):
         """Check if a base or overlord is morphing, good enough for now"""
         abilities = await self.get_available_abilities(homecity)
