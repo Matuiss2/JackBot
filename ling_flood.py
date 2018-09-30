@@ -51,6 +51,7 @@ class EarlyAggro(
         self.actions = []
         self.close_enemies_to_base = False
         if iteration == 0:
+            self._client.game_step = 8
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
             await self.split_workers()

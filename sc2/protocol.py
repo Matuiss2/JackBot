@@ -25,6 +25,7 @@ class Protocol(object):
         try:
             await self._ws.send_bytes(request.SerializeToString())
         except TypeError:
+            logger.exception("Cannot send: Connection already closed.")
             raise ConnectionAlreadyClosed("Connection already closed.")
         logger.debug(f"Request sent")
 
@@ -32,6 +33,7 @@ class Protocol(object):
         try:
             response_bytes = await self._ws.receive_bytes()
         except TypeError:
+            logger.exception("Cannot receive: Connection already closed.")
             raise ConnectionAlreadyClosed("Connection already closed.")
         response.ParseFromString(response_bytes)
         logger.debug(f"Response received")
@@ -45,9 +47,12 @@ class Protocol(object):
         response = await self.__request(request)
 
         new_status = Status(response.status)
+        if new_status != self._status:
+            logger.info(f"Client status changed to {new_status} (was {self._status})")
         self._status = new_status
 
         if response.error:
+            logger.debug(f"Response contained an error: {response.error}")
             raise ProtocolError(f"{response.error}")
 
         return response
