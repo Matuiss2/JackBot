@@ -64,16 +64,14 @@ class extra_things:
         """Works well, maybe the timing can be improved"""
         if not (
             all(
-                i == 1
+                self.units(ULTRALISKCAVERN).ready and i == 1
                 for i in (
                     self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3),
                     self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL3),
                     self.already_pending_upgrade(ZERGLINGATTACKSPEED),
                 )
             )
-            and self.units(ULTRALISKCAVERN).ready
         ):
-
             lair = self.units(LAIR)
             hive = self.units(HIVE)
             base = self.units(HATCHERY)

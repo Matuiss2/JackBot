@@ -21,18 +21,28 @@ from sc2.constants import (
 
 
 class army_control:
-    async def army_micro(self):
+    def army_micro(self):
         """Micro function, its just slight better than a-move, need A LOT of improvements.
         Name army_micro because it is in army.py."""
+        targets = 0
         enemy_build = self.known_enemy_structures
-        excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN, AUTOTURRET}
-        filtered_enemies = self.known_enemy_units.not_structure.exclude_type(excluded_units)
-        static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-        targets = static_defence | filtered_enemies.not_flying
+        if self.known_enemy_units:
+            excluded_units = {
+                ADEPTPHASESHIFT,
+                DISRUPTORPHASED,
+                EGG,
+                LARVA,
+                INFESTEDTERRANSEGG,
+                INFESTEDTERRAN,
+                AUTOTURRET,
+            }
+            filtered_enemies = self.known_enemy_units.not_structure.exclude_type(excluded_units)
+            static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
+            targets = static_defence | filtered_enemies.not_flying
         atk_force = self.units(ZERGLING) | self.units(ULTRALISK)
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
-            if targets.closer_than(17, attacking_unit.position):
+            if targets and targets.closer_than(17, attacking_unit.position):
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
                 if in_range_targets:
                     self.attack_lowhp(attacking_unit, in_range_targets)
@@ -47,6 +57,7 @@ class army_control:
                     len(self.units(ULTRALISK).ready) < 4
                     and self.supply_used not in range(198, 201)
                     and len(self.units(ZERGLING).ready) < 41
+                    and self.townhalls
                 ):
                     self.actions.append(
                         attacking_unit.move(
@@ -68,9 +79,12 @@ class army_control:
                     continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-        for detection in self.units(OVERSEER):
+        if self.units(OVERSEER):
+            selected_ov = self.units(OVERSEER).first
             if atk_force:
-                self.actions.append(detection.move(atk_force.closest_to(detection.position)))
+                self.actions.append(selected_ov.move(atk_force.closest_to(selected_ov.position)))
+            else:
+                self.actions.append(selected_ov.move(self.townhalls.closest_to(selected_ov.position)))
 
     async def queens_abilities(self):
         """Injection and creep spread"""

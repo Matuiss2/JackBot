@@ -36,10 +36,10 @@ class builder:
             pool.ready
             and self.abilities_list
             and self.can_afford(EVOLUTIONCHAMBER)
-            and len(self.townhalls.ready) == 3
+            and len(self.townhalls.ready) >= 3
             and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
         ):
-            await self.build(EVOLUTIONCHAMBER, pool.first.position.towards(self._game_info.map_center, 3))
+            await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
 
     def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient
@@ -78,6 +78,7 @@ class builder:
             and self.can_afford(HATCHERY)
             and not self.close_enemies_to_base
             and not self.already_pending(HATCHERY)
+            and not (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300)
         ):
             if base_amount <= 4:
                 if base_amount == 2:
@@ -115,7 +116,7 @@ class builder:
         base = self.townhalls
         spores = self.units(SPORECRAWLER)
         if self.units(SPAWNINGPOOL).ready:
-            if not self.enemy_flying_dmg_units:
+            if not (self.enemy_flying_dmg_units or self.time >= 360):
                 if self.known_enemy_units.flying:
                     air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
                     if air_units:
@@ -126,14 +127,17 @@ class builder:
                     if len(spores) + self.already_pending(SPORECRAWLER) < len(base.ready):
                         if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
                             await self.build(SPORECRAWLER, near=selected_base.position)
-            if len(base.ready) >= 2 and self.time < 360:
-                if len(self.units(SPINECRAWLER)) < 2 and not self.already_pending(SPINECRAWLER):
-                    await self.build(
-                        SPINECRAWLER,
-                        self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                            self._game_info.map_center, 11
-                        ),
-                    )
+            if (
+                len(base.ready) >= 2
+                and self.time <= 360
+                and (len(self.units(SPINECRAWLER)) + self.already_pending(SPINECRAWLER) < 2)
+            ) or (self.known_enemy_structures.closer_than(50, self.start_location) and self.time <= 300):
+                await self.build(
+                    SPINECRAWLER,
+                    near=self.townhalls.closest_to(self._game_info.map_center).position.towards(
+                        self._game_info.map_center, 7
+                    ),
+                )
 
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
