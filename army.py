@@ -16,6 +16,7 @@ from sc2.constants import (
     QUEENSPAWNLARVATIMER,
     SPINECRAWLER,
     ULTRALISK,
+    DRONE,
     ZERGLING,
 )
 
