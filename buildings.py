@@ -109,7 +109,7 @@ class builder:
             and self.can_afford(SPAWNINGPOOL)
             and not self.already_pending(SPAWNINGPOOL)
             and len(base) >= 2
-        ):
+        ) or (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300):
             await self.build(SPAWNINGPOOL, base.first.position.towards(self._game_info.map_center, 5))
 
     async def build_spores(self):
