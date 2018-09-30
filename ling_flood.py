@@ -1,9 +1,11 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import sc2
+from sc2.player import Bot, Computer
 from sc2 import Difficulty, Race, maps, run_game
 from sc2.constants import (
     DRONE,
     OVERLORD,
+    OVERSEER,
     PROBE,
     RESEARCH_ZERGGROUNDARMORLEVEL1,
     RESEARCH_ZERGGROUNDARMORLEVEL2,
@@ -14,7 +16,6 @@ from sc2.constants import (
     SCV,
 )
 
-from sc2.player import Bot, Computer
 from army import army_control
 from worker import worker_control
 from creep_spread import creep_control
@@ -46,6 +47,7 @@ class EarlyAggro(
             RESEARCH_ZERGGROUNDARMORLEVEL3,
         }
 
+
     async def on_step(self, iteration):
         self.actions = []
         self.close_enemies_to_base = False
@@ -53,17 +55,17 @@ class EarlyAggro(
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
             await self.split_workers()
-        if self.known_enemy_units.not_structure:  # I only go to the loop if possibly needed
+        if self.known_enemy_units.not_structure.not_flying:  # I only go to the loop if possibly needed
             for hatch in self.townhalls:
                 close_enemy = self.known_enemy_units.not_structure.closer_than(40, hatch.position)
-                enemies = close_enemy.exclude_type([DRONE, SCV, PROBE])
+                enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
                 if enemies:
                     self.close_enemies_to_base = True
                     break
         if iteration % 10 == 0:
             await self.all_buildings()
             await self.all_upgrades()
-        await self.army_micro()
+        self.army_micro()
         await self.build_units()
         self.cancel_attacked_hatcheries()
         await self.defend_worker_rush()
