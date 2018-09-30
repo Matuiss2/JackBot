@@ -47,7 +47,6 @@ class EarlyAggro(
             RESEARCH_ZERGGROUNDARMORLEVEL3,
         }
 
-
     async def on_step(self, iteration):
         self.actions = []
         self.close_enemies_to_base = False
@@ -65,6 +64,8 @@ class EarlyAggro(
         if iteration % 10 == 0:
             await self.all_buildings()
             await self.all_upgrades()
+        if iteration % 1500 == 200:
+            self.scout_map()
         self.army_micro()
         await self.build_units()
         self.cancel_attacked_hatcheries()

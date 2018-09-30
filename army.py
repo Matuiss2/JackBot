@@ -16,6 +16,7 @@ from sc2.constants import (
     QUEENSPAWNLARVATIMER,
     SPINECRAWLER,
     ULTRALISK,
+    DRONE,
     ZERGLING,
 )
 
@@ -45,11 +46,16 @@ class army_control:
             if targets and targets.closer_than(17, attacking_unit.position):
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
                 if in_range_targets:
-                    self.attack_lowhp(attacking_unit, in_range_targets)
-                    continue  # these continues are needed so a unit doesnt get multiple orders per step
+                    if (
+                        attacking_unit.weapon_cooldown <= 0.25
+                    ):  # more than half of the attack time with adrenal glands (0.35)
+                        self.attack_lowhp(attacking_unit, in_range_targets)
+                        continue  # these continues are needed so a unit doesnt get multiple orders per step
+                    else:
+                        self.actions.append(attacking_unit.move(in_range_targets.center))
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-            elif enemy_build.closer_than(37, attacking_unit.position):
+            elif enemy_build.closer_than(30, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 1000 and not self.close_enemies_to_base:
@@ -110,3 +116,11 @@ class army_control:
                         if not self.townhalls.closer_than(4, queen):
                             self.actions.append(queen.move(hatch.position))
                             break
+
+    def scout_map(self):
+        waypoints = [point for point in self.expansion_locations]
+        start = self.start_location
+        scout = self.units(DRONE).closest_to(start)
+        waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
+        for point in waypoints:
+            self.actions.append(scout.move(point, queue=True))
