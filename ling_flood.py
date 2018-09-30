@@ -76,30 +76,3 @@ class EarlyAggro(
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
-
-for it in range(1):
-    run_game(
-        maps.get("AbyssalReefLE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.CheatVision)],
-        realtime=False,
-    )
-
-    run_game(
-        maps.get("AbyssalReefLE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Zerg, Difficulty.CheatVision)],
-        realtime=False,
-    )
-
-    run_game(
-        maps.get("AbyssalReefLE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Terran, Difficulty.CheatVision)],
-        realtime=False,
-    )
-
-run_game(
-    maps.get("AbyssalReefLE"), [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.Hard)], realtime=False
-)
-
-# better detection mid game(probably use changelings)
-# v1 vs ladder 1234 ELO
-# 194-37 rework
