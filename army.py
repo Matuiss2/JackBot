@@ -110,3 +110,11 @@ class army_control:
                         if not self.townhalls.closer_than(4, queen):
                             self.actions.append(queen.move(hatch.position))
                             break
+
+    def scout_map(self):
+        waypoints = [point for point in self.expansion_locations]
+        start = self.start_location
+        scout = self.units(DRONE).closest_to(start)
+        waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
+        for point in waypoints:
+            self.actions.append(scout.move(point, queue=True))
