@@ -71,8 +71,8 @@ class production_control:
                 self.actions.append(larva.random.train(DRONE))
                 return True
 
-            optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 92 - len(geysirs))
-            if workers_total + self.already_pending(DRONE) < optimal_workers and self.zerglings.exists:
+            optimal_workers = min(sum([x.ideal_harvesters for x in self.townhalls | geysirs]), 98 - len(geysirs))
+            if workers_total + self.already_pending(DRONE) < optimal_workers and self.zerglings:
                 self.actions.append(larva.random.train(DRONE))
                 return True
         return None
@@ -83,7 +83,7 @@ class production_control:
         if self.units(SPAWNINGPOOL).ready:
             if self.can_afford(ZERGLING) and self.can_feed(ZERGLING):
                 if self.units(ULTRALISKCAVERN).ready and self.time < 1380:
-                    if len(self.ultralisks) * 10 > len(self.zerglings):
+                    if len(self.ultralisks) * 6 > len(self.zerglings):
                         self.actions.append(larva.random.train(ZERGLING))
                         return True
                 else:
@@ -98,8 +98,8 @@ class production_control:
             available_units_in_order = (
                 self.build_overlords,
                 self.build_ultralisk,
-                self.build_queens,
                 self.build_workers,
+                self.build_queens,
                 self.build_zerglings,
             )
             for build_unit_function in available_units_in_order:

@@ -19,19 +19,19 @@ class builder:
         self.worker_to_first_base = False
 
     async def build_cavern(self):
-        evochamber = self.units(EVOLUTIONCHAMBER)
+        evochamber = self.evochambers
         if (
             evochamber
             and self.units(HIVE)
-            and not self.units(ULTRALISKCAVERN)
+            and not self.caverns
             and self.can_afford(ULTRALISKCAVERN)
             and not self.already_pending(ULTRALISKCAVERN)
         ):
             await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
 
     async def build_evochamber(self):
-        pool = self.units(SPAWNINGPOOL)
-        evochamber = self.units(EVOLUTIONCHAMBER)
+        pool = self.pools
+        evochamber = self.evochambers
         if (
             pool.ready
             and self.abilities_list
@@ -54,15 +54,18 @@ class builder:
                     if not drone:
                         break
                     if not self.already_pending(EXTRACTOR):
-                        if not gas and self.units(SPAWNINGPOOL).ready:
+                        if gas_amount < 2 and len(self.townhalls) >= 3:
                             self.actions.append(drone.build(EXTRACTOR, geyser))
                             break
-                    if self.time > 850 and gas_amount < 9:
+                    if self.time > 960 and gas_amount < 10:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
-
-                    pit = self.units(INFESTATIONPIT)
-                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 6:
+                    pit = self.pits
+                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 4:
+                        self.actions.append(drone.build(EXTRACTOR, geyser))
+                        break
+                    cavern = self.caverns
+                    if cavern and gas_amount + self.already_pending(EXTRACTOR) < 8:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
 
@@ -80,24 +83,20 @@ class builder:
             and not self.already_pending(HATCHERY)
             and not (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300)
         ):
-            if base_amount <= 4:
-                if base_amount == 2:
-                    if self.units(SPINECRAWLER):
-                        await self.expand_now()
-                else:
-                    await self.expand_now()
-            elif self.units(ULTRALISKCAVERN):
+            if base_amount <= 3:
+                await self.expand_now()
+            elif self.caverns:
                 await self.expand_now()
 
     async def build_pit(self):
-        evochamber = self.units(EVOLUTIONCHAMBER)
+        evochamber = self.evochambers
         if (
             evochamber
-            and not self.units(INFESTATIONPIT)
+            and not self.pits
             and self.can_afford(INFESTATIONPIT)
             and not self.already_pending(INFESTATIONPIT)
             and self.units(LAIR).ready
-            and (self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0)
+            and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
             and self.townhalls
         ):
             await self.build(INFESTATIONPIT, near=evochamber.first.position)
@@ -105,7 +104,7 @@ class builder:
     async def build_pool(self):
         base = self.townhalls
         if (
-            not self.units(SPAWNINGPOOL)
+            not self.pools
             and self.can_afford(SPAWNINGPOOL)
             and not self.already_pending(SPAWNINGPOOL)
             and len(base) >= 2
@@ -115,8 +114,8 @@ class builder:
     async def build_spores(self):
         base = self.townhalls
         spores = self.units(SPORECRAWLER)
-        if self.units(SPAWNINGPOOL).ready:
-            if not (self.enemy_flying_dmg_units or self.time >= 360):
+        if self.pools.ready:
+            if not self.enemy_flying_dmg_units:
                 if self.known_enemy_units.flying:
                     air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
                     if air_units:
@@ -124,18 +123,17 @@ class builder:
             else:
                 if base:
                     selected_base = base.random
-                    if len(spores) + self.already_pending(SPORECRAWLER) < len(base.ready):
+                    if len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER):
                         if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
                             await self.build(SPORECRAWLER, near=selected_base.position)
-            if (
-                len(base.ready) >= 2
-                and self.time <= 360
-                and (len(self.units(SPINECRAWLER)) + self.already_pending(SPINECRAWLER) < 2)
-            ) or (self.known_enemy_structures.closer_than(50, self.start_location) and self.time <= 300):
+            if (len(self.spines) + self.already_pending(SPINECRAWLER) < 2) and (
+                (len(base.ready) >= 2 and self.time <= 360)
+                or (self.known_enemy_structures.closer_than(50, self.start_location) and self.time <= 300)
+            ):
                 await self.build(
                     SPINECRAWLER,
                     near=self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                        self._game_info.map_center, 7
+                        self._game_info.map_center, 9
                     ),
                 )
 

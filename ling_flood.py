@@ -3,7 +3,12 @@ import sc2
 from sc2.player import Bot, Computer
 from sc2 import Difficulty, Race, maps, run_game
 from sc2.constants import (
+    CREEPTUMOR,
+    CREEPTUMORBURROWED,
+    CREEPTUMORQUEEN,
     DRONE,
+    EVOLUTIONCHAMBER,
+    INFESTATIONPIT,
     OVERLORD,
     OVERSEER,
     PROBE,
@@ -14,9 +19,12 @@ from sc2.constants import (
     RESEARCH_ZERGMELEEWEAPONSLEVEL2,
     RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     SCV,
+    SPAWNINGPOOL,
+    SPINECRAWLER,
     ZERGLING,
     QUEEN,
     ULTRALISK,
+    ULTRALISKCAVERN,
 )
 
 from army import army_control
@@ -53,14 +61,28 @@ class EarlyAggro(
         self.queens = None
         self.zerglings = None
         self.ultralisks = None
+        self.overseers = None
+        self.evochambers = None
+        self.caverns = None
+        self.pools = None
+        self.pits = None
+        self.spines = None
+        self.tumors = None
 
     async def on_step(self, iteration):
         self.drones = self.units(DRONE)
         self.queens = self.units(QUEEN)
         self.zerglings = self.units(ZERGLING)
         self.ultralisks = self.units(ULTRALISK)
+        self.overseers = self.units(OVERSEER)
+        self.evochambers = self.units(EVOLUTIONCHAMBER)
+        self.caverns = self.units(ULTRALISKCAVERN)
+        self.pools = self.units(SPAWNINGPOOL)
+        self.pits = self.units(INFESTATIONPIT)
+        self.spines = self.units(SPINECRAWLER)
         self.actions = []
         self.close_enemies_to_base = False
+        self.tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
         if iteration == 0:
             self._client.game_step = 4
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
@@ -73,7 +95,7 @@ class EarlyAggro(
                 if enemies:
                     self.close_enemies_to_base = True
                     break
-        if iteration % 10 == 0:
+        if iteration % 20 == 0:
             await self.all_buildings()
             await self.all_upgrades()
         if iteration % 3000 == 400:
@@ -83,8 +105,10 @@ class EarlyAggro(
         self.cancel_attacked_hatcheries()
         await self.defend_worker_rush()
         await self.detection()
-        await self.distribute_drones()        
+        self.detection_control()
+        await self.distribute_drones()
         await self.morphing_townhalls()
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
+        

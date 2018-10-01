@@ -11,7 +11,6 @@ from sc2.constants import (
     OVERLORD,
     OVERLORDCOCOON,
     OVERSEER,
-    ULTRALISKCAVERN,
     UPGRADETOHIVE_HIVE,
     UPGRADETOLAIR_LAIR,
     ZERGLINGATTACKSPEED,
@@ -57,7 +56,7 @@ class extra_things:
         """Works well, maybe the timing can be improved"""
         if not (
             all(
-                self.units(ULTRALISKCAVERN).ready and i == 1
+                self.caverns.ready and i == 1
                 for i in (
                     self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3),
                     self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL3),
@@ -83,6 +82,6 @@ class extra_things:
                 and self.can_afford(UPGRADETOLAIR_LAIR)
                 and not (lair or hive)
                 and not any([await self.is_morphing(h) for h in base])
-                and self.units(HATCHERY).ready.idle
+                and base.ready.idle
             ):
                 self.actions.append(base.ready.idle.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))

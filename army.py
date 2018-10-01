@@ -9,15 +9,12 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
-    OVERSEER,
     PHOTONCANNON,
     PLANETARYFORTRESS,
-    QUEEN,
     QUEENSPAWNLARVATIMER,
     SPINECRAWLER,
-    ULTRALISK,
-    DRONE,
     ZERGLING,
+    ZERGLINGATTACKSPEED,
 )
 
 
@@ -45,16 +42,32 @@ class army_control:
         for attacking_unit in atk_force:
             if targets and targets.closer_than(17, attacking_unit.position):
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
-                if in_range_targets:
-                    if (
-                        attacking_unit.weapon_cooldown <= 0.25
-                    ):  # more than half of the attack time with adrenal glands (0.35)
-                        self.attack_lowhp(attacking_unit, in_range_targets)
-                        continue  # these continues are needed so a unit doesnt get multiple orders per step
+                if attacking_unit.type_id == ZERGLING:
+                    if in_range_targets:
+                        if self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1:
+                            if (
+                                attacking_unit.weapon_cooldown <= 0.25
+                            ):  # more than half of the attack time with adrenal glands (0.35)
+                                self.attack_lowhp(attacking_unit, in_range_targets)
+                                continue  # these continues are needed so a unit doesnt get multiple orders per step
+                            else:
+                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                                continue
+                        else:
+                            if (
+                                attacking_unit.weapon_cooldown <= 0.35
+                            ):  # more than half of the attack time with adrenal glands (0.35)
+                                self.attack_lowhp(attacking_unit, in_range_targets)
+                                continue
+                            else:
+                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                                continue
                     else:
-                        self.actions.append(attacking_unit.move(in_range_targets.center))
+                        self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                        continue
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                    continue
             elif enemy_build.closer_than(30, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
@@ -85,11 +98,14 @@ class army_control:
                     continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-        if self.units(OVERSEER):
-            selected_ov = self.units(OVERSEER).first
+
+    def detection_control(self):
+        atk_force = self.zerglings | self.ultralisks
+        if self.overseers:
+            selected_ov = self.overseers.first
             if atk_force:
                 self.actions.append(selected_ov.move(atk_force.closest_to(selected_ov.position)))
-            else:
+            elif self.townhalls:
                 self.actions.append(selected_ov.move(self.townhalls.closest_to(selected_ov.position)))
 
     async def queens_abilities(self):
