@@ -51,6 +51,7 @@ class EarlyAggro(
         self.actions = []
         self.close_enemies_to_base = False
         if iteration == 0:
+            self._client.game_step = 4
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
             await self.split_workers()
@@ -64,7 +65,7 @@ class EarlyAggro(
         if iteration % 10 == 0:
             await self.all_buildings()
             await self.all_upgrades()
-        if iteration % 1500 == 200:
+        if iteration % 3000 == 400:
             self.scout_map()
         self.army_micro()
         await self.build_units()

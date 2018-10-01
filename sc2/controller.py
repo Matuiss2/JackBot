@@ -30,5 +30,8 @@ class Controller(Protocol):
                 p.race = player.race.value
                 p.difficulty = player.difficulty.value
 
+        logger.info("Creating new game")
+        logger.info(f"Map:     {game_map.name}")
+        logger.info(f"Players: {', '.join(str(p) for p in players)}")
         result = await self._execute(create_game=req)
         return result

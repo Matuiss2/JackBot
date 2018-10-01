@@ -22,10 +22,12 @@ class kill_switch(object):
 
     @classmethod
     def add(cls, value):
+        logger.debug("kill_switch: Add switch")
         cls._to_kill.append(value)
 
     @classmethod
     def kill_all(cls):
+        logger.info("kill_switch: Process cleanup")
         for p in cls._to_kill:
             p._clean()
 
@@ -120,12 +122,13 @@ class SC2Process:
             await self._session.close()
 
     def _clean(self):
+        logger.info("Cleaning up...")
 
         if self._process is not None:
             if self._process.poll() is None:
                 for _ in range(3):
                     self._process.terminate()
-                    time.sleep(2)
+                    time.sleep(0.5)
                     if self._process.poll() is not None:
                         break
                 else:
@@ -138,4 +141,4 @@ class SC2Process:
 
         self._process = None
         self._ws = None
-
+        logger.info("Cleanup complete")
