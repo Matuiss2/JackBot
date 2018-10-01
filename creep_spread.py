@@ -1,20 +1,16 @@
 import math
 from sc2.data import ActionResult
 from sc2.position import Point2
-from sc2.constants import (
-    BUILD_CREEPTUMOR_QUEEN,
-    BUILD_CREEPTUMOR_TUMOR,
-    CREEPTUMOR,
-    CREEPTUMORQUEEN,
-    CREEPTUMORBURROWED,
-    ZERGBUILD_CREEPTUMOR,
-)
+from sc2.constants import BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, ZERGBUILD_CREEPTUMOR
 
 
 class creep_control:
+    def __init__(self):
+        self.used_tumors = []
+
     async def spread_creep(self):
         """ Iterate over all tumors to spread itself remove used creeps"""
-        tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+        tumors = self.tumors
         for tumor in tumors:
             if tumor.tag not in self.used_tumors:
                 await self.place_tumor(tumor)
@@ -29,7 +25,7 @@ class creep_control:
         elif BUILD_CREEPTUMOR_TUMOR in abilities:
             unit_ability = BUILD_CREEPTUMOR_TUMOR
         else:
-            return
+            return None
 
         # defining vars
         ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
@@ -51,7 +47,7 @@ class creep_control:
         # filter valid results
         valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ActionResult.Success]
         if valid_placements:
-            tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+            tumors = self.tumors
             if tumors:
                 valid_placements = sorted(
                     valid_placements,
