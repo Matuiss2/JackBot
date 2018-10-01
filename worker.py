@@ -10,7 +10,7 @@ class worker_control:
 
     async def split_workers(self):
         """Split the workers on the beginning """
-        for drone in self.units(DRONE):
+        for drone in self.drones:
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
             self.actions.append(drone.gather(closest_mineral_patch))
 
@@ -29,9 +29,7 @@ class worker_control:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close and not self.defense_mode:
                 self.defense_mode = True
-                self.defender_tags = [
-                    unit.tag for unit in self.units(DRONE).random_group_of(2 * (len(enemy_units_close)))
-                ]
+                self.defender_tags = [unit.tag for unit in self.drones.random_group_of(2 * (len(enemy_units_close)))]
             if self.defense_mode and not enemy_units_close:
                 if self.defenders:
                     for drone in self.defenders:
@@ -43,16 +41,16 @@ class worker_control:
                 self.defender_tags = []
                 self.defenders = None
             if self.defense_mode and enemy_units_close:
-                self.defenders = self.units(DRONE).filter(
+                self.defenders = self.drones.filter(
                     lambda worker: worker.tag in self.defender_tags and worker.health > 0
                 )
-                defender_deficit = min(len(self.units(DRONE)) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
+                defender_deficit = min(len(self.drones) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
                 if defender_deficit > 0:
                     additional_drones = [
                         unit.tag
-                        for unit in self.units(DRONE)
-                        .filter(lambda worker: worker.tag not in self.defender_tags)
-                        .random_group_of(defender_deficit)
+                        for unit in self.drones.filter(
+                            lambda worker: worker.tag not in self.defender_tags
+                        ).random_group_of(defender_deficit)
                     ]
                     self.defender_tags = self.defender_tags + additional_drones
                 for drone in self.defenders:
@@ -82,7 +80,7 @@ class worker_control:
 
     async def distribute_drones(self):
         """Distribute workers, according to available bases and geysers"""
-        workers_to_distribute = [drone for drone in self.units(DRONE).idle]
+        workers_to_distribute = [drone for drone in self.drones.idle]
         deficit_bases = []
         deficit_extractors = []
         mineral_fields_deficit = []
@@ -99,11 +97,11 @@ class worker_control:
             if difference > 0:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
-                        moving_drone = self.units(DRONE).filter(
+                        moving_drone = self.drones.filter(
                             lambda x: x.order_target in extractor_tags and x not in workers_to_distribute
                         )
                     else:
-                        moving_drone = self.units(DRONE).filter(
+                        moving_drone = self.drones.filter(
                             lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
                         )
                     if moving_drone:
@@ -117,12 +115,12 @@ class worker_control:
 
         if len(deficit_bases) + len(deficit_extractors) == 0:
             # no deficits so only move idle workers, not surplus and idle
-            for drone in self.units(DRONE).idle:
+            for drone in self.drones.idle:
                 if mineral_fields:
                     mf = mineral_fields.closest_to(drone)
                     self.actions.append(drone.gather(mf))
             return
-        worker_order_targets = {worker.order_target for worker in self.units(DRONE).collecting}
+        worker_order_targets = {worker.order_target for worker in self.drones.collecting}
         # order mineral fields for scvs to prefer the ones with no worker and most minerals
         if deficit_bases and workers_to_distribute:
             mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]

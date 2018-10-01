@@ -14,6 +14,9 @@ from sc2.constants import (
     RESEARCH_ZERGMELEEWEAPONSLEVEL2,
     RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     SCV,
+    ZERGLING,
+    QUEEN,
+    ULTRALISK,
 )
 
 from army import army_control
@@ -46,8 +49,16 @@ class EarlyAggro(
             RESEARCH_ZERGMELEEWEAPONSLEVEL3,
             RESEARCH_ZERGGROUNDARMORLEVEL3,
         }
+        self.drones = None
+        self.queens = None
+        self.zerglings = None
+        self.ultralisks = None
 
     async def on_step(self, iteration):
+        self.drones = self.units(DRONE)
+        self.queens = self.units(QUEEN)
+        self.zerglings = self.units(ZERGLING)
+        self.ultralisks = self.units(ULTRALISK)
         self.actions = []
         self.close_enemies_to_base = False
         if iteration == 0:
