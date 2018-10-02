@@ -123,22 +123,3 @@ class EarlyAggro(
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
-
-for i in range(3):
-    sc2.run_game(
-        sc2.maps.get("Abyssal Reef LE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.CheatVision)],
-        realtime=False,
-    )
-    sc2.run_game(
-        sc2.maps.get("Abyssal Reef LE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Zerg, Difficulty.CheatVision)],
-        realtime=False,
-    )
-    sc2.run_game(
-        sc2.maps.get("Abyssal Reef LE"),
-        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Terran, Difficulty.CheatVision)],
-        realtime=False,
-    )
-
-# 240 - 30 v3
