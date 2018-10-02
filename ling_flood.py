@@ -71,6 +71,7 @@ class EarlyAggro(
         self.pits = None
         self.spines = None
         self.tumors = None
+        self.retreat_units = set()
 
     async def on_step(self, iteration):
         self.drones = self.units(DRONE)
@@ -86,6 +87,7 @@ class EarlyAggro(
         self.actions = []
         self.close_enemies_to_base = False
         self.tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+
         if iteration == 0:
             self._client.game_step = 4
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
