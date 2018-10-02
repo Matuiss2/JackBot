@@ -10,6 +10,7 @@ from sc2.constants import (
     SPAWNINGPOOL,
     SPINECRAWLER,
     SPORECRAWLER,
+    SPORECRAWLERWEAPON,
     ULTRALISKCAVERN,
     ZERGGROUNDARMORSLEVEL2,
 )
@@ -89,7 +90,12 @@ class builder:
             and not (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300)
         ):
             if base_amount <= 3:
-                await self.expand_now()
+                if base_amount == 2:
+                    if self.spines:
+                        await self.expand_now()
+                else:
+
+                    await self.expand_now()
             elif self.caverns:
                 await self.expand_now()
 
@@ -118,7 +124,7 @@ class builder:
 
     async def build_spores(self):
         base = self.townhalls
-        spores = self.units(SPORECRAWLER)
+        spores = self.units(SPORECRAWLER) | self.units(SPORECRAWLERWEAPON)
         if self.pools.ready:
             if not self.enemy_flying_dmg_units:
                 if self.known_enemy_units.flying:
@@ -128,8 +134,10 @@ class builder:
             else:
                 if base:
                     selected_base = base.random
-                    if len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER):
-                        if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
+                    if len(spores) < len(base.ready):
+                        if (
+                            not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER)
+                        ) or self.time >= 360:
                             await self.build(SPORECRAWLER, near=selected_base.position)
             if (
                 len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(base.ready)

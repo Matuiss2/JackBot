@@ -100,8 +100,10 @@ class worker_control:
         mineral_fields = self.state.mineral_field.filter(
             lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
         )
-        if len(self.units(EXTRACTOR)) < 2 and (
-            self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+        if (
+            len(self.units(EXTRACTOR).ready) < 2
+            and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
+            or (self.vespene * 1.2 > self.minerals and self.time > 360)
         ):
             self.dont_collect_gas = True
             for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
@@ -168,4 +170,3 @@ class worker_control:
                     del deficit_bases[0]
             else:
                 pass
-
