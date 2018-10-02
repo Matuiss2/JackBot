@@ -9,6 +9,8 @@ from sc2.constants import (
     ULTRALISK,
     ULTRALISKCAVERN,
     ZERGLING,
+    ZERGLINGMOVEMENTSPEED,
+    ZERGGROUNDARMORSLEVEL3,
 )
 
 
@@ -49,6 +51,8 @@ class production_control:
         """Good for now but it might need to be changed vs particular
          enemy units compositions"""
         if self.units(ULTRALISKCAVERN).ready:
+            if not self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) and self.time > 780:
+                return False
             if self.can_afford(ULTRALISK) and self.can_feed(ULTRALISK):
                 self.actions.append(self.units(LARVA).random.train(ULTRALISK))
                 return True
@@ -61,11 +65,11 @@ class production_control:
         larva = self.units(LARVA)
         geysirs = self.units(EXTRACTOR)
         if not self.close_enemies_to_base and self.can_afford(DRONE) and self.can_feed(DRONE):
-            if workers_total == 12 and not self.already_pending(DRONE):
+            if workers_total == 12 and not self.already_pending(DRONE) and self.time < 200:
                 self.actions.append(larva.random.train(DRONE))
                 return True
             if workers_total in (13, 14, 15) and len(self.units(OVERLORD)) + self.already_pending(OVERLORD) > 1:
-                if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL):
+                if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL) and self.time < 250:
                     self.actions.append(larva.random.train(DRONE))
                     return True
                 self.actions.append(larva.random.train(DRONE))
@@ -81,6 +85,8 @@ class production_control:
         """good enough for now"""
         larva = self.units(LARVA)
         if self.units(SPAWNINGPOOL).ready:
+            if self.time >= 170 and not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED):
+                return False
             if self.can_afford(ZERGLING) and self.can_feed(ZERGLING):
                 if self.units(ULTRALISKCAVERN).ready and self.time < 1380:
                     if len(self.ultralisks) * 6 > len(self.zerglings):

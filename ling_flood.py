@@ -1,7 +1,9 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import sc2
-from sc2 import Difficulty, Race, maps, run_game
+from sc2 import Difficulty, Race
 from sc2.constants import (
+    BARRACKS,
+    GATEWAY,
     CREEPTUMOR,
     CREEPTUMORBURROWED,
     CREEPTUMORQUEEN,
@@ -50,6 +52,7 @@ class EarlyAggro(
         extra_things.__init__(self)
         army_control.__init__(self)
         self.close_enemies_to_base = False
+        self.close_enemy_production = False
         self.actions = []
         self.locations = []
         self.abilities_list = {
@@ -86,6 +89,7 @@ class EarlyAggro(
         self.spines = self.units(SPINECRAWLER)
         self.actions = []
         self.close_enemies_to_base = False
+        self.close_enemy_production = False
         self.tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
 
         if iteration == 0:
@@ -100,6 +104,8 @@ class EarlyAggro(
                 if enemies:
                     self.close_enemies_to_base = True
                     break
+        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(50, self.start_location):
+            self.close_enemy_production = True
         if iteration % 20 == 0:
             await self.all_buildings()
             await self.all_upgrades()
@@ -117,3 +123,22 @@ class EarlyAggro(
         await self.spread_creep()
         await self.do_actions(self.actions)
 
+
+for i in range(254):
+    sc2.run_game(
+        sc2.maps.get("Abyssal Reef LE"),
+        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Protoss, Difficulty.CheatVision)],
+        realtime=False,
+    )
+    sc2.run_game(
+        sc2.maps.get("Abyssal Reef LE"),
+        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Zerg, Difficulty.CheatVision)],
+        realtime=False,
+    )
+    sc2.run_game(
+        sc2.maps.get("Abyssal Reef LE"),
+        [Bot(Race.Zerg, EarlyAggro()), Computer(Race.Terran, Difficulty.CheatVision)],
+        realtime=False,
+    )
+
+# 223 - 29 v3

@@ -30,7 +30,7 @@ class upgrades_control:
     def hatchery_cavern_upgrades(self):
         cavern = self.units(ULTRALISKCAVERN).ready
         if cavern:
-            if self.already_pending_upgrade(CHITINOUSPLATING) == 0 and self.can_afford(CHITINOUSPLATING):
+            if not self.already_pending_upgrade(CHITINOUSPLATING) and self.can_afford(CHITINOUSPLATING):
                 self.actions.append(cavern.idle.first(RESEARCH_CHITINOUSPLATING))
             if self.units(HATCHERY):
                 if not self.already_pending_upgrade(OVERLORDSPEED) and self.can_afford(RESEARCH_PNEUMATIZEDCARAPACE):

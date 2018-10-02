@@ -27,7 +27,7 @@ class extra_things:
         """find the hatcheries that are building, and have low health and cancel then,
         can be better, its easy to burst 150 hp, but if I put more it might cancel itself,
         will look into that later"""
-        if self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300:
+        if self.close_enemy_production and self.time < 300:
             for building in self.units(HATCHERY).filter(lambda x: 0.2 < x.build_progress < 1 and x.health < 400):
                 self.actions.append(building(CANCEL))
 

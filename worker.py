@@ -32,7 +32,7 @@ class worker_control:
             if enemy_units_close and not self.defense_mode:
                 self.defense_mode = True
                 highest_hp_drones = heapq.nlargest(
-                    2 * (len(enemy_units_close)), self.drones.collecting, key=lambda drone: drone.health
+                    2 * (len(enemy_units_close)), self.drones.collecting, key=lambda drones: drones.health
                 )
                 self.defender_tags = [unit.tag for unit in highest_hp_drones]
             if self.defense_mode and not enemy_units_close:
@@ -52,7 +52,7 @@ class worker_control:
                 defender_deficit = min(len(self.drones) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
                 if defender_deficit > 0:
                     highest_hp_additional_drones = heapq.nlargest(
-                        defender_deficit, self.drones.collecting, key=lambda drone: drone.health
+                        defender_deficit, self.drones.collecting, key=lambda drones: drones.health
                     )
                     additional_drones = [unit.tag for unit in highest_hp_additional_drones]
                     self.defender_tags = self.defender_tags + additional_drones
@@ -159,8 +159,3 @@ class worker_control:
                     del deficit_bases[0]
             else:
                 pass
-
-    async def drones_with_no_base(self):
-        for drone in self.drones.filter(lambda dr: dr.further_than(25, self.townhalls.closest_to(dr.position))):
-            if drone.tag != self.selected_worker:
-                self.actions.append(drone.move(self.townhalls.closest_to(drone.position)))

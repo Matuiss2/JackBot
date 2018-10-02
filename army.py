@@ -4,6 +4,8 @@ from sc2.constants import (
     AUTOTURRET,
     BUNKER,
     CREEPTUMOR,
+    CREEPTUMORQUEEN,
+    CREEPTUMORBURROWED,
     DISRUPTORPHASED,
     DRONE,
     EFFECT_INJECTLARVA,
@@ -30,6 +32,7 @@ class army_control:
         """Micro function, its just slight better than a-move, need A LOT of improvements.
         Name army_micro because it is in army.py."""
         targets = None
+        filtered_enemies = None
         enemy_build = self.known_enemy_structures
         if self.known_enemy_units:
             excluded_units = {
@@ -48,15 +51,19 @@ class army_control:
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units:
-                if self.units.structure.owned.exclude_type(CREEPTUMOR).closer_than(15, attacking_unit.position):
+                if self.units.structure.owned.exclude_type(
+                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED}
+                ).closer_than(15, attacking_unit.position):
                     self.retreat_units.remove(attacking_unit.tag)
                 continue
-
             if targets and targets.closer_than(17, attacking_unit.position):
                 # retreat if we are not fighting at home
-                if not self.units.structure.closer_than(15, attacking_unit.position) and len(
-                    filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position)
-                ) >= len(atk_force.closer_than(15, attacking_unit.position)):
+                if (
+                    not self.units.structure.closer_than(15, attacking_unit.position)
+                    and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position))
+                    >= len(self.zerglings.closer_than(15, attacking_unit.position))
+                    + len(self.ultralisks.closer_than(15, attacking_unit.position)) * 8
+                ):
                     self.actions.append(
                         attacking_unit.move(
                             self.townhalls.closest_to(self._game_info.map_center).position.towards(
@@ -163,7 +170,6 @@ class army_control:
         waypoints = [point for point in self.expansion_locations]
         start = self.start_location
         scout = self.drones.closest_to(start)
-        self.selected_worker = scout.tag
         waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
         for point in waypoints:
             self.actions.append(scout.move(point, queue=True))
