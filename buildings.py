@@ -1,4 +1,6 @@
 from sc2.constants import (
+    BARRACKS,
+    GATEWAY,
     EVOLUTIONCHAMBER,
     EXTRACTOR,
     HATCHERY,
@@ -54,7 +56,10 @@ class builder:
                     if not drone:
                         break
                     if not self.already_pending(EXTRACTOR):
-                        if gas_amount < 2 and len(self.townhalls) >= 3:
+                        if not gas and self.pools:
+                            self.actions.append(drone.build(EXTRACTOR, geyser))
+                            break
+                        if gas_amount == 1 and len(self.townhalls) >= 3:
                             self.actions.append(drone.build(EXTRACTOR, geyser))
                             break
                     if self.time > 960 and gas_amount < 10:
@@ -108,7 +113,7 @@ class builder:
             and self.can_afford(SPAWNINGPOOL)
             and not self.already_pending(SPAWNINGPOOL)
             and len(base) >= 2
-        ) or (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300):
+        ) or (self.close_enemy_production and self.time < 300):
             await self.build(SPAWNINGPOOL, base.first.position.towards(self._game_info.map_center, 5))
 
     async def build_spores(self):
@@ -126,9 +131,15 @@ class builder:
                     if len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER):
                         if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
                             await self.build(SPORECRAWLER, near=selected_base.position)
-            if (len(self.spines) + self.already_pending(SPINECRAWLER) < 2) and (
-                (len(base.ready) >= 2 and self.time <= 360)
-                or (self.known_enemy_structures.closer_than(50, self.start_location) and self.time <= 300)
+            if (
+                len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(base.ready)
+                and self.time <= 360
+                or (
+                    self.close_enemy_production
+                    and self.time <= 300
+                    and len(self.spines) + self.already_pending(SPINECRAWLER)
+                    < len(self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(50, self.start_location))
+                )
             ):
                 await self.build(
                     SPINECRAWLER,

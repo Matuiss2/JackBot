@@ -1,5 +1,7 @@
 """Everything related to workers behavior"""
-from sc2.constants import HATCHERY, PROBE, DRONE, SCV, EXTRACTOR, LAIR, HIVE
+import heapq
+
+from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV
 
 
 class worker_control:
@@ -24,12 +26,15 @@ class worker_control:
     async def defend_worker_rush(self):
         """Its the way I found to defend simple worker rushes,
             I don't know if it beats complexes worker rushes like tyr's bot"""
-        base = self.units(HATCHERY)
+        base = self.units(HATCHERY).ready
         if base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close and not self.defense_mode:
                 self.defense_mode = True
-                self.defender_tags = [unit.tag for unit in self.drones.random_group_of(2 * (len(enemy_units_close)))]
+                highest_hp_drones = heapq.nlargest(
+                    2 * (len(enemy_units_close)), self.drones.collecting, key=lambda drones: drones.health
+                )
+                self.defender_tags = [unit.tag for unit in highest_hp_drones]
             if self.defense_mode and not enemy_units_close:
                 if self.defenders:
                     for drone in self.defenders:
@@ -46,12 +51,10 @@ class worker_control:
                 )
                 defender_deficit = min(len(self.drones) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
                 if defender_deficit > 0:
-                    additional_drones = [
-                        unit.tag
-                        for unit in self.drones.filter(
-                            lambda worker: worker.tag not in self.defender_tags
-                        ).random_group_of(defender_deficit)
-                    ]
+                    highest_hp_additional_drones = heapq.nlargest(
+                        defender_deficit, self.drones.collecting, key=lambda drones: drones.health
+                    )
+                    additional_drones = [unit.tag for unit in highest_hp_additional_drones]
                     self.defender_tags = self.defender_tags + additional_drones
                 for drone in self.defenders:
                     # 6 hp is the lowest you can take a hit and still survive
@@ -61,9 +64,9 @@ class worker_control:
                             self.actions.append(drone.gather(mineral_field))
                             continue
                         else:
-                            pass
+                            self.defender_tags.remove(drone.tag)
                     else:
-                        if drone.weapon_cooldown == 0:
+                        if drone.weapon_cooldown <= 0.60:
                             targets_close = enemy_units_close.in_attack_range_of(drone)
                             if targets_close:
                                 self.attack_lowhp(drone, targets_close)
@@ -74,9 +77,15 @@ class worker_control:
                                     self.actions.append(drone.attack(target))
                                     continue
                         else:
-                            lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
-                            self.actions.append(drone.move(lowest_hp_enemy))
-                            continue
+                            targets_in_range_1 = enemy_units_close.closer_than(1, drone)
+                            if targets_in_range_1:
+                                lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
+                                self.actions.append(drone.move(lowest_hp_enemy))
+                                continue
+                            else:
+                                lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
+                                self.actions.append(drone.move(lowest_hp_enemy))
+                                continue
 
     async def distribute_drones(self):
         """Distribute workers, according to available bases and geysers"""
