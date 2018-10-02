@@ -1,7 +1,7 @@
 """Everything related to workers behavior"""
 import heapq
 
-from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV
+from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZERGLINGMOVEMENTSPEED
 
 
 class worker_control:
@@ -9,6 +9,7 @@ class worker_control:
         self.defense_mode = False
         self.defenders = None
         self.defender_tags = None
+        self.return_mining = False
 
     async def split_workers(self):
         """Split the workers on the beginning """
@@ -99,13 +100,20 @@ class worker_control:
         mineral_fields = self.state.mineral_field.filter(
             lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
         )
+        if len(self.units(EXTRACTOR)) < 2 and (
+                self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)):
+            self.return_mining = True
+            for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
+                self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
+        else:
+            self.return_mining = False
         # check places to collect from whether there are not optimal worker counts
         for mining_place in mining_bases | self.units(EXTRACTOR).ready:
             difference = mining_place.surplus_harvesters
             # if too many workers, put extra workers in workers_to_distribute
             if difference > 0:
                 for _ in range(difference):
-                    if mining_place.name == "Extractor":
+                    if mining_place.name == "Extractor" and not self.return_mining:
                         moving_drone = self.drones.filter(
                             lambda x: x.order_target in extractor_tags and x not in workers_to_distribute
                         )
@@ -159,3 +167,5 @@ class worker_control:
                     del deficit_bases[0]
             else:
                 pass
+
+
