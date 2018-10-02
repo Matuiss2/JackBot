@@ -1,7 +1,7 @@
 """Everything related to workers behavior"""
 import heapq
 
-from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV
+from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZERGLINGMOVEMENTSPEED
 
 
 class worker_control:
@@ -9,6 +9,7 @@ class worker_control:
         self.defense_mode = False
         self.defenders = None
         self.defender_tags = None
+        self.dont_collect_gas = False
 
     async def split_workers(self):
         """Split the workers on the beginning """
@@ -99,6 +100,16 @@ class worker_control:
         mineral_fields = self.state.mineral_field.filter(
             lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
         )
+        if (
+            len(self.units(EXTRACTOR).ready) < 2
+            and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
+            or (self.vespene * 1.2 > self.minerals and self.time > 360)
+        ):
+            self.dont_collect_gas = True
+            for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
+                self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
+        else:
+            self.dont_collect_gas = False
         # check places to collect from whether there are not optimal worker counts
         for mining_place in mining_bases | self.units(EXTRACTOR).ready:
             difference = mining_place.surplus_harvesters
@@ -143,7 +154,7 @@ class worker_control:
             )
         for worker in workers_to_distribute:
             # distribute to refineries
-            if self.units(EXTRACTOR).ready and deficit_extractors:
+            if self.units(EXTRACTOR).ready and deficit_extractors and not self.dont_collect_gas:
                 self.actions.append(worker.gather(deficit_extractors[0][0]))
                 deficit_extractors[0][1] += 1
                 if deficit_extractors[0][1] == 0:

@@ -6,6 +6,7 @@ from sc2.constants import (
     CREEPTUMOR,
     CREEPTUMORQUEEN,
     CREEPTUMORBURROWED,
+    CREEPTUMORMISSILE,
     DISRUPTORPHASED,
     DRONE,
     EFFECT_INJECTLARVA,
@@ -52,7 +53,7 @@ class army_control:
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units:
                 if self.units.structure.owned.exclude_type(
-                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED}
+                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED,  CREEPTUMORMISSILE}
                 ).closer_than(15, attacking_unit.position):
                     self.retreat_units.remove(attacking_unit.tag)
                 continue
