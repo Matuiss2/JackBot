@@ -62,7 +62,7 @@ class army_control:
                     not self.units.structure.closer_than(15, attacking_unit.position)
                     and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position))
                     >= len(self.zerglings.closer_than(15, attacking_unit.position))
-                    + len(self.ultralisks.closer_than(15, attacking_unit.position)) * 8
+                    + len(self.ultralisks.closer_than(15, attacking_unit.position)) * 4
                 ):
                     self.actions.append(
                         attacking_unit.move(
