@@ -3,7 +3,9 @@ from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
     BUNKER,
+    CREEPTUMOR,
     DISRUPTORPHASED,
+    DRONE,
     EFFECT_INJECTLARVA,
     EGG,
     INFESTEDTERRAN,
@@ -11,7 +13,9 @@ from sc2.constants import (
     LARVA,
     PHOTONCANNON,
     PLANETARYFORTRESS,
+    PROBE,
     QUEENSPAWNLARVATIMER,
+    SCV,
     SPINECRAWLER,
     ZERGLING,
     ZERGLINGATTACKSPEED,
@@ -43,7 +47,25 @@ class army_control:
         atk_force = self.zerglings | self.ultralisks
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
+            if attacking_unit.tag in self.retreat_units:
+                if self.units.structure.owned.exclude_type(CREEPTUMOR).closer_than(15, attacking_unit.position):
+                    self.retreat_units.remove(attacking_unit.tag)
+                continue
+
             if targets and targets.closer_than(17, attacking_unit.position):
+                # retreat if we are not fighting at home
+                if not self.units.structure.closer_than(15, attacking_unit.position) and len(
+                    filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position)
+                ) >= len(atk_force.closer_than(15, attacking_unit.position)):
+                    self.actions.append(
+                        attacking_unit.move(
+                            self.townhalls.closest_to(self._game_info.map_center).position.towards(
+                                self._game_info.map_center, 10
+                            )
+                        )
+                    )
+                    self.retreat_units.add(attacking_unit.tag)
+                    continue
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
                 if attacking_unit.type_id == ZERGLING:
                     if in_range_targets:
@@ -80,6 +102,7 @@ class army_control:
                     and self.supply_used not in range(198, 201)
                     and len(self.zerglings.ready) < 41
                     and self.townhalls
+                    and self.retreat_units
                 ):
                     self.actions.append(
                         attacking_unit.move(
