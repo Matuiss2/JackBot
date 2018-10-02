@@ -124,7 +124,7 @@ class builder:
 
     async def build_spores(self):
         base = self.townhalls
-        spores = self.units(SPORECRAWLER) | self.units(SPORECRAWLERWEAPON)
+        spores = self.units(SPORECRAWLER)
         if self.pools.ready:
             if not self.enemy_flying_dmg_units:
                 if self.known_enemy_units.flying:
@@ -134,10 +134,8 @@ class builder:
             else:
                 if base:
                     selected_base = base.random
-                    if len(spores) < len(base.ready):
-                        if (
-                            not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER)
-                        ) or self.time >= 360:
+                    if (len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER)) or self.time >= 360:
+                        if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
                             await self.build(SPORECRAWLER, near=selected_base.position)
             if (
                 len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(base.ready)
