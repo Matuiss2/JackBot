@@ -24,11 +24,12 @@ class worker_control:
     async def defend_worker_rush(self):
         """Its the way I found to defend simple worker rushes,
             I don't know if it beats complexes worker rushes like tyr's bot"""
-        base = self.units(HATCHERY)
+        base = self.units(HATCHERY).ready
         if base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close and not self.defense_mode:
                 self.defense_mode = True
+                # TODO: choose highest hp drones with heapq
                 self.defender_tags = [unit.tag for unit in self.drones.random_group_of(2 * (len(enemy_units_close)))]
             if self.defense_mode and not enemy_units_close:
                 if self.defenders:
@@ -46,6 +47,7 @@ class worker_control:
                 )
                 defender_deficit = min(len(self.drones) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
                 if defender_deficit > 0:
+                    # TODO: choose highest hp drones with heapq
                     additional_drones = [
                         unit.tag
                         for unit in self.drones.filter(
@@ -61,9 +63,9 @@ class worker_control:
                             self.actions.append(drone.gather(mineral_field))
                             continue
                         else:
-                            pass
+                            self.defender_tags.remove(drone.tag)
                     else:
-                        if drone.weapon_cooldown == 0:
+                        if drone.weapon_cooldown <= 0.60:
                             targets_close = enemy_units_close.in_attack_range_of(drone)
                             if targets_close:
                                 self.attack_lowhp(drone, targets_close)
@@ -74,9 +76,15 @@ class worker_control:
                                     self.actions.append(drone.attack(target))
                                     continue
                         else:
-                            lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
-                            self.actions.append(drone.move(lowest_hp_enemy))
-                            continue
+                            targets_in_range_1 = enemy_units_close.closer_than(1, drone)
+                            if targets_in_range_1:
+                                lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
+                                self.actions.append(drone.move(lowest_hp_enemy))
+                                continue
+                            else:
+                                lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
+                                self.actions.append(drone.move(lowest_hp_enemy))
+                                continue
 
     async def distribute_drones(self):
         """Distribute workers, according to available bases and geysers"""

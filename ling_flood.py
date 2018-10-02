@@ -1,6 +1,5 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import sc2
-from sc2.player import Bot, Computer
 from sc2 import Difficulty, Race, maps, run_game
 from sc2.constants import (
     CREEPTUMOR,
@@ -12,6 +11,7 @@ from sc2.constants import (
     OVERLORD,
     OVERSEER,
     PROBE,
+    QUEEN,
     RESEARCH_ZERGGROUNDARMORLEVEL1,
     RESEARCH_ZERGGROUNDARMORLEVEL2,
     RESEARCH_ZERGGROUNDARMORLEVEL3,
@@ -26,14 +26,16 @@ from sc2.constants import (
     ULTRALISK,
     ULTRALISKCAVERN,
 )
+from sc2.player import Bot, Computer
 
 from army import army_control
-from worker import worker_control
-from creep_spread import creep_control
-from upgrades import upgrades_control
 from buildings import builder
-from production import production_control
+from creep_spread import creep_control
 from general import extra_things
+from production import production_control
+from upgrades import upgrades_control
+from worker import worker_control
+
 
 # noinspection PyMissingConstructor
 class EarlyAggro(
