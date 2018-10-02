@@ -12,6 +12,7 @@ from sc2.constants import (
     INFESTATIONPIT,
     OVERLORD,
     OVERSEER,
+    PHOTONCANNON,
     PROBE,
     QUEEN,
     RESEARCH_ZERGGROUNDARMORLEVEL1,
@@ -104,7 +105,7 @@ class EarlyAggro(
                 if enemies:
                     self.close_enemies_to_base = True
                     break
-        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(50, self.start_location):
+        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(50, self.start_location):
             self.close_enemy_production = True
         if iteration % 20 == 0:
             await self.all_buildings()
@@ -122,3 +123,4 @@ class EarlyAggro(
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
+        
