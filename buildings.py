@@ -134,7 +134,7 @@ class builder:
             else:
                 if base:
                     selected_base = base.random
-                    if (len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER)) or self.time >= 360:
+                    if len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER):
                         if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
                             await self.build(SPORECRAWLER, near=selected_base.position)
             if (
