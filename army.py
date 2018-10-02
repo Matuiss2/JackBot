@@ -19,10 +19,13 @@ from sc2.constants import (
 
 
 class army_control:
+    def __init__(self):
+        self.selected_worker = None
+
     def army_micro(self):
         """Micro function, its just slight better than a-move, need A LOT of improvements.
         Name army_micro because it is in army.py."""
-        targets = 0
+        targets = None
         enemy_build = self.known_enemy_structures
         if self.known_enemy_units:
             excluded_units = {
@@ -137,6 +140,7 @@ class army_control:
         waypoints = [point for point in self.expansion_locations]
         start = self.start_location
         scout = self.drones.closest_to(start)
+        self.selected_worker = scout.tag
         waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
         for point in waypoints:
             self.actions.append(scout.move(point, queue=True))

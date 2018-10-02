@@ -46,6 +46,7 @@ class EarlyAggro(
         builder.__init__(self)
         creep_control.__init__(self)
         extra_things.__init__(self)
+        army_control.__init__(self)
         self.close_enemies_to_base = False
         self.actions = []
         self.locations = []
@@ -111,4 +112,4 @@ class EarlyAggro(
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
-        
+

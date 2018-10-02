@@ -150,3 +150,9 @@ class worker_control:
                     del deficit_bases[0]
             else:
                 pass
+
+
+    async def drones_with_no_base(self):
+        for drone in self.drones.filter(lambda dr:dr.further_than(25, self.townhalls.closest_to(dr.position))):
+            if drone.tag != self.selected_worker:
+                self.actions.append(drone.move(self.townhalls.closest_to(drone.position)))

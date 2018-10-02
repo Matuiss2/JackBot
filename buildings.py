@@ -137,6 +137,10 @@ class builder:
                     ),
                 )
 
+    async def on_unit_destroyed(self, unit_tag):
+        """ Override this in your bot class. """
+        pass
+
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
         await self.build_cavern()
