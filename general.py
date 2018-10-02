@@ -11,7 +11,6 @@ from sc2.constants import (
     OVERLORD,
     OVERLORDCOCOON,
     OVERSEER,
-    ULTRALISKCAVERN,
     UPGRADETOHIVE_HIVE,
     UPGRADETOLAIR_LAIR,
     ZERGLINGATTACKSPEED,
@@ -28,8 +27,9 @@ class extra_things:
         """find the hatcheries that are building, and have low health and cancel then,
         can be better, its easy to burst 150 hp, but if I put more it might cancel itself,
         will look into that later"""
-        for building in self.units(HATCHERY).filter(lambda x: 0.2 < x.build_progress < 1 and x.health < 400):
-            self.actions.append(building(CANCEL))
+        if self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300:
+            for building in self.units(HATCHERY).filter(lambda x: 0.2 < x.build_progress < 1 and x.health < 400):
+                self.actions.append(building(CANCEL))
 
     async def detection(self):
         """Morph overseers"""
@@ -42,14 +42,6 @@ class extra_things:
             and not any([await self.is_morphing(h) for h in self.units(OVERLORDCOCOON)])
         ):
             self.actions.append(lords.random(MORPH_OVERSEER))
-
-    def finding_bases(self):
-        """Find hidden bases, slowly"""
-        if self.time >= 720 and self.time % 20 == 0:
-            location = self.locations[self.location_index]
-            if self.workers:
-                self.actions.append(self.workers.closest_to(location).move(location))
-                self.location_index = (self.location_index + 1) % len(self.locations)
 
     async def is_morphing(self, homecity):
         """Check if a base or overlord is morphing, good enough for now"""
@@ -64,7 +56,7 @@ class extra_things:
         """Works well, maybe the timing can be improved"""
         if not (
             all(
-                self.units(ULTRALISKCAVERN).ready and i == 1
+                self.caverns.ready and i == 1
                 for i in (
                     self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3),
                     self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL3),
@@ -90,6 +82,6 @@ class extra_things:
                 and self.can_afford(UPGRADETOLAIR_LAIR)
                 and not (lair or hive)
                 and not any([await self.is_morphing(h) for h in base])
-                and self.units(HATCHERY).ready.idle
+                and base.ready.idle
             ):
                 self.actions.append(base.ready.idle.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))

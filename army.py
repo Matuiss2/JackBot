@@ -9,23 +9,23 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
-    OVERSEER,
     PHOTONCANNON,
     PLANETARYFORTRESS,
-    QUEEN,
     QUEENSPAWNLARVATIMER,
     SPINECRAWLER,
-    ULTRALISK,
-    DRONE,
     ZERGLING,
+    ZERGLINGATTACKSPEED,
 )
 
 
 class army_control:
+    def __init__(self):
+        self.selected_worker = None
+
     def army_micro(self):
         """Micro function, its just slight better than a-move, need A LOT of improvements.
         Name army_micro because it is in army.py."""
-        targets = 0
+        targets = None
         enemy_build = self.known_enemy_structures
         if self.known_enemy_units:
             excluded_units = {
@@ -45,16 +45,32 @@ class army_control:
         for attacking_unit in atk_force:
             if targets and targets.closer_than(17, attacking_unit.position):
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
-                if in_range_targets:
-                    if (
-                        attacking_unit.weapon_cooldown <= 0.25
-                    ):  # more than half of the attack time with adrenal glands (0.35)
-                        self.attack_lowhp(attacking_unit, in_range_targets)
-                        continue  # these continues are needed so a unit doesnt get multiple orders per step
+                if attacking_unit.type_id == ZERGLING:
+                    if in_range_targets:
+                        if self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1:
+                            if (
+                                attacking_unit.weapon_cooldown <= 0.25
+                            ):  # more than half of the attack time with adrenal glands (0.35)
+                                self.attack_lowhp(attacking_unit, in_range_targets)
+                                continue  # these continues are needed so a unit doesnt get multiple orders per step
+                            else:
+                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                                continue
+                        else:
+                            if (
+                                attacking_unit.weapon_cooldown <= 0.35
+                            ):  # more than half of the attack time with adrenal glands (0.35)
+                                self.attack_lowhp(attacking_unit, in_range_targets)
+                                continue
+                            else:
+                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                                continue
                     else:
-                        self.actions.append(attacking_unit.move(in_range_targets.center))
+                        self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                        continue
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                    continue
             elif enemy_build.closer_than(30, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
                 continue
@@ -85,11 +101,14 @@ class army_control:
                     continue
                 else:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
-        if self.units(OVERSEER):
-            selected_ov = self.units(OVERSEER).first
+
+    def detection_control(self):
+        atk_force = self.zerglings | self.ultralisks
+        if self.overseers:
+            selected_ov = self.overseers.first
             if atk_force:
                 self.actions.append(selected_ov.move(atk_force.closest_to(selected_ov.position)))
-            else:
+            elif self.townhalls:
                 self.actions.append(selected_ov.move(self.townhalls.closest_to(selected_ov.position)))
 
     async def queens_abilities(self):
@@ -121,6 +140,7 @@ class army_control:
         waypoints = [point for point in self.expansion_locations]
         start = self.start_location
         scout = self.drones.closest_to(start)
+        self.selected_worker = scout.tag
         waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
         for point in waypoints:
             self.actions.append(scout.move(point, queue=True))
