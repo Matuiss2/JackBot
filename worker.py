@@ -10,6 +10,7 @@ class worker_control:
         self.defenders = None
         self.defender_tags = None
         self.dont_collect_gas = False
+        self.collect_gas = False
 
     async def split_workers(self):
         """Split the workers on the beginning """
@@ -100,9 +101,18 @@ class worker_control:
         mineral_fields = self.state.mineral_field.filter(
             lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
         )
-        if len(self.units(EXTRACTOR)) < 2 and (
-            self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+        if (
+            len(self.units(EXTRACTOR).ready) == 1
+            and not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            and not self.collect_gas
         ):
+            for drone in self.drones.random_group_of(3):
+                self.actions.append(drone.gather(self.units(EXTRACTOR).first))
+                self.collect_gas = True
+        if (
+            len(self.units(EXTRACTOR).ready) == 1
+            and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
+        ) or (self.vespene * 1.2 > self.minerals and self.time > 360):
             self.dont_collect_gas = True
             for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
                 self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
@@ -168,4 +178,3 @@ class worker_control:
                     del deficit_bases[0]
             else:
                 pass
-

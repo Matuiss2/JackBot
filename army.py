@@ -6,6 +6,7 @@ from sc2.constants import (
     CREEPTUMOR,
     CREEPTUMORQUEEN,
     CREEPTUMORBURROWED,
+    CREEPTUMORMISSILE,
     DISRUPTORPHASED,
     DRONE,
     EFFECT_INJECTLARVA,
@@ -33,7 +34,7 @@ class army_control:
         Name army_micro because it is in army.py."""
         targets = None
         filtered_enemies = None
-        enemy_build = self.known_enemy_structures
+        enemy_building = self.known_enemy_structures
         if self.known_enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -52,14 +53,15 @@ class army_control:
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units:
                 if self.units.structure.owned.exclude_type(
-                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED}
+                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
                 ).closer_than(15, attacking_unit.position):
                     self.retreat_units.remove(attacking_unit.tag)
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
                 # retreat if we are not fighting at home
                 if (
-                    not self.units.structure.closer_than(15, attacking_unit.position)
+                    self.townhalls
+                    and not self.units.structure.closer_than(15, attacking_unit.position)
                     and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position))
                     >= len(self.zerglings.closer_than(15, attacking_unit.position))
                     + len(self.ultralisks.closer_than(15, attacking_unit.position)) * 4
@@ -100,8 +102,8 @@ class army_control:
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
-            elif enemy_build.closer_than(30, attacking_unit.position):
-                self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
+            elif enemy_building.closer_than(30, attacking_unit.position):
+                self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 1000 and not self.close_enemies_to_base:
                 if (
@@ -120,17 +122,21 @@ class army_control:
                     )
                     continue
                 else:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    self.attack_startlocation(attacking_unit)
                     continue
             else:
-                if enemy_build:
-                    self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
+                if enemy_building:
+                    self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                     continue
                 elif targets:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
                 else:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    self.attack_startlocation(attacking_unit)
+
+    def attack_startlocation(self, unit):
+        if self.enemy_start_locations:
+            self.actions.append(unit.attack(self.enemy_start_locations[0]))
 
     def detection_control(self):
         atk_force = self.zerglings | self.ultralisks
@@ -167,6 +173,8 @@ class army_control:
                             break
 
     def scout_map(self):
+        if not self.drones:
+            return
         waypoints = [point for point in self.expansion_locations]
         start = self.start_location
         scout = self.drones.closest_to(start)

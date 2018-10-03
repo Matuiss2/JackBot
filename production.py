@@ -85,7 +85,11 @@ class production_control:
         """good enough for now"""
         larva = self.units(LARVA)
         if self.units(SPAWNINGPOOL).ready:
-            if self.time >= 170 and not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED):
+            if (
+                self.time >= 170
+                and not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+                and not self.close_enemy_production
+            ):
                 return False
             if self.can_afford(ZERGLING) and self.can_feed(ZERGLING):
                 if self.units(ULTRALISKCAVERN).ready and self.time < 1380:
