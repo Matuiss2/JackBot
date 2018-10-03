@@ -114,10 +114,8 @@ class builder:
 
     async def build_pool(self):
         base = self.townhalls
-        if (
-            (not self.already_pending(SPAWNINGPOOL) and not self.pools and self.can_afford(SPAWNINGPOOL))
-            and ((len(base) >= 2)
-            or (self.close_enemy_production and self.time < 300))
+        if (not self.already_pending(SPAWNINGPOOL) and not self.pools and self.can_afford(SPAWNINGPOOL)) and (
+            (len(base) >= 2) or (self.close_enemy_production and self.time < 300)
         ):
             await self.build(SPAWNINGPOOL, base.first.position.towards(self._game_info.map_center, 5))
 

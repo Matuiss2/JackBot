@@ -53,14 +53,15 @@ class army_control:
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units:
                 if self.units.structure.owned.exclude_type(
-                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED,  CREEPTUMORMISSILE}
+                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
                 ).closer_than(15, attacking_unit.position):
                     self.retreat_units.remove(attacking_unit.tag)
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
                 # retreat if we are not fighting at home
-                if (self.townhalls and
-                    not self.units.structure.closer_than(15, attacking_unit.position)
+                if (
+                    self.townhalls
+                    and not self.units.structure.closer_than(15, attacking_unit.position)
                     and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position))
                     >= len(self.zerglings.closer_than(15, attacking_unit.position))
                     + len(self.ultralisks.closer_than(15, attacking_unit.position)) * 4
