@@ -172,7 +172,7 @@ class army_control:
                             break
 
     def scout_map(self):
-        if self.drones:
+        if not self.drones:
             return
         waypoints = [point for point in self.expansion_locations]
         start = self.start_location
