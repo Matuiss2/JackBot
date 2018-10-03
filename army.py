@@ -75,31 +75,8 @@ class army_control:
                     )
                     self.retreat_units.add(attacking_unit.tag)
                     continue
-                in_range_targets = targets.in_attack_range_of(attacking_unit)
                 if attacking_unit.type_id == ZERGLING:
-                    if in_range_targets:
-                        if (
-                            self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-                            and attacking_unit.weapon_cooldown <= 0.25
-                        ):  # more than half of the attack time with adrenal glands (0.35)
-                            targets_in_range_1 = targets.closer_than(1, attacking_unit)
-                            if targets_in_range_1:
-                                    lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
-                                    self.actions.append(attacking_unit.move(lowest_hp_enemy))
-                                    continue
-                            else:
-                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                                continue
-                        elif (
-                            attacking_unit.weapon_cooldown <= 0.35
-                        ):  # more than half of the attack time with adrenal glands (0.35)
-                            self.attack_lowhp(attacking_unit, in_range_targets)
-                            continue
-                        else:
-                            self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                            continue
-                    else:
-                        self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                    if self.micro_zerglings(targets, attacking_unit):
                         continue
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
@@ -130,6 +107,32 @@ class army_control:
                             )
                         )
                     )
+
+    def micro_zerglings(self, targets, attacking_unit, ):
+        in_range_targets = targets.in_attack_range_of(attacking_unit)
+
+        if (
+            in_range_targets
+            and self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+            and attacking_unit.weapon_cooldown <= 0.25
+        ):  # more than half of the attack time with adrenal glands (0.35)
+            targets_in_range_1 = targets.closer_than(1, attacking_unit)
+            if targets_in_range_1:
+                    lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
+                    self.actions.append(attacking_unit.move(lowest_hp_enemy))
+                    return True
+            else:
+                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                return True
+        elif (
+            in_range_targets
+            and attacking_unit.weapon_cooldown <= 0.35
+        ):  # more than half of the attack time with adrenal glands (0.35)
+            self.attack_lowhp(attacking_unit, in_range_targets)
+            return True
+
+        self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+        return True
 
     def idle_unit(self, unit):
         if (
