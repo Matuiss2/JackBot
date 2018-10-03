@@ -142,6 +142,14 @@ class army_control:
                         continue
                     else:
                         self.attack_startlocation(attacking_unit)
+                else:
+                    self.actions.append(
+                        attacking_unit.move(
+                            self.townhalls.closest_to(self._game_info.map_center).position.towards(
+                                self._game_info.map_center, 11
+                            )
+                        )
+                    )
 
     def attack_startlocation(self, unit):
         if self.enemy_start_locations:
