@@ -120,8 +120,8 @@ class army_control:
                         )
                     )
                     continue
-                elif len(self.enemy_start_locations) > 0:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                else:
+                    self.attack_startlocation(attacking_unit)
                     continue
             else:
                 if enemy_building:
@@ -130,8 +130,13 @@ class army_control:
                 elif targets:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
-                elif len(self.enemy_start_locations) > 0:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                else:
+                    self.attack_startlocation(attacking_unit)
+
+    def attack_startlocation(self, unit):
+        if len(self.enemy_start_locations) > 0:
+            self.actions.append(unit.attack(self.enemy_start_locations[0]))
+
 
     def detection_control(self):
         atk_force = self.zerglings | self.ultralisks
