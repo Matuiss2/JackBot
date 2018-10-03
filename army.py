@@ -93,8 +93,8 @@ class army_control:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
             else:
-                if enemy_build:
-                    self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
+                if enemy_building:
+                    self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                     continue
                 elif targets:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
