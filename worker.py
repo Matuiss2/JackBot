@@ -186,7 +186,7 @@ class worker_control:
         return (
             (
                 len(self.units(EXTRACTOR).ready) == 1
-                 and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
+                and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
             ) or (self.has_to_much_vespene() and self.time > 360)
         )
 
