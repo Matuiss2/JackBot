@@ -85,8 +85,16 @@ class army_control:
                                 self.attack_lowhp(attacking_unit, in_range_targets)
                                 continue  # these continues are needed so a unit doesnt get multiple orders per step
                             else:
-                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                                continue
+                                targets_in_range_1 = targets.closer_than(1, attacking_unit)
+                                if targets_in_range_1:
+                                    lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
+                                    self.actions.append(attacking_unit.move(lowest_hp_enemy))
+                                    continue
+                                else:
+                                    self.actions.append(
+                                        attacking_unit.attack(targets.closest_to(attacking_unit.position))
+                                    )
+                                    continue
                         else:
                             if (
                                 attacking_unit.weapon_cooldown <= 0.35
@@ -125,14 +133,15 @@ class army_control:
                     self.attack_startlocation(attacking_unit)
                     continue
             else:
-                if enemy_building:
-                    self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
-                    continue
-                elif targets:
-                    self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                    continue
-                else:
-                    self.attack_startlocation(attacking_unit)
+                if not self.retreat_units:
+                    if enemy_building:
+                        self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
+                        continue
+                    elif targets:
+                        self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                        continue
+                    else:
+                        self.attack_startlocation(attacking_unit)
 
     def attack_startlocation(self, unit):
         if self.enemy_start_locations:

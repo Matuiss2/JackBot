@@ -75,7 +75,7 @@ class extra_things:
                 and not any([await self.is_morphing(h) for h in lair])
                 and lair.ready.idle
             ):
-                self.actions.append(lair.ready.idle.first(UPGRADETOHIVE_HIVE))
+                self.actions.append(lair.ready.first(UPGRADETOHIVE_HIVE))
             # Lair
             if (
                 len(self.townhalls) >= 3
@@ -84,4 +84,4 @@ class extra_things:
                 and not any([await self.is_morphing(h) for h in base])
                 and base.ready.idle
             ):
-                self.actions.append(base.ready.idle.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))
+                self.actions.append(base.ready.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))
