@@ -134,7 +134,7 @@ class army_control:
                     self.attack_startlocation(attacking_unit)
 
     def attack_startlocation(self, unit):
-        if len(self.enemy_start_locations) > 0:
+        if self.enemy_start_locations:
             self.actions.append(unit.attack(self.enemy_start_locations[0]))
 
     def detection_control(self):
