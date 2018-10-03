@@ -53,14 +53,15 @@ class army_control:
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units:
                 if self.units.structure.owned.exclude_type(
-                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED,  CREEPTUMORMISSILE}
+                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
                 ).closer_than(15, attacking_unit.position):
                     self.retreat_units.remove(attacking_unit.tag)
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
                 # retreat if we are not fighting at home
-                if (self.townhalls and
-                    not self.units.structure.closer_than(15, attacking_unit.position)
+                if (
+                    self.townhalls
+                    and not self.units.structure.closer_than(15, attacking_unit.position)
                     and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position))
                     >= len(self.zerglings.closer_than(15, attacking_unit.position))
                     + len(self.ultralisks.closer_than(15, attacking_unit.position)) * 4
@@ -81,8 +82,15 @@ class army_control:
                             self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
                             and attacking_unit.weapon_cooldown <= 0.25
                         ):  # more than half of the attack time with adrenal glands (0.35)
-                            self.attack_lowhp(attacking_unit, in_range_targets)
-                            continue  # these continues are needed so a unit doesnt get multiple orders per step
+                            targets_in_range_1 = targets.closer_than(1, attacking_unit)
+                            if targets_in_range_1:
+                                    lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
+                                    self.actions.append(attacking_unit.move(lowest_hp_enemy))
+                                    continue
+                            else:
+                                self.attack_lowhp(attacking_unit, in_range_targets)
+                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                                continue
                         elif (
                             attacking_unit.weapon_cooldown <= 0.35
                         ):  # more than half of the attack time with adrenal glands (0.35)
@@ -106,14 +114,23 @@ class army_control:
                 continue
 
             else:
-                if enemy_building:
-                    self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
-                    continue
-                elif targets:
-                    self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                    continue
+                if not self.retreat_units or self.close_enemies_to_base:
+                    if enemy_building:
+                        self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
+                        continue
+                    elif targets:
+                        self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                        continue
+                    else:
+                        self.attack_startlocation(attacking_unit)
                 else:
-                    self.attack_startlocation(attacking_unit)
+                    self.actions.append(
+                        attacking_unit.move(
+                            self.townhalls.closest_to(self._game_info.map_center).position.towards(
+                                self._game_info.map_center, 11
+                            )
+                        )
+                    )
 
     def idle_unit(self, unit):
         if (
