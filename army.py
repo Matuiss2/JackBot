@@ -34,7 +34,7 @@ class army_control:
         Name army_micro because it is in army.py."""
         targets = None
         filtered_enemies = None
-        enemy_build = self.known_enemy_structures
+        enemy_building = self.known_enemy_structures
         if self.known_enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -101,8 +101,8 @@ class army_control:
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
-            elif enemy_build.closer_than(30, attacking_unit.position):
-                self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
+            elif enemy_building.closer_than(30, attacking_unit.position):
+                self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 1000 and not self.close_enemies_to_base:
                 if (
@@ -124,8 +124,8 @@ class army_control:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
             else:
-                if enemy_build:
-                    self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
+                if enemy_building:
+                    self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                     continue
                 elif targets:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
