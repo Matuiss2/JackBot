@@ -88,7 +88,6 @@ class army_control:
                                     self.actions.append(attacking_unit.move(lowest_hp_enemy))
                                     continue
                             else:
-                                self.attack_lowhp(attacking_unit, in_range_targets)
                                 self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                                 continue
                         elif (
