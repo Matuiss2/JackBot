@@ -100,25 +100,11 @@ class army_control:
             elif enemy_building.closer_than(30, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
+
             elif self.time < 1000 and not self.close_enemies_to_base:
-                if (
-                    len(self.ultralisks.ready) < 4
-                    and self.supply_used not in range(198, 201)
-                    and len(self.zerglings.ready) < 41
-                    and self.townhalls
-                    and self.retreat_units
-                ):
-                    self.actions.append(
-                        attacking_unit.move(
-                            self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                                self._game_info.map_center, 11
-                            )
-                        )
-                    )
-                    continue
-                else:
-                    self.attack_startlocation(attacking_unit)
-                    continue
+                self.idle_unit(attacking_unit)
+                continue
+
             else:
                 if enemy_building:
                     self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
@@ -128,6 +114,24 @@ class army_control:
                     continue
                 else:
                     self.attack_startlocation(attacking_unit)
+
+    def idle_unit(self, unit):
+        if (
+            len(self.ultralisks.ready) < 4
+            and self.supply_used not in range(198, 201)
+            and len(self.zerglings.ready) < 41
+            and self.townhalls
+            and self.retreat_units
+        ):
+            self.actions.append(
+                unit.move(
+                    self.townhalls.closest_to(self._game_info.map_center).position.towards(
+                        self._game_info.map_center, 11
+                    )
+                )
+            )
+        else:
+            self.attack_startlocation(unit)
 
     def attack_startlocation(self, unit):
         if self.enemy_start_locations:
