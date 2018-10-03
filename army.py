@@ -59,7 +59,7 @@ class army_control:
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
                 # retreat if we are not fighting at home
-                if (
+                if (self.townhalls and
                     not self.units.structure.closer_than(15, attacking_unit.position)
                     and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position))
                     >= len(self.zerglings.closer_than(15, attacking_unit.position))
