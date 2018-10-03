@@ -77,24 +77,20 @@ class army_control:
                 in_range_targets = targets.in_attack_range_of(attacking_unit)
                 if attacking_unit.type_id == ZERGLING:
                     if in_range_targets:
-                        if self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1:
-                            if (
-                                attacking_unit.weapon_cooldown <= 0.25
-                            ):  # more than half of the attack time with adrenal glands (0.35)
-                                self.attack_lowhp(attacking_unit, in_range_targets)
-                                continue  # these continues are needed so a unit doesnt get multiple orders per step
-                            else:
-                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                                continue
+                        if (
+                            self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+                            and attacking_unit.weapon_cooldown <= 0.25
+                        ):  # more than half of the attack time with adrenal glands (0.35)
+                            self.attack_lowhp(attacking_unit, in_range_targets)
+                            continue  # these continues are needed so a unit doesnt get multiple orders per step
+                        elif (
+                            attacking_unit.weapon_cooldown <= 0.35
+                        ):  # more than half of the attack time with adrenal glands (0.35)
+                            self.attack_lowhp(attacking_unit, in_range_targets)
+                            continue
                         else:
-                            if (
-                                attacking_unit.weapon_cooldown <= 0.35
-                            ):  # more than half of the attack time with adrenal glands (0.35)
-                                self.attack_lowhp(attacking_unit, in_range_targets)
-                                continue
-                            else:
-                                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                                continue
+                            self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                            continue
                     else:
                         self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                         continue
