@@ -1,5 +1,7 @@
 """Everything related to workers behavior"""
-from sc2.constants import HATCHERY, PROBE, DRONE, SCV, EXTRACTOR, LAIR, HIVE
+import heapq
+
+from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZERGLINGMOVEMENTSPEED
 
 
 class worker_control:
@@ -7,6 +9,7 @@ class worker_control:
         self.defense_mode = False
         self.defenders = None
         self.defender_tags = None
+        self.dont_collect_gas = False
 
     async def split_workers(self):
         """Split the workers on the beginning """
@@ -29,8 +32,10 @@ class worker_control:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close and not self.defense_mode:
                 self.defense_mode = True
-                # TODO: choose highest hp drones with heapq
-                self.defender_tags = [unit.tag for unit in self.drones.random_group_of(2 * (len(enemy_units_close)))]
+                highest_hp_drones = heapq.nlargest(
+                    2 * (len(enemy_units_close)), self.drones.collecting, key=lambda drones: drones.health
+                )
+                self.defender_tags = [unit.tag for unit in highest_hp_drones]
             if self.defense_mode and not enemy_units_close:
                 if self.defenders:
                     for drone in self.defenders:
@@ -47,13 +52,10 @@ class worker_control:
                 )
                 defender_deficit = min(len(self.drones) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
                 if defender_deficit > 0:
-                    # TODO: choose highest hp drones with heapq
-                    additional_drones = [
-                        unit.tag
-                        for unit in self.drones.filter(
-                            lambda worker: worker.tag not in self.defender_tags
-                        ).random_group_of(defender_deficit)
-                    ]
+                    highest_hp_additional_drones = heapq.nlargest(
+                        defender_deficit, self.drones.collecting, key=lambda drones: drones.health
+                    )
+                    additional_drones = [unit.tag for unit in highest_hp_additional_drones]
                     self.defender_tags = self.defender_tags + additional_drones
                 for drone in self.defenders:
                     # 6 hp is the lowest you can take a hit and still survive
@@ -98,6 +100,16 @@ class worker_control:
         mineral_fields = self.state.mineral_field.filter(
             lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
         )
+        if (
+            len(self.units(EXTRACTOR).ready) < 2
+            and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
+            or (self.vespene * 1.2 > self.minerals and self.time > 360)
+        ):
+            self.dont_collect_gas = True
+            for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
+                self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
+        else:
+            self.dont_collect_gas = False
         # check places to collect from whether there are not optimal worker counts
         for mining_place in mining_bases | self.units(EXTRACTOR).ready:
             difference = mining_place.surplus_harvesters
@@ -142,7 +154,7 @@ class worker_control:
             )
         for worker in workers_to_distribute:
             # distribute to refineries
-            if self.units(EXTRACTOR).ready and deficit_extractors:
+            if self.units(EXTRACTOR).ready and deficit_extractors and not self.dont_collect_gas:
                 self.actions.append(worker.gather(deficit_extractors[0][0]))
                 deficit_extractors[0][1] += 1
                 if deficit_extractors[0][1] == 0:
@@ -158,9 +170,3 @@ class worker_control:
                     del deficit_bases[0]
             else:
                 pass
-
-
-    async def drones_with_no_base(self):
-        for drone in self.drones.filter(lambda dr:dr.further_than(25, self.townhalls.closest_to(dr.position))):
-            if drone.tag != self.selected_worker:
-                self.actions.append(drone.move(self.townhalls.closest_to(drone.position)))

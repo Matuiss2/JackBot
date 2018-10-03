@@ -1,7 +1,9 @@
 """SC2 zerg bot by Matuiss, Thommath and Tweakimp"""
 import sc2
-from sc2 import Difficulty, Race, maps, run_game
+from sc2 import Difficulty, Race
 from sc2.constants import (
+    BARRACKS,
+    GATEWAY,
     CREEPTUMOR,
     CREEPTUMORBURROWED,
     CREEPTUMORQUEEN,
@@ -10,6 +12,7 @@ from sc2.constants import (
     INFESTATIONPIT,
     OVERLORD,
     OVERSEER,
+    PHOTONCANNON,
     PROBE,
     QUEEN,
     RESEARCH_ZERGGROUNDARMORLEVEL1,
@@ -50,6 +53,7 @@ class EarlyAggro(
         extra_things.__init__(self)
         army_control.__init__(self)
         self.close_enemies_to_base = False
+        self.close_enemy_production = False
         self.actions = []
         self.locations = []
         self.abilities_list = {
@@ -71,6 +75,7 @@ class EarlyAggro(
         self.pits = None
         self.spines = None
         self.tumors = None
+        self.retreat_units = set()
 
     async def on_step(self, iteration):
         self.drones = self.units(DRONE)
@@ -85,11 +90,12 @@ class EarlyAggro(
         self.spines = self.units(SPINECRAWLER)
         self.actions = []
         self.close_enemies_to_base = False
+        self.close_enemy_production = False
         self.tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
+
         if iteration == 0:
             self._client.game_step = 4
-            if len(self.units(OVERLORD)) > 0:
-                self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
+            self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
             await self.split_workers()
         if self.known_enemy_units.not_structure.not_flying:  # I only go to the loop if possibly needed
@@ -99,6 +105,8 @@ class EarlyAggro(
                 if enemies:
                     self.close_enemies_to_base = True
                     break
+        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(50, self.start_location):
+            self.close_enemy_production = True
         if iteration % 20 == 0:
             await self.all_buildings()
             await self.all_upgrades()
@@ -115,4 +123,3 @@ class EarlyAggro(
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
-
