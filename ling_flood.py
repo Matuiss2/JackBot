@@ -100,7 +100,7 @@ class EarlyAggro(
             await self.split_workers()
         if self.known_enemy_units.not_structure.not_flying:  # I only go to the loop if possibly needed
             for hatch in self.townhalls:
-                close_enemy = self.known_enemy_units.not_structure.closer_than(40, hatch.position)
+                close_enemy = self.known_enemy_units.not_structure.not_flying.closer_than(40, hatch.position)
                 enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
                 if enemies:
                     self.close_enemies_to_base = True
@@ -123,4 +123,3 @@ class EarlyAggro(
         await self.queens_abilities()
         await self.spread_creep()
         await self.do_actions(self.actions)
-
