@@ -34,7 +34,7 @@ class upgrades_control:
                 self.actions.append(cavern.idle.first(RESEARCH_CHITINOUSPLATING))
             if self.units(HATCHERY):
                 if not self.already_pending_upgrade(OVERLORDSPEED) and self.can_afford(RESEARCH_PNEUMATIZEDCARAPACE):
-                    chosen_base = self.units(HATCHERY).random
+                    chosen_base = self.units(HATCHERY).closest_to(self._game_info.map_center)
                     self.actions.append(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
                 # if not self.already_pending_upgrade(BURROW) and self.can_afford(RESEARCH_BURROW):
                 #     chosen_base = self.units(HATCHERY).random
