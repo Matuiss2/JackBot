@@ -26,7 +26,7 @@ class army_control:
         """Micro function, its just slight better than a-move, need A LOT of improvements.
         Name army_micro because it is in army.py."""
         targets = None
-        enemy_build = self.known_enemy_structures
+        enemy_building = self.known_enemy_structures
         if self.known_enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -71,8 +71,8 @@ class army_control:
                 else:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
-            elif enemy_build.closer_than(30, attacking_unit.position):
-                self.actions.append(attacking_unit.attack(enemy_build.closest_to(attacking_unit.position)))
+            elif enemy_building.closer_than(30, attacking_unit.position):
+                self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
             elif self.time < 1000 and not self.close_enemies_to_base:
                 if (
