@@ -121,7 +121,7 @@ class army_control:
                     )
                     continue
                 else:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    self.attack_startlocation(attacking_unit)
                     continue
             else:
                 if enemy_building:
@@ -131,7 +131,11 @@ class army_control:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
                 else:
-                    self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
+                    self.attack_startlocation(attacking_unit)
+
+    def attack_startlocation(self, unit):
+        if self.enemy_start_locations:
+            self.actions.append(unit.attack(self.enemy_start_locations[0]))
 
     def detection_control(self):
         atk_force = self.zerglings | self.ultralisks
@@ -168,6 +172,8 @@ class army_control:
                             break
 
     def scout_map(self):
+        if not self.drones:
+            return
         waypoints = [point for point in self.expansion_locations]
         start = self.start_location
         scout = self.drones.closest_to(start)
