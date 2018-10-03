@@ -52,26 +52,13 @@ class army_control:
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units:
-                self.retreat_unit(attacking_unit)
+                self.has_retreated(attacking_unit)
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
                 # retreat if we are not fighting at home
-                if (
-                    self.townhalls
-                    and not self.units.structure.closer_than(15, attacking_unit.position)
-                    and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, attacking_unit.position))
-                    >= len(self.zerglings.closer_than(15, attacking_unit.position))
-                    + len(self.ultralisks.closer_than(15, attacking_unit.position)) * 4
-                ):
-                    self.actions.append(
-                        attacking_unit.move(
-                            self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                                self._game_info.map_center, 10
-                            )
-                        )
-                    )
-                    self.retreat_units.add(attacking_unit.tag)
+                if self.retreat_unit(attacking_unit, filtered_enemies):
                     continue
+
                 if attacking_unit.type_id == ZERGLING:
                     if self.micro_zerglings(targets, attacking_unit):
                         continue
@@ -97,44 +84,60 @@ class army_control:
                     else:
                         self.attack_startlocation(attacking_unit)
                 else:
-                    self.actions.append(
-                        attacking_unit.move(
-                            self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                                self._game_info.map_center, 11
-                            )
-                        )
-                    )
+                    self.move_to_rallying_point(attacking_unit)
 
-    def retreat_unit(self, attacking_unit):
+    def move_to_rallying_point(self, unit):
+        self.actions.append(
+            unit.move(
+                self.townhalls.closest_to(self._game_info.map_center).position.towards(
+                    self._game_info.map_center, 10
+                )
+            )
+        )
+
+    def has_retreated(self, unit):
         if self.units.structure.owned.exclude_type(
             {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
-        ).closer_than(15, attacking_unit.position):
-            self.retreat_units.remove(attacking_unit.tag)
+        ).closer_than(15, unit.position):
+            self.retreat_units.remove(unit.tag)
 
-    def micro_zerglings(self, targets, attacking_unit, ):
-        in_range_targets = targets.in_attack_range_of(attacking_unit)
+    def retreat_unit(self, unit, filtered_enemies):
+        if (
+            self.townhalls
+            and not self.units.structure.closer_than(15, unit.position)
+            and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, unit.position))
+            >= len(self.zerglings.closer_than(15, unit.position))
+            + len(self.ultralisks.closer_than(15, unit.position)) * 4
+        ):
+            self.move_to_rallying_point(unit)
+            self.retreat_units.add(unit.tag)
+            return True
+        return False
+
+    def micro_zerglings(self, targets, unit, ):
+        in_range_targets = targets.in_attack_range_of(unit)
 
         if (
             in_range_targets
             and self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-            and attacking_unit.weapon_cooldown <= 0.25
+            and unit.weapon_cooldown <= 0.25
         ):  # more than half of the attack time with adrenal glands (0.35)
-            targets_in_range_1 = targets.closer_than(1, attacking_unit)
+            targets_in_range_1 = targets.closer_than(1, unit)
             if targets_in_range_1:
                     lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
-                    self.actions.append(attacking_unit.move(lowest_hp_enemy))
+                    self.actions.append(unit.move(lowest_hp_enemy))
                     return True
             else:
-                self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                self.actions.append(unit.attack(targets.closest_to(unit.position)))
                 return True
         elif (
             in_range_targets
-            and attacking_unit.weapon_cooldown <= 0.35
+            and unit.weapon_cooldown <= 0.35
         ):  # more than half of the attack time with adrenal glands (0.35)
-            self.attack_lowhp(attacking_unit, in_range_targets)
+            self.attack_lowhp(unit, in_range_targets)
             return True
 
-        self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+        self.actions.append(unit.attack(targets.closest_to(unit.position)))
         return True
 
     def idle_unit(self, unit):
@@ -145,13 +148,7 @@ class army_control:
             and self.townhalls
             and self.retreat_units
         ):
-            self.actions.append(
-                unit.move(
-                    self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                        self._game_info.map_center, 11
-                    )
-                )
-            )
+            self.move_to_rallying_point(unit)
         else:
             self.attack_startlocation(unit)
 
