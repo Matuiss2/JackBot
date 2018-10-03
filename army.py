@@ -58,7 +58,6 @@ class army_control:
                 # retreat if we are not fighting at home
                 if self.retreat_unit(attacking_unit, filtered_enemies):
                     continue
-
                 if attacking_unit.type_id == ZERGLING:
                     if self.micro_zerglings(targets, attacking_unit):
                         continue
@@ -68,11 +67,9 @@ class army_control:
             elif enemy_building.closer_than(30, attacking_unit.position):
                 self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
-
             elif self.time < 1000 and not self.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
                 continue
-
             else:
                 if not self.retreat_units or self.close_enemies_to_base:
                     if enemy_building:
@@ -127,9 +124,6 @@ class army_control:
                     lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
                     self.actions.append(unit.move(lowest_hp_enemy))
                     return True
-            else:
-                self.actions.append(unit.attack(targets.closest_to(unit.position)))
-                return True
         elif (
             in_range_targets
             and unit.weapon_cooldown <= 0.35
@@ -149,8 +143,9 @@ class army_control:
             and self.retreat_units
         ):
             self.move_to_rallying_point(unit)
-        else:
-            self.attack_startlocation(unit)
+            return True
+        self.attack_startlocation(unit)
+        return False
 
     def attack_startlocation(self, unit):
         if self.enemy_start_locations:
