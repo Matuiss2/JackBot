@@ -3,7 +3,7 @@ import sys
 
 import sc2
 from sc2 import Difficulty, Race
-from sc2.player import Bot, Computer
+from sc2.player import Bot, Computer, Human
 
 from __init__ import run_ladder_game
 
@@ -24,13 +24,13 @@ if __name__ == "__main__":
         random_map = random.choice(
             [
                 "AcidPlantLE",
-                "BlueshiftLE",
-                "CeruleanFallLE",
-                "DreamcatcherLE",
-                "FractureLE",
-                "LostAndFoundLE",
-                "ParaSiteLE",
+                # "BlueshiftLE",
+                # "CeruleanFallLE",
+                # "DreamcatcherLE",
+                # "FractureLE",
+                # "LostAndFoundLE",
+                # "ParaSiteLE"
             ]
         )
-        sc2.run_game(sc2.maps.get(random_map), [bot, Computer(Race.Protoss, Difficulty.VeryHard)], realtime=False)
-        # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)
+        # sc2.run_game(sc2.maps.get(random_map), [bot, Computer(Race.Terran, Difficulty.VeryHard)], realtime=False)
+        sc2.run_game(sc2.maps.get("lings_dodge_tanks"), [bot], realtime=True, save_replay_as="zerg_split")

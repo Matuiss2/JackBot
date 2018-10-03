@@ -89,7 +89,7 @@ class army_control:
                         )
                     )
                     continue
-                else:
+                elif len(self.enemy_start_locations) > 0:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
                     continue
             else:
@@ -99,7 +99,7 @@ class army_control:
                 elif targets:
                     self.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
-                else:
+                elif len(self.enemy_start_locations) > 0:
                     self.actions.append(attacking_unit.attack(self.enemy_start_locations[0]))
 
     def detection_control(self):
@@ -137,6 +137,8 @@ class army_control:
                             break
 
     def scout_map(self):
+        if len(self.drones) == 0:
+            return
         waypoints = [point for point in self.expansion_locations]
         start = self.start_location
         scout = self.drones.closest_to(start)

@@ -88,7 +88,8 @@ class EarlyAggro(
         self.tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
         if iteration == 0:
             self._client.game_step = 4
-            self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
+            if len(self.units(OVERLORD)) > 0:
+                self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
             await self.split_workers()
         if self.known_enemy_units.not_structure.not_flying:  # I only go to the loop if possibly needed
