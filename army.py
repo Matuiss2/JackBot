@@ -52,10 +52,7 @@ class army_control:
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units:
-                if self.units.structure.owned.exclude_type(
-                    {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
-                ).closer_than(15, attacking_unit.position):
-                    self.retreat_units.remove(attacking_unit.tag)
+                self.retreat_unit(attacking_unit)
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
                 # retreat if we are not fighting at home
@@ -107,6 +104,12 @@ class army_control:
                             )
                         )
                     )
+
+    def retreat_unit(self, attacking_unit):
+        if self.units.structure.owned.exclude_type(
+            {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
+        ).closer_than(15, attacking_unit.position):
+            self.retreat_units.remove(attacking_unit.tag)
 
     def micro_zerglings(self, targets, attacking_unit, ):
         in_range_targets = targets.in_attack_range_of(attacking_unit)
