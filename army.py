@@ -114,10 +114,7 @@ class army_control:
         return False
 
     def micro_zerglings(self, targets, unit):
-<<<<<<< HEAD
-=======
         """Target low hp units smartly, and surrounds when attack cd is down"""
->>>>>>> 5644dac60b717cb0ced783c6e04f19c966d7aba1
         in_range_targets = targets.in_attack_range_of(unit)
 
         if (
@@ -148,8 +145,21 @@ class army_control:
         ):
             self.move_to_rallying_point(unit)
             return True
-        self.attack_startlocation(unit)
+        else:
+            enemy_building = self.known_enemy_structures
+            if enemy_building:
+                self.attack_closest_building(unit)
+            else:
+                self.attack_startlocation(unit)
         return False
+
+    def attack_closest_building(self, unit):
+        """Attack the starting location"""
+        enemy_building = self.known_enemy_structures
+        if enemy_building:
+            self.actions.append(
+                unit.attack(enemy_building.closest_to(self.townhalls.furthest_to(self.game_info.map_center)))
+            )
 
     def attack_startlocation(self, unit):
         """It tell to attack the starting location"""
@@ -205,4 +215,4 @@ class army_control:
         waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
         for point in waypoints:
             self.actions.append(scout.move(point, queue=True))
-            
+
