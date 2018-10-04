@@ -174,20 +174,19 @@ class worker_control:
         if deficit_bases[0][1] == 0:
             del deficit_bases[0]
 
-    def force_gas_for_speedling(self):
-        if (
-            not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-            and not self.collect_gas_for_speedling
-        ):
-            for drone in self.drones.random_group_of(3):
-                self.actions.append(drone.gather(self.units(EXTRACTOR).first))
-                self.collect_gas_for_speedling = True
-
     def distribute_gas(self):
         if not len(self.units(EXTRACTOR).ready) == 1:
             return
 
-        self.force_gas_for_speedling()
+        if self.require_gas:
+            extractor = self.units(EXTRACTOR).ready.filter(
+                lambda extractor: extractor.assigned_harvesters == 0
+            ).random
+
+            print(len(extractor))
+
+            for drone in self.drones.random_group_of(3):
+                self.actions.append(drone.gather(extractor))
 
         if self.do_not_require_gas:
             for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
@@ -198,6 +197,14 @@ class worker_control:
         return len(self.units(EXTRACTOR).ready) == 1 and (
             self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
         )
+
+    @property
+    def require_gas(self):
+        return self.require_gas_for_speedlings
+
+    @property
+    def require_gas_for_speedlings(self):
+        return not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
 
     def mineral_fields_of(self, bases):
         return self.state.mineral_field.filter(
