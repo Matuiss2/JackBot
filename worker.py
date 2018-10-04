@@ -9,8 +9,7 @@ class worker_control:
         self.defense_mode = False
         self.defenders = None
         self.defender_tags = None
-        self.dont_collect_gas = False
-        self.collect_gas = False
+        self.collect_gas_for_speedling = False
 
     async def split_workers(self):
         """Split the workers on the beginning """
@@ -90,37 +89,33 @@ class worker_control:
                                 continue
 
     async def distribute_drones(self):
-        """Distribute workers, according to available bases and geysers"""
-        workers_to_distribute = [drone for drone in self.drones.idle]
-        deficit_bases = []
-        deficit_extractors = []
-        mineral_fields_deficit = []
-        extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
-        mineral_tags = {mf.tag for mf in self.state.mineral_field}
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
-        mineral_fields = self.state.mineral_field.filter(
-            lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
-        )
-        if (
-            len(self.units(EXTRACTOR).ready) == 1
-            and not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-            and not self.collect_gas
-        ):
-            for drone in self.drones.random_group_of(3):
-                self.actions.append(drone.gather(self.units(EXTRACTOR).first))
-                self.collect_gas = True
-        if len(self.units(EXTRACTOR).ready) == 1 and (
-            self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-        ):
-            self.dont_collect_gas = True
-            for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
-                self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
-        else:
-            self.dont_collect_gas = False
-        # check places to collect from whether there are not optimal worker counts
-        for mining_place in mining_bases | self.units(EXTRACTOR).ready:
+        mineral_fields = self.mineral_fields_of(mining_bases)
+        mining_places = mining_bases | self.units(EXTRACTOR).ready
+
+        self.distribute_gas()
+
+        deficit_bases, workers_to_distribute = self.calculate_distribution(mining_places)
+
+        if not deficit_bases:
+            for drone in self.drones.idle:
+                if mineral_fields:
+                    mf = mineral_fields.closest_to(drone)
+                    self.actions.append(drone.gather(mf))
+            return
+
+        if deficit_bases and workers_to_distribute:
+            self.distribute_to_deficits(mining_bases, workers_to_distribute, mineral_fields, deficit_bases)
+
+    def calculate_distribution(self, mining_bases):
+        workers_to_distribute = [drone for drone in self.drones.idle]
+        mineral_tags = {mf.tag for mf in self.state.mineral_field}
+        mining_places = mining_bases | self.units(EXTRACTOR).ready
+        extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
+        deficit_bases = []
+
+        for mining_place in mining_places:
             difference = mining_place.surplus_harvesters
-            # if too many workers, put extra workers in workers_to_distribute
             if difference > 0:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
@@ -133,47 +128,78 @@ class worker_control:
                         )
                     if moving_drone:
                         workers_to_distribute.append(moving_drone.closest_to(mining_place))
-            # too few workers, put place to mine in deficit list
             elif difference < 0:
-                if mining_place.name == "Extractor":
-                    deficit_extractors.append([mining_place, difference])
-                else:
-                    deficit_bases.append([mining_place, difference])
+                deficit_bases.append([mining_place, difference])
 
-        if len(deficit_bases) + len(deficit_extractors) == 0:
-            # no deficits so only move idle workers, not surplus and idle
-            for drone in self.drones.idle:
-                if mineral_fields:
-                    mf = mineral_fields.closest_to(drone)
-                    self.actions.append(drone.gather(mf))
-            return
-        worker_order_targets = {worker.order_target for worker in self.drones.collecting}
-        # order mineral fields for scvs to prefer the ones with no worker and most minerals
-        if deficit_bases and workers_to_distribute:
+        return deficit_bases, workers_to_distribute
+
+    def mineral_fields_deficit(self, mineral_fields, deficit_bases):
+        if deficit_bases:
+            worker_order_targets = {worker.order_target for worker in self.drones.collecting}
             mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]
-            # order target mineral fields, first by if someone is there already, second by mineral content
-            mineral_fields_deficit = sorted(
+            return sorted(
                 mineral_fields_deficit,
                 key=lambda mineral_field: (
                     mineral_field.tag not in worker_order_targets,
                     mineral_field.mineral_contents,
                 ),
             )
+        return []
+
+    def distribute_to_deficits(self, mining_bases, workers_to_distribute, mineral_fields, deficit_bases):
+        mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
+
+        deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
         for worker in workers_to_distribute:
-            # distribute to refineries
-            if self.units(EXTRACTOR).ready and deficit_extractors and not self.dont_collect_gas:
-                self.actions.append(worker.gather(deficit_extractors[0][0]))
-                deficit_extractors[0][1] += 1
-                if deficit_extractors[0][1] == 0:
-                    del deficit_extractors[0]
-            # distribute to mineral fields
+            if self.distribute_to_extractors(deficit_extractors):
+                self.distribute_to_extractor(deficit_extractors, worker)
             elif mining_bases and deficit_bases and mineral_fields_deficit:
-                drone_target = mineral_fields_deficit[0]
-                if len(mineral_fields_deficit) >= 2:
-                    del mineral_fields_deficit[0]
-                self.actions.append(worker.gather(drone_target))
-                deficit_bases[0][1] += 1
-                if deficit_bases[0][1] == 0:
-                    del deficit_bases[0]
-            else:
-                pass
+                self.distribute_to_mineral_field(mineral_fields_deficit, worker, deficit_bases)
+
+    def distribute_to_extractors(self, deficit_extractors):
+        return self.units(EXTRACTOR).ready and deficit_extractors and not self.do_not_require_gas
+
+    def distribute_to_extractor(self, deficit_extractors, worker):
+        self.actions.append(worker.gather(deficit_extractors[0][0]))
+        deficit_extractors[0][1] += 1
+        if deficit_extractors[0][1] == 0:
+            del deficit_extractors[0]
+
+    def distribute_to_mineral_field(self, mineral_fields_deficit, worker, deficit_bases):
+        drone_target = mineral_fields_deficit[0]
+        if len(mineral_fields_deficit) >= 2:
+            del mineral_fields_deficit[0]
+        self.actions.append(worker.gather(drone_target))
+        deficit_bases[0][1] += 1
+        if deficit_bases[0][1] == 0:
+            del deficit_bases[0]
+
+    def force_gas_for_speedling(self):
+        if (
+            not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            and not self.collect_gas_for_speedling
+        ):
+            for drone in self.drones.random_group_of(3):
+                self.actions.append(drone.gather(self.units(EXTRACTOR).first))
+                self.collect_gas_for_speedling = True
+
+    def distribute_gas(self):
+        if not len(self.units(EXTRACTOR).ready) == 1:
+            return
+
+        self.force_gas_for_speedling()
+
+        if self.do_not_require_gas:
+            for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
+                self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
+
+    @property
+    def do_not_require_gas(self):
+        return len(self.units(EXTRACTOR).ready) == 1 and (
+            self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+        )
+
+    def mineral_fields_of(self, bases):
+        return self.state.mineral_field.filter(
+            lambda field: any([field.distance_to(base) <= 8 for base in bases])
+        )

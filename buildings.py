@@ -109,8 +109,8 @@ class builder:
 
             if base_amount <= 4:
                 if base_amount == 2:
-                    if self.spines:
-                        await self.place_hatchery()
+                    if self.spines or self.time > 330:
+                        await self.expand_now()
                 else:
                     # if base_amount == 3:
                     #     await self.build_macrohatch()
