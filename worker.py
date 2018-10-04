@@ -91,18 +91,17 @@ class worker_control:
     async def distribute_drones(self):
         """Distribute workers, according to available bases and geysers"""
         workers_to_distribute = [drone for drone in self.drones.idle]
-        deficit_bases = []
-        deficit_extractors = []
         mineral_fields_deficit = []
+        deficit_bases = []
         extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
         mineral_tags = {mf.tag for mf in self.state.mineral_field}
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
         mineral_fields = self.mineral_fields_of(mining_bases)
-
+        mining_places = mining_bases | self.units(EXTRACTOR).ready
         self.distribute_gas()
 
         # check places to collect from whether there are not optimal worker counts
-        for mining_place in mining_bases | self.units(EXTRACTOR).ready:
+        for mining_place in mining_places:
             difference = mining_place.surplus_harvesters
             # if too many workers, put extra workers in workers_to_distribute
             if difference > 0:
@@ -119,18 +118,16 @@ class worker_control:
                         workers_to_distribute.append(moving_drone.closest_to(mining_place))
             # too few workers, put place to mine in deficit list
             elif difference < 0:
-                if mining_place.name == "Extractor":
-                    deficit_extractors.append([mining_place, difference])
-                else:
                     deficit_bases.append([mining_place, difference])
 
-        if len(deficit_bases) + len(deficit_extractors) == 0:
+        if len(deficit_bases) == 0:
             # no deficits so only move idle workers, not surplus and idle
             for drone in self.drones.idle:
                 if mineral_fields:
                     mf = mineral_fields.closest_to(drone)
                     self.actions.append(drone.gather(mf))
             return
+
         # order mineral fields for scvs to prefer the ones with no worker and most minerals
         if deficit_bases and workers_to_distribute:
             worker_order_targets = {worker.order_target for worker in self.drones.collecting}
@@ -143,24 +140,35 @@ class worker_control:
                     mineral_field.mineral_contents,
                 ),
             )
+
+        deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
         for worker in workers_to_distribute:
             # distribute to refineries
-            if self.units(EXTRACTOR).ready and deficit_extractors and not self.do_not_require_gas:
-                self.actions.append(worker.gather(deficit_extractors[0][0]))
-                deficit_extractors[0][1] += 1
-                if deficit_extractors[0][1] == 0:
-                    del deficit_extractors[0]
+            if self.distribute_to_extractors(deficit_extractors):
+                self.distribute_extractors(deficit_extractors, worker)
             # distribute to mineral fields
             elif mining_bases and deficit_bases and mineral_fields_deficit:
-                drone_target = mineral_fields_deficit[0]
-                if len(mineral_fields_deficit) >= 2:
-                    del mineral_fields_deficit[0]
-                self.actions.append(worker.gather(drone_target))
-                deficit_bases[0][1] += 1
-                if deficit_bases[0][1] == 0:
-                    del deficit_bases[0]
+                self.distribute_minerals(mineral_fields_deficit, worker, deficit_bases)
             else:
                 pass
+
+    def distribute_to_extractors(self, deficit_extractors):
+        return self.units(EXTRACTOR).ready and deficit_extractors and not self.do_not_require_gas
+
+    def distribute_extractors(self, deficit_extractors, worker):
+        self.actions.append(worker.gather(deficit_extractors[0][0]))
+        deficit_extractors[0][1] += 1
+        if deficit_extractors[0][1] == 0:
+            del deficit_extractors[0]
+
+    def distribute_minerals(self, mineral_fields_deficit, worker, deficit_bases):
+        drone_target = mineral_fields_deficit[0]
+        if len(mineral_fields_deficit) >= 2:
+            del mineral_fields_deficit[0]
+        self.actions.append(worker.gather(drone_target))
+        deficit_bases[0][1] += 1
+        if deficit_bases[0][1] == 0:
+            del deficit_bases[0]
 
     def force_gas_for_speedling(self):
         if (
