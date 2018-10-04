@@ -86,9 +86,7 @@ class army_control:
     def move_to_rallying_point(self, unit):
         self.actions.append(
             unit.move(
-                self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                    self._game_info.map_center, 10
-                )
+                self.townhalls.closest_to(self._game_info.map_center).position.towards(self._game_info.map_center, 10)
             )
         )
 
@@ -111,22 +109,19 @@ class army_control:
             return True
         return False
 
-    def micro_zerglings(self, targets, unit, ):
+    def micro_zerglings(self, targets, unit):
         in_range_targets = targets.in_attack_range_of(unit)
 
         if (
-            in_range_targets
-            and self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-            and unit.weapon_cooldown <= 0.25
+            in_range_targets and self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1 and unit.weapon_cooldown <= 0.25
         ):  # more than half of the attack time with adrenal glands (0.35)
             targets_in_range_1 = targets.closer_than(1, unit)
             if targets_in_range_1:
-                    lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
-                    self.actions.append(unit.move(lowest_hp_enemy))
-                    return True
+                lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
+                self.actions.append(unit.move(lowest_hp_enemy))
+                return True
         elif (
-            in_range_targets
-            and unit.weapon_cooldown <= 0.35
+            in_range_targets and unit.weapon_cooldown <= 0.35
         ):  # more than half of the attack time with adrenal glands (0.35)
             self.attack_lowhp(unit, in_range_targets)
             return True
