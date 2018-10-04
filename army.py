@@ -126,21 +126,16 @@ class army_control:
 
     def micro_zerglings(self, targets, unit):
         """Target low hp units smartly, and surrounds when attack cd is down"""
-        in_range_targets = targets.in_attack_range_of(unit)
-
         if (
-            in_range_targets and self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1 and unit.weapon_cooldown <= 0.25
+            self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1 and unit.weapon_cooldown <= 0.25
         ):  # more than half of the attack time with adrenal glands (0.35)
-            targets_in_range_1 = targets.closer_than(1, unit)
-            if targets_in_range_1:
-                lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
-                self.actions.append(unit.move(lowest_hp_enemy))
+            if self.move_to_next_target(unit, targets):
                 return True
         elif (
-            in_range_targets and unit.weapon_cooldown <= 0.35
+            unit.weapon_cooldown <= 0.35
         ):  # more than half of the attack time with adrenal glands (0.35)
-            self.attack_lowhp(unit, in_range_targets)
-            return True
+            if self.attack_close_target(unit, targets):
+                return True
 
         self.actions.append(unit.attack(targets.closest_to(unit.position)))
         return True

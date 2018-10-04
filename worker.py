@@ -38,7 +38,8 @@ class worker_control:
                         if drone.weapon_cooldown <= 0.60:
                             self.attack_close_target(drone, enemy_units_close)
                         else:
-                            self.move_to_next_target(drone, enemy_units_close)
+                            if not self.move_to_next_target(drone, enemy_units_close):
+                                self.move_lowhp(drone, enemy_units_close)
 
     def save_lowhp_drone(self, drone, base):
         if drone.health <= 6:
