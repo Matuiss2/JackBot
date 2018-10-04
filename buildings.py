@@ -100,7 +100,7 @@ class builder:
         ):
             if base_amount <= 4:
                 if base_amount == 2:
-                    if self.spines:
+                    if self.spines or self.time > 330:
                         await self.expand_now()
                 else:
                     if base_amount == 3:
