@@ -112,7 +112,7 @@ class worker_control:
         if (
             len(self.units(EXTRACTOR).ready) == 1
             and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
-        ) or (self.vespene * 1.2 > self.minerals and self.time > 360):
+        ):
             self.dont_collect_gas = True
             for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
                 self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
