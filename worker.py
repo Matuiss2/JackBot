@@ -129,18 +129,20 @@ class worker_control:
 
         if workers_to_distribute:
             # order mineral fields for scvs to prefer the ones with no worker and most minerals
-            mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
+            self.distribute_to_deficits(mining_bases, workers_to_distribute, mineral_fields, deficit_bases)
 
-            deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
-            for worker in workers_to_distribute:
-                # distribute to refineries
-                if self.distribute_to_extractors(deficit_extractors):
-                    self.distribute_extractors(deficit_extractors, worker)
-                # distribute to mineral fields
-                elif mining_bases and deficit_bases and mineral_fields_deficit:
-                    self.distribute_minerals(mineral_fields_deficit, worker, deficit_bases)
-                else:
-                    pass
+    def distribute_to_deficits(self, mining_bases, workers_to_distribute, mineral_fields, deficit_bases):
+        # order mineral fields for scvs to prefer the ones with no worker and most minerals
+        mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
+
+        deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
+        for worker in workers_to_distribute:
+            # distribute to refineries
+            if self.distribute_to_extractors(deficit_extractors):
+                self.distribute_extractors(deficit_extractors, worker)
+            # distribute to mineral fields
+            elif mining_bases and deficit_bases and mineral_fields_deficit:
+                self.distribute_minerals(mineral_fields_deficit, worker, deficit_bases)
 
     def mineral_fields_deficit(self, mineral_fields, deficit_bases):
         if deficit_bases:
