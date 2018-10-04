@@ -1,3 +1,4 @@
+"""Everything logic for building stuff that comes out from a hatchery goes here"""
 from sc2.constants import (
     DRONE,
     EXTRACTOR,
@@ -16,7 +17,7 @@ from sc2.constants import (
 
 class production_control:
     def build_overlords(self):
-        """We do not get supply blocked, but builds one more overlord than needed at some points"""
+        """We still get supply blocked when ultralisk come out, can be improved"""
         if not self.supply_cap >= 200 and self.supply_left < 8:
             if self.can_afford(OVERLORD):
                 base_amount = len(self.townhalls)  # so it just calculate once per loop
