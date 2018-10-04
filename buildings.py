@@ -41,7 +41,6 @@ class builder:
         evochamber = self.evochambers
         if (
             pool.ready
-            and self.abilities_list
             and self.can_afford(EVOLUTIONCHAMBER)
             and len(self.townhalls.ready) >= 3
             and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
@@ -165,4 +164,3 @@ class builder:
         await self.build_pit()
         await self.build_pool()
         await self.build_spores()
-

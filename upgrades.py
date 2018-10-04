@@ -7,11 +7,23 @@ from sc2.constants import (
     RESEARCH_CHITINOUSPLATING,
     RESEARCH_PNEUMATIZEDCARAPACE,
     RESEARCH_ZERGLINGADRENALGLANDS,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL1,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL2,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     RESEARCH_ZERGLINGMETABOLICBOOST,
+    RESEARCH_ZERGGROUNDARMORLEVEL1,
+    RESEARCH_ZERGGROUNDARMORLEVEL2,
+    RESEARCH_ZERGGROUNDARMORLEVEL3,
     SPAWNINGPOOL,
     ULTRALISKCAVERN,
     ZERGLINGATTACKSPEED,
+    ZERGMELEEWEAPONSLEVEL1,
+    ZERGMELEEWEAPONSLEVEL2,
+    ZERGMELEEWEAPONSLEVEL3,
     ZERGLINGMOVEMENTSPEED,
+    ZERGGROUNDARMORSLEVEL1,
+    ZERGGROUNDARMORSLEVEL2,
+    ZERGGROUNDARMORSLEVEL3,
 )
 
 
@@ -20,15 +32,26 @@ class upgrades_control:
         """Can be rewritten so it doesnt need the list,
         if the evochamber gets destroyed while upgrading it will never try again, can be improved """
         evochamber = self.units(EVOLUTIONCHAMBER).ready
-        if self.abilities_list and evochamber.idle:
+        if evochamber.idle:
             for evo in evochamber.idle:
-                abilities = await self.get_available_abilities(evo)
-                for ability in self.abilities_list:
-                    if ability in abilities:
-                        if self.can_afford(ability):
-                            self.actions.append(evo(ability))
-                            self.abilities_list.remove(ability)
-                            break
+                if not self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL1) and self.can_afford(ZERGGROUNDARMORSLEVEL1):
+                    self.actions.append(evo(RESEARCH_ZERGGROUNDARMORLEVEL1))
+                    break
+                if not self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL1) and self.can_afford(ZERGMELEEWEAPONSLEVEL1):
+                    self.actions.append(evo(RESEARCH_ZERGMELEEWEAPONSLEVEL1))
+                    break
+                if not self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL2) and self.can_afford(ZERGMELEEWEAPONSLEVEL2):
+                    self.actions.append(evo(RESEARCH_ZERGMELEEWEAPONSLEVEL2))
+                    break
+                if not self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) and self.can_afford(ZERGGROUNDARMORSLEVEL2):
+                    self.actions.append(evo(RESEARCH_ZERGGROUNDARMORLEVEL2))
+                    break
+                if not self.already_pending_upgrade(ZERGMELEEWEAPONSLEVEL3) and self.can_afford(ZERGMELEEWEAPONSLEVEL3):
+                    self.actions.append(evo(RESEARCH_ZERGMELEEWEAPONSLEVEL3))
+                    break
+                if not self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) and self.can_afford(ZERGGROUNDARMORSLEVEL3):
+                    self.actions.append(evo(RESEARCH_ZERGGROUNDARMORLEVEL3))
+                    break
 
     def hatchery_cavern_upgrades(self):
         """Burrow is missing, find the right timing for it"""

@@ -15,12 +15,6 @@ from sc2.constants import (
     PHOTONCANNON,
     PROBE,
     QUEEN,
-    RESEARCH_ZERGGROUNDARMORLEVEL1,
-    RESEARCH_ZERGGROUNDARMORLEVEL2,
-    RESEARCH_ZERGGROUNDARMORLEVEL3,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL1,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL2,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     SCV,
     SPAWNINGPOOL,
     SPINECRAWLER,
@@ -55,14 +49,6 @@ class EarlyAggro(
         self.close_enemy_production = False
         self.actions = []
         self.locations = []
-        self.abilities_list = {
-            RESEARCH_ZERGMELEEWEAPONSLEVEL1,
-            RESEARCH_ZERGGROUNDARMORLEVEL1,
-            RESEARCH_ZERGMELEEWEAPONSLEVEL2,
-            RESEARCH_ZERGGROUNDARMORLEVEL2,
-            RESEARCH_ZERGMELEEWEAPONSLEVEL3,
-            RESEARCH_ZERGGROUNDARMORLEVEL3,
-        }
         self.drones = None
         self.queens = None
         self.zerglings = None
@@ -93,8 +79,8 @@ class EarlyAggro(
         self.close_enemy_production = False
         self.tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
 
-        if iteration == 0: # Initialize some "global" variables
-            self._client.game_step = 4 # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
+        if iteration == 0:  # Initialize some "global" variables
+            self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
             await self.split_workers()
