@@ -120,7 +120,7 @@ class worker_control:
             elif difference < 0:
                     deficit_bases.append([mining_place, difference])
 
-        if deficit_bases:
+        if not deficit_bases:
             # no deficits so only move idle workers, not surplus and idle
             for drone in self.drones.idle:
                 if mineral_fields:
