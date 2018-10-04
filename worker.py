@@ -131,9 +131,9 @@ class worker_control:
                     mf = mineral_fields.closest_to(drone)
                     self.actions.append(drone.gather(mf))
             return
-        worker_order_targets = {worker.order_target for worker in self.drones.collecting}
         # order mineral fields for scvs to prefer the ones with no worker and most minerals
         if deficit_bases and workers_to_distribute:
+            worker_order_targets = {worker.order_target for worker in self.drones.collecting}
             mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]
             # order target mineral fields, first by if someone is there already, second by mineral content
             mineral_fields_deficit = sorted(
