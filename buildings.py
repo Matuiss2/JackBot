@@ -21,7 +21,7 @@ class builder:
     def __init__(self):
         self.enemy_flying_dmg_units = False
         self.worker_to_first_base = False
-        self.ordered_expansions = False
+        self.ordered_expansions = []
 
     def prepare_expansions(self):
         start = self.start_location
