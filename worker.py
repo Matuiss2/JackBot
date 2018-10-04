@@ -109,9 +109,8 @@ class worker_control:
             for drone in self.drones.random_group_of(3):
                 self.actions.append(drone.gather(self.units(EXTRACTOR).first))
                 self.collect_gas = True
-        if (
-            len(self.units(EXTRACTOR).ready) == 1
-            and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
+        if len(self.units(EXTRACTOR).ready) == 1 and (
+            self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
         ):
             self.dont_collect_gas = True
             for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
