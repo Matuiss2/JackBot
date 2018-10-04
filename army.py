@@ -1,4 +1,4 @@
-"""Everything related to army bahvior"""
+"""Everything related to army behavior goes here"""
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -30,7 +30,8 @@ class army_control:
         self.selected_worker = None
 
     def army_micro(self):
-        """Micro function, its just slight better than a-move, need A LOT of improvements.
+        """It surrounds and target low hp units, also retreats when overwhelmed,
+         it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""
         targets = None
         filtered_enemies = None
@@ -71,7 +72,7 @@ class army_control:
                 self.idle_unit(attacking_unit)
                 continue
             else:
-                if not self.retreat_units or self.close_enemies_to_base:
+                if not self.retreat_units or self.close_enemies_to_base or self.time >= 1000:
                     if enemy_building:
                         self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                         continue
@@ -84,21 +85,22 @@ class army_control:
                     self.move_to_rallying_point(attacking_unit)
 
     def move_to_rallying_point(self, unit):
+        """Set the point where the units should gather"""
         self.actions.append(
             unit.move(
-                self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                    self._game_info.map_center, 10
-                )
+                self.townhalls.closest_to(self._game_info.map_center).position.towards(self._game_info.map_center, 10)
             )
         )
 
     def has_retreated(self, unit):
+        """Identify if the unit has retreated"""
         if self.units.structure.owned.exclude_type(
             {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
         ).closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
     def retreat_unit(self, unit, filtered_enemies):
+        """Tell the unit to retreat when overwhelmed"""
         if (
             self.townhalls
             and not self.units.structure.closer_than(15, unit.position)
@@ -111,22 +113,20 @@ class army_control:
             return True
         return False
 
-    def micro_zerglings(self, targets, unit, ):
+    def micro_zerglings(self, targets, unit):
+        """Target low hp units smartly, and surrounds when attack cd is down"""
         in_range_targets = targets.in_attack_range_of(unit)
 
         if (
-            in_range_targets
-            and self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-            and unit.weapon_cooldown <= 0.25
+            in_range_targets and self.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1 and unit.weapon_cooldown <= 0.25
         ):  # more than half of the attack time with adrenal glands (0.35)
             targets_in_range_1 = targets.closer_than(1, unit)
             if targets_in_range_1:
-                    lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
-                    self.actions.append(unit.move(lowest_hp_enemy))
-                    return True
+                lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
+                self.actions.append(unit.move(lowest_hp_enemy))
+                return True
         elif (
-            in_range_targets
-            and unit.weapon_cooldown <= 0.35
+            in_range_targets and unit.weapon_cooldown <= 0.35
         ):  # more than half of the attack time with adrenal glands (0.35)
             self.attack_lowhp(unit, in_range_targets)
             return True
@@ -135,6 +135,7 @@ class army_control:
         return True
 
     def idle_unit(self, unit):
+        """Control the idle units, by gathering then or telling then to attack"""
         if (
             len(self.ultralisks.ready) < 4
             and self.supply_used not in range(198, 201)
@@ -144,14 +145,29 @@ class army_control:
         ):
             self.move_to_rallying_point(unit)
             return True
-        self.attack_startlocation(unit)
+        else:
+            enemy_building = self.known_enemy_structures
+            if enemy_building:
+                self.attack_closest_building(unit)
+            else:
+                self.attack_startlocation(unit)
         return False
 
+    def attack_closest_building(self, unit):
+        """Attack the starting location"""
+        enemy_building = self.known_enemy_structures
+        if enemy_building:
+            self.actions.append(
+                unit.attack(enemy_building.closest_to(self.townhalls.furthest_to(self.game_info.map_center)))
+            )
+
     def attack_startlocation(self, unit):
+        """It tell to attack the starting location"""
         if self.enemy_start_locations:
             self.actions.append(unit.attack(self.enemy_start_locations[0]))
 
     def detection_control(self):
+        """It sends the overseer at the closest ally, can be improved a lot"""
         atk_force = self.zerglings | self.ultralisks
         if self.overseers:
             selected_ov = self.overseers.first
@@ -161,18 +177,22 @@ class army_control:
                 self.actions.append(selected_ov.move(self.townhalls.closest_to(selected_ov.position)))
 
     async def queens_abilities(self):
-        """Injection and creep spread"""
+        """Injection and creep spread, can be expanded so it accepts transfusion"""
         queens = self.queens
         hatchery = self.townhalls
+        enemies = self.known_enemy_units.not_structure
         if hatchery:
             # lowhp_ultralisks = self.ultralisks.filter(lambda lhpu: lhpu.health_percentage < 0.27)
             for queen in queens.idle:
+                if enemies.closer_than(8, queen.position):
+                    self.actions.append(queen.attack(enemies.closest_to(queen.position)))
+                    continue
                 # if not lowhp_ultralisks.closer_than(8, queen.position):
                 selected = hatchery.closest_to(queen.position)
                 if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                     self.actions.append(queen(EFFECT_INJECTLARVA, selected))
                     continue
-                elif queen.energy >= 26:
+                elif queen.energy >= 25:
                     await self.place_tumor(queen)
 
                 # elif queen.energy >= 50:
@@ -180,12 +200,13 @@ class army_control:
 
             for hatch in hatchery.ready.noqueue:
                 if not queens.closer_than(4, hatch):
-                    for queen in queens:
+                    for queen in queens.idle:
                         if not self.townhalls.closer_than(4, queen):
                             self.actions.append(queen.move(hatch.position))
                             break
 
     def scout_map(self):
+        """It sends a drone to scout the map, starting with the closest place then going base by base to the furthest"""
         if not self.drones:
             return
         waypoints = [point for point in self.expansion_locations]

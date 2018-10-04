@@ -1,3 +1,4 @@
+"""Every logic for building structures go here"""
 from sc2.constants import (
     BARRACKS,
     GATEWAY,
@@ -10,7 +11,6 @@ from sc2.constants import (
     SPAWNINGPOOL,
     SPINECRAWLER,
     SPORECRAWLER,
-    SPORECRAWLERWEAPON,
     ULTRALISKCAVERN,
     ZERGGROUNDARMORSLEVEL2,
 )
@@ -22,6 +22,7 @@ class builder:
         self.worker_to_first_base = False
 
     async def build_cavern(self):
+        """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
         evochamber = self.evochambers
         if (
             evochamber
@@ -33,11 +34,13 @@ class builder:
             await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
 
     async def build_evochamber(self):
+        """Builds the evolution chambers, placement can maybe be improved(far from priority),
+        also there is some occasional bug that prevents both to be built at the same time,
+        probably related to placement"""
         pool = self.pools
         evochamber = self.evochambers
         if (
             pool.ready
-            and self.abilities_list
             and self.can_afford(EVOLUTIONCHAMBER)
             and len(self.townhalls.ready) >= 3
             and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
@@ -45,8 +48,8 @@ class builder:
             await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
 
     def build_extractor(self):
-        """Couldnt find another way to build the geysers its way to inefficient
-        Check for resources here to not always call "closer_than" """
+        """Couldnt find another way to build the geysers its way to inefficient,
+         also the logic can be improved, sometimes it over collect vespene sometime it under collect"""
         if self.vespene < self.minerals * 2:
             if self.townhalls.ready and self.can_afford(EXTRACTOR):
                 gas = self.units(EXTRACTOR)
@@ -67,17 +70,13 @@ class builder:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
                     pit = self.pits
-                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 4:
-                        self.actions.append(drone.build(EXTRACTOR, geyser))
-                        break
-                    cavern = self.caverns
-                    if cavern and gas_amount + self.already_pending(EXTRACTOR) < 8:
+                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 8:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
 
     async def build_hatchery(self):
-        """Good for now, might be way too greedy tho(might need static defense)
-        Logic can be improved, the way to check for close enemies is way to inefficient"""
+        """Good for now, maybe the 7th or more hatchery can be postponed
+         for when extra mining patches or production are needed """
         base_amount = len(self.townhalls)  # so it just calculate once per loop
         if not self.worker_to_first_base and base_amount < 2 and self.minerals > 235:
             self.worker_to_first_base = True
@@ -100,6 +99,7 @@ class builder:
                 await self.expand_now()
 
     async def build_pit(self):
+        """Builds the infestation pit, placement can maybe be improved(far from priority)"""
         evochamber = self.evochambers
         if (
             evochamber
@@ -113,6 +113,8 @@ class builder:
             await self.build(INFESTATIONPIT, near=evochamber.first.position)
 
     async def build_pool(self):
+        """Builds the spawning pol, placement can maybe be improved(far from priority)
+        The logic vs proxies is yet to be tested, maybe it can be more adaptable vs some strategies"""
         base = self.townhalls
         if (not self.already_pending(SPAWNINGPOOL) and not self.pools and self.can_afford(SPAWNINGPOOL)) and (
             (len(base) >= 2) or (self.close_enemy_production and self.time < 300)
@@ -120,6 +122,8 @@ class builder:
             await self.build(SPAWNINGPOOL, base.first.position.towards(self._game_info.map_center, 5))
 
     async def build_spores(self):
+        """Build spores and spines, the spines are ok for now anti proxy are yet to be tested,
+         spores needs better placement and logic for now tho"""
         base = self.townhalls
         spores = self.units(SPORECRAWLER)
         if self.pools.ready:

@@ -1,3 +1,4 @@
+"""Everything related to upgrades logic goes here"""
 from sc2.constants import (
     CHITINOUSPLATING,
     EVOLUTIONCHAMBER,
@@ -6,7 +7,13 @@ from sc2.constants import (
     RESEARCH_CHITINOUSPLATING,
     RESEARCH_PNEUMATIZEDCARAPACE,
     RESEARCH_ZERGLINGADRENALGLANDS,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL1,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL2,
+    RESEARCH_ZERGMELEEWEAPONSLEVEL3,
     RESEARCH_ZERGLINGMETABOLICBOOST,
+    RESEARCH_ZERGGROUNDARMORLEVEL1,
+    RESEARCH_ZERGGROUNDARMORLEVEL2,
+    RESEARCH_ZERGGROUNDARMORLEVEL3,
     SPAWNINGPOOL,
     ULTRALISKCAVERN,
     ZERGLINGATTACKSPEED,
@@ -16,18 +23,27 @@ from sc2.constants import (
 
 class upgrades_control:
     async def evochamber_upgrades(self):
+        """Can be rewritten so it doesnt need the list,
+        if the evochamber gets destroyed while upgrading it will never try again, can be improved """
+        upgrade_list = [
+            RESEARCH_ZERGMELEEWEAPONSLEVEL1,
+            RESEARCH_ZERGMELEEWEAPONSLEVEL2,
+            RESEARCH_ZERGMELEEWEAPONSLEVEL3,
+            RESEARCH_ZERGGROUNDARMORLEVEL1,
+            RESEARCH_ZERGGROUNDARMORLEVEL2,
+            RESEARCH_ZERGGROUNDARMORLEVEL3,
+        ]
         evochamber = self.units(EVOLUTIONCHAMBER).ready
-        if self.abilities_list and evochamber.idle:
+        if evochamber.idle:
             for evo in evochamber.idle:
-                abilities = await self.get_available_abilities(evo)
-                for ability in self.abilities_list:
-                    if ability in abilities:
-                        if self.can_afford(ability):
-                            self.actions.append(evo(ability))
-                            self.abilities_list.remove(ability)
-                            break
+                upgrades = await self.get_available_abilities(evo)
+                for upgrade in upgrades:
+                    if upgrade in upgrade_list and self.can_afford(upgrade):
+                        self.actions.append(evo(upgrade))
+                        break
 
     def hatchery_cavern_upgrades(self):
+        """Burrow is missing, find the right timing for it"""
         cavern = self.units(ULTRALISKCAVERN).ready
         if cavern:
             if not self.already_pending_upgrade(CHITINOUSPLATING) and self.can_afford(CHITINOUSPLATING):
@@ -41,6 +57,7 @@ class upgrades_control:
                 #     self.actions.append(chosen_base(RESEARCH_BURROW))
 
     def pool_upgrades(self):
+        """Good for now"""
         pool = self.units(SPAWNINGPOOL).ready
         if pool.idle:
             if not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) or not self.already_pending_upgrade(
