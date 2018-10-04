@@ -71,11 +71,7 @@ class builder:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
                     pit = self.pits
-                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 5:
-                        self.actions.append(drone.build(EXTRACTOR, geyser))
-                        break
-                    cavern = self.caverns
-                    if cavern and gas_amount + self.already_pending(EXTRACTOR) < 8:
+                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 8:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
 
@@ -169,3 +165,4 @@ class builder:
         await self.build_pit()
         await self.build_pool()
         await self.build_spores()
+
