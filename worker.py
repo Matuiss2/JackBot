@@ -153,21 +153,21 @@ class worker_control:
         for worker in workers_to_distribute:
             # distribute to refineries
             if self.distribute_to_extractors(deficit_extractors):
-                self.distribute_extractors(deficit_extractors, worker)
+                self.distribute_to_extractor(deficit_extractors, worker)
             # distribute to mineral fields
             elif mining_bases and deficit_bases and mineral_fields_deficit:
-                self.distribute_minerals(mineral_fields_deficit, worker, deficit_bases)
+                self.distribute_to_mineral_field(mineral_fields_deficit, worker, deficit_bases)
 
     def distribute_to_extractors(self, deficit_extractors):
         return self.units(EXTRACTOR).ready and deficit_extractors and not self.do_not_require_gas
 
-    def distribute_extractors(self, deficit_extractors, worker):
+    def distribute_to_extractor(self, deficit_extractors, worker):
         self.actions.append(worker.gather(deficit_extractors[0][0]))
         deficit_extractors[0][1] += 1
         if deficit_extractors[0][1] == 0:
             del deficit_extractors[0]
 
-    def distribute_minerals(self, mineral_fields_deficit, worker, deficit_bases):
+    def distribute_to_mineral_field(self, mineral_fields_deficit, worker, deficit_bases):
         drone_target = mineral_fields_deficit[0]
         if len(mineral_fields_deficit) >= 2:
             del mineral_fields_deficit[0]
