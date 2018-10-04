@@ -117,7 +117,7 @@ class worker_control:
                         workers_to_distribute.append(moving_drone.closest_to(mining_place))
             # too few workers, put place to mine in deficit list
             elif difference < 0:
-                    deficit_bases.append([mining_place, difference])
+                deficit_bases.append([mining_place, difference])
 
         if not deficit_bases:
             # no deficits so only move idle workers, not surplus and idle
