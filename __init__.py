@@ -18,12 +18,12 @@ from sc2.client import Client
 def run_ladder_game(bot):
     # Load command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--GamePort', type=int, nargs="?", help='Game port')
-    parser.add_argument('--StartPort', type=int, nargs="?", help='Start port')
-    parser.add_argument('--LadderServer', type=str, nargs="?", help='Ladder server')
-    parser.add_argument('--ComputerOpponent', type=str, nargs="?", help='Computer opponent')
-    parser.add_argument('--ComputerRace', type=str, nargs="?", help='Computer race')
-    parser.add_argument('--ComputerDifficulty', type=str, nargs="?", help='Computer difficulty')
+    parser.add_argument("--GamePort", type=int, nargs="?", help="Game port")
+    parser.add_argument("--StartPort", type=int, nargs="?", help="Start port")
+    parser.add_argument("--LadderServer", type=str, nargs="?", help="Ladder server")
+    parser.add_argument("--ComputerOpponent", type=str, nargs="?", help="Computer opponent")
+    parser.add_argument("--ComputerRace", type=str, nargs="?", help="Computer race")
+    parser.add_argument("--ComputerDifficulty", type=str, nargs="?", help="Computer difficulty")
     args, unknown = parser.parse_known_args()
 
     if args.LadderServer == None:
@@ -50,13 +50,7 @@ def run_ladder_game(bot):
     portconfig.players = [[ports[3], ports[4]]]
 
     # Join ladder game
-    g = join_ladder_game(
-        host=host,
-        port=host_port,
-        players=[bot],
-        realtime=False,
-        portconfig=portconfig
-    )
+    g = join_ladder_game(host=host, port=host_port, players=[bot], realtime=False, portconfig=portconfig)
 
     # Run it
     result = asyncio.get_event_loop().run_until_complete(g)
@@ -64,15 +58,17 @@ def run_ladder_game(bot):
 
 
 # Modified version of sc2.main._join_game to allow custom host and port.
-async def join_ladder_game(host, port, players, realtime, portconfig, save_replay_as=None, step_time_limit=None,
-                           game_time_limit=None):
+async def join_ladder_game(
+    host, port, players, realtime, portconfig, save_replay_as=None, step_time_limit=None, game_time_limit=None
+):
     async with SC2Process(host=host, port=port) as server:
         await server.ping()
         client = Client(server._ws)
 
         try:
-            result = await sc2.main._play_game(players[0], client, realtime, portconfig, step_time_limit,
-                                               game_time_limit)
+            result = await sc2.main._play_game(
+                players[0], client, realtime, portconfig, step_time_limit, game_time_limit
+            )
             if save_replay_as is not None:
                 await client.save_replay(save_replay_as)
             await client.leave()
