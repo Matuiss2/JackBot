@@ -6,7 +6,6 @@ from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZE
 
 class worker_control:
     def __init__(self):
-        self.defense_mode = False
         self.defenders = None
         self.defender_tags = None
         self.collect_gas_for_speedling = False
@@ -17,11 +16,23 @@ class worker_control:
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
             self.actions.append(drone.gather(closest_mineral_patch))
 
+    def lowest_hp(self, units):
+        lowesthp = min(unit.health for unit in units)
+        low_enemies = units.filter(lambda x: x.health == lowesthp)
+        return low_enemies
+
+    def closest_lowest_hp(self, unit, units):
+        lowest_unit = self.lowest_hp(units)
+        return lowest_unit.closest_to(unit)
+
+    def move_lowhp(self, unit, enemies):
+        """Move to enemy with lowest HP"""
+        target = self.closest_lowest_hp(unit, enemies)
+        self.actions.append(unit.move(target))
+
     def attack_lowhp(self, unit, enemies):
         """Attack enemy with lowest HP"""
-        lowesthp = min(enemy.health for enemy in enemies)
-        low_enemies = enemies.filter(lambda x: x.health == lowesthp)
-        target = low_enemies.closest_to(unit)
+        target = self.closest_lowest_hp(unit, enemies)
         self.actions.append(unit.attack(target))
 
     async def defend_worker_rush(self):
@@ -31,63 +42,73 @@ class worker_control:
         if base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
 
-            if enemy_units_close and not self.defense_mode:
-                self.defense_mode = True
-                highest_hp_drones = heapq.nlargest(
-                    2 * (len(enemy_units_close)), self.drones.collecting, key=lambda drones: drones.health
-                )
-                self.defender_tags = [unit.tag for unit in highest_hp_drones]
+            if enemy_units_close and not self.defender_tags:
+                self.build_defense_force(len(enemy_units_close))
 
-            if self.defense_mode and not enemy_units_close:
-                if self.defenders:
-                    for drone in self.defenders:
-                        self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
-                        continue
-                self.defense_mode = False
-                self.defender_tags = []
-                self.defenders = None
+            if self.defender_tags and not enemy_units_close:
+                self.clear_defense_force(base)
 
-            if self.defense_mode and enemy_units_close:
-                self.defenders = self.drones.filter(
-                    lambda worker: worker.tag in self.defender_tags and worker.health > 0
-                )
-                defender_deficit = min(len(self.drones) - 1, 2 * len(enemy_units_close)) - len(self.defenders)
-                if defender_deficit > 0:
-                    highest_hp_additional_drones = heapq.nlargest(
-                        defender_deficit, self.drones.collecting, key=lambda drones: drones.health
-                    )
-                    additional_drones = [unit.tag for unit in highest_hp_additional_drones]
-                    self.defender_tags = self.defender_tags + additional_drones
+            if self.defender_tags and enemy_units_close:
+                self.refill_defense_force(len(enemy_units_close))
+
                 for drone in self.defenders:
                     # 6 hp is the lowest you can take a hit and still survive
-                    if drone.health <= 6:
-                        if not drone.is_collecting:
-                            mineral_field = self.state.mineral_field.closest_to(base.first.position)
-                            self.actions.append(drone.gather(mineral_field))
-                            continue
-                        else:
-                            self.defender_tags.remove(drone.tag)
-                    else:
+                    if not self.save_lowhp_drone(drone, base):
                         if drone.weapon_cooldown <= 0.60:
                             targets_close = enemy_units_close.in_attack_range_of(drone)
                             if targets_close:
                                 self.attack_lowhp(drone, targets_close)
-                                continue
                             else:
                                 target = enemy_units_close.closest_to(drone)
                                 if target:
                                     self.actions.append(drone.attack(target))
-                                    continue
                         else:
                             targets_in_range_1 = enemy_units_close.closer_than(1, drone)
                             if targets_in_range_1:
-                                lowest_hp_enemy = min(targets_in_range_1, key=(lambda x: x.health + x.shield))
-                                self.actions.append(drone.move(lowest_hp_enemy))
-                                continue
+                                self.move_lowhp(drone, targets_in_range_1)
                             else:
-                                lowest_hp_enemy = min(enemy_units_close, key=(lambda x: x.health + x.shield))
-                                self.actions.append(drone.move(lowest_hp_enemy))
-                                continue
+                                self.move_lowhp(drone, enemy_units_close)
+
+    def save_lowhp_drone(self, drone, base):
+        if drone.health <= 6:
+            if not drone.is_collecting:
+                mineral_field = self.state.mineral_field.closest_to(base.first.position)
+                self.actions.append(drone.gather(mineral_field))
+            else:
+                self.defender_tags.remove(drone.tag)
+            return True
+        return False
+
+    def build_defense_force(self, enemy_count):
+        self.defender_tags = self.defense_force(2 * enemy_count)
+
+    def refill_defense_force(self, enemy_count):
+        self.defenders = self.drones.filter(
+            lambda worker: worker.tag in self.defender_tags and worker.health > 0
+        )
+        defender_deficit = self.calculate_defender_deficit(enemy_count)
+
+        if defender_deficit > 0:
+            additional_drones = self.defense_force(defender_deficit)
+            self.defender_tags = self.defender_tags + additional_drones
+
+    def clear_defense_force(self, base):
+        if self.defenders:
+            for drone in self.defenders:
+                self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
+                continue
+        self.defender_tags = []
+        self.defenders = None
+
+    def defense_force(self, count):
+        highest_hp_drones = self.highest_hp_drones(count)
+        return [unit.tag for unit in highest_hp_drones]
+
+    def highest_hp_drones(self, count):
+        return heapq.nlargest(count, self.drones.collecting, key=lambda drones: drones.health)
+
+    def calculate_defender_deficit(self, enemy_count):
+        return min(len(self.drones) - 1, 2 * enemy_count) - len(self.defenders)
 
     async def distribute_drones(self):
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
