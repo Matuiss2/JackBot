@@ -89,9 +89,7 @@ class worker_control:
         self.defender_tags = self.defense_force(2 * enemy_count)
 
     def refill_defense_force(self, enemy_count):
-        self.defenders = self.drones.filter(
-            lambda worker: worker.tag in self.defender_tags and worker.health > 0
-        )
+        self.defenders = self.drones.filter(lambda worker: worker.tag in self.defender_tags and worker.health > 0)
         defender_deficit = self.calculate_defender_deficit(enemy_count)
 
         if defender_deficit > 0:
@@ -210,7 +208,7 @@ class worker_control:
         if self.require_gas:
             for extractor in self.units(EXTRACTOR):
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
-                if required_drones > 0 and required_drones < self.drones.amount:
+                if (required_drones > 0) and (required_drones < self.drones.amount):
                     for drone in self.drones.random_group_of(required_drones):
                         self.actions.append(drone.gather(extractor))
 
@@ -223,6 +221,4 @@ class worker_control:
         return not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and self.vespene < 100
 
     def mineral_fields_of(self, bases):
-        return self.state.mineral_field.filter(
-            lambda field: any([field.distance_to(base) <= 8 for base in bases])
-        )
+        return self.state.mineral_field.filter(lambda field: any([field.distance_to(base) <= 8 for base in bases]))
