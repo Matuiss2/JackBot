@@ -104,7 +104,7 @@ class worker_control:
                     self.actions.append(drone.gather(mf))
             return
 
-        if workers_to_distribute:
+        if deficit_bases and workers_to_distribute:
             self.distribute_to_deficits(mining_bases, workers_to_distribute, mineral_fields, deficit_bases)
 
     def calculate_distribution(self, mining_bases):
