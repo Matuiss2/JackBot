@@ -222,4 +222,3 @@ class worker_control:
 
     def mineral_fields_of(self, bases):
         return self.state.mineral_field.filter(lambda field: any([field.distance_to(base) <= 8 for base in bases]))
-

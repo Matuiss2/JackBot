@@ -1,6 +1,5 @@
 """SC2 zerg bot by Helfull, Matuiss, Thommath and Tweakimp"""
 import sc2
-from sc2 import Difficulty, Race
 from sc2.constants import (
     BARRACKS,
     CREEPTUMOR,
@@ -10,7 +9,6 @@ from sc2.constants import (
     EVOLUTIONCHAMBER,
     GATEWAY,
     INFESTATIONPIT,
-    OVERLORD,
     OVERSEER,
     PHOTONCANNON,
     PROBE,
@@ -22,7 +20,6 @@ from sc2.constants import (
     ULTRALISKCAVERN,
     ZERGLING,
 )
-from sc2.player import Bot, Computer
 
 from army import army_control
 from buildings import builder
