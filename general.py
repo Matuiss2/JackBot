@@ -1,8 +1,8 @@
 """Everything that cannot be grouped yet goes here"""
 from sc2.constants import (
     CANCEL,
-    CANCEL_MORPHLAIR,
     CANCEL_MORPHHIVE,
+    CANCEL_MORPHLAIR,
     CANCEL_MORPHOVERSEER,
     HATCHERY,
     HIVE,
