@@ -14,6 +14,7 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
+    OVERLORD,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
@@ -28,6 +29,16 @@ from sc2.constants import (
 class army_control:
     def __init__(self):
         self.selected_worker = None
+
+    def send_first_overlord(self):
+        enemy_main = self.enemy_start_locations[0]  # point2
+        enemy_natural = min(
+            self.ordered_expansions,
+            key=lambda expo: (expo.x - enemy_main.x) ** 2 + (expo.y - enemy_main.y) ** 2
+            if expo.x - enemy_main.x != 0 and expo.y - enemy_main.y != 0
+            else 10 ** 10,
+        )
+        self.actions.append(self.units(OVERLORD).first.move(enemy_natural.towards(enemy_main, -11)))
 
     def army_micro(self):
         """It surrounds and target low hp units, also retreats when overwhelmed,

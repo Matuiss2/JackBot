@@ -81,10 +81,11 @@ class EarlyAggro(
 
         if iteration == 0:  # Initialize some "global" variables
             self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
-            self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
-            await self.split_workers()
             self.prepare_expansions()
+            self.send_first_overlord()  # has to be after prepare_expansions
+            # self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
+            await self.split_workers()
         if self.known_enemy_units.not_structure.not_flying:
             for hatch in self.townhalls:
                 close_enemy = self.known_enemy_units.not_structure.not_flying.closer_than(40, hatch.position)
