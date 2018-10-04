@@ -72,7 +72,7 @@ class army_control:
                 self.idle_unit(attacking_unit)
                 continue
             else:
-                if not self.retreat_units or self.close_enemies_to_base:
+                if not self.retreat_units or self.close_enemies_to_base or self.time >= 1000:
                     if enemy_building:
                         self.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                         continue
