@@ -6,8 +6,6 @@ from sc2 import Difficulty, Race
 from sc2.player import Bot, Computer
 
 from __init__ import run_ladder_game
-
-# Load bot
 from ling_flood import EarlyAggro
 
 bot = Bot(Race.Zerg, EarlyAggro())

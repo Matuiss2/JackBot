@@ -1,9 +1,9 @@
 """Every logic for building structures go here"""
 from sc2.constants import (
     BARRACKS,
-    GATEWAY,
     EVOLUTIONCHAMBER,
     EXTRACTOR,
+    GATEWAY,
     HATCHERY,
     HIVE,
     INFESTATIONPIT,
@@ -31,7 +31,12 @@ class builder:
             and self.can_afford(ULTRALISKCAVERN)
             and not self.already_pending(ULTRALISKCAVERN)
         ):
-            await self.build(ULTRALISKCAVERN, near=evochamber.random.position)
+            await self.build(
+                ULTRALISKCAVERN,
+                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
+                    self.game_info.map_center, -15
+                ),
+            )
 
     async def build_evochamber(self):
         """Builds the evolution chambers, placement can maybe be improved(far from priority),
@@ -45,7 +50,12 @@ class builder:
             and len(self.townhalls.ready) >= 3
             and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
         ):
-            await self.build(EVOLUTIONCHAMBER, near=pool.first.position.towards(self._game_info.map_center, 3))
+            await self.build(
+                EVOLUTIONCHAMBER,
+                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
+                    self.game_info.map_center, -15
+                ),
+            )
 
     def build_extractor(self):
         """Couldnt find another way to build the geysers its way to inefficient,
@@ -88,15 +98,23 @@ class builder:
             and not self.already_pending(HATCHERY)
             and not (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300)
         ):
-            if base_amount <= 3:
+            if base_amount <= 4:
                 if base_amount == 2:
                     if self.spines:
                         await self.expand_now()
                 else:
-
-                    await self.expand_now()
+                    if base_amount == 3:
+                        await self.build_macrohatch()
+                    else:
+                        await self.expand_now()
             elif self.caverns:
                 await self.expand_now()
+
+    async def build_macrohatch(self):
+        await self.build(
+            HATCHERY,
+            near=self.townhalls.furthest_to(self.game_info.map_center).position.towards(self.game_info.map_center, 7),
+        )
 
     async def build_pit(self):
         """Builds the infestation pit, placement can maybe be improved(far from priority)"""
@@ -110,7 +128,12 @@ class builder:
             and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
             and self.townhalls
         ):
-            await self.build(INFESTATIONPIT, near=evochamber.first.position)
+            await self.build(
+                INFESTATIONPIT,
+                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
+                    self.game_info.map_center, -15
+                ),
+            )
 
     async def build_pool(self):
         """Builds the spawning pol, placement can maybe be improved(far from priority)
@@ -119,7 +142,12 @@ class builder:
         if (not self.already_pending(SPAWNINGPOOL) and not self.pools and self.can_afford(SPAWNINGPOOL)) and (
             (len(base) >= 2) or (self.close_enemy_production and self.time < 300)
         ):
-            await self.build(SPAWNINGPOOL, base.first.position.towards(self._game_info.map_center, 5))
+            await self.build(
+                SPAWNINGPOOL,
+                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
+                    self.game_info.map_center, -15
+                ),
+            )
 
     async def build_spores(self):
         """Build spores and spines, the spines are ok for now anti proxy are yet to be tested,
