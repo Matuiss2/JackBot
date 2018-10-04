@@ -21,6 +21,12 @@ from sc2.constants import (
     ZERGLING,
     ULTRALISK,
     ULTRALISKCAVERN,
+    ZERGGROUNDARMORSLEVEL1,
+    ZERGGROUNDARMORSLEVEL2,
+    ZERGGROUNDARMORSLEVEL3,
+    ZERGMELEEWEAPONSLEVEL1,
+    ZERGMELEEWEAPONSLEVEL2,
+    ZERGMELEEWEAPONSLEVEL3,
 )
 from sc2.player import Bot, Computer
 
@@ -61,6 +67,14 @@ class EarlyAggro(
         self.spines = None
         self.tumors = None
         self.retreat_units = set()
+        self.upgrades = [
+            ZERGGROUNDARMORSLEVEL1,
+            ZERGGROUNDARMORSLEVEL2,
+            ZERGGROUNDARMORSLEVEL3,
+            ZERGMELEEWEAPONSLEVEL1,
+            ZERGMELEEWEAPONSLEVEL2,
+            ZERGMELEEWEAPONSLEVEL3,
+        ]
 
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
