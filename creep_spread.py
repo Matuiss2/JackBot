@@ -1,3 +1,4 @@
+"""Everything related to creep spreading goes here"""
 import math
 from sc2.data import ActionResult
 from sc2.position import Point2
@@ -17,7 +18,7 @@ class creep_control:
 
     async def place_tumor(self, unit):
         """ Find a nice placement for the tumor and build it if possible, avoid expansion locations
-        Makes creep to the enemy base, needs a better value function for the spreading"""
+        Makes creep to the enemy base, needs a better value function for the spreading, it gets stuck on ramps"""
         # Make sure unit can make tumor and what ability it is
         abilities = await self.get_available_abilities(unit)
         if BUILD_CREEPTUMOR_QUEEN in abilities:

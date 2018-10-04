@@ -1,4 +1,4 @@
-"""Everything related to workers behavior"""
+"""Everything related to workers behavior goes here"""
 import heapq
 
 from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZERGLINGMOVEMENTSPEED
@@ -26,8 +26,8 @@ class worker_control:
         self.actions.append(unit.attack(target))
 
     async def defend_worker_rush(self):
-        """Its the way I found to defend simple worker rushes,
-            I don't know if it beats complexes worker rushes like tyr's bot"""
+        """It destroys every worker rush without losing more than 2 workers,
+         it counter scouting worker rightfully now, its too big and can be split"""
         base = self.units(HATCHERY).ready
         if base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
