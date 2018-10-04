@@ -167,9 +167,13 @@ class army_control:
         """Injection and creep spread, can be expanded so it accepts transfusion"""
         queens = self.queens
         hatchery = self.townhalls
+        enemies = self.known_enemy_units.not_structure
         if hatchery:
             # lowhp_ultralisks = self.ultralisks.filter(lambda lhpu: lhpu.health_percentage < 0.27)
             for queen in queens.idle:
+                if enemies.closer_than(8, queen.position):
+                    self.actions.append(queen.attack(enemies.closest_to(queen.position)))
+                    continue
                 # if not lowhp_ultralisks.closer_than(8, queen.position):
                 selected = hatchery.closest_to(queen.position)
                 if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
@@ -198,3 +202,4 @@ class army_control:
         waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
         for point in waypoints:
             self.actions.append(scout.move(point, queue=True))
+            
