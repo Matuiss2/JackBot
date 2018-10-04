@@ -55,19 +55,25 @@ class worker_control:
                     # 6 hp is the lowest you can take a hit and still survive
                     if not self.save_lowhp_drone(drone, base):
                         if drone.weapon_cooldown <= 0.60:
-                            targets_close = enemy_units_close.in_attack_range_of(drone)
-                            if targets_close:
-                                self.attack_lowhp(drone, targets_close)
-                            else:
-                                target = enemy_units_close.closest_to(drone)
-                                if target:
-                                    self.actions.append(drone.attack(target))
+                            self.attack_close_target(drone, enemy_units_close)
                         else:
-                            targets_in_range_1 = enemy_units_close.closer_than(1, drone)
-                            if targets_in_range_1:
-                                self.move_lowhp(drone, targets_in_range_1)
-                            else:
-                                self.move_lowhp(drone, enemy_units_close)
+                            self.move_to_next_target(drone, enemy_units_close)
+
+    def attack_close_target(self, drone, enemies):
+        targets_close = enemies.in_attack_range_of(drone)
+        if targets_close:
+            self.attack_lowhp(drone, targets_close)
+        else:
+            target = enemies.closest_to(drone)
+            if target:
+                self.actions.append(drone.attack(target))
+
+    def move_to_next_target(self, drone, enemies):
+        targets_in_range_1 = enemies.closer_than(1, drone)
+        if targets_in_range_1:
+            self.move_lowhp(drone, targets_in_range_1)
+        else:
+            self.move_lowhp(drone, enemies)
 
     def save_lowhp_drone(self, drone, base):
         if drone.health <= 6:
