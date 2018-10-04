@@ -63,7 +63,7 @@ class army_control:
         atk_force = self.zerglings | self.ultralisks
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
-            if attacking_unit.tag in self.retreat_units:
+            if attacking_unit.tag in self.retreat_units and self.townhalls:
                 self.has_retreated(attacking_unit)
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
@@ -92,7 +92,7 @@ class army_control:
                         continue
                     else:
                         self.attack_startlocation(attacking_unit)
-                else:
+                elif self.townhalls:
                     self.move_to_rallying_point(attacking_unit)
 
     def move_to_rallying_point(self, unit):
@@ -158,7 +158,7 @@ class army_control:
             return True
         else:
             enemy_building = self.known_enemy_structures
-            if enemy_building:
+            if enemy_building and self.townhalls:
                 self.attack_closest_building(unit)
             else:
                 self.attack_startlocation(unit)
