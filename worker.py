@@ -93,7 +93,7 @@ class worker_control:
         mineral_fields = self.mineral_fields_of(mining_bases)
         mining_places = mining_bases | self.units(EXTRACTOR).ready
 
-        self.distribute_gas()
+        self.gather_gas()
 
         deficit_bases, workers_to_distribute = self.calculate_distribution(mining_places)
 
@@ -104,8 +104,7 @@ class worker_control:
                     self.actions.append(drone.gather(mf))
             return
 
-        if deficit_bases and workers_to_distribute:
-            self.distribute_to_deficits(mining_bases, workers_to_distribute, mineral_fields, deficit_bases)
+        self.distribute_to_deficits(mining_bases, workers_to_distribute, mineral_fields, deficit_bases)
 
     def calculate_distribution(self, mining_bases):
         workers_to_distribute = [drone for drone in self.drones.idle]
@@ -147,17 +146,22 @@ class worker_control:
         return []
 
     def distribute_to_deficits(self, mining_bases, workers_to_distribute, mineral_fields, deficit_bases):
-        mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
 
-        deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
-        for worker in workers_to_distribute:
-            if self.distribute_to_extractors(deficit_extractors):
-                self.distribute_to_extractor(deficit_extractors, worker)
-            elif mining_bases and deficit_bases and mineral_fields_deficit:
-                self.distribute_to_mineral_field(mineral_fields_deficit, worker, deficit_bases)
+        deficit_bases = [x for x in deficit_bases if x[0].type_id != EXTRACTOR]
+
+        if deficit_bases and workers_to_distribute:
+            mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
+
+            deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
+
+            for worker in workers_to_distribute:
+                if mining_bases and deficit_bases and mineral_fields_deficit:
+                    self.distribute_to_mineral_field(mineral_fields_deficit, worker, deficit_bases)
+                if self.distribute_to_extractors(deficit_extractors):
+                    self.distribute_to_extractor(deficit_extractors, worker)
 
     def distribute_to_extractors(self, deficit_extractors):
-        return self.units(EXTRACTOR).ready and deficit_extractors and not self.do_not_require_gas
+        return self.units(EXTRACTOR).ready and deficit_extractors and self.require_gas
 
     def distribute_to_extractor(self, deficit_extractors, worker):
         self.actions.append(worker.gather(deficit_extractors[0][0]))
@@ -174,30 +178,21 @@ class worker_control:
         if deficit_bases[0][1] == 0:
             del deficit_bases[0]
 
-    def force_gas_for_speedling(self):
-        if (
-            not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-            and not self.collect_gas_for_speedling
-        ):
-            for drone in self.drones.random_group_of(3):
-                self.actions.append(drone.gather(self.units(EXTRACTOR).first))
-                self.collect_gas_for_speedling = True
-
-    def distribute_gas(self):
-        if not len(self.units(EXTRACTOR).ready) == 1:
-            return
-
-        self.force_gas_for_speedling()
-
-        if self.do_not_require_gas:
-            for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
-                self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))
+    def gather_gas(self):
+        if self.require_gas:
+            for extractor in self.units(EXTRACTOR):
+                required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
+                if required_drones > 0 and required_drones < self.drones.amount:
+                    for drone in self.drones.random_group_of(required_drones):
+                        self.actions.append(drone.gather(extractor))
 
     @property
-    def do_not_require_gas(self):
-        return len(self.units(EXTRACTOR).ready) == 1 and (
-            self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-        )
+    def require_gas(self):
+        return self.require_gas_for_speedlings or self.vespene < self.minerals
+
+    @property
+    def require_gas_for_speedlings(self):
+        return not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and self.vespene < 100
 
     def mineral_fields_of(self, bases):
         return self.state.mineral_field.filter(
