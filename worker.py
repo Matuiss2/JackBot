@@ -16,25 +16,6 @@ class worker_control:
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
             self.actions.append(drone.gather(closest_mineral_patch))
 
-    def lowest_hp(self, units):
-        lowesthp = min(unit.health for unit in units)
-        low_enemies = units.filter(lambda x: x.health == lowesthp)
-        return low_enemies
-
-    def closest_lowest_hp(self, unit, units):
-        lowest_unit = self.lowest_hp(units)
-        return lowest_unit.closest_to(unit)
-
-    def move_lowhp(self, unit, enemies):
-        """Move to enemy with lowest HP"""
-        target = self.closest_lowest_hp(unit, enemies)
-        self.actions.append(unit.move(target))
-
-    def attack_lowhp(self, unit, enemies):
-        """Attack enemy with lowest HP"""
-        target = self.closest_lowest_hp(unit, enemies)
-        self.actions.append(unit.attack(target))
-
     async def defend_worker_rush(self):
         """It destroys every worker rush without losing more than 2 workers,
          it counter scouting worker rightfully now, its too big and can be split"""
@@ -58,22 +39,6 @@ class worker_control:
                             self.attack_close_target(drone, enemy_units_close)
                         else:
                             self.move_to_next_target(drone, enemy_units_close)
-
-    def attack_close_target(self, drone, enemies):
-        targets_close = enemies.in_attack_range_of(drone)
-        if targets_close:
-            self.attack_lowhp(drone, targets_close)
-        else:
-            target = enemies.closest_to(drone)
-            if target:
-                self.actions.append(drone.attack(target))
-
-    def move_to_next_target(self, drone, enemies):
-        targets_in_range_1 = enemies.closer_than(1, drone)
-        if targets_in_range_1:
-            self.move_lowhp(drone, targets_in_range_1)
-        else:
-            self.move_lowhp(drone, enemies)
 
     def save_lowhp_drone(self, drone, base):
         if drone.health <= 6:

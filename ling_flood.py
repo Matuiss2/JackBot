@@ -31,11 +31,12 @@ from general import extra_things
 from production import production_control
 from upgrades import upgrades_control
 from worker import worker_control
+from micro import micro
 
 
 # noinspection PyMissingConstructor
 class EarlyAggro(
-    sc2.BotAI, army_control, worker_control, creep_control, upgrades_control, builder, production_control, extra_things
+    sc2.BotAI, micro, army_control, worker_control, creep_control, upgrades_control, builder, production_control, extra_things
 ):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
 
