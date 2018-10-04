@@ -14,12 +14,21 @@ from sc2.constants import (
     ULTRALISKCAVERN,
     ZERGGROUNDARMORSLEVEL2,
 )
+from sc2.position import Point2
 
 
 class builder:
     def __init__(self):
         self.enemy_flying_dmg_units = False
         self.worker_to_first_base = False
+        self.ordered_expansions = False
+
+    def prepare_expansions(self):
+        start = self.start_location
+        expansions = self.expansion_locations
+        waypoints = [point for point in expansions]
+        waypoints.sort(key=lambda p: (p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2)
+        self.ordered_expansions = [Point2((p[0], p[1])) for p in waypoints]
 
     async def build_cavern(self):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
@@ -34,7 +43,7 @@ class builder:
             await self.build(
                 ULTRALISKCAVERN,
                 near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                    self.game_info.map_center, -15
+                    self.game_info.map_center, -10
                 ),
             )
 
@@ -50,11 +59,10 @@ class builder:
             and len(self.townhalls.ready) >= 3
             and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
         ):
+            furthest_base = self.townhalls.furthest_to(self.game_info.map_center)
+            second_base = (self.townhalls - {furthest_base}).closest_to(furthest_base)
             await self.build(
-                EVOLUTIONCHAMBER,
-                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                    self.game_info.map_center, -15
-                ),
+                EVOLUTIONCHAMBER, near=second_base.position.towards_with_random_angle(self.game_info.map_center, -10)
             )
 
     def build_extractor(self):
@@ -98,23 +106,34 @@ class builder:
             and not self.already_pending(HATCHERY)
             and not (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300)
         ):
+
             if base_amount <= 4:
                 if base_amount == 2:
                     if self.spines or self.time > 330:
                         await self.expand_now()
                 else:
-                    if base_amount == 3:
-                        await self.build_macrohatch()
-                    else:
-                        await self.expand_now()
+                    # if base_amount == 3:
+                    #     await self.build_macrohatch()
+                    # else:
+                    await self.place_hatchery()
             elif self.caverns:
-                await self.expand_now()
+                await self.place_hatchery()
 
-    async def build_macrohatch(self):
-        await self.build(
-            HATCHERY,
-            near=self.townhalls.furthest_to(self.game_info.map_center).position.towards(self.game_info.map_center, 7),
-        )
+    # async def build_macrohatch(self):
+    #     await self.build(
+    #         HATCHERY,
+    #         near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
+    #             self.game_info.map_center, 10
+    #         ),
+    #     )
+
+    async def place_hatchery(self):
+        if self.can_afford(HATCHERY):
+            for expansion in self.ordered_expansions:
+                if await self.can_place(HATCHERY, expansion):
+                    drone = self.drones.closest_to(expansion)
+                    await self.do(drone.build(HATCHERY, expansion))
+                    break
 
     async def build_pit(self):
         """Builds the infestation pit, placement can maybe be improved(far from priority)"""
@@ -131,7 +150,7 @@ class builder:
             await self.build(
                 INFESTATIONPIT,
                 near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                    self.game_info.map_center, -15
+                    self.game_info.map_center, -10
                 ),
             )
 
@@ -145,7 +164,7 @@ class builder:
             await self.build(
                 SPAWNINGPOOL,
                 near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                    self.game_info.map_center, -15
+                    self.game_info.map_center, -10
                 ),
             )
 

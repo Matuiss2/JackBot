@@ -3,12 +3,12 @@ import sc2
 from sc2 import Difficulty, Race
 from sc2.constants import (
     BARRACKS,
-    GATEWAY,
     CREEPTUMOR,
     CREEPTUMORBURROWED,
     CREEPTUMORQUEEN,
     DRONE,
     EVOLUTIONCHAMBER,
+    GATEWAY,
     INFESTATIONPIT,
     OVERLORD,
     OVERSEER,
@@ -18,9 +18,9 @@ from sc2.constants import (
     SCV,
     SPAWNINGPOOL,
     SPINECRAWLER,
-    ZERGLING,
     ULTRALISK,
     ULTRALISKCAVERN,
+    ZERGLING,
 )
 from sc2.player import Bot, Computer
 
@@ -84,6 +84,7 @@ class EarlyAggro(
             self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             self.locations = list(self.expansion_locations.keys())
             await self.split_workers()
+            self.prepare_expansions()
         if self.known_enemy_units.not_structure.not_flying:
             for hatch in self.townhalls:
                 close_enemy = self.known_enemy_units.not_structure.not_flying.closer_than(40, hatch.position)
@@ -96,7 +97,7 @@ class EarlyAggro(
         if iteration % 20 == 0:
             await self.all_buildings()
             await self.all_upgrades()
-        if iteration % 3000 == 400:
+        if iteration % 2000 == 400:
             self.scout_map()
         self.army_micro()
         await self.build_units()
