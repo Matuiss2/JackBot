@@ -179,7 +179,7 @@ class army_control:
                 if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                     self.actions.append(queen(EFFECT_INJECTLARVA, selected))
                     continue
-                elif queen.energy >= 26:
+                elif queen.energy >= 25:
                     await self.place_tumor(queen)
 
                 # elif queen.energy >= 50:
@@ -187,7 +187,7 @@ class army_control:
 
             for hatch in hatchery.ready.noqueue:
                 if not queens.closer_than(4, hatch):
-                    for queen in queens:
+                    for queen in queens.idle:
                         if not self.townhalls.closer_than(4, queen):
                             self.actions.append(queen.move(hatch.position))
                             break

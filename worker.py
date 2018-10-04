@@ -1,4 +1,4 @@
-"""Everything related to workers behavior"""
+"""Everything related to workers behavior goes here"""
 import heapq
 
 from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZERGLINGMOVEMENTSPEED
@@ -10,6 +10,7 @@ class worker_control:
         self.defenders = None
         self.defender_tags = None
         self.dont_collect_gas = False
+        self.collect_gas = False
 
     async def split_workers(self):
         """Split the workers on the beginning """
@@ -25,8 +26,8 @@ class worker_control:
         self.actions.append(unit.attack(target))
 
     async def defend_worker_rush(self):
-        """Its the way I found to defend simple worker rushes,
-            I don't know if it beats complexes worker rushes like tyr's bot"""
+        """It destroys every worker rush without losing more than 2 workers,
+         it counter scouting worker rightfully now, its too big and can be split"""
         base = self.units(HATCHERY).ready
         if base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
@@ -101,10 +102,17 @@ class worker_control:
             lambda field: any([field.distance_to(base) <= 8 for base in mining_bases])
         )
         if (
-            len(self.units(EXTRACTOR).ready) < 2
-            and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
-            or (self.vespene * 1.2 > self.minerals and self.time > 360)
+            len(self.units(EXTRACTOR).ready) == 1
+            and not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            and not self.collect_gas
         ):
+            for drone in self.drones.random_group_of(3):
+                self.actions.append(drone.gather(self.units(EXTRACTOR).first))
+                self.collect_gas = True
+        if (
+            len(self.units(EXTRACTOR).ready) == 1
+            and (self.vespene >= 100 or self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED))
+        ) or (self.vespene * 1.2 > self.minerals and self.time > 360):
             self.dont_collect_gas = True
             for drone in self.workers.filter(lambda drones: drones.is_carrying_vespene):
                 self.actions.append(drone.gather(self.state.mineral_field.closest_to(drone)))

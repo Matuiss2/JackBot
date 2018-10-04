@@ -1,3 +1,4 @@
+"""Everything that cannot be grouped yet goes here"""
 from sc2.constants import (
     CANCEL,
     CANCEL_MORPHLAIR,
@@ -25,14 +26,14 @@ class extra_things:
 
     def cancel_attacked_hatcheries(self):
         """find the hatcheries that are building, and have low health and cancel then,
-        can be better, its easy to burst 150 hp, but if I put more it might cancel itself,
-        will look into that later"""
+        can be better, its easy to burst 400 hp, will look into that later,
+         checking how fast the hp is going down might be a good idea"""
         if self.close_enemy_production and self.time < 300:
             for building in self.units(HATCHERY).filter(lambda x: 0.2 < x.build_progress < 1 and x.health < 400):
                 self.actions.append(building(CANCEL))
 
     async def detection(self):
-        """Morph overseers"""
+        """Morph the overseer"""
         lords = self.units(OVERLORD)
         if (
             (self.units(LAIR) or self.units(HIVE))
@@ -53,7 +54,7 @@ class extra_things:
         return False
 
     async def morphing_townhalls(self):
-        """Works well, maybe the timing can be improved"""
+        """Works well, can definitely be optimized"""
         if not (
             all(
                 self.caverns.ready and i == 1
@@ -75,7 +76,7 @@ class extra_things:
                 and not any([await self.is_morphing(h) for h in lair])
                 and lair.ready.idle
             ):
-                self.actions.append(lair.ready.idle.first(UPGRADETOHIVE_HIVE))
+                self.actions.append(lair.ready.first(UPGRADETOHIVE_HIVE))
             # Lair
             if (
                 len(self.townhalls) >= 3
@@ -84,4 +85,4 @@ class extra_things:
                 and not any([await self.is_morphing(h) for h in base])
                 and base.ready.idle
             ):
-                self.actions.append(base.ready.idle.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))
+                self.actions.append(base.ready.furthest_to(self._game_info.map_center)(UPGRADETOLAIR_LAIR))
