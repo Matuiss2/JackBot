@@ -4,9 +4,9 @@ from sc2.constants import (
     AUTOTURRET,
     BUNKER,
     CREEPTUMOR,
-    CREEPTUMORQUEEN,
     CREEPTUMORBURROWED,
     CREEPTUMORMISSILE,
+    CREEPTUMORQUEEN,
     DISRUPTORPHASED,
     DRONE,
     EFFECT_INJECTLARVA,
@@ -14,6 +14,7 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
+    OVERLORD,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
@@ -28,6 +29,16 @@ from sc2.constants import (
 class army_control:
     def __init__(self):
         self.selected_worker = None
+
+    def send_first_overlord(self):
+        enemy_main = self.enemy_start_locations[0]  # point2
+        enemy_natural = min(
+            self.ordered_expansions,
+            key=lambda expo: (expo.x - enemy_main.x) ** 2 + (expo.y - enemy_main.y) ** 2
+            if expo.x - enemy_main.x != 0 and expo.y - enemy_main.y != 0
+            else 10 ** 10,
+        )
+        self.actions.append(self.units(OVERLORD).first.move(enemy_natural.towards(enemy_main, -11)))
 
     def army_micro(self):
         """It surrounds and target low hp units, also retreats when overwhelmed,
@@ -52,7 +63,7 @@ class army_control:
         atk_force = self.zerglings | self.ultralisks
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
-            if attacking_unit.tag in self.retreat_units:
+            if attacking_unit.tag in self.retreat_units and self.townhalls:
                 self.has_retreated(attacking_unit)
                 continue
             if targets and targets.closer_than(17, attacking_unit.position):
@@ -81,7 +92,7 @@ class army_control:
                         continue
                     else:
                         self.attack_startlocation(attacking_unit)
-                else:
+                elif self.townhalls:
                     self.move_to_rallying_point(attacking_unit)
 
     def move_to_rallying_point(self, unit):
@@ -147,7 +158,7 @@ class army_control:
             return True
         else:
             enemy_building = self.known_enemy_structures
-            if enemy_building:
+            if enemy_building and self.townhalls:
                 self.attack_closest_building(unit)
             else:
                 self.attack_startlocation(unit)
@@ -215,4 +226,3 @@ class army_control:
         waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
         for point in waypoints:
             self.actions.append(scout.move(point, queue=True))
-
