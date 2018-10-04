@@ -89,17 +89,15 @@ class worker_control:
                                 continue
 
     async def distribute_drones(self):
-        """Distribute workers, according to available bases and geysers"""
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
         mineral_fields = self.mineral_fields_of(mining_bases)
         mining_places = mining_bases | self.units(EXTRACTOR).ready
 
         self.distribute_gas()
-        # check places to collect from whether there are not optimal worker counts
+
         deficit_bases, workers_to_distribute = self.calculate_distribution(mining_places)
 
         if not deficit_bases:
-            # no deficits so only move idle workers, not surplus and idle
             for drone in self.drones.idle:
                 if mineral_fields:
                     mf = mineral_fields.closest_to(drone)
@@ -107,7 +105,6 @@ class worker_control:
             return
 
         if workers_to_distribute:
-            # order mineral fields for scvs to prefer the ones with no worker and most minerals
             self.distribute_to_deficits(mining_bases, workers_to_distribute, mineral_fields, deficit_bases)
 
     def calculate_distribution(self, mining_bases):
@@ -119,7 +116,6 @@ class worker_control:
 
         for mining_place in mining_places:
             difference = mining_place.surplus_harvesters
-            # if too many workers, put extra workers in workers_to_distribute
             if difference > 0:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
@@ -132,7 +128,6 @@ class worker_control:
                         )
                     if moving_drone:
                         workers_to_distribute.append(moving_drone.closest_to(mining_place))
-            # too few workers, put place to mine in deficit list
             elif difference < 0:
                 deficit_bases.append([mining_place, difference])
 
@@ -142,7 +137,6 @@ class worker_control:
         if deficit_bases:
             worker_order_targets = {worker.order_target for worker in self.drones.collecting}
             mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]
-            # order target mineral fields, first by if someone is there already, second by mineral content
             return sorted(
                 mineral_fields_deficit,
                 key=lambda mineral_field: (
@@ -153,15 +147,12 @@ class worker_control:
         return []
 
     def distribute_to_deficits(self, mining_bases, workers_to_distribute, mineral_fields, deficit_bases):
-        # order mineral fields for scvs to prefer the ones with no worker and most minerals
         mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
 
         deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
         for worker in workers_to_distribute:
-            # distribute to refineries
             if self.distribute_to_extractors(deficit_extractors):
                 self.distribute_to_extractor(deficit_extractors, worker)
-            # distribute to mineral fields
             elif mining_bases and deficit_bases and mineral_fields_deficit:
                 self.distribute_to_mineral_field(mineral_fields_deficit, worker, deficit_bases)
 
