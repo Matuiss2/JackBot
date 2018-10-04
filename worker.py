@@ -91,7 +91,6 @@ class worker_control:
     async def distribute_drones(self):
         """Distribute workers, according to available bases and geysers"""
         workers_to_distribute = [drone for drone in self.drones.idle]
-        mineral_fields_deficit = []
         deficit_bases = []
         extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
         mineral_tags = {mf.tag for mf in self.state.mineral_field}
@@ -128,29 +127,34 @@ class worker_control:
                     self.actions.append(drone.gather(mf))
             return
 
-        # order mineral fields for scvs to prefer the ones with no worker and most minerals
-        if deficit_bases and workers_to_distribute:
+        if workers_to_distribute:
+            # order mineral fields for scvs to prefer the ones with no worker and most minerals
+            mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
+
+            deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
+            for worker in workers_to_distribute:
+                # distribute to refineries
+                if self.distribute_to_extractors(deficit_extractors):
+                    self.distribute_extractors(deficit_extractors, worker)
+                # distribute to mineral fields
+                elif mining_bases and deficit_bases and mineral_fields_deficit:
+                    self.distribute_minerals(mineral_fields_deficit, worker, deficit_bases)
+                else:
+                    pass
+
+    def mineral_fields_deficit(self, mineral_fields, deficit_bases):
+        if deficit_bases:
             worker_order_targets = {worker.order_target for worker in self.drones.collecting}
             mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]
             # order target mineral fields, first by if someone is there already, second by mineral content
-            mineral_fields_deficit = sorted(
+            return sorted(
                 mineral_fields_deficit,
                 key=lambda mineral_field: (
                     mineral_field.tag not in worker_order_targets,
                     mineral_field.mineral_contents,
                 ),
             )
-
-        deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
-        for worker in workers_to_distribute:
-            # distribute to refineries
-            if self.distribute_to_extractors(deficit_extractors):
-                self.distribute_extractors(deficit_extractors, worker)
-            # distribute to mineral fields
-            elif mining_bases and deficit_bases and mineral_fields_deficit:
-                self.distribute_minerals(mineral_fields_deficit, worker, deficit_bases)
-            else:
-                pass
+        return []
 
     def distribute_to_extractors(self, deficit_extractors):
         return self.units(EXTRACTOR).ready and deficit_extractors and not self.do_not_require_gas
