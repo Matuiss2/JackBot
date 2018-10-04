@@ -30,22 +30,23 @@ class worker_control:
         base = self.units(HATCHERY).ready
         if base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
+
             if enemy_units_close and not self.defense_mode:
                 self.defense_mode = True
                 highest_hp_drones = heapq.nlargest(
                     2 * (len(enemy_units_close)), self.drones.collecting, key=lambda drones: drones.health
                 )
                 self.defender_tags = [unit.tag for unit in highest_hp_drones]
+
             if self.defense_mode and not enemy_units_close:
                 if self.defenders:
                     for drone in self.defenders:
                         self.actions.append(drone.gather(self.state.mineral_field.closest_to(base.first)))
                         continue
-                    self.defenders = None
-                    self.defender_tags = []
                 self.defense_mode = False
                 self.defender_tags = []
                 self.defenders = None
+
             if self.defense_mode and enemy_units_close:
                 self.defenders = self.drones.filter(
                     lambda worker: worker.tag in self.defender_tags and worker.health > 0
