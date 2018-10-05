@@ -171,8 +171,7 @@ class Builder:
                 )
 
     async def build_spores(self):
-        """Build spores and spines, the spines are ok for now anti proxy are yet to be tested,
-         spores needs better placement and logic for now tho"""
+        """Build spores placement is fixed, its ok for now"""
         bases = self.townhalls
         spores = self.units(SPORECRAWLER)
         if self.pools.ready:
@@ -182,23 +181,22 @@ class Builder:
                     if air_units:
                         self.enemy_flying_dmg_units = True
             else:
-                if bases:
-                    for base in bases:
-                        if len(spores) + self.already_pending(SPORECRAWLER) < len(bases.ready) and self.can_afford(
-                            SPORECRAWLER
-                        ):
-                            spore_position = (
-                                (self.state.mineral_field | self.state.vespene_geyser)
-                                .closer_than(10, base)
-                                .center.towards(base, 1)
-                            )
-                            if not spores.closer_than(15, spore_position):
-                                
-                                await self.build(SPORECRAWLER, spore_position)
-                               
+                for base in bases:
+                    if len(spores) + self.already_pending(SPORECRAWLER) < len(bases.ready) and self.can_afford(
+                        SPORECRAWLER
+                    ):
+                        spore_position = (
+                            (self.state.mineral_field | self.state.vespene_geyser)
+                            .closer_than(10, base)
+                            .center.towards(base, 1)
+                        )
+                        if not spores.closer_than(15, spore_position):
+                            await self.build(SPORECRAWLER, spore_position)
 
-
-
+    async def build_spines(self):
+        """Build spines, its ok for now but anti proxy are yet to be tested,"""
+        bases = self.townhalls
+        if self.pools.ready:
             if (
                 len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(bases.ready)
                 and self.time <= 360
@@ -223,3 +221,4 @@ class Builder:
         await self.build_pit()
         await self.build_pool()
         await self.build_spores()
+        await self.build_spines()

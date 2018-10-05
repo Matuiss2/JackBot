@@ -81,7 +81,8 @@ class EarlyAggro(
             self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
-            self.send_first_overlord()  # has to be after prepare_expansions
+            # self.send_first_overlord() # has to be after prepare_expansions
+            #  since the counter for one base play is not yet implemented Ill comment it out
             # self.actions.append(self.units(OVERLORD).first.move(self._game_info.map_center))
             await self.split_workers()
         if self.known_enemy_units.not_structure.not_flying:
