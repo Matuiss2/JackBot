@@ -218,4 +218,4 @@ class Builder:
         await self.build_hatchery()
         await self.build_pit()
         await self.build_pool()
-        await self.build_spores()        
+        await self.build_spores()
