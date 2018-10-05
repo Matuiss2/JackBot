@@ -1,4 +1,5 @@
 """Every logic for building structures go here"""
+from sc2.position import Point2
 from sc2.constants import (
     BARRACKS,
     EVOLUTIONCHAMBER,
@@ -185,8 +186,16 @@ class Builder:
                 if base:
                     selected_base = base.random
                     if len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER):
-                        if not spores.closer_than(15, selected_base.position) and self.can_afford(SPORECRAWLER):
-                            await self.build(SPORECRAWLER, near=selected_base.position)
+                        if self.can_afford(SPORECRAWLER) and self.time > 300:
+                            spore_position = selected_base.position.towards(
+                                    self.state.mineral_field.closer_than(8, selected_base).furthest_to(selected_base), 2
+                                )
+                            if not spores.closer_than(15, spore_position):
+                                await self.build(
+                                    SPORECRAWLER,
+                                    near= spore_position,
+                                )
+
             if (
                 len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(base.ready)
                 and self.time <= 360

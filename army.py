@@ -42,6 +42,7 @@ class ArmyControl:
             if expo.x - enemy_main.x != 0 and expo.y - enemy_main.y != 0
             else 10 ** 10,
         )
+
         self.actions.append(self.units(OVERLORD).first.move(enemy_natural.towards(enemy_main, -11)))
 
     def army_micro(self):  # Too many branches(pylint)
@@ -163,7 +164,7 @@ class ArmyControl:
     def attack_closest_building(self, unit):
         """Attack the starting location"""
         enemy_building = self.known_enemy_structures
-        if enemy_building:
+        if enemy_building and (not self.close_enemy_production or self.time > 300):
             self.actions.append(
                 unit.attack(enemy_building.closest_to(self.townhalls.furthest_to(self.game_info.map_center)))
             )
