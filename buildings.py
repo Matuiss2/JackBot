@@ -173,7 +173,7 @@ class Builder:
     async def build_spores(self):
         """Build spores and spines, the spines are ok for now anti proxy are yet to be tested,
          spores needs better placement and logic for now tho"""
-        base = self.townhalls
+        bases = self.townhalls
         spores = self.units(SPORECRAWLER)
         if self.pools.ready:
             if (not self.enemy_flying_dmg_units) and self.time < 360:
@@ -182,19 +182,25 @@ class Builder:
                     if air_units:
                         self.enemy_flying_dmg_units = True
             else:
-                if base:
-                    selected_base = base.random
-                    if len(spores) + self.already_pending(SPORECRAWLER) < len(base.ready) and self.can_afford(
-                        SPORECRAWLER
-                    ):
-                        spore_position = selected_base.position.towards(
-                            self.state.mineral_field.closer_than(8, selected_base).furthest_to(selected_base), 2
-                        )
-                        if not spores.closer_than(15, spore_position):
-                            await self.build(SPORECRAWLER, near=spore_position)
+                if bases:
+                    for base in bases:
+                        if len(spores) + self.already_pending(SPORECRAWLER) < len(bases.ready) and self.can_afford(
+                            SPORECRAWLER
+                        ):
+                            spore_position = (
+                                (self.state.mineral_field | self.state.vespene_geyser)
+                                .closer_than(10, base)
+                                .center.towards(base, 1)
+                            )
+                            if not spores.closer_than(15, spore_position):
+                                
+                                await self.build(SPORECRAWLER, spore_position)
+                               
+
+
 
             if (
-                len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(base.ready)
+                len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(bases.ready)
                 and self.time <= 360
                 or (
                     self.close_enemy_production
@@ -205,9 +211,7 @@ class Builder:
             ):
                 await self.build(
                     SPINECRAWLER,
-                    near=self.townhalls.closest_to(self._game_info.map_center).position.towards(
-                        self._game_info.map_center, 9
-                    ),
+                    near=bases.closest_to(self._game_info.map_center).position.towards(self._game_info.map_center, 9),
                 )
 
     async def all_buildings(self):
