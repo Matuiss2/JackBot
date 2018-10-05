@@ -15,7 +15,9 @@ from sc2.constants import (
 )
 
 
-class production_control:
+class ProductionControl:
+    """It controls every unit creation logic"""
+
     def build_overlords(self):
         """We still get supply blocked when ultralisk come out, can be improved"""
         if not self.supply_cap >= 200 and self.supply_left < 8:

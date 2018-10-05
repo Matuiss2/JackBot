@@ -17,7 +17,9 @@ from sc2.constants import (
 )
 
 
-class extra_things:
+class ExtraThings:
+    """Groups various things, that couldn't be grouped elsewhere, usually related to morphing or canceling stuff"""
+
     def __init__(self):
         self.location_index = 0
 
@@ -32,14 +34,9 @@ class extra_things:
     async def detection(self):
         """Morph the overseer"""
         lords = self.units(OVERLORD)
-        if (
-            (self.units(LAIR) or self.units(HIVE))
-            and self.can_afford(OVERSEER)
-            and lords
-            and not self.units(OVERSEER)
-            and not any([await self.is_morphing(h) for h in self.units(OVERLORDCOCOON)])
-        ):
-            self.actions.append(lords.random(MORPH_OVERSEER))
+        if (self.units(LAIR) or self.units(HIVE)) and self.can_afford(OVERSEER) and lords and not self.units(OVERSEER):
+            if not any([await self.is_morphing(h) for h in self.units(OVERLORDCOCOON)]):
+                self.actions.append(lords.random(MORPH_OVERSEER))
 
     async def is_morphing(self, homecity):
         """Check if a base or overlord is morphing, good enough for now"""
@@ -48,7 +45,7 @@ class extra_things:
         for morph in morphing_upgrades:
             if morph in abilities:
                 return True
-        return False
+        return None
 
     async def morphing_townhalls(self):
         """Works well, can definitely be optimized"""

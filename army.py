@@ -26,11 +26,15 @@ from sc2.constants import (
 )
 
 
-class army_control:
+class ArmyControl:
+    """It controls the army, the first overlord scouting,
+     the worker scouting and queen behavior(abilities and attack)"""
+
     def __init__(self):
         self.selected_worker = None
 
     def send_first_overlord(self):
+        """It sends the first overlord to scout the enemies natural"""
         enemy_main = self.enemy_start_locations[0]  # point2
         enemy_natural = min(
             self.ordered_expansions,
@@ -40,7 +44,7 @@ class army_control:
         )
         self.actions.append(self.units(OVERLORD).first.move(enemy_natural.towards(enemy_main, -11)))
 
-    def army_micro(self):
+    def army_micro(self):  # Too many branches(pylint)
         """It surrounds and target low hp units, also retreats when overwhelmed,
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""
@@ -122,7 +126,7 @@ class army_control:
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
             return True
-        return False
+        return None
 
     def micro_zerglings(self, targets, unit):
         """Target low hp units smartly, and surrounds when attack cd is down"""
@@ -131,9 +135,7 @@ class army_control:
         ):  # more than half of the attack time with adrenal glands (0.35)
             if self.move_to_next_target(unit, targets):
                 return True
-        elif (
-            unit.weapon_cooldown <= 0.35
-        ):  # more than half of the attack time with adrenal glands (0.35)
+        elif unit.weapon_cooldown <= 0.35:  # more than half of the attack time with adrenal glands (0.35)
             if self.attack_close_target(unit, targets):
                 return True
 
@@ -151,13 +153,12 @@ class army_control:
         ):
             self.move_to_rallying_point(unit)
             return True
+        enemy_building = self.known_enemy_structures
+        if enemy_building and self.townhalls:
+            self.attack_closest_building(unit)
         else:
-            enemy_building = self.known_enemy_structures
-            if enemy_building and self.townhalls:
-                self.attack_closest_building(unit)
-            else:
-                self.attack_startlocation(unit)
-        return False
+            self.attack_startlocation(unit)
+        return None
 
     def attack_closest_building(self, unit):
         """Attack the starting location"""

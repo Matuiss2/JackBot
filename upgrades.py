@@ -21,7 +21,9 @@ from sc2.constants import (
 )
 
 
-class upgrades_control:
+class UpgradesControl:
+    """Group every upgrade dividing it by the structure that host it"""
+
     async def evochamber_upgrades(self):
         """Can be rewritten so it doesnt need the list,
         if the evochamber gets destroyed while upgrading it will never try again, can be improved """
@@ -69,6 +71,7 @@ class upgrades_control:
                     self.actions.append(pool.first(RESEARCH_ZERGLINGADRENALGLANDS))
 
     async def all_upgrades(self):
+        """Execute all upgrade functions"""
         await self.evochamber_upgrades()
         self.hatchery_cavern_upgrades()
         self.pool_upgrades()
