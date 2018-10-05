@@ -45,8 +45,8 @@ class Builder:
         ):
             await self.build(
                 ULTRALISKCAVERN,
-                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                    self.game_info.map_center, -10
+                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards(
+                    self.main_base_ramp.depot_in_middle, 6
                 ),
             )
 
