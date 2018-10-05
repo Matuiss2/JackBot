@@ -176,7 +176,7 @@ class Builder:
         base = self.townhalls
         spores = self.units(SPORECRAWLER)
         if self.pools.ready:
-            if not self.enemy_flying_dmg_units:
+            if (not self.enemy_flying_dmg_units) and self.time < 360:
                 if self.known_enemy_units.flying:
                     air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
                     if air_units:
@@ -184,16 +184,14 @@ class Builder:
             else:
                 if base:
                     selected_base = base.random
-                    if len(spores) < len(base.ready) and not self.already_pending(SPORECRAWLER):
-                        if self.can_afford(SPORECRAWLER) and self.time > 300:
-                            spore_position = selected_base.position.towards(
-                                    self.state.mineral_field.closer_than(8, selected_base).furthest_to(selected_base), 2
-                                )
-                            if not spores.closer_than(15, spore_position):
-                                await self.build(
-                                    SPORECRAWLER,
-                                    near= spore_position,
-                                )
+                    if len(spores) + self.already_pending(SPORECRAWLER) < len(base.ready) and self.can_afford(
+                        SPORECRAWLER
+                    ):
+                        spore_position = selected_base.position.towards(
+                            self.state.mineral_field.closer_than(8, selected_base).furthest_to(selected_base), 2
+                        )
+                        if not spores.closer_than(15, spore_position):
+                            await self.build(SPORECRAWLER, near=spore_position)
 
             if (
                 len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(base.ready)
@@ -220,4 +218,4 @@ class Builder:
         await self.build_hatchery()
         await self.build_pit()
         await self.build_pool()
-        await self.build_spores()
+        await self.build_spores()        
