@@ -1,5 +1,4 @@
 """Every logic for building structures go here"""
-from sc2.position import Point2
 from sc2.constants import (
     BARRACKS,
     EVOLUTIONCHAMBER,
