@@ -176,7 +176,7 @@ class Builder:
         bases = self.townhalls
         spores = self.units(SPORECRAWLER)
         if self.pools.ready:
-            if (not self.enemy_flying_dmg_units) and self.time < 10:
+            if (not self.enemy_flying_dmg_units) and self.time < 360:
                 if self.known_enemy_units.flying:
                     air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
                     if air_units:
@@ -193,11 +193,11 @@ class Builder:
                                 .center.towards(base, 1)
                             )
                             if not spores.closer_than(15, spore_position):
-                                # if await self.can_place(SPORECRAWLER, spore_position):
+                                
                                 await self.build(SPORECRAWLER, spore_position)
-                                # else:
-                                #     print("only did near")
-                                #     await self.build(SPORECRAWLER, near=spore_position)
+                               
+
+
 
             if (
                 len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(bases.ready)
