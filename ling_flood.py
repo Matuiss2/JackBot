@@ -21,28 +21,28 @@ from sc2.constants import (
     ZERGLING,
 )
 
-from army import army_control
-from buildings import builder
-from creep_spread import creep_control
-from general import extra_things
-from production import production_control
-from upgrades import upgrades_control
-from worker import worker_control
-from micro import micro
+from army import ArmyControl
+from buildings import Builder
+from creep_spread import CreepControl
+from general import ExtraThings
+from production import ProductionControl
+from upgrades import UpgradesControl
+from worker import WorkerControl
+from micro import Micro
 
 
 # noinspection PyMissingConstructor
 class EarlyAggro(
-    sc2.BotAI, micro, army_control, worker_control, creep_control, upgrades_control, builder, production_control, extra_things
+    sc2.BotAI, Micro, ArmyControl, WorkerControl, CreepControl, UpgradesControl, Builder, ProductionControl, ExtraThings
 ):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
 
     def __init__(self):
-        worker_control.__init__(self)
-        builder.__init__(self)
-        creep_control.__init__(self)
-        extra_things.__init__(self)
-        army_control.__init__(self)
+        WorkerControl.__init__(self)
+        Builder.__init__(self)
+        CreepControl.__init__(self)
+        ExtraThings.__init__(self)
+        ArmyControl.__init__(self)
         self.close_enemies_to_base = False
         self.close_enemy_production = False
         self.actions = []

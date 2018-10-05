@@ -17,13 +17,16 @@ from sc2.constants import (
 from sc2.position import Point2
 
 
-class builder:
+class Builder:
+    """Groups every structure building logic and placement auxiliaries"""
+
     def __init__(self):
         self.enemy_flying_dmg_units = False
         self.worker_to_first_base = False
         self.ordered_expansions = []
 
     def prepare_expansions(self):
+        """Put all expansion placement in an optimal order"""
         start = self.start_location
         expansions = self.expansion_locations
         waypoints = [point for point in expansions]
@@ -128,6 +131,7 @@ class builder:
     #     )
 
     async def place_hatchery(self):
+        """It expands on the optimal location"""
         if self.can_afford(HATCHERY):
             for expansion in self.ordered_expansions:
                 if await self.can_place(HATCHERY, expansion):
@@ -138,35 +142,33 @@ class builder:
     async def build_pit(self):
         """Builds the infestation pit, placement can maybe be improved(far from priority)"""
         evochamber = self.evochambers
-        if (
-            evochamber
-            and not self.pits
-            and self.can_afford(INFESTATIONPIT)
-            and not self.already_pending(INFESTATIONPIT)
-            and self.units(LAIR).ready
-            and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
-            and self.townhalls
-        ):
-            await self.build(
-                INFESTATIONPIT,
-                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                    self.game_info.map_center, -10
-                ),
-            )
+        if evochamber and not self.pits:
+            if (
+                self.can_afford(INFESTATIONPIT)
+                and not self.already_pending(INFESTATIONPIT)
+                and self.units(LAIR).ready
+                and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
+                and self.townhalls
+            ):
+                await self.build(
+                    INFESTATIONPIT,
+                    near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
+                        self.game_info.map_center, -10
+                    ),
+                )
 
     async def build_pool(self):
         """Builds the spawning pol, placement can maybe be improved(far from priority)
         The logic vs proxies is yet to be tested, maybe it can be more adaptable vs some strategies"""
         base = self.townhalls
-        if (not self.already_pending(SPAWNINGPOOL) and not self.pools and self.can_afford(SPAWNINGPOOL)) and (
-            (len(base) >= 2) or (self.close_enemy_production and self.time < 300)
-        ):
-            await self.build(
-                SPAWNINGPOOL,
-                near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                    self.game_info.map_center, -10
-                ),
-            )
+        if not self.already_pending(SPAWNINGPOOL) and not self.pools and self.can_afford(SPAWNINGPOOL):
+            if len(base) >= 2 or (self.close_enemy_production and self.time < 300):
+                await self.build(
+                    SPAWNINGPOOL,
+                    near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
+                        self.game_info.map_center, -10
+                    ),
+                )
 
     async def build_spores(self):
         """Build spores and spines, the spines are ok for now anti proxy are yet to be tested,
