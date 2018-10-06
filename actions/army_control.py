@@ -93,10 +93,10 @@ class ArmyControl(Micro):
         """Tell the unit to retreat when overwhelmed"""
         if (
             self.ai.townhalls
-            and not self.ai.units.structure.closer_than(15, unit.position)
+            and not self.ai.units.structure.closer_than(7, unit.position)
             and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, unit.position))
-            >= len(self.ai.zerglings.closer_than(15, unit.position))
-            + len(self.ai.ultralisks.closer_than(15, unit.position)) * 4
+            >= len(self.ai.zerglings.closer_than(20, unit.position))
+            + len(self.ai.ultralisks.closer_than(20, unit.position)) * 4
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
