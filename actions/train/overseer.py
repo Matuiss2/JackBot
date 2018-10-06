@@ -9,7 +9,7 @@ class TrainOverseer:
         return (
             (self.ai.lairs or self.ai.hives)
             and self.ai.overlords
-            and not self.morphing_overlords()
+            and not await self.morphing_overlords()
             and self.ai.can_afford(OVERSEER)
             and not self.ai.overseers
         )
