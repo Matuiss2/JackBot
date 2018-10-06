@@ -8,7 +8,9 @@ from sc2.constants import (
     DRONE,
     EVOLUTIONCHAMBER,
     GATEWAY,
+    HIVE,
     INFESTATIONPIT,
+    LAIR,
     OVERSEER,
     PHOTONCANNON,
     PROBE,
@@ -45,6 +47,7 @@ class EarlyAggro(
         ArmyControl.__init__(self)
         self.close_enemies_to_base = False
         self.close_enemy_production = False
+        self.floating_buildings_bm = False
         self.actions = []
         self.locations = []
         self.drones = None
@@ -58,6 +61,8 @@ class EarlyAggro(
         self.pits = None
         self.spines = None
         self.tumors = None
+        self.lairs = None
+        self.hives = None
         self.retreat_units = set()
 
     async def on_step(self, iteration):
@@ -72,9 +77,12 @@ class EarlyAggro(
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)
+        self.lairs = self.units(LAIR)
+        self.hives = self.units(HIVE)
         self.actions = []
         self.close_enemies_to_base = False
         self.close_enemy_production = False
+        self.floating_buildings_bm = False
         self.tumors = self.units(CREEPTUMORQUEEN) | self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED)
 
         if iteration == 0:  # Initialize some "global" variables
@@ -94,6 +102,8 @@ class EarlyAggro(
                     break
         if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(50, self.start_location):
             self.close_enemy_production = True
+        if len(self.known_enemy_structures) == len(self.known_enemy_structures.flying) and self.time > 300:
+            self.floating_buildings_bm = True
         if iteration % 20 == 0:
             await self.all_buildings()
             await self.all_upgrades()

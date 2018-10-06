@@ -4,6 +4,7 @@ from sc2.constants import (
     EXTRACTOR,
     LAIR,
     LARVA,
+    MUTALISK,
     OVERLORD,
     QUEEN,
     SPAWNINGPOOL,
@@ -102,6 +103,15 @@ class ProductionControl:
                 else:
                     self.actions.append(larva.random.train(ZERGLING))
                     return True
+            return False
+        return None
+
+    def build_mutalisks(self):
+        """Build mutalisks to target flying buildings"""
+        if self.spires.ready:
+            if self.can_afford(MUTALISK) and self.can_feed(MUTALISK):
+                self.actions.append(self.larvae.random.train(MUTALISK))
+                return True
             return False
         return None
 
