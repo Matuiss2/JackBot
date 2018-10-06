@@ -5,9 +5,7 @@ from sc2.constants import (
     EXTRACTOR,
     GATEWAY,
     HATCHERY,
-    HIVE,
     INFESTATIONPIT,
-    LAIR,
     SPAWNINGPOOL,
     SPINECRAWLER,
     SPIRE,
@@ -39,7 +37,7 @@ class Builder:
         evochamber = self.evochambers
         if (
             evochamber
-            and self.units(HIVE)
+            and self.hives
             and not self.caverns
             and self.can_afford(ULTRALISKCAVERN)
             and not self.already_pending(ULTRALISKCAVERN)
@@ -74,7 +72,7 @@ class Builder:
          also the logic can be improved, sometimes it over collect vespene sometime it under collect"""
         if self.vespene < self.minerals * 2:
             if self.townhalls.ready and self.can_afford(EXTRACTOR):
-                gas = self.units(EXTRACTOR)
+                gas = self.extractors
                 gas_amount = len(gas)  # so it calculate just once per step
                 vgs = self.state.vespene_geyser.closer_than(10, self.townhalls.ready.random)
                 for geyser in vgs:
@@ -114,7 +112,7 @@ class Builder:
             if base_amount <= 4:
                 if base_amount == 2:
                     if self.spines or self.time > 330:
-                        await self.expand_now()
+                        await self.place_hatchery()
                 else:
                     # if base_amount == 3:
                     #     await self.build_macrohatch()
@@ -137,7 +135,7 @@ class Builder:
             for expansion in self.ordered_expansions:
                 if await self.can_place(HATCHERY, expansion):
                     drone = self.drones.closest_to(expansion)
-                    await self.do(drone.build(HATCHERY, expansion))
+                    self.actions.append(drone.build(HATCHERY, expansion))
                     break
 
     async def build_pit(self):
@@ -147,7 +145,7 @@ class Builder:
             if (
                 self.can_afford(INFESTATIONPIT)
                 and not self.already_pending(INFESTATIONPIT)
-                and self.units(LAIR).ready
+                and self.lairs.ready
                 and self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
                 and self.townhalls
             ):

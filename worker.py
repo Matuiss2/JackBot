@@ -21,7 +21,7 @@ class WorkerControl:
     async def defend_worker_rush(self):  # Too many blocks(pylint)
         """It destroys every worker rush without losing more than 2 workers,
          it counter scouting worker rightfully now, its too big and can be split"""
-        base = self.units(HATCHERY).ready
+        base = self.hatcheries.ready
         if base:
             enemy_units_close = self.known_enemy_units.closer_than(8, base.first).of_type([PROBE, DRONE, SCV])
             if enemy_units_close and not self.defender_tags:
@@ -89,7 +89,7 @@ class WorkerControl:
         """Group all helpers for distributing workers optimally"""
         mining_bases = self.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
         mineral_fields = self.mineral_fields_of(mining_bases)
-        mining_places = mining_bases | self.units(EXTRACTOR).ready
+        mining_places = mining_bases | self.extractors.ready
 
         self.gather_gas()
 
@@ -108,8 +108,8 @@ class WorkerControl:
         """Calculates base deficits amount and workers that have to move amount"""
         workers_to_distribute = [drone for drone in self.drones.idle]
         mineral_tags = {mf.tag for mf in self.state.mineral_field}
-        mining_places = mining_bases | self.units(EXTRACTOR).ready
-        extractor_tags = {ref.tag for ref in self.units(EXTRACTOR)}
+        mining_places = mining_bases | self.extractors.ready
+        extractor_tags = {ref.tag for ref in self.extractors}
         deficit_bases = []
 
         for mining_place in mining_places:
@@ -161,7 +161,8 @@ class WorkerControl:
 
     def distribute_to_extractors(self, deficit_extractors):
         """Conditions to send workers to extractors"""
-        return self.units(EXTRACTOR).ready and deficit_extractors and self.require_gas
+        return self.extractors.ready and deficit_extractors and self.require_gas
+
     def distribute_to_extractor(self, deficit_extractors, worker):
         """Send worker to the extractor and remove it as target if full"""
         self.actions.append(worker.gather(deficit_extractors[0][0]))
@@ -182,7 +183,7 @@ class WorkerControl:
     def gather_gas(self):
         """Send workers to gas only if extra is needed"""
         if self.require_gas:
-            for extractor in self.units(EXTRACTOR):
+            for extractor in self.extractors:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
                 if 0 < required_drones < self.drones.amount:
                     for drone in self.drones.random_group_of(required_drones):
@@ -190,6 +191,7 @@ class WorkerControl:
 
     @property
     def require_gas(self):
+        """returns true if we require gas"""
         return self.require_gas_for_speedlings or self.vespene < self.minerals
 
     @property

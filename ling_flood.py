@@ -7,10 +7,14 @@ from sc2.constants import (
     CREEPTUMORQUEEN,
     DRONE,
     EVOLUTIONCHAMBER,
+    EXTRACTOR,
     GATEWAY,
+    HATCHERY,
     HIVE,
     INFESTATIONPIT,
     LAIR,
+    LARVA,
+    OVERLORD,
     OVERSEER,
     PHOTONCANNON,
     PROBE,
@@ -55,7 +59,11 @@ class EarlyAggro(
         self.zerglings = None
         self.ultralisks = None
         self.overseers = None
+        self.overlords = None
         self.evochambers = None
+        self.larvae = None
+        self.hatcheries = None
+        self.extractors = None
         self.caverns = None
         self.pools = None
         self.pits = None
@@ -72,13 +80,17 @@ class EarlyAggro(
         self.zerglings = self.units(ZERGLING)
         self.ultralisks = self.units(ULTRALISK)
         self.overseers = self.units(OVERSEER)
+        self.overlords = self.units(OVERLORD)
         self.evochambers = self.units(EVOLUTIONCHAMBER)
         self.caverns = self.units(ULTRALISKCAVERN)
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)
+        self.larvae = self.units(LARVA)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
+        self.extractors = self.units(EXTRACTOR)
+        self.hatcheries = self.units(HATCHERY)
         self.actions = []
         self.close_enemies_to_base = False
         self.close_enemy_production = False
