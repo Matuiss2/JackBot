@@ -8,7 +8,9 @@ from sc2.constants import (
     DRONE,
     EVOLUTIONCHAMBER,
     GATEWAY,
+    HIVE,
     INFESTATIONPIT,
+    LAIR,
     OVERSEER,
     PHOTONCANNON,
     PROBE,
@@ -59,6 +61,8 @@ class EarlyAggro(
         self.pits = None
         self.spines = None
         self.tumors = None
+        self.lairs = None
+        self.hives = None
         self.retreat_units = set()
 
     async def on_step(self, iteration):
@@ -73,6 +77,8 @@ class EarlyAggro(
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)
+        self.lairs = self.units(LAIR)
+        self.hives = self.units(HIVE)
         self.actions = []
         self.close_enemies_to_base = False
         self.close_enemy_production = False
