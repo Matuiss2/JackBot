@@ -10,6 +10,7 @@ from sc2.constants import (
     LAIR,
     SPAWNINGPOOL,
     SPINECRAWLER,
+    SPIRE,
     SPORECRAWLER,
     ULTRALISKCAVERN,
     ZERGGROUNDARMORSLEVEL2,
@@ -211,6 +212,11 @@ class Builder:
                     SPINECRAWLER,
                     near=bases.closest_to(self._game_info.map_center).position.towards(self._game_info.map_center, 9),
                 )
+
+    async def build_spire(self):
+        """Build the spire if only floating buildings left"""
+        if not self.spires and self.can_afford(SPIRE) and self.floating_buildings_bm and (self.lairs or self.hives):
+            await self.build(SPIRE, near=self.pools.first)
 
     async def all_buildings(self):
         """Builds every building, logic should be improved"""
