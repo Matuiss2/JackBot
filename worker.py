@@ -1,7 +1,9 @@
 """Everything related to workers behavior goes here"""
 import heapq
 
-from sc2.constants import DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZERGLINGMOVEMENTSPEED
+from sc2.constants import (
+    DRONE, EXTRACTOR, HATCHERY, HIVE, LAIR, PROBE, SCV, ZERGLINGMOVEMENTSPEED
+)
 
 
 class worker_control:
