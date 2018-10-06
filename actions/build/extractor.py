@@ -26,16 +26,13 @@ class BuildExtractor:
                 if not gas and self.ai.pools:
                     self.geyser = geyser
                     return True
-                if gas_amount == 1 and len(self.ai.townhalls) >= 3:
-                    self.geyser = geyser
-                    return True
             if self.ai.time > 960 and gas_amount < 10:
                 self.geyser = geyser
                 return True
             pit = self.ai.pits
-            if pit and gas_amount + self.ai.already_pending(EXTRACTOR) < 8:
-                return False
-
+            if pit and gas_amount < 8 and self.ai.already_pending(EXTRACTOR) < 2:
+                self.geyser = geyser
+                return True
         return False
 
     async def handle(self, iteration):

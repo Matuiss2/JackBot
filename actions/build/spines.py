@@ -13,13 +13,13 @@ class BuildSpines:
 
         base = self.ai.townhalls
         return (
-            len(self.ai.spines) + self.ai.already_pending(SPINECRAWLER) < 2 <= len(base.ready)
+            len(self.ai.spines) + self.ai.already_pending(SPINECRAWLER) < 1
+            and len(base.ready) >= 2
             and self.ai.time <= 360
             or (
                 self.ai.close_enemy_production
                 and self.ai.time <= 300
-                and len(self.ai.spines) + self.ai.already_pending(SPINECRAWLER)
-                < len(self.ai.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(50, self.ai.start_location))
+                and len(self.ai.spines) + self.ai.already_pending(SPINECRAWLER) < 3
             )
         )
 

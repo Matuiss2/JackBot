@@ -11,8 +11,8 @@ class UpgradeChitinousPlating:
     async def should_handle(self, iteration):
         return (
             self.ai.caverns
-            and not self.already_pending_upgrade(CHITINOUSPLATING)
-            and self.can_afford(CHITINOUSPLATING)
+            and not self.ai.already_pending_upgrade(CHITINOUSPLATING)
+            and self.ai.can_afford(CHITINOUSPLATING)
         )
 
     async def handle(self, iteration):

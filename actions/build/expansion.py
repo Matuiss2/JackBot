@@ -17,12 +17,13 @@ class BuildExpansion:
             return False
 
         base_amount = len(self.ai.townhalls)  # so it just calculate once per loop
-        if not self.worker_to_first_base and base_amount < 2 and self.ai.minerals > 235:
+        if not self.worker_to_first_base and base_amount < 2 and self.ai.minerals > 225:
             self.worker_to_first_base = True
 
         if (
             self.ai.townhalls
             and not self.ai.close_enemies_to_base
+            and not self.ai.close_enemy_production
             and not self.ai.already_pending(HATCHERY)
             and not (
                 self.ai.known_enemy_structures.closer_than(50, self.ai.start_location)

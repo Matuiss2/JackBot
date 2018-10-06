@@ -14,7 +14,7 @@ class BuildEvochamber:
         if (
             pool.ready
             and self.ai.can_afford(EVOLUTIONCHAMBER)
-            and len(self.ai.townhalls.ready) >= 3
+            and len(self.ai.townhalls) >= 3
             and len(evochamber) + self.ai.already_pending(EVOLUTIONCHAMBER) < 2
         ):
             return True

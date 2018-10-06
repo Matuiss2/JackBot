@@ -3,7 +3,7 @@ from sc2.constants import (
     RESEARCH_PNEUMATIZEDCARAPACE
 )
 
-class UpgradeChitinousPlating:
+class UpgradePneumatizedCarapace:
 
     def __init__(self, ai):
         self.ai = ai
