@@ -8,7 +8,7 @@ class TrainUltralisk:
     async def should_handle(self, iteration):
         """Good for now but it might need to be changed vs particular
          enemy units compositions"""
-        if self.ai.caverns.ready:
+        if not self.ai.caverns.ready:
             return False
 
         if not self.ai.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) and self.ai.time > 780:
