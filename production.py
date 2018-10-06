@@ -1,15 +1,11 @@
 """Everything logic for building stuff that comes out from a hatchery goes here"""
 from sc2.constants import (
     DRONE,
-    EXTRACTOR,
     LAIR,
-    LARVA,
     MUTALISK,
     OVERLORD,
     QUEEN,
-    SPAWNINGPOOL,
     ULTRALISK,
-    ULTRALISKCAVERN,
     ZERGGROUNDARMORSLEVEL3,
     ZERGLING,
     ZERGLINGMOVEMENTSPEED,
@@ -26,13 +22,13 @@ class ProductionControl:
                 base_amount = len(self.townhalls)  # so it just calculate once per loop
                 if (
                     len(self.drones.ready) == 14
-                    or (len(self.units(OVERLORD)) == 2 and base_amount == 1)
-                    or (base_amount == 2 and not self.units(SPAWNINGPOOL))
+                    or (len(self.overlords) == 2 and base_amount == 1)
+                    or (base_amount == 2 and not self.pools)
                 ):
                     return False
                 if (base_amount in (1, 2) and self.already_pending(OVERLORD)) or (self.already_pending(OVERLORD) >= 2):
                     return False
-                self.actions.append(self.units(LARVA).random.train(OVERLORD))
+                self.actions.append(self.larvae.random.train(OVERLORD))
                 return True
             return False
         return None
@@ -41,7 +37,7 @@ class ProductionControl:
         """It possibly can get better but it seems good enough for now"""
         queens = self.queens
         hatchery = self.townhalls.exclude_type(LAIR).ready
-        if hatchery.noqueue and self.units(SPAWNINGPOOL).ready:
+        if hatchery.noqueue and self.pools.ready:
             hatcheries_random = hatchery.noqueue.random
             if (
                 len(queens) < len(hatchery) + 1
@@ -54,11 +50,11 @@ class ProductionControl:
     def build_ultralisk(self):
         """Good for now but it might need to be changed vs particular
          enemy units compositions"""
-        if self.units(ULTRALISKCAVERN).ready:
+        if self.caverns.ready:
             if not self.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) and self.time > 780:
                 return False
             if self.can_afford(ULTRALISK) and self.can_feed(ULTRALISK):
-                self.actions.append(self.units(LARVA).random.train(ULTRALISK))
+                self.actions.append(self.larvae.random.train(ULTRALISK))
                 return True
             return False
         return None
@@ -66,14 +62,14 @@ class ProductionControl:
     def build_workers(self):  # send to hatchery.py when there is one
         """Good for the beginning, but it doesnt adapt to losses of drones very well"""
         workers_total = len(self.workers)
-        larva = self.units(LARVA)
-        geysirs = self.units(EXTRACTOR)
+        larva = self.larvae
+        geysirs = self.extractors
         if not self.close_enemies_to_base and self.can_afford(DRONE) and self.can_feed(DRONE):
             if workers_total == 12 and not self.already_pending(DRONE) and self.time < 200:
                 self.actions.append(larva.random.train(DRONE))
                 return True
-            if workers_total in (13, 14, 15) and len(self.units(OVERLORD)) + self.already_pending(OVERLORD) > 1:
-                if workers_total == 15 and geysirs and self.units(SPAWNINGPOOL) and self.time < 250:
+            if workers_total in (13, 14, 15) and len(self.overlords) + self.already_pending(OVERLORD) > 1:
+                if workers_total == 15 and geysirs and self.pools and self.time < 250:
                     self.actions.append(larva.random.train(DRONE))
                     return True
                 self.actions.append(larva.random.train(DRONE))
@@ -87,8 +83,8 @@ class ProductionControl:
 
     def build_zerglings(self):
         """good enough for now"""
-        larva = self.units(LARVA)
-        if self.units(SPAWNINGPOOL).ready:
+        larva = self.larvae
+        if self.pools.ready:
             if (
                 self.time >= 170
                 and not self.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
@@ -96,7 +92,7 @@ class ProductionControl:
             ):
                 return False
             if self.can_afford(ZERGLING) and self.can_feed(ZERGLING):
-                if self.units(ULTRALISKCAVERN).ready and self.time < 1380:
+                if self.caverns.ready and self.time < 1380:
                     if len(self.ultralisks) * 6 > len(self.zerglings):
                         self.actions.append(larva.random.train(ZERGLING))
                         return True
@@ -117,7 +113,7 @@ class ProductionControl:
 
     async def build_units(self):
         """ Build one unit, the most prioritized at the moment """
-        if self.units(LARVA):
+        if self.larvae:
             available_units_in_order = (
                 self.build_overlords,
                 self.build_ultralisk,

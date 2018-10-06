@@ -14,7 +14,6 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
-    OVERLORD,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
@@ -43,7 +42,7 @@ class ArmyControl:
             else 10 ** 10,
         )
 
-        self.actions.append(self.units(OVERLORD).first.move(enemy_natural.towards(enemy_main, -11)))
+        self.actions.append(self.overlords.first.move(enemy_natural.towards(enemy_main, -11)))
 
     def army_micro(self):  # Too many branches(pylint)
         """It surrounds and target low hp units, also retreats when overwhelmed,
