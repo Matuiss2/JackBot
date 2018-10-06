@@ -34,6 +34,7 @@ from actions.build.spores import BuildSporse
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 from actions.upgrades.evochamber import UpgradeEvochamber
+from actions.upgrades.pneumatized_carapace import UpgradeChitinousPlating
 
 from actions.unit.creep_tumor import CreepTumor
 from actions.unit.drone import Drone
@@ -88,6 +89,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             UpgradeMetabolicBoost(self),
             UpgradeAdrenalGlands(self),
             UpgradeEvochamber(self),
+            UpgradeChitinousPlating(self)
         ]
 
         self.pools = []
