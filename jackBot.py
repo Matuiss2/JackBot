@@ -10,7 +10,8 @@ from sc2.constants import (
     CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED,
     LARVA, EXTRACTOR, SPORECRAWLER
 )
-from creep_spread import creep_control
+
+from creep_spread import CreepControl
 
 from actions.train.worker import TrainWorker
 from actions.train.queen import TrainQueen
@@ -45,10 +46,10 @@ from actions.queens_abilities import QueensAbilities
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, creep_control):
+class EarlyAggro(sc2.BotAI, CreepControl):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
     def __init__(self, debug=False):
-        creep_control.__init__(self)
+        CreepControl.__init__(self)
 
         self.debug = debug
         self.unit_commands = [

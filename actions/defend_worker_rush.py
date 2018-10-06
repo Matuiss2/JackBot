@@ -1,11 +1,11 @@
 import heapq
-from .micro import micro
+from .micro import Micro
 from sc2.constants import (
     HATCHERY,
     PROBE, DRONE, SCV
 )
 
-class DefendWorkerRush(micro):
+class DefendWorkerRush(Micro):
 
     def __init__(self, ai):
         self.ai = ai

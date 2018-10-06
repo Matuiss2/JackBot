@@ -1,4 +1,4 @@
-from .micro import micro
+from .micro import Micro
 from sc2.constants import (
     ADEPTPHASESHIFT, DISRUPTORPHASED, EGG,
     LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN,
@@ -10,7 +10,7 @@ from sc2.constants import (
 )
 
 
-class ArmyControl(micro):
+class ArmyControl(Micro):
 
     def __init__(self, ai):
         self.ai = ai
