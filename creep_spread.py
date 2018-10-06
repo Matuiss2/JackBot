@@ -6,7 +6,9 @@ from sc2.data import ActionResult
 from sc2.position import Point2
 
 
-class creep_control:
+class CreepControl:
+    """It spreads creeps, finds 'optimal' locations for it"""
+
     def __init__(self):
         self.used_tumors = []
 
