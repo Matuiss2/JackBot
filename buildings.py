@@ -112,7 +112,7 @@ class Builder:
             if base_amount <= 4:
                 if base_amount == 2:
                     if self.spines or self.time > 330:
-                        await self.expand_now()
+                        await self.place_hatchery()
                 else:
                     # if base_amount == 3:
                     #     await self.build_macrohatch()
@@ -135,7 +135,7 @@ class Builder:
             for expansion in self.ordered_expansions:
                 if await self.can_place(HATCHERY, expansion):
                     drone = self.drones.closest_to(expansion)
-                    await self.do(drone.build(HATCHERY, expansion))
+                    self.actions.append(drone.build(HATCHERY, expansion))
                     break
 
     async def build_pit(self):
