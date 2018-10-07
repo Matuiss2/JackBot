@@ -24,18 +24,19 @@ class DistributeWorkers:
 
         self.gather_gas()
 
-        if not self.deficit_bases:
-            for drone in self.ai.drones.idle:
-                if self.mineral_fields:
-                    mf = self.mineral_fields.closest_to(drone)
-                    self.ai.actions.append(drone.gather(mf))
-            return True
-
         self.distribute_to_deficits(
             self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
         )
 
+        self.distribute_idle_workers()
+
         return True
+
+    def distribute_idle_workers(self):
+        for drone in self.ai.drones.idle:
+            if self.mineral_fields:
+                mf = self.mineral_fields.closest_to(drone)
+                self.ai.actions.append(drone.gather(mf))
 
     def calculate_distribution(self, mining_bases):
         workers_to_distribute = [drone for drone in self.ai.drones.idle]
