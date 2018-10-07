@@ -30,8 +30,8 @@ class QueensAbilities:
                 continue
             # if not lowhp_ultralisks.closer_than(8, queen.position):
             selected = self.hatchery.closest_to(queen.position)
-            tumors = self.ai.units.of_type([CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED])
-            if queen.energy >= 25 and tumors and not selected.has_buff(QUEENSPAWNLARVATIMER):
+            # tumors = self.ai.units.of_type([CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED])
+            if queen.energy >= 25 and self.ai.tumors and not selected.has_buff(QUEENSPAWNLARVATIMER):
                 self.ai.actions.append(queen(EFFECT_INJECTLARVA, selected))
                 continue
             elif queen.energy >= 25:
