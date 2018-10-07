@@ -23,22 +23,16 @@ class QueensAbilities:
         return True
 
     async def handle(self, iteration):
-        # lowhp_ultralisks = self.ai.ultralisks.filter(lambda lhpu: lhpu.health_percentage < 0.27)
         for queen in self.queens.idle:
             if self.enemies.closer_than(8, queen.position):
                 self.ai.actions.append(queen.attack(self.enemies.closest_to(queen.position)))
                 continue
-            # if not lowhp_ultralisks.closer_than(8, queen.position):
             selected = self.hatchery.closest_to(queen.position)
-            # tumors = self.ai.units.of_type([CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED])
             if queen.energy >= 25 and self.ai.tumors and not selected.has_buff(QUEENSPAWNLARVATIMER):
                 self.ai.actions.append(queen(EFFECT_INJECTLARVA, selected))
                 continue
             elif queen.energy >= 25:
                 await self.ai.place_tumor(queen)
-
-            # elif queen.energy >= 50:
-            #     self.ai.actions.append(queen(TRANSFUSION_TRANSFUSION, lowhp_ultralisks.closest_to(queen.position)))
 
         for hatch in self.hatchery.ready.noqueue:
             if not self.queens.closer_than(4, hatch):
