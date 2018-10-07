@@ -14,6 +14,7 @@ from sc2.constants import (
     INFESTATIONPIT,
     LAIR,
     LARVA,
+    MUTALISK,
     OVERLORD,
     OVERSEER,
     PHOTONCANNON,
@@ -22,6 +23,7 @@ from sc2.constants import (
     SCV,
     SPAWNINGPOOL,
     SPINECRAWLER,
+    SPIRE,
     SPORECRAWLER,
     ULTRALISK,
     ULTRALISKCAVERN,
@@ -40,11 +42,13 @@ from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
 from actions.build.spores import BuildSporse
+from actions.build.spire import BuildSpire
 from actions.defend_worker_rush import DefendWorkerRush
 from actions.distribute_workers import DistributeWorkers
 from actions.queens_abilities import QueensAbilities
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
+from actions.train.mutalisk import TrainMutalisk
 from actions.train.queen import TrainQueen
 from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
@@ -85,6 +89,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             TrainUltralisk(self),
             TrainZergling(self),
             TrainOverseer(self),
+            TrainMutalisk(self),
         ]
 
         self.build_commands = [
@@ -98,6 +103,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             BuildLair(self),
             BuildSpines(self),
             BuildSporse(self),
+            BuildSpire(self),
         ]
 
         self.upgrade_commands = [
@@ -114,6 +120,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.ordered_expansions = []
         self.close_enemies_to_base = False
         self.close_enemy_production = False
+        self.floating_buildings_bm = False
         self.hatcheries = None
         self.lairs = None
         self.hives = None
@@ -131,8 +138,10 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.tumors = None
         self.larvae = None
         self.extractors = None
+        self.mutalisks = None
         self.pit = None
         self.spores = None
+        self.spires = None
 
     def get_units(self):
         self.hatcheries = self.units(HATCHERY)
@@ -154,6 +163,8 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.extractors = self.units(EXTRACTOR)
         self.pit = self.units(INFESTATIONPIT)
         self.spores = self.units(SPORECRAWLER)
+        self.spires = self.units(SPIRE)
+        self.mutalisks = self.units(MUTALISK)
 
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
@@ -180,6 +191,9 @@ class EarlyAggro(sc2.BotAI, CreepControl):
 
         if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(50, self.start_location):
             self.close_enemy_production = True
+
+        if len(self.known_enemy_structures) == len(self.known_enemy_structures.flying) and self.time > 300:
+            self.floating_buildings_bm = True
 
         await self.run_commands(self.unit_commands, iteration)
         await self.run_commands(self.train_commands, iteration)

@@ -1,4 +1,4 @@
-from sc2.constants import EVOLUTIONCHAMBER, HIVE, ULTRALISKCAVERN
+from sc2.constants import ULTRALISKCAVERN
 
 
 class BuildCavern:
@@ -20,8 +20,8 @@ class BuildCavern:
     async def handle(self, iteration):
         await self.ai.build(
             ULTRALISKCAVERN,
-            near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
-                self.ai.game_info.map_center, -10
+            near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards(
+                self.ai.main_base_ramp.depot_in_middle, 6
             ),
         )
         return True

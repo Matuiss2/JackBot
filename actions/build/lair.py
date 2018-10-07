@@ -1,4 +1,4 @@
-from sc2.constants import CANCEL_MORPHLAIR, HATCHERY, HIVE, LAIR, UPGRADETOLAIR_LAIR
+from sc2.constants import CANCEL_MORPHLAIR, UPGRADETOLAIR_LAIR
 
 
 class BuildLair:

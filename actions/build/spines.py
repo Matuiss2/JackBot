@@ -1,4 +1,4 @@
-from sc2.constants import BARRACKS, GATEWAY, SPAWNINGPOOL, SPINECRAWLER
+from sc2.constants import SPINECRAWLER
 
 
 class BuildSpines:

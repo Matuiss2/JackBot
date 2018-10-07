@@ -1,4 +1,4 @@
-from sc2.constants import EVOLUTIONCHAMBER, INFESTATIONPIT, LAIR, ZERGGROUNDARMORSLEVEL2
+from sc2.constants import INFESTATIONPIT, ZERGGROUNDARMORSLEVEL2
 
 
 class BuildPit:
@@ -25,7 +25,7 @@ class BuildPit:
         await self.ai.build(
             INFESTATIONPIT,
             near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
-                self.ai.game_info.map_center, -10
+                self.ai.game_info.map_center, -14
             ),
         )
         return True
