@@ -39,7 +39,7 @@ class ArmyControl(Micro):
             filtered_enemies = self.ai.known_enemy_units.not_structure.exclude_type(excluded_units)
             static_defence = self.ai.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             targets = static_defence | filtered_enemies.not_flying
-        atk_force = self.ai.zerglings | self.ai.ultralisks
+        atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
