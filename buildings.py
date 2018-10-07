@@ -64,7 +64,7 @@ class Builder:
             furthest_base = self.townhalls.furthest_to(self.game_info.map_center)
             second_base = (self.townhalls - {furthest_base}).closest_to(furthest_base)
             await self.build(
-                EVOLUTIONCHAMBER, near=second_base.position.towards_with_random_angle(self.game_info.map_center, -10)
+                EVOLUTIONCHAMBER, near=second_base.position.towards_with_random_angle(self.game_info.map_center, -14)
             )
 
     def build_extractor(self):
@@ -150,7 +150,7 @@ class Builder:
                 await self.build(
                     INFESTATIONPIT,
                     near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                        self.game_info.map_center, -10
+                        self.game_info.map_center, -16
                     ),
                 )
 
