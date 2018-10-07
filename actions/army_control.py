@@ -92,8 +92,9 @@ class ArmyControl(Micro):
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
         rally_point = self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
-              self.ai._game_info.map_center, 10
-           
+            self.ai._game_info.map_center, 10
+        )
+
         if unit.distance_to(rally_point) > 5:
             self.ai.actions.append(unit.move(rally_point))
 
