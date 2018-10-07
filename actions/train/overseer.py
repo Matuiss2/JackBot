@@ -1,7 +1,7 @@
-from sc2.constants import (OVERLORDCOCOON, OVERSEER, MORPH_OVERSEER, CANCEL_MORPHOVERSEER)
+from sc2.constants import CANCEL_MORPHOVERSEER, MORPH_OVERSEER, OVERLORDCOCOON, OVERSEER
+
 
 class TrainOverseer:
-
     def __init__(self, ai):
         self.ai = ai
 

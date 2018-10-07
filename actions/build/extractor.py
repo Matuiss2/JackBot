@@ -1,7 +1,7 @@
-from sc2.constants import (EXTRACTOR)
+from sc2.constants import EXTRACTOR
+
 
 class BuildExtractor:
-
     def __init__(self, ai):
         self.ai = ai
         self.drone = None

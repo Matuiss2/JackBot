@@ -1,7 +1,7 @@
-from sc2.constants import (DRONE, LARVA, OVERLORD, EXTRACTOR, SPAWNINGPOOL)
+from sc2.constants import DRONE, EXTRACTOR, LARVA, OVERLORD, SPAWNINGPOOL
+
 
 class TrainWorker:
-
     def __init__(self, ai):
         self.ai = ai
 

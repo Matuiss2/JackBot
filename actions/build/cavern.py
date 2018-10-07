@@ -1,7 +1,7 @@
-from sc2.constants import (HIVE, ULTRALISKCAVERN, EVOLUTIONCHAMBER)
+from sc2.constants import EVOLUTIONCHAMBER, HIVE, ULTRALISKCAVERN
+
 
 class BuildCavern:
-
     def __init__(self, ai):
         self.ai = ai
 

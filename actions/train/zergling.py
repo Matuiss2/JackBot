@@ -1,13 +1,7 @@
-from sc2.constants import (
-    SPAWNINGPOOL,
-    LARVA,
-    ZERGLING,
-    ULTRALISKCAVERN,
-    ZERGLINGMOVEMENTSPEED
-)
+from sc2.constants import LARVA, SPAWNINGPOOL, ULTRALISKCAVERN, ZERGLING, ZERGLINGMOVEMENTSPEED
+
 
 class TrainZergling:
-
     def __init__(self, ai):
         self.ai = ai
 
@@ -26,7 +20,6 @@ class TrainZergling:
 
         if not self.ai.can_train(ZERGLING):
             return False
-
 
         if self.ai.units(ULTRALISKCAVERN).ready and self.ai.time < 1380:
             if not len(self.ai.ultralisks) * 6 > len(self.ai.zerglings):

@@ -1,7 +1,7 @@
-from sc2.constants import (QUEEN, LAIR)
+from sc2.constants import LAIR, QUEEN
+
 
 class TrainQueen:
-
     def __init__(self, ai):
         self.ai = ai
         self.hatchery = None

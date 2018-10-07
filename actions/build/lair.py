@@ -1,7 +1,7 @@
-from sc2.constants import (CANCEL_MORPHLAIR, HIVE, LAIR, HATCHERY, UPGRADETOLAIR_LAIR)
+from sc2.constants import CANCEL_MORPHLAIR, HATCHERY, HIVE, LAIR, UPGRADETOLAIR_LAIR
+
 
 class BuildLair:
-
     def __init__(self, ai):
         self.ai = ai
         self.hatcheries = None

@@ -1,4 +1,5 @@
-from sc2.constants import (SPORECRAWLER)
+from sc2.constants import SPORECRAWLER
+
 
 class BuildSporse:
 

@@ -1,10 +1,7 @@
-from sc2.constants import (
-    OVERLORDSPEED,
-    RESEARCH_PNEUMATIZEDCARAPACE
-)
+from sc2.constants import OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE
+
 
 class UpgradePneumatizedCarapace:
-
     def __init__(self, ai):
         self.ai = ai
 
