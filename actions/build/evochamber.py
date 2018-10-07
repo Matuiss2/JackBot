@@ -24,6 +24,6 @@ class BuildEvochamber:
         furthest_base = self.ai.townhalls.furthest_to(self.ai.game_info.map_center)
         second_base = (self.ai.townhalls - {furthest_base}).closest_to(furthest_base)
         await self.ai.build(
-            EVOLUTIONCHAMBER, near=second_base.position.towards_with_random_angle(self.ai.game_info.map_center, -10)
+            EVOLUTIONCHAMBER, near=second_base.position.towards_with_random_angle(self.ai.game_info.map_center, -14)
         )
         return True

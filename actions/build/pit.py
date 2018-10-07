@@ -25,7 +25,7 @@ class BuildPit:
         await self.ai.build(
             INFESTATIONPIT,
             near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
-                self.ai.game_info.map_center, -10
+                self.ai.game_info.map_center, -16
             ),
         )
         return True
