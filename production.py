@@ -93,7 +93,7 @@ class ProductionControl:
                 return False
             if self.can_afford(ZERGLING) and self.can_feed(ZERGLING):
                 if self.caverns.ready and self.time < 1380:
-                    if len(self.ultralisks) * 6 > len(self.zerglings):
+                    if len(self.ultralisks) * 2 > len(self.zerglings):  # maybe change it to 4 or 2
                         self.actions.append(larva.random.train(ZERGLING))
                         return True
                 else:

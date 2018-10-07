@@ -58,13 +58,13 @@ class Builder:
         if (
             pool.ready
             and self.can_afford(EVOLUTIONCHAMBER)
-            and len(self.townhalls.ready) >= 3
+            and len(self.townhalls) >= 3
             and len(evochamber) + self.already_pending(EVOLUTIONCHAMBER) < 2
         ):
             furthest_base = self.townhalls.furthest_to(self.game_info.map_center)
             second_base = (self.townhalls - {furthest_base}).closest_to(furthest_base)
             await self.build(
-                EVOLUTIONCHAMBER, near=second_base.position.towards_with_random_angle(self.game_info.map_center, -10)
+                EVOLUTIONCHAMBER, near=second_base.position.towards_with_random_angle(self.game_info.map_center, -14)
             )
 
     def build_extractor(self):
@@ -83,14 +83,11 @@ class Builder:
                         if not gas and self.pools:
                             self.actions.append(drone.build(EXTRACTOR, geyser))
                             break
-                        if gas_amount == 1 and len(self.townhalls) >= 3:
-                            self.actions.append(drone.build(EXTRACTOR, geyser))
-                            break
                     if self.time > 960 and gas_amount < 10:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
                     pit = self.pits
-                    if pit and gas_amount + self.already_pending(EXTRACTOR) < 8:
+                    if pit and gas_amount < 8 and self.already_pending(EXTRACTOR) < 2:
                         self.actions.append(drone.build(EXTRACTOR, geyser))
                         break
 
@@ -98,13 +95,14 @@ class Builder:
         """Good for now, maybe the 7th or more hatchery can be postponed
          for when extra mining patches or production are needed """
         base_amount = len(self.townhalls)  # so it just calculate once per loop
-        if not self.worker_to_first_base and base_amount < 2 and self.minerals > 235:
+        if not self.worker_to_first_base and base_amount < 2 and self.minerals > 225:
             self.worker_to_first_base = True
             self.actions.append(self.workers.gathering.first.move(await self.get_next_expansion()))
         if (
             self.townhalls
             and self.can_afford(HATCHERY)
             and not self.close_enemies_to_base
+            and not self.close_enemy_production
             and not self.already_pending(HATCHERY)
             and not (self.known_enemy_structures.closer_than(50, self.start_location) and self.time < 300)
         ):
@@ -152,7 +150,7 @@ class Builder:
                 await self.build(
                     INFESTATIONPIT,
                     near=self.townhalls.furthest_to(self.game_info.map_center).position.towards_with_random_angle(
-                        self.game_info.map_center, -10
+                        self.game_info.map_center, -16
                     ),
                 )
 
@@ -174,7 +172,7 @@ class Builder:
         bases = self.townhalls
         spores = self.units(SPORECRAWLER)
         if self.pools.ready:
-            if (not self.enemy_flying_dmg_units) and self.time < 360:
+            if (not self.enemy_flying_dmg_units) and self.time < 420:
                 if self.known_enemy_units.flying:
                     air_units = [au for au in self.known_enemy_units.flying if au.can_attack_ground]
                     if air_units:
@@ -197,15 +195,16 @@ class Builder:
         bases = self.townhalls
         if self.pools.ready:
             if (
-                len(self.spines) + self.already_pending(SPINECRAWLER) < 2 <= len(bases.ready)
+                len(self.spines) + self.already_pending(SPINECRAWLER) < 1
+                and len(bases.ready) >= 2
                 and self.time <= 360
                 or (
                     self.close_enemy_production
                     and self.time <= 300
-                    and len(self.spines) + self.already_pending(SPINECRAWLER)
-                    < len(self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(50, self.start_location))
+                    and len(self.spines) + self.already_pending(SPINECRAWLER) < 3
                 )
             ):
+
                 await self.build(
                     SPINECRAWLER,
                     near=bases.closest_to(self._game_info.map_center).position.towards(self._game_info.map_center, 9),

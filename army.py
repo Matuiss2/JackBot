@@ -14,6 +14,7 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
+    MUTALISK,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
@@ -64,7 +65,7 @@ class ArmyControl:
             filtered_enemies = self.known_enemy_units.not_structure.exclude_type(excluded_units)
             static_defence = self.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             targets = static_defence | filtered_enemies.not_flying
-        atk_force = self.zerglings | self.ultralisks
+        atk_force = self.zerglings | self.ultralisks | self.units(MUTALISK)
         # enemy_detection = self.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if attacking_unit.tag in self.retreat_units and self.townhalls:
@@ -118,10 +119,11 @@ class ArmyControl:
         """Tell the unit to retreat when overwhelmed"""
         if (
             self.townhalls
-            and not self.units.structure.closer_than(15, unit.position)
+            and not self.close_enemies_to_base
+            and not self.units.structure.closer_than(7, unit.position)
             and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, unit.position))
-            >= len(self.zerglings.closer_than(15, unit.position))
-            + len(self.ultralisks.closer_than(15, unit.position)) * 4
+            >= len(self.zerglings.closer_than(20, unit.position))
+            + len(self.ultralisks.closer_than(20, unit.position)) * 4
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
