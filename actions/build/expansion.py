@@ -4,6 +4,10 @@ from sc2.constants import HATCHERY
 class BuildExpansion:
     def __init__(self, ai):
         self.ai = ai
+
+        self.SEND_WORKER = 1
+        self.DID_SEND_WORKER = 2
+
         self.worker_to_first_base = False
         self.expand_now = False
 
@@ -12,16 +16,14 @@ class BuildExpansion:
          for when extra mining patches or production are needed """
         base_amount = len(self.ai.townhalls)  # so it just calculate once per loop
         if not self.worker_to_first_base and base_amount < 2 and self.ai.minerals > 225:
-            self.ai.actions.append(await self.send_worker_to_next_expansion())
-            self.worker_to_first_base = True
+            self.worker_to_first_base = self.SEND_WORKER
+            return True
 
         self.expand_now = False
 
-        if not self.ai.can_afford(HATCHERY):
-            return False
-
         if (
             self.ai.townhalls
+            and self.ai.can_afford(HATCHERY)
             and not self.ai.close_enemies_to_base
             and not self.ai.close_enemy_production
             and not self.ai.already_pending(HATCHERY)
@@ -44,16 +46,17 @@ class BuildExpansion:
         return False
 
     async def handle(self, iteration):
-        # if self.worker_to_first_base:
-        #     self.ai.actions.append(await self.send_worker_to_next_expansion())
-        #     self.worker_to_first_base = False
+        if self.worker_to_first_base == self.SEND_WORKER:
+            self.ai.actions.append(await self.send_worker_to_next_expansion())
+            self.worker_to_first_base = self.DID_SEND_WORKER
+            return True
 
-        # if self.expand_now:
-        #     await self.ai.expand_now()
-        #     return True
+        if self.expand_now and len(self.ai.townhalls) >= 2:
+            await self.ai.expand_now()
+            return True
 
         for expansion in self.ai.ordered_expansions:
-            if self.ai.can_afford(HATCHERY) and await self.ai.can_place(HATCHERY, expansion):
+            if await self.ai.can_place(HATCHERY, expansion):
                 drone = self.ai.workers.closest_to(expansion)
                 self.ai.actions.append(drone.build(HATCHERY, expansion))
                 return True
