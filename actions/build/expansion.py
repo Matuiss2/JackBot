@@ -51,7 +51,7 @@ class BuildExpansion:
             self.worker_to_first_base = self.DID_SEND_WORKER
             return True
 
-        if self.expand_now and len(self.ai.townhalls) >= 2:
+        if self.expand_now:
             await self.ai.expand_now()
             return True
 
