@@ -1,7 +1,7 @@
-from sc2.constants import (ZERGGROUNDARMORSLEVEL3, ULTRALISK)
+from sc2.constants import ULTRALISK, ZERGGROUNDARMORSLEVEL3
+
 
 class TrainUltralisk:
-
     def __init__(self, ai):
         self.ai = ai
 

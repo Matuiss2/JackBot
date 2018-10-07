@@ -1,12 +1,7 @@
-from sc2.constants import (
-    HIVE,
-    SPAWNINGPOOL,
-    ZERGLINGATTACKSPEED,
-    RESEARCH_ZERGLINGADRENALGLANDS
-)
+from sc2.constants import HIVE, RESEARCH_ZERGLINGADRENALGLANDS, SPAWNINGPOOL, ZERGLINGATTACKSPEED
+
 
 class UpgradeAdrenalGlands:
-
     def __init__(self, ai):
         self.ai = ai
 

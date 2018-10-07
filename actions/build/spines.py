@@ -1,7 +1,7 @@
-from sc2.constants import (SPINECRAWLER, SPAWNINGPOOL, BARRACKS, GATEWAY)
+from sc2.constants import BARRACKS, GATEWAY, SPAWNINGPOOL, SPINECRAWLER
+
 
 class BuildSpines:
-
     def __init__(self, ai):
         self.ai = ai
         self.lairs = None

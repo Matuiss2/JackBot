@@ -1,11 +1,7 @@
-from sc2.constants import (
-    SPAWNINGPOOL,
-    ZERGLINGMOVEMENTSPEED,
-    RESEARCH_ZERGLINGMETABOLICBOOST
-)
+from sc2.constants import RESEARCH_ZERGLINGMETABOLICBOOST, SPAWNINGPOOL, ZERGLINGMOVEMENTSPEED
+
 
 class UpgradeMetabolicBoost:
-
     def __init__(self, ai):
         self.ai = ai
 
@@ -13,9 +9,8 @@ class UpgradeMetabolicBoost:
         if not self.ai.pools.ready.idle:
             return False
 
-        return (
-            not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-            and self.ai.can_afford(RESEARCH_ZERGLINGMETABOLICBOOST)
+        return not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and self.ai.can_afford(
+            RESEARCH_ZERGLINGMETABOLICBOOST
         )
 
     async def handle(self, iteration):

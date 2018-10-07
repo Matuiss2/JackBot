@@ -1,5 +1,4 @@
 class Overseer:
-
     def __init__(self, ai):
         self.ai = ai
 

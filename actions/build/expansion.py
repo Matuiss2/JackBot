@@ -1,34 +1,33 @@
-from sc2.constants import (HATCHERY)
+from sc2.constants import HATCHERY
+
 
 class BuildExpansion:
-
     def __init__(self, ai):
         self.ai = ai
+
+        self.SEND_WORKER = 1
+        self.DID_SEND_WORKER = 2
+
         self.worker_to_first_base = False
         self.expand_now = False
 
     async def should_handle(self, iteration):
         """Good for now, maybe the 7th or more hatchery can be postponed
          for when extra mining patches or production are needed """
+        base_amount = len(self.ai.townhalls)  # so it just calculate once per loop
+        if not self.worker_to_first_base and base_amount < 2 and self.ai.minerals > 225:
+            self.worker_to_first_base = self.SEND_WORKER
+            return True
 
         self.expand_now = False
 
-        if not self.ai.can_afford(HATCHERY):
-            return False
-
-        base_amount = len(self.ai.townhalls)  # so it just calculate once per loop
-        if not self.worker_to_first_base and base_amount < 2 and self.ai.minerals > 225:
-            self.worker_to_first_base = True
-
         if (
             self.ai.townhalls
+            and self.ai.can_afford(HATCHERY)
             and not self.ai.close_enemies_to_base
             and not self.ai.close_enemy_production
             and not self.ai.already_pending(HATCHERY)
-            and not (
-                self.ai.known_enemy_structures.closer_than(50, self.ai.start_location)
-                and self.ai.time < 300
-            )
+            and not (self.ai.known_enemy_structures.closer_than(50, self.ai.start_location) and self.ai.time < 300)
         ):
 
             if base_amount <= 4:
@@ -47,9 +46,10 @@ class BuildExpansion:
         return False
 
     async def handle(self, iteration):
-        if self.worker_to_first_base:
+        if self.worker_to_first_base == self.SEND_WORKER:
             self.ai.actions.append(await self.send_worker_to_next_expansion())
-            self.worker_to_first_base = False
+            self.worker_to_first_base = self.DID_SEND_WORKER
+            return True
 
         if self.expand_now:
             await self.ai.expand_now()

@@ -1,7 +1,7 @@
-from sc2.constants import (OVERLORD, LARVA, SPAWNINGPOOL)
+from sc2.constants import LARVA, OVERLORD, SPAWNINGPOOL
+
 
 class TrainOverlord:
-
     def __init__(self, ai):
         self.ai = ai
 
@@ -16,7 +16,9 @@ class TrainOverlord:
                     or (base_amount == 2 and not self.ai.pools)
                 ):
                     return False
-                if (base_amount in (1, 2) and self.ai.already_pending(OVERLORD)) or (self.ai.already_pending(OVERLORD) >= 2):
+                if (base_amount in (1, 2) and self.ai.already_pending(OVERLORD)) or (
+                    self.ai.already_pending(OVERLORD) >= 2
+                ):
                     return False
                 return True
             return False

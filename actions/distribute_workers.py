@@ -1,10 +1,7 @@
-from sc2.constants import (
-    HATCHERY, LAIR, HIVE, EXTRACTOR,
-    ZERGLINGMOVEMENTSPEED
-)
+from sc2.constants import EXTRACTOR, HATCHERY, HIVE, LAIR, ZERGLINGMOVEMENTSPEED
+
 
 class DistributeWorkers:
-
     def __init__(self, ai):
         self.ai = ai
         self.mining_bases = None
@@ -13,18 +10,15 @@ class DistributeWorkers:
         self.workers_to_distribute = None
 
     async def should_handle(self, iteration):
-        self.mining_bases = self.ai.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(lambda base: base.ideal_harvesters > 0)
+        self.mining_bases = self.ai.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(
+            lambda base: base.ideal_harvesters > 0
+        )
         self.mineral_fields = self.mineral_fields_of(self.mining_bases)
         mining_places = self.mining_bases | self.ai.extractors.ready
 
         self.deficit_bases, self.workers_to_distribute = self.calculate_distribution(mining_places)
 
-        return (
-            (self.ai.drones.idle or self.workers_to_distribute)
-            and (
-                self.require_gas or self.deficit_bases
-            )
-        )
+        return (self.ai.drones.idle or self.workers_to_distribute) and (self.require_gas or self.deficit_bases)
 
     async def handle(self, iteration):
 
@@ -38,10 +32,7 @@ class DistributeWorkers:
             return True
 
         self.distribute_to_deficits(
-            self.mining_bases,
-            self.workers_to_distribute,
-            self.mineral_fields,
-            self.deficit_bases
+            self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
         )
 
         return True
@@ -132,7 +123,11 @@ class DistributeWorkers:
 
     @property
     def require_gas_for_speedlings(self):
-        return len(self.ai.extractors.ready) == 1 and not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and self.ai.vespene < 100
+        return (
+            len(self.ai.extractors.ready) == 1
+            and not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            and self.ai.vespene < 100
+        )
 
     def mineral_fields_of(self, bases):
         return self.ai.state.mineral_field.filter(lambda field: any([field.distance_to(base) <= 8 for base in bases]))

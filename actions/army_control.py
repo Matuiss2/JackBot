@@ -1,17 +1,30 @@
-from .micro import Micro
 from sc2.constants import (
-    ADEPTPHASESHIFT, DISRUPTORPHASED, EGG,
-    LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN,
-    AUTOTURRET, SPINECRAWLER, PHOTONCANNON,
-    BUNKER, PLANETARYFORTRESS, ZERGLING,
-    CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED,
-    CREEPTUMORMISSILE, DRONE, SCV, PROBE,
-    ZERGLINGATTACKSPEED
+    ADEPTPHASESHIFT,
+    AUTOTURRET,
+    BUNKER,
+    CREEPTUMOR,
+    CREEPTUMORBURROWED,
+    CREEPTUMORMISSILE,
+    CREEPTUMORQUEEN,
+    DISRUPTORPHASED,
+    DRONE,
+    EGG,
+    INFESTEDTERRAN,
+    INFESTEDTERRANSEGG,
+    LARVA,
+    PHOTONCANNON,
+    PLANETARYFORTRESS,
+    PROBE,
+    SCV,
+    SPINECRAWLER,
+    ZERGLING,
+    ZERGLINGATTACKSPEED,
 )
+
+from .micro import Micro
 
 
 class ArmyControl(Micro):
-
     def __init__(self, ai):
         self.ai = ai
         self.retreat_units = set()
@@ -64,7 +77,9 @@ class ArmyControl(Micro):
             else:
                 if not self.retreat_units or self.ai.close_enemies_to_base or self.ai.time >= 1000:
                     if enemy_building:
-                        self.ai.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
+                        self.ai.actions.append(
+                            attacking_unit.attack(enemy_building.closest_to(attacking_unit.position))
+                        )
                         continue
                     elif targets:
                         self.ai.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
@@ -76,12 +91,10 @@ class ArmyControl(Micro):
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
-        rally_point = (
-            self.ai.townhalls
-            .closest_to(self.ai._game_info.map_center)
-            .position
-            .towards(self.ai._game_info.map_center, 10)
+        rally_point = self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
+            self.ai._game_info.map_center, 10
         )
+
         if unit.distance_to(rally_point) > 5:
             self.ai.actions.append(unit.move(rally_point))
 
@@ -113,9 +126,7 @@ class ArmyControl(Micro):
         ):  # more than half of the attack time with adrenal glands (0.35)
             if self.move_to_next_target(unit, targets):
                 return True
-        elif (
-            unit.weapon_cooldown <= 0.35
-        ):  # more than half of the attack time with adrenal glands (0.35)
+        elif unit.weapon_cooldown <= 0.35:  # more than half of the attack time with adrenal glands (0.35)
             if self.attack_close_target(unit, targets):
                 return True
 

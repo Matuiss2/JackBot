@@ -1,10 +1,7 @@
-from sc2.constants import (
-    CHITINOUSPLATING,
-    RESEARCH_CHITINOUSPLATING
-)
+from sc2.constants import CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING
+
 
 class UpgradeChitinousPlating:
-
     def __init__(self, ai):
         self.ai = ai
 

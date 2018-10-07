@@ -1,7 +1,7 @@
-from sc2.constants import (LAIR, ZERGGROUNDARMORSLEVEL2, INFESTATIONPIT, EVOLUTIONCHAMBER)
+from sc2.constants import EVOLUTIONCHAMBER, INFESTATIONPIT, LAIR, ZERGGROUNDARMORSLEVEL2
+
 
 class BuildPit:
-
     def __init__(self, ai):
         self.ai = ai
 

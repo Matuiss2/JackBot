@@ -9,7 +9,6 @@ from __init__ import run_ladder_game
 from jackBot import EarlyAggro
 
 bot = Bot(Race.Zerg, EarlyAggro())
-
 # Start game
 if __name__ == "__main__":
     if "--LadderServer" in sys.argv:

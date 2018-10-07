@@ -1,5 +1,4 @@
 class Overlord:
-
     def __init__(self, ai):
         self.ai = ai
 

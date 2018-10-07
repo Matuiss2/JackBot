@@ -1,7 +1,7 @@
-from sc2.constants import (HIVE, LAIR, INFESTATIONPIT, UPGRADETOHIVE_HIVE, CANCEL_MORPHHIVE)
+from sc2.constants import CANCEL_MORPHHIVE, HIVE, INFESTATIONPIT, LAIR, UPGRADETOHIVE_HIVE
+
 
 class BuildHive:
-
     def __init__(self, ai):
         self.ai = ai
         self.lairs = None
@@ -13,12 +13,7 @@ class BuildHive:
 
         self.lairs = self.ai.lairs.ready
 
-        return (
-            self.ai.pit.ready
-            and self.lairs.idle
-            and self.ai.can_afford(HIVE)
-            and not await self.morphing_lairs()
-        )
+        return self.ai.pit.ready and self.lairs.idle and self.ai.can_afford(HIVE) and not await self.morphing_lairs()
 
     async def handle(self, iteration):
         self.ai.actions.append(self.lairs.ready.first(UPGRADETOHIVE_HIVE))

@@ -1,55 +1,69 @@
 """SC2 zerg bot by Helfull, Matuiss, Thommath and Tweakimp"""
 import sc2
-from sc2.position import Point2
 from sc2.constants import (
-    HATCHERY, LAIR, HIVE, OVERLORD,
-    DRONE, QUEEN, ZERGLING,
-    ULTRALISK, OVERSEER, EVOLUTIONCHAMBER,
-    ULTRALISKCAVERN, SPAWNINGPOOL, INFESTATIONPIT, SPINECRAWLER,
-    BARRACKS, GATEWAY, PHOTONCANNON, SCV, PROBE,
-    CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED,
-    LARVA, EXTRACTOR, SPORECRAWLER
+    BARRACKS,
+    CREEPTUMOR,
+    CREEPTUMORBURROWED,
+    CREEPTUMORQUEEN,
+    DRONE,
+    EVOLUTIONCHAMBER,
+    EXTRACTOR,
+    GATEWAY,
+    HATCHERY,
+    HIVE,
+    INFESTATIONPIT,
+    LAIR,
+    LARVA,
+    OVERLORD,
+    OVERSEER,
+    PHOTONCANNON,
+    PROBE,
+    QUEEN,
+    SCV,
+    SPAWNINGPOOL,
+    SPINECRAWLER,
+    SPORECRAWLER,
+    ULTRALISK,
+    ULTRALISKCAVERN,
+    ZERGLING,
 )
+from sc2.position import Point2
 
-from creep_spread import CreepControl
-
-from actions.train.worker import TrainWorker
-from actions.train.queen import TrainQueen
-from actions.train.overlord import TrainOverlord
-from actions.train.zergling import TrainZergling
-from actions.train.ultralisk import TrainUltralisk
-from actions.train.overseer import TrainOverseer
-
-from actions.build.pool import BuildPool
+from actions.army_control import ArmyControl
+from actions.build.cavern import BuildCavern
+from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
 from actions.build.extractor import BuildExtractor
-from actions.build.evochamber import BuildEvochamber
-from actions.build.cavern import BuildCavern
-from actions.build.pit import BuildPit
-from actions.build.lair import BuildLair
 from actions.build.hive import BuildHive
+from actions.build.lair import BuildLair
+from actions.build.pit import BuildPit
+from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
 from actions.build.spores import BuildSporse
-
-from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
-from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
-from actions.upgrades.evochamber import UpgradeEvochamber
-from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
-from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
-
+from actions.defend_worker_rush import DefendWorkerRush
+from actions.distribute_workers import DistributeWorkers
+from actions.queens_abilities import QueensAbilities
+from actions.train.overlord import TrainOverlord
+from actions.train.overseer import TrainOverseer
+from actions.train.queen import TrainQueen
+from actions.train.ultralisk import TrainUltralisk
+from actions.train.worker import TrainWorker
+from actions.train.zergling import TrainZergling
 from actions.unit.creep_tumor import CreepTumor
 from actions.unit.drone import Drone
 from actions.unit.overseer import Overseer
-
-from actions.distribute_workers import DistributeWorkers
-from actions.defend_worker_rush import DefendWorkerRush
-from actions.army_control import ArmyControl
-from actions.queens_abilities import QueensAbilities
+from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
+from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
+from actions.upgrades.evochamber import UpgradeEvochamber
+from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
+from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
+from creep_spread import CreepControl
 
 
 # noinspection PyMissingConstructor
 class EarlyAggro(sc2.BotAI, CreepControl):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
+
     def __init__(self, debug=False):
         CreepControl.__init__(self)
 
@@ -61,7 +75,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             QueensAbilities(self),
             CreepTumor(self),
             Drone(self),
-            Overseer(self)
+            Overseer(self),
         ]
 
         self.train_commands = [
@@ -70,7 +84,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             TrainQueen(self),
             TrainUltralisk(self),
             TrainZergling(self),
-            TrainOverseer(self)
+            TrainOverseer(self),
         ]
 
         self.build_commands = [
@@ -135,7 +149,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units().of_type([CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED])
+        self.tumors = self.units.of_type([CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED])
         self.larvae = self.units(LARVA)
         self.extractors = self.units(EXTRACTOR)
         self.pit = self.units(INFESTATIONPIT)
@@ -151,7 +165,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.actions = []
 
         if iteration == 0:
-            self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
+            self._client.game_step = 8  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
             self.split_workers()
@@ -181,15 +195,11 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         for command in commands:
             if await command.should_handle(iteration):
                 if self.debug:
-                    print("Handling: {}".format(command.__class__))
+                    print(f"Handling: {command.__class__}")
                 await command.handle(iteration)
 
     def can_train(self, unit_type, larva=True):
-        return (
-            (not larva or self.larvae)
-            and self.can_afford(unit_type)
-            and self.can_feed(unit_type)
-        )
+        return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type)
 
     def prepare_expansions(self):
         start = self.start_location

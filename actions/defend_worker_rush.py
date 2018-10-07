@@ -1,12 +1,11 @@
 import heapq
+
+from sc2.constants import DRONE, HATCHERY, PROBE, SCV
+
 from .micro import Micro
-from sc2.constants import (
-    HATCHERY,
-    PROBE, DRONE, SCV
-)
+
 
 class DefendWorkerRush(Micro):
-
     def __init__(self, ai):
         self.ai = ai
         self.base = None
@@ -21,9 +20,12 @@ class DefendWorkerRush(Micro):
 
         self.enemy_units_close = self.ai.known_enemy_units.closer_than(8, self.base.first).of_type([PROBE, DRONE, SCV])
         return (
-            self.enemy_units_close and not self.defender_tags
-            or self.defender_tags and not self.enemy_units_close
-            or self.defender_tags and self.enemy_units_close
+            self.enemy_units_close
+            and not self.defender_tags
+            or self.defender_tags
+            and not self.enemy_units_close
+            or self.defender_tags
+            and self.enemy_units_close
         )
 
     async def handle(self, iteration):
