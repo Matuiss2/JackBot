@@ -1,7 +1,7 @@
 from sc2.constants import SPORECRAWLER
 
 
-class BuildSporse:
+class BuildSpores:
 
     def __init__(self, ai):
         self.ai = ai
