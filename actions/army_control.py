@@ -56,7 +56,7 @@ class ArmyControl(Micro):
         atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
-            if attacking_unit.type_id == MUTALISK:
+            if attacking_unit.type_id == MUTALISK and enemy_building.flying:
                 self.ai.actions.append(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
                 continue
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
