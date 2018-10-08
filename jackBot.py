@@ -176,7 +176,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.actions = []
 
         if iteration == 0:
-            self._client.game_step = 8  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
+            self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
             self.split_workers()
