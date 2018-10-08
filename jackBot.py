@@ -192,7 +192,11 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(50, self.start_location):
             self.close_enemy_production = True
 
-        if len(self.known_enemy_structures) == len(self.known_enemy_structures.flying) and self.time > 300:
+        if (
+            self.known_enemy_structures.flying
+            and len(self.known_enemy_structures) == len(self.known_enemy_structures.flying)
+            and self.time > 300
+        ):
             self.floating_buildings_bm = True
 
         await self.run_commands(self.unit_commands, iteration)
