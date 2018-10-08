@@ -33,6 +33,9 @@ from sc2.position import Point2
 
 from actions.army_control import ArmyControl
 from actions.build.cavern import BuildCavern
+from actions.defend_worker_rush import DefendWorkerRush
+from actions.distribute_workers import DistributeWorkers
+from actions.queens_abilities import QueensAbilities
 from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
 from actions.build.extractor import BuildExtractor
@@ -41,11 +44,8 @@ from actions.build.lair import BuildLair
 from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
-from actions.build.spores import BuildSporse
+from actions.build.spores import BuildSpores
 from actions.build.spire import BuildSpire
-from actions.defend_worker_rush import DefendWorkerRush
-from actions.distribute_workers import DistributeWorkers
-from actions.queens_abilities import QueensAbilities
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
 from actions.train.mutalisk import TrainMutalisk
@@ -56,6 +56,8 @@ from actions.train.zergling import TrainZergling
 from actions.unit.creep_tumor import CreepTumor
 from actions.unit.drone import Drone
 from actions.unit.overseer import Overseer
+# from actions.unit.overlord import Overlord
+from actions.unit.hatchery import Hatchery
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
@@ -80,6 +82,8 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             CreepTumor(self),
             Drone(self),
             Overseer(self),
+            # Overlord(self),
+            Hatchery(self),
         ]
 
         self.train_commands = [
@@ -102,7 +106,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             BuildHive(self),
             BuildLair(self),
             BuildSpines(self),
-            BuildSporse(self),
+            BuildSpores(self),
             BuildSpire(self),
         ]
 
