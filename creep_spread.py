@@ -1,11 +1,14 @@
 """Everything related to creep spreading goes here"""
 import math
+
+from sc2.constants import BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, ZERGBUILD_CREEPTUMOR
 from sc2.data import ActionResult
 from sc2.position import Point2
-from sc2.constants import BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, ZERGBUILD_CREEPTUMOR
 
 
-class creep_control:
+class CreepControl:
+    """It spreads creeps, finds 'optimal' locations for it"""
+
     def __init__(self):
         self.used_tumors = []
 
