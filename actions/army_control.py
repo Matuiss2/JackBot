@@ -12,6 +12,7 @@ from sc2.constants import (
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
+    MUTALISK,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
@@ -52,9 +53,12 @@ class ArmyControl(Micro):
             filtered_enemies = self.ai.known_enemy_units.not_structure.exclude_type(excluded_units)
             static_defence = self.ai.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             targets = static_defence | filtered_enemies.not_flying
-        atk_force = self.ai.zerglings | self.ai.ultralisks
+        atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
+            if attacking_unit.type_id == MUTALISK and enemy_building.flying:
+                self.ai.actions.append(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
+                continue
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
                 self.has_retreated(attacking_unit)
                 continue
@@ -144,12 +148,11 @@ class ArmyControl(Micro):
         ):
             self.move_to_rallying_point(unit)
             return True
+        enemy_building = self.ai.known_enemy_structures
+        if enemy_building and self.ai.townhalls:
+            self.attack_closest_building(unit)
         else:
-            enemy_building = self.ai.known_enemy_structures
-            if enemy_building and self.ai.townhalls:
-                self.attack_closest_building(unit)
-            else:
-                self.attack_startlocation(unit)
+            self.attack_startlocation(unit)
         return False
 
     def attack_closest_building(self, unit):

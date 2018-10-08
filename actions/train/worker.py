@@ -1,4 +1,4 @@
-from sc2.constants import DRONE, EXTRACTOR, LARVA, OVERLORD, SPAWNINGPOOL
+from sc2.constants import DRONE, OVERLORD
 
 
 class TrainWorker:

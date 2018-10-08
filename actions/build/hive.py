@@ -1,4 +1,4 @@
-from sc2.constants import CANCEL_MORPHHIVE, HIVE, INFESTATIONPIT, LAIR, UPGRADETOHIVE_HIVE
+from sc2.constants import CANCEL_MORPHHIVE, HIVE, UPGRADETOHIVE_HIVE
 
 
 class BuildHive:

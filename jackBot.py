@@ -14,6 +14,7 @@ from sc2.constants import (
     INFESTATIONPIT,
     LAIR,
     LARVA,
+    MUTALISK,
     OVERLORD,
     OVERSEER,
     PHOTONCANNON,
@@ -22,6 +23,7 @@ from sc2.constants import (
     SCV,
     SPAWNINGPOOL,
     SPINECRAWLER,
+    SPIRE,
     SPORECRAWLER,
     ULTRALISK,
     ULTRALISKCAVERN,
@@ -31,6 +33,9 @@ from sc2.position import Point2
 
 from actions.army_control import ArmyControl
 from actions.build.cavern import BuildCavern
+from actions.defend_worker_rush import DefendWorkerRush
+from actions.distribute_workers import DistributeWorkers
+from actions.queens_abilities import QueensAbilities
 from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
 from actions.build.extractor import BuildExtractor
@@ -39,12 +44,11 @@ from actions.build.lair import BuildLair
 from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
-from actions.build.spores import BuildSporse
-from actions.defend_worker_rush import DefendWorkerRush
-from actions.distribute_workers import DistributeWorkers
-from actions.queens_abilities import QueensAbilities
+from actions.build.spores import BuildSpores
+from actions.build.spire import BuildSpire
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
+from actions.train.mutalisk import TrainMutalisk
 from actions.train.queen import TrainQueen
 from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
@@ -52,6 +56,8 @@ from actions.train.zergling import TrainZergling
 from actions.unit.creep_tumor import CreepTumor
 from actions.unit.drone import Drone
 from actions.unit.overseer import Overseer
+# from actions.unit.overlord import Overlord
+from actions.unit.hatchery import Hatchery
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
@@ -76,6 +82,8 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             CreepTumor(self),
             Drone(self),
             Overseer(self),
+            # Overlord(self),
+            Hatchery(self),
         ]
 
         self.train_commands = [
@@ -85,6 +93,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             TrainUltralisk(self),
             TrainZergling(self),
             TrainOverseer(self),
+            TrainMutalisk(self),
         ]
 
         self.build_commands = [
@@ -97,7 +106,8 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             BuildHive(self),
             BuildLair(self),
             BuildSpines(self),
-            BuildSporse(self),
+            BuildSpores(self),
+            BuildSpire(self),
         ]
 
         self.upgrade_commands = [
@@ -114,6 +124,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.ordered_expansions = []
         self.close_enemies_to_base = False
         self.close_enemy_production = False
+        self.floating_buildings_bm = False
         self.hatcheries = None
         self.lairs = None
         self.hives = None
@@ -131,8 +142,10 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.tumors = None
         self.larvae = None
         self.extractors = None
+        self.mutalisks = None
         self.pit = None
         self.spores = None
+        self.spires = None
 
     def get_units(self):
         self.hatcheries = self.units(HATCHERY)
@@ -154,6 +167,8 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.extractors = self.units(EXTRACTOR)
         self.pit = self.units(INFESTATIONPIT)
         self.spores = self.units(SPORECRAWLER)
+        self.spires = self.units(SPIRE)
+        self.mutalisks = self.units(MUTALISK)
 
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
@@ -165,7 +180,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.actions = []
 
         if iteration == 0:
-            self._client.game_step = 8  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
+            self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
             self.split_workers()
@@ -180,6 +195,13 @@ class EarlyAggro(sc2.BotAI, CreepControl):
 
         if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(50, self.start_location):
             self.close_enemy_production = True
+
+        if (
+            self.known_enemy_structures.flying
+            and len(self.known_enemy_structures) == len(self.known_enemy_structures.flying)
+            and self.time > 300
+        ):
+            self.floating_buildings_bm = True
 
         await self.run_commands(self.unit_commands, iteration)
         await self.run_commands(self.train_commands, iteration)

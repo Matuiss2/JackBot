@@ -1,7 +1,7 @@
 from sc2.constants import SPORECRAWLER
 
 
-class BuildSporse:
+class BuildSpores:
 
     def __init__(self, ai):
         self.ai = ai
@@ -24,12 +24,19 @@ class BuildSporse:
 
         self.selected_base = base.random
         return (
-            self.enemy_flying_dmg_units
+            (self.enemy_flying_dmg_units or self.ai.time >= 420)
             and not self.ai.already_pending(SPORECRAWLER)
             and not spores.closer_than(15, self.selected_base.position)
             and self.ai.can_afford(SPORECRAWLER)
         )
 
     async def handle(self, iteration):
-        await self.ai.build(SPORECRAWLER, near=self.selected_base.position)
-        return True
+        for base in self.ai.townhalls:
+            spore_position = (
+                (self.ai.state.mineral_field | self.ai.state.vespene_geyser)
+                    .closer_than(10, base)
+                    .center.towards(base, 1)
+                )
+            if not self.ai.spores.closer_than(15, spore_position):
+                await self.ai.build(SPORECRAWLER, spore_position)
+                return True

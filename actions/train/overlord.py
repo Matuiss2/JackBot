@@ -1,4 +1,4 @@
-from sc2.constants import LARVA, OVERLORD, SPAWNINGPOOL
+from sc2.constants import OVERLORD
 
 
 class TrainOverlord:

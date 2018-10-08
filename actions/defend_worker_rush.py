@@ -1,6 +1,6 @@
 import heapq
 
-from sc2.constants import DRONE, HATCHERY, PROBE, SCV
+from sc2.constants import DRONE, PROBE, SCV
 
 from .micro import Micro
 

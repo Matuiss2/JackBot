@@ -5,8 +5,8 @@ class BuildExpansion:
     def __init__(self, ai):
         self.ai = ai
 
-        self.SEND_WORKER = 1
-        self.DID_SEND_WORKER = 2
+        self.send_worker = 1
+        self.did_send_worker = 2
 
         self.worker_to_first_base = False
         self.expand_now = False
@@ -16,7 +16,7 @@ class BuildExpansion:
          for when extra mining patches or production are needed """
         base_amount = len(self.ai.townhalls)  # so it just calculate once per loop
         if not self.worker_to_first_base and base_amount < 2 and self.ai.minerals > 225:
-            self.worker_to_first_base = self.SEND_WORKER
+            self.worker_to_first_base = self.send_worker
             return True
 
         self.expand_now = False
@@ -46,9 +46,9 @@ class BuildExpansion:
         return False
 
     async def handle(self, iteration):
-        if self.worker_to_first_base == self.SEND_WORKER:
+        if self.worker_to_first_base == self.send_worker:
             self.ai.actions.append(await self.send_worker_to_next_expansion())
-            self.worker_to_first_base = self.DID_SEND_WORKER
+            self.worker_to_first_base = self.did_send_worker
             return True
 
         if self.expand_now:
