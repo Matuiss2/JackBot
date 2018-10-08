@@ -6,7 +6,7 @@ class Hatchery:
         self.ai = ai
 
     async def should_handle(self, iteration):
-        return self.ai.close_enemy_production and self.ai.time < 300
+        return (self.ai.close_enemy_production and self.ai.time < 300) or self.ai.units.structure.not_ready
 
     async def handle(self, iteration):
         """Make the cancelling general"""
