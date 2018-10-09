@@ -104,15 +104,14 @@ class ArmyControl(Micro):
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated"""
-        if self.ai.units.structure.owned.exclude_type(
-            {CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED, CREEPTUMORMISSILE}
-        ).closer_than(15, unit.position):
+        if self.ai.townhalls.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
     def retreat_unit(self, unit, filtered_enemies):
         """Tell the unit to retreat when overwhelmed"""
         if (
             self.ai.townhalls
+            and not self.ai.close_enemies_to_base
             and not self.ai.units.structure.closer_than(7, unit.position)
             and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, unit.position))
             >= len(self.ai.zerglings.closer_than(20, unit.position))
