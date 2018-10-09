@@ -4,7 +4,7 @@ class Drone:
         self.scout_tag = None
 
     async def should_handle(self, iteration):
-        return self.ai.drones and iteration % 2000 == 400
+        return self.ai.drones and iteration % 1000 == 300
 
     async def handle(self, iteration):
         """It sends a drone to scout the map, starting with the closest place then going base by base to the furthest"""
