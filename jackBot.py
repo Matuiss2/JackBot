@@ -148,6 +148,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.pit = None
         self.spores = None
         self.spires = None
+        self.ground_enemies = None
 
     def get_units(self):
         self.hatcheries = self.units(HATCHERY)
@@ -171,25 +172,35 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.spores = self.units(SPORECRAWLER)
         self.spires = self.units(SPIRE)
         self.mutalisks = self.units(MUTALISK)
+        self.ground_enemies = self.known_enemy_units.not_flying.not_structure
+
+    def set_game_step(self):
+        if self.ground_enemies:
+            if len(self.ground_enemies) > 5:
+                self._client.game_step = 2
+            else:
+                self._client.game_step = 4
+        else:
+            self._client.game_step = 8
 
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
         self.get_units()
-
+        self.set_game_step()
         self.close_enemies_to_base = False
         self.close_enemy_production = False
 
         self.actions = []
 
         if iteration == 0:
-            self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
+            # self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
             self.split_workers()
 
-        if self.known_enemy_units.not_structure.not_flying:
+        if self.ground_enemies:
             for hatch in self.townhalls:
-                close_enemy = self.known_enemy_units.not_structure.not_flying.closer_than(40, hatch.position)
+                close_enemy = self.ground_enemies.closer_than(40, hatch.position)
                 enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
                 if enemies:
                     self.close_enemies_to_base = True
