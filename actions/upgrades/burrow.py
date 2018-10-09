@@ -8,7 +8,7 @@ class UpgradeBurrow:
     async def should_handle(self, iteration):
         return (
             self.ai.lairs
-            and self.ai.hatcheries
+            and self.ai.hatcheries.idle
             and not self.ai.already_pending_upgrade(BURROW)
             and self.ai.can_afford(RESEARCH_BURROW)
         )
