@@ -59,7 +59,7 @@ from actions.unit.overseer import Overseer
 from actions.unit.overlord import Overlord
 from actions.unit.hatchery import Hatchery
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
-from actions.upgrades.burrow import UpgradeBurrow
+# from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
@@ -117,7 +117,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             UpgradeAdrenalGlands(self),
             UpgradeEvochamber(self),
             UpgradePneumatizedCarapace(self),
-            UpgradeBurrow(self),
+            # UpgradeBurrow(self),
         ]
 
         self.pools = []
