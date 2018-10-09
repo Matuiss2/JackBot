@@ -56,8 +56,7 @@ from actions.train.zergling import TrainZergling
 from actions.unit.creep_tumor import CreepTumor
 from actions.unit.drone import Drone
 from actions.unit.overseer import Overseer
-
-# from actions.unit.overlord import Overlord
+from actions.unit.overlord import Overlord
 from actions.unit.hatchery import Hatchery
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 from actions.upgrades.burrow import UpgradeBurrow
@@ -84,7 +83,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             CreepTumor(self),
             Drone(self),
             Overseer(self),
-            # Overlord(self),
+            Overlord(self),
             Hatchery(self),
         ]
 
