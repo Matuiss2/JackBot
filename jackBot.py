@@ -202,7 +202,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
         if iteration == 0:
             # self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
-            await self.prepare_building_positions(self.units(HATCHERY).first)
+            # await self.prepare_building_positions(self.units(HATCHERY).first)
             self.prepare_expansions()
             self.split_workers()
 

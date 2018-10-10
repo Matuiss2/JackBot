@@ -10,7 +10,7 @@ class building_positioning:
             for y in range(-12, 13)
             if 144 >= x ** 2 + y ** 2 >= 64
         ]
-        ressources = (self.state.mineral_field | self.state.vespene_geyser).closer_than(10, start)
+        ressources = self.state.mineral_field.closer_than(10, start)
         behind_ressources = [point for point in all_points if 2 < point.distance_to(ressources.closest_to(point)) < 4]
         for point in behind_ressources:
             if await self.can_place(EVOLUTIONCHAMBER, point):
@@ -24,7 +24,6 @@ class building_positioning:
                         self.building_positions.append(point)
                 else:
                     self.building_positions.append(point)
-        print(len(self.building_positions))
 
     async def get_production_position(self):
         if self.building_positions:
