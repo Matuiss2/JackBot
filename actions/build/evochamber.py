@@ -21,9 +21,14 @@ class BuildEvochamber:
         return False
 
     async def handle(self, iteration):
-        furthest_base = self.ai.townhalls.furthest_to(self.ai.game_info.map_center)
-        second_base = (self.ai.townhalls - {furthest_base}).closest_to(furthest_base)
-        await self.ai.build(
-            EVOLUTIONCHAMBER, second_base.position.towards_with_random_angle(self.ai.game_info.map_center, -14)
-        )
-        return True
+        position = await self.ai.get_production_position()
+        if position:
+            await self.ai.build(EVOLUTIONCHAMBER, position)
+            return True
+        else:
+            furthest_base = self.ai.townhalls.furthest_to(self.ai.game_info.map_center)
+            second_base = (self.ai.townhalls - {furthest_base}).closest_to(furthest_base)
+            await self.ai.build(
+                EVOLUTIONCHAMBER, second_base.position.towards_with_random_angle(self.ai.game_info.map_center, -14)
+            )
+            return True

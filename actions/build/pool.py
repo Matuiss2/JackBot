@@ -15,8 +15,13 @@ class BuildPool:
         )
 
     async def handle(self, iteration):
-        await self.ai.build(SPAWNINGPOOL, near=self.find_position())
-        return True
+        position = await self.ai.get_production_position()
+        if position:
+            await self.ai.build(SPAWNINGPOOL, position)
+            return True
+        else:
+            await self.ai.build(SPAWNINGPOOL, near=self.find_position())
+            return True
 
     def find_position(self):
         return self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
