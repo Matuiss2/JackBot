@@ -13,7 +13,7 @@ class TrainZergling:
 
         if (
             170 <= self.ai.time <= 230
-                and not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            and not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
             and not self.ai.close_enemy_production
         ):
             return False
