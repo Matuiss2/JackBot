@@ -18,10 +18,15 @@ class BuildCavern:
         )
 
     async def handle(self, iteration):
-        await self.ai.build(
-            ULTRALISKCAVERN,
-            near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards(
-                self.ai.main_base_ramp.depot_in_middle, 6
-            ),
-        )
-        return True
+        position = await self.ai.get_production_position()
+        if position:
+            await self.ai.build(ULTRALISKCAVERN, position)
+            return True
+        else:
+            await self.ai.build(
+                ULTRALISKCAVERN,
+                near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards(
+                    self.ai.main_base_ramp.depot_in_middle, 6
+                ),
+            )
+            return True
