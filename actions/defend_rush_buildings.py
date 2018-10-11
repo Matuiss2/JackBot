@@ -12,7 +12,7 @@ class DefendRushBuildings:
                 [building.distance_to(our_building) <= 30 for our_building in (self.ai.units.structure - self.tumors)]
             )
         )
-        return bool(self.rush_buildings and self.ai.bases)
+        return self.rush_buildings and self.ai.bases
 
     def is_being_attacked(self, unit):
         # only for enemy units, returns how often they are attacked
