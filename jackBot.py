@@ -14,7 +14,7 @@ from sc2.constants import (
     INFESTATIONPIT,
     LAIR,
     LARVA,
-    # MUTALISK,
+    MUTALISK,
     OVERLORD,
     OVERSEER,
     PHOTONCANNON,
@@ -42,13 +42,13 @@ from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
 
-# from actions.build.spire import BuildSpire
+from actions.build.spire import BuildSpire
 from actions.build.spores import BuildSpores
 from actions.defend_worker_rush import DefendWorkerRush
 from actions.distribute_workers import DistributeWorkers
 from actions.queens_abilities import QueensAbilities
 
-# from actions.train.mutalisk import TrainMutalisk
+from actions.train.mutalisk import TrainMutalisk
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
 from actions.train.queen import TrainQueen
@@ -98,7 +98,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
             TrainUltralisk(self),
             TrainZergling(self),
             TrainOverseer(self),
-            # TrainMutalisk(self),
+            TrainMutalisk(self),
         ]
 
         self.build_commands = [
@@ -112,7 +112,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
             BuildLair(self),
             BuildSpines(self),
             BuildSpores(self),
-            # BuildSpire(self),
+            BuildSpire(self),
         ]
 
         self.upgrade_commands = [
@@ -176,7 +176,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
         self.pit = self.units(INFESTATIONPIT)
         self.spores = self.units(SPORECRAWLER)
         self.spires = self.units(SPIRE)
-        # self.mutalisks = self.units(MUTALISK)
+        self.mutalisks = self.units(MUTALISK)
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
 
     def set_game_step(self):
