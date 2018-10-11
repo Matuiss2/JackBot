@@ -22,10 +22,15 @@ class BuildPit:
         )
 
     async def handle(self, iteration):
-        await self.ai.build(
-            INFESTATIONPIT,
-            near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
-                self.ai.game_info.map_center, -14
-            ),
-        )
-        return True
+        position = await self.ai.get_production_position()
+        if position:
+            await self.ai.build(INFESTATIONPIT, position)
+            return True
+        else:
+            await self.ai.build(
+                INFESTATIONPIT,
+                near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
+                    self.ai.game_info.map_center, -14
+                ),
+            )
+            return True

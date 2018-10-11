@@ -33,9 +33,6 @@ from sc2.position import Point2
 
 from actions.army_control import ArmyControl
 from actions.build.cavern import BuildCavern
-from actions.defend_worker_rush import DefendWorkerRush
-from actions.distribute_workers import DistributeWorkers
-from actions.queens_abilities import QueensAbilities
 from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
 from actions.build.extractor import BuildExtractor
@@ -44,31 +41,39 @@ from actions.build.lair import BuildLair
 from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
-from actions.build.spores import BuildSpores
+
 from actions.build.spire import BuildSpire
+from actions.build.spores import BuildSpores
+from actions.defend_worker_rush import DefendWorkerRush
+from actions.defend_rush_buildings import DefendRushBuildings
+from actions.distribute_workers import DistributeWorkers
+from actions.queens_abilities import QueensAbilities
+
+from actions.train.mutalisk import TrainMutalisk
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
-from actions.train.mutalisk import TrainMutalisk
 from actions.train.queen import TrainQueen
 from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
 from actions.train.zergling import TrainZergling
 from actions.unit.creep_tumor import CreepTumor
 from actions.unit.drone import Drone
-from actions.unit.overseer import Overseer
-from actions.unit.overlord import Overlord
 from actions.unit.hatchery import Hatchery
+from actions.unit.overlord import Overlord
+from actions.unit.overseer import Overseer
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
+
 # from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
+from actions.building_positioning import building_positioning
 from creep_spread import CreepControl
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, CreepControl):
+class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
 
     def __init__(self, debug=False):
@@ -77,6 +82,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.debug = debug
         self.unit_commands = [
             DefendWorkerRush(self),
+            DefendRushBuildings(self),
             DistributeWorkers(self),
             ArmyControl(self),
             QueensAbilities(self),
@@ -120,16 +126,17 @@ class EarlyAggro(sc2.BotAI, CreepControl):
             # UpgradeBurrow(self),
         ]
 
-        self.pools = []
         self.actions = []
         self.locations = []
         self.ordered_expansions = []
+        self.building_positions = []
         self.close_enemies_to_base = False
         self.close_enemy_production = False
         self.floating_buildings_bm = False
         self.hatcheries = None
         self.lairs = None
         self.hives = None
+        self.bases = None
         self.overlords = None
         self.drones = None
         self.queens = None
@@ -154,6 +161,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
+        self.bases = self.hatcheries | self.lairs | self.hives
         self.overlords = self.units(OVERLORD)
         self.drones = self.units(DRONE)
         self.queens = self.units(QUEEN)
@@ -183,6 +191,10 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         else:
             self._client.game_step = 8
 
+    async def on_unit_created(self, unit):
+        if unit.type_id is HATCHERY:
+            await self.prepare_building_positions(unit)
+
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
         self.get_units()
@@ -195,6 +207,7 @@ class EarlyAggro(sc2.BotAI, CreepControl):
         if iteration == 0:
             # self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
+            # await self.prepare_building_positions(self.units(HATCHERY).first)
             self.prepare_expansions()
             self.split_workers()
 
