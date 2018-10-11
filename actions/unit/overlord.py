@@ -16,13 +16,13 @@ class Overlord:
         #   else 10 ** 10,
         # )
         if not self.first_ov_scout:
-            self.first_ov_scout = True            
+            self.first_ov_scout = True
             waypoints = [point for point in self.ai.expansion_locations]
             start = self.ai.start_location
             natural = sorted(waypoints, key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))[1]
             self.ai.actions.append(self.ai.overlords.first.move(natural.towards(self.ai._game_info.map_center, 10)))
         elif not self.second_ov_scout and len(self.ai.overlords.ready) == 2:
-            second_ov = self.ai.overlords.ready.closest_to(self.ai.townhalls.first)            
+            second_ov = self.ai.overlords.ready.closest_to(self.ai.townhalls.first)
             self.second_ov_scout = True
             self.ai.actions.append(second_ov.move(self.ai._game_info.map_center))
         # self.ai.actions.append(self.ai.overlords.first.move(enemy_natural.towards(enemy_main, -11)))
