@@ -45,6 +45,7 @@ from actions.build.spines import BuildSpines
 from actions.build.spire import BuildSpire
 from actions.build.spores import BuildSpores
 from actions.defend_worker_rush import DefendWorkerRush
+from actions.defend_rush_buildings import DefendRushBuildings
 from actions.distribute_workers import DistributeWorkers
 from actions.queens_abilities import QueensAbilities
 
@@ -81,6 +82,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
         self.debug = debug
         self.unit_commands = [
             DefendWorkerRush(self),
+            DefendRushBuildings(self),
             DistributeWorkers(self),
             ArmyControl(self),
             QueensAbilities(self),
@@ -124,7 +126,6 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
             # UpgradeBurrow(self),
         ]
 
-        self.pools = []
         self.actions = []
         self.locations = []
         self.ordered_expansions = []
@@ -135,6 +136,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
         self.hatcheries = None
         self.lairs = None
         self.hives = None
+        self.bases = None
         self.overlords = None
         self.drones = None
         self.queens = None
@@ -159,6 +161,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
+        self.bases = self.hatcheries | self.lairs | self.hives
         self.overlords = self.units(OVERLORD)
         self.drones = self.units(DRONE)
         self.queens = self.units(QUEEN)
