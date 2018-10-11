@@ -22,7 +22,7 @@ class TrainZergling:
             return False
 
         if self.ai.units(ULTRALISKCAVERN).ready and self.ai.time < 1380:
-            if not len(self.ai.ultralisks) * 6 > len(self.ai.zerglings):
+            if not len(self.ai.ultralisks) * 8.5 > len(self.ai.zerglings):
                 return False
         return True
 
