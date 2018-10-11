@@ -2,10 +2,6 @@ from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
     BUNKER,
-    CREEPTUMOR,
-    CREEPTUMORBURROWED,
-    CREEPTUMORMISSILE,
-    CREEPTUMORQUEEN,
     DISRUPTORPHASED,
     DRONE,
     EGG,
@@ -31,7 +27,7 @@ class ArmyControl(Micro):
         self.retreat_units = set()
 
     async def should_handle(self, iteration):
-        return self.ai.zerglings | self.ai.ultralisks
+        return self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
 
     async def handle(self, iteration):
         """It surrounds and target low hp units, also retreats when overwhelmed,
@@ -53,7 +49,7 @@ class ArmyControl(Micro):
             filtered_enemies = self.ai.known_enemy_units.not_structure.exclude_type(excluded_units)
             static_defence = self.ai.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             targets = static_defence | filtered_enemies.not_flying
-        atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
+        atk_force = self.ai.zerglings | self.ai.ultralisks
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if attacking_unit.type_id == MUTALISK and enemy_building.flying:
@@ -62,7 +58,13 @@ class ArmyControl(Micro):
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
                 self.has_retreated(attacking_unit)
                 continue
-            if targets and targets.closer_than(17, attacking_unit.position):
+            if (
+                targets
+                and targets.closer_than(17, attacking_unit.position)
+                and await self.ai._client.query_pathing(
+                    attacking_unit.position, targets.closest_to(attacking_unit.position).position
+                )
+            ):
                 # retreat if we are not fighting at home
                 if self.retreat_unit(attacking_unit, filtered_enemies):
                     continue
@@ -115,7 +117,7 @@ class ArmyControl(Micro):
             and not self.ai.units.structure.closer_than(7, unit.position)
             and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, unit.position))
             >= len(self.ai.zerglings.closer_than(20, unit.position))
-            + len(self.ai.ultralisks.closer_than(20, unit.position)) * 4
+            + len(self.ai.ultralisks.closer_than(20, unit.position)) * 6
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -156,7 +158,7 @@ class ArmyControl(Micro):
 
     def attack_closest_building(self, unit):
         """Attack the starting location"""
-        enemy_building = self.ai.known_enemy_structures
+        enemy_building = self.ai.known_enemy_structures.not_flying
         if enemy_building:
             self.ai.actions.append(
                 unit.attack(enemy_building.closest_to(self.ai.townhalls.furthest_to(self.ai.game_info.map_center)))
