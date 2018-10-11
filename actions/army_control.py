@@ -27,7 +27,7 @@ class ArmyControl(Micro):
         self.retreat_units = set()
 
     async def should_handle(self, iteration):
-        return self.ai.zerglings | self.ai.ultralisks
+        return self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
 
     async def handle(self, iteration):
         """It surrounds and target low hp units, also retreats when overwhelmed,
@@ -52,9 +52,9 @@ class ArmyControl(Micro):
         atk_force = self.ai.zerglings | self.ai.ultralisks
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
-            # if attacking_unit.type_id == MUTALISK and enemy_building.flying:
-            # self.ai.actions.append(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
-            # continue
+            if attacking_unit.type_id == MUTALISK and enemy_building.flying:
+                self.ai.actions.append(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
+                continue
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
                 self.has_retreated(attacking_unit)
                 continue
@@ -158,7 +158,7 @@ class ArmyControl(Micro):
 
     def attack_closest_building(self, unit):
         """Attack the starting location"""
-        enemy_building = self.ai.known_enemy_structures
+        enemy_building = self.ai.known_enemy_structures.not_flying
         if enemy_building:
             self.ai.actions.append(
                 unit.attack(enemy_building.closest_to(self.ai.townhalls.furthest_to(self.ai.game_info.map_center)))
