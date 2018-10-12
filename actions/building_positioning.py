@@ -1,4 +1,4 @@
-from sc2.constants import EVOLUTIONCHAMBER
+from sc2.constants import EVOLUTIONCHAMBER, ENGINEERINGBAY
 from sc2.position import Point2
 
 
@@ -13,7 +13,8 @@ class building_positioning:
         ressources = self.state.mineral_field.closer_than(10, start)
         behind_ressources = [point for point in all_points if 2 < point.distance_to(ressources.closest_to(point)) < 4]
         for point in behind_ressources:
-            if await self.can_place(EVOLUTIONCHAMBER, point):
+            # also check engineering bay placement for hatcheries that just spawned but have no creep around
+            if await self.can_place(ENGINEERINGBAY, point) or await self.can_place(EVOLUTIONCHAMBER, point):
                 if self.building_positions:
                     if all(
                         [
