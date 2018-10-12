@@ -32,7 +32,7 @@ class BuildExpansion:
 
             if base_amount <= 4:
                 if base_amount == 2:
-                    if self.ai.time > 330 or len(self.ai.zerglings) > 23:
+                    if self.ai.time > 330 or len(self.ai.zerglings) > 31:
                         self.expand_now = True
                         return True
                 else:
