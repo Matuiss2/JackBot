@@ -59,8 +59,14 @@ class ArmyControl(Micro):
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
                 self.has_retreated(attacking_unit)
                 continue
-            if targets and targets.closer_than(17, attacking_unit.position):
-                # retreat if we are not fighting at home
+            if (
+                targets
+                and targets.closer_than(17, attacking_unit.position)
+                and await self.ai._client.query_pathing(
+                    attacking_unit.position, targets.closest_to(attacking_unit.position).position
+                )
+            ):
+
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
                 if attacking_unit.type_id == ZERGLING:
