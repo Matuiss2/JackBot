@@ -34,7 +34,7 @@ class ArmyControl(Micro):
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""
         targets = None
-        filtered_enemies = None
+        combined_enemies = None
         enemy_building = self.ai.known_enemy_structures
         if self.ai.known_enemy_units:
             excluded_units = {
@@ -48,6 +48,7 @@ class ArmyControl(Micro):
             }
             filtered_enemies = self.ai.known_enemy_units.not_structure.exclude_type(excluded_units)
             static_defence = self.ai.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
+            combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
         atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
@@ -65,8 +66,8 @@ class ArmyControl(Micro):
                     attacking_unit.position, targets.closest_to(attacking_unit.position).position
                 )
             ):
-                # retreat if we are not fighting at home
-                if self.retreat_unit(attacking_unit, filtered_enemies):
+
+                if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
                 if attacking_unit.type_id == ZERGLING:
                     if self.micro_zerglings(targets, attacking_unit):
@@ -109,13 +110,13 @@ class ArmyControl(Micro):
         if self.ai.townhalls.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
-    def retreat_unit(self, unit, filtered_enemies):
+    def retreat_unit(self, unit, combined_enemies):
         """Tell the unit to retreat when overwhelmed"""
         if (
             self.ai.townhalls
             and not self.ai.close_enemies_to_base
             and not self.ai.units.structure.closer_than(7, unit.position)
-            and len(filtered_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(15, unit.position))
+            and len(combined_enemies.closer_than(15, unit.position))
             >= len(self.ai.zerglings.closer_than(20, unit.position))
             + len(self.ai.ultralisks.closer_than(20, unit.position)) * 6
         ):
