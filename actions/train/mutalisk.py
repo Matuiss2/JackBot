@@ -8,7 +8,7 @@ class TrainMutalisk:
     async def should_handle(self, iteration):
         if not self.ai.can_train(MUTALISK):
             return False
-        return self.ai.spires.ready and self.ai.can_afford(MUTALISK) and self.ai.can_feed(MUTALISK)
+        return self.ai.spires.ready
 
     async def handle(self, iteration):
         self.ai.actions.append(self.ai.larvae.random.train(MUTALISK))
