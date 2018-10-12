@@ -120,7 +120,7 @@ class DistributeWorkers:
 
     @property
     def require_gas(self):
-        return self.require_gas_for_speedlings or self.ai.vespene < self.ai.minerals * 1.5
+        return self.require_gas_for_speedlings or (self.ai.vespene < self.ai.minerals * 1.25)
 
     @property
     def require_gas_for_speedlings(self):
