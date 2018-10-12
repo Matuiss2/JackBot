@@ -28,7 +28,7 @@ class QueensAbilities:
                 self.ai.actions.append(queen.attack(self.enemies.closest_to(queen.position)))
                 continue
             selected = self.hatchery.closest_to(queen.position)
-            if queen.energy >= 25 and self.ai.tumors and not selected.has_buff(QUEENSPAWNLARVATIMER):
+            if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                 self.ai.actions.append(queen(EFFECT_INJECTLARVA, selected))
                 continue
             elif queen.energy >= 25:
