@@ -29,6 +29,7 @@ class ArmyControl(Micro):
         self.ai = ai
         self.retreat_units = set()
         self.rally_point = None
+        self.zergling_atk_speed = False
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
@@ -41,6 +42,9 @@ class ArmyControl(Micro):
         targets = None
         combined_enemies = None
         enemy_building = self.ai.known_enemy_structures
+        if not self.zergling_atk_speed:
+            if self.ai.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1:
+                self.zergling_atk_speed = True
         self.rally_point = self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
             self.ai._game_info.map_center, 10
         )
@@ -131,9 +135,7 @@ class ArmyControl(Micro):
 
     def micro_zerglings(self, targets, unit):
         """Target low hp units smartly, and surrounds when attack cd is down"""
-        if (
-            self.ai.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-        ):  # more than half of the attack time with adrenal glands (0.35)
+        if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
             if unit.weapon_cooldown <= 0.25:
                 if self.attack_close_target(unit, targets):
                     return True
