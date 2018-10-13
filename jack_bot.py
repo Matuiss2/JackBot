@@ -68,12 +68,12 @@ from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
-from actions.building_positioning import building_positioning
+from actions.building_positioning import BuildingPositioning
 from creep_spread import CreepControl
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
+class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
 
     def __init__(self, debug=False):
