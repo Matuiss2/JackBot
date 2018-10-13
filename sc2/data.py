@@ -4,9 +4,9 @@ from s2clientprotocol import (
     raw_pb2 as raw_pb,
     data_pb2 as data_pb,
     common_pb2 as common_pb,
-    error_pb2 as error_pb
+    error_pb2 as error_pb,
 )
-from typing import List, Dict, Set, Tuple, Any, Optional, Union # mypy type checking
+from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
@@ -43,13 +43,13 @@ ActionResult = enum.Enum("ActionResult", error_pb.ActionResult.items())
 race_worker: Dict[Race, UnitTypeId] = {
     Race.Protoss: UnitTypeId.PROBE,
     Race.Terran: UnitTypeId.SCV,
-    Race.Zerg: UnitTypeId.DRONE
+    Race.Zerg: UnitTypeId.DRONE,
 }
 
 race_townhalls: Dict[Race, Set[UnitTypeId]] = {
     Race.Protoss: {UnitTypeId.NEXUS},
     Race.Terran: {UnitTypeId.COMMANDCENTER, UnitTypeId.ORBITALCOMMAND, UnitTypeId.PLANETARYFORTRESS},
-    Race.Zerg: {UnitTypeId.HATCHERY, UnitTypeId.LAIR, UnitTypeId.HIVE}
+    Race.Zerg: {UnitTypeId.HATCHERY, UnitTypeId.LAIR, UnitTypeId.HIVE},
 }
 
 warpgate_abilities: Dict[AbilityId, AbilityId] = {
@@ -58,11 +58,11 @@ warpgate_abilities: Dict[AbilityId, AbilityId] = {
     AbilityId.GATEWAYTRAIN_HIGHTEMPLAR: AbilityId.WARPGATETRAIN_HIGHTEMPLAR,
     AbilityId.GATEWAYTRAIN_DARKTEMPLAR: AbilityId.WARPGATETRAIN_DARKTEMPLAR,
     AbilityId.GATEWAYTRAIN_SENTRY: AbilityId.WARPGATETRAIN_SENTRY,
-    AbilityId.TRAIN_ADEPT: AbilityId.TRAINWARP_ADEPT
+    AbilityId.TRAIN_ADEPT: AbilityId.TRAINWARP_ADEPT,
 }
 
 race_gas: Dict[Race, UnitTypeId] = {
     Race.Protoss: UnitTypeId.ASSIMILATOR,
     Race.Terran: UnitTypeId.REFINERY,
-    Race.Zerg: UnitTypeId.EXTRACTOR
+    Race.Zerg: UnitTypeId.EXTRACTOR,
 }

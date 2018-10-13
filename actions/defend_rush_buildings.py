@@ -9,7 +9,10 @@ class DefendRushBuildings:
     async def should_handle(self, iteration):
         self.rush_buildings = self.ai.known_enemy_structures.not_flying.filter(
             lambda building: any(
-                [building.distance_to(our_building) <= 30 for our_building in (self.ai.units.structure - self.ai.tumors)]
+                [
+                    building.distance_to(our_building) <= 30
+                    for our_building in (self.ai.units.structure - self.ai.tumors)
+                ]
             )
         )
         return self.rush_buildings and self.ai.bases

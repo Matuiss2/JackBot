@@ -3,6 +3,7 @@
 
 import enum
 
+
 class UpgradeId(enum.Enum):
     NULL = 0
     CARRIERLAUNCHSPEEDUPGRADE = 1
@@ -298,6 +299,7 @@ class UpgradeId(enum.Enum):
     CYCLONERAPIDFIRELAUNCHERS = 291
     RAVENENHANCEDMUNITIONS = 292
     DIGGINGCLAWS = 293
+
 
 for item in UpgradeId:
     assert not item.name in globals()
