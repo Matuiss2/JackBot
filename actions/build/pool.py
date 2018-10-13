@@ -1,7 +1,9 @@
+"""Everything related to building logic for the pools goes here"""
 from sc2.constants import SPAWNINGPOOL
 
 
 class BuildPool:
+    """Ok for now"""
     def __init__(self, ai):
         self.ai = ai
 
@@ -15,15 +17,17 @@ class BuildPool:
         )
 
     async def handle(self, iteration):
+        """Build it behind the mineral line if there is space, if not uses later placement"""
         position = await self.ai.get_production_position()
         if position:
             await self.ai.build(SPAWNINGPOOL, position)
             return True
-        else:
-            await self.ai.build(SPAWNINGPOOL, near=self.find_position())
-            return True
+
+        await self.ai.build(SPAWNINGPOOL, near=self.find_position())
+        return True
 
     def find_position(self):
+        """Previous placement"""
         return self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
             self.ai.game_info.map_center, -10
         )

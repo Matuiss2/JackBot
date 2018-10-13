@@ -1,7 +1,10 @@
+"""Everything related to building logic for the ultra cavern goes here"""
 from sc2.constants import ULTRALISKCAVERN
 
 
 class BuildCavern:
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -18,15 +21,16 @@ class BuildCavern:
         )
 
     async def handle(self, iteration):
+        """Build it behind the mineral line if there is space, if not build between the main and natural"""
         position = await self.ai.get_production_position()
         if position:
             await self.ai.build(ULTRALISKCAVERN, position)
             return True
-        else:
-            await self.ai.build(
-                ULTRALISKCAVERN,
-                near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards(
-                    self.ai.main_base_ramp.depot_in_middle, 6
-                ),
-            )
-            return True
+
+        await self.ai.build(
+            ULTRALISKCAVERN,
+            near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards(
+                self.ai.main_base_ramp.depot_in_middle, 6
+            ),
+        )
+        return True
