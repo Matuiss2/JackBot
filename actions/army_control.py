@@ -42,12 +42,14 @@ class ArmyControl(Micro):
         targets = None
         combined_enemies = None
         enemy_building = self.ai.known_enemy_structures
-        if not self.zergling_atk_speed:
-            if self.ai.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1:
-                self.zergling_atk_speed = True
+
+        if self.ai.hives and not self.zergling_atk_speed:
+            self.zergling_atk_speed = self.ai.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+
         self.rally_point = self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
             self.ai._game_info.map_center, 10
         )
+
         if self.ai.known_enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
