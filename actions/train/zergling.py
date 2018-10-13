@@ -21,8 +21,14 @@ class TrainZergling:
         if not self.ai.can_train(ZERGLING):
             return False
 
-        if self.ai.units(ULTRALISKCAVERN).ready and self.ai.time < 1380:
+        if self.ai.caverns.ready and self.ai.time < 1380:
             if not len(self.ai.ultralisks) * 8.5 > len(self.ai.zerglings):
+                return False
+
+        if self.ai.spires.ready:
+            if self.ai.supply_used > 150:
+                return False
+            if not len(self.ai.mutalisks) * 10 > len(self.ai.zerglings):
                 return False
         return True
 

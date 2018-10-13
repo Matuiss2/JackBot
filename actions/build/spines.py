@@ -20,7 +20,7 @@ class BuildSpines:
     async def handle(self, iteration):
         await self.ai.build(
             SPINECRAWLER,
-            near=self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
+            near=self.ai.townhalls.furthest_to(self.ai._game_info.map_center).position.towards(
                 self.ai._game_info.map_center, 9
             ),
         )
