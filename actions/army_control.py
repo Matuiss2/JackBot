@@ -40,6 +40,9 @@ class ArmyControl(Micro):
         targets = None
         combined_enemies = None
         enemy_building = self.ai.known_enemy_structures
+        rally_point = self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
+            self.ai._game_info.map_center, 10
+        )
         if self.ai.known_enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -71,7 +74,7 @@ class ArmyControl(Micro):
                 )
             ):
 
-                if self.retreat_unit(attacking_unit, combined_enemies):
+                if self.retreat_unit(attacking_unit, combined_enemies, rally_point):
                     continue
                 if attacking_unit.type_id == ZERGLING:
                     if self.micro_zerglings(targets, attacking_unit):
@@ -83,7 +86,7 @@ class ArmyControl(Micro):
                 self.ai.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
             elif self.ai.time < 1000 and not self.ai.close_enemies_to_base:
-                self.idle_unit(attacking_unit)
+                self.idle_unit(attacking_unit, rally_point)
                 continue
             else:
                 if not self.retreat_units or self.ai.close_enemies_to_base or self.ai.time >= 1000:
@@ -98,14 +101,10 @@ class ArmyControl(Micro):
                     else:
                         self.attack_startlocation(attacking_unit)
                 elif self.ai.townhalls:
-                    self.move_to_rallying_point(attacking_unit)
+                    self.move_to_rallying_point(attacking_unit, rally_point)
 
-    def move_to_rallying_point(self, unit):
+    def move_to_rallying_point(self, unit, rally_point):
         """Set the point where the units should gather"""
-        rally_point = self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
-            self.ai._game_info.map_center, 10
-        )
-
         if unit.distance_to(rally_point) > 5:
             self.ai.actions.append(unit.move(rally_point))
 
@@ -114,7 +113,7 @@ class ArmyControl(Micro):
         if self.ai.townhalls.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
-    def retreat_unit(self, unit, combined_enemies):
+    def retreat_unit(self, unit, combined_enemies, rally_point):
         """Tell the unit to retreat when overwhelmed"""
         if (
             self.ai.townhalls
@@ -124,7 +123,7 @@ class ArmyControl(Micro):
             >= len(self.ai.zerglings.closer_than(20, unit.position))
             + len(self.ai.ultralisks.closer_than(20, unit.position)) * 6
         ):
-            self.move_to_rallying_point(unit)
+            self.move_to_rallying_point(unit, rally_point)
             self.retreat_units.add(unit.tag)
             return True
         return False
@@ -150,7 +149,7 @@ class ArmyControl(Micro):
         self.ai.actions.append(unit.attack(targets.closest_to(unit.position)))
         return True
 
-    def idle_unit(self, unit):
+    def idle_unit(self, unit, rally_point):
         """Control the idle units, by gathering then or telling then to attack"""
         if (
             len(self.ai.ultralisks.ready) < 4
@@ -159,7 +158,7 @@ class ArmyControl(Micro):
             and self.ai.townhalls
             and self.retreat_units
         ):
-            self.move_to_rallying_point(unit)
+            self.move_to_rallying_point(unit, rally_point)
             return True
         enemy_building = self.ai.known_enemy_structures
         if enemy_building and self.ai.townhalls:
