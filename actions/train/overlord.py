@@ -1,7 +1,10 @@
+"""Everything related to training overlords goes here"""
 from sc2.constants import OVERLORD
 
 
 class TrainOverlord:
+    """Can be improved for its ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -25,5 +28,6 @@ class TrainOverlord:
         return False
 
     async def handle(self, iteration):
+        """Execute the action of training overlords"""
         self.ai.actions.append(self.ai.larvae.random.train(OVERLORD))
         return True
