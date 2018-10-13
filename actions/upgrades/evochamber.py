@@ -1,3 +1,4 @@
+"""Upgrades made by evolution chambers"""
 from sc2.constants import (
     RESEARCH_ZERGGROUNDARMORLEVEL1,
     RESEARCH_ZERGGROUNDARMORLEVEL2,
@@ -9,6 +10,8 @@ from sc2.constants import (
 
 
 class UpgradeEvochamber:
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
         self.upgrade_list = [
@@ -21,9 +24,11 @@ class UpgradeEvochamber:
         ]
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return self.ai.evochambers.ready.idle
 
     async def handle(self, iteration):
+        """Execute the action of upgrading armor and melee attacks"""
         for evo in self.ai.evochambers.idle:
             upgrades = await self.ai.get_available_abilities(evo)
             for upgrade in upgrades:
