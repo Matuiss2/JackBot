@@ -1,8 +1,14 @@
+"""Everything related to controlling overseers goes here"""
+
+
 class Overseer:
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return self.ai.overseers and (self.ai.zerglings | self.ai.ultralisks or self.ai.townhalls)
 
     async def handle(self, iteration):
