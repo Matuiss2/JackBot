@@ -1,13 +1,15 @@
+"""Everything related to building logic for the spines goes here"""
 from sc2.constants import SPINECRAWLER
 
 
 class BuildSpines:
+    """New placement untested"""
     def __init__(self, ai):
         self.ai = ai
         self.lairs = None
 
     async def should_handle(self, iteration):
-
+        """Requirements to run handle"""
         if not self.ai.pools.ready:
             return False
 
@@ -18,6 +20,7 @@ class BuildSpines:
         )
 
     async def handle(self, iteration):
+        """Build the spines on the first base near the ramp in case there is a proxy"""
         await self.ai.build(
             SPINECRAWLER,
             near=self.ai.townhalls.furthest_to(self.ai._game_info.map_center).position.towards(

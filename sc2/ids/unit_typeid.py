@@ -3,6 +3,7 @@
 
 import enum
 
+
 class UnitTypeId(enum.Enum):
     NOTAUNIT = 0
     SYSTEM_SNAPSHOT_DUMMY = 1
@@ -1939,6 +1940,7 @@ class UnitTypeId(enum.Enum):
     VIKING = 1932
     RENEGADEMISSILETURRET = 1933
     PARASITICBOMBRELAYDUMMY = 1934
+
 
 for item in UnitTypeId:
     assert not item.name in globals()

@@ -1,13 +1,20 @@
+"""Everything related to controlling overlords goes here"""
+
+
 class Overlord:
+    """Can be expanded further to spread vision better on the map"""
+
     def __init__(self, ai):
         self.ai = ai
         self.first_ov_scout = False
         self.second_ov_scout = False
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return self.ai.overlords and self.ai.enemy_start_locations
 
     async def handle(self, iteration):
+        """Send the ovs to the center and near the natural"""
         # enemy_main = self.ai.enemy_start_locations[0]  # point2
         # enemy_natural = min(
         #    self.ai.ordered_expansions,

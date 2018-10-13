@@ -1,7 +1,10 @@
+"""Everything related to training drones goes here"""
 from sc2.constants import DRONE, OVERLORD
 
 
 class TrainWorker:
+    """Ok for the beginning, still needs to find optimal amount for later stages"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -23,5 +26,6 @@ class TrainWorker:
         return False
 
     async def handle(self, iteration):
+        """Execute the action of training drones"""
         self.ai.actions.append(self.ai.larvae.random.train(DRONE))
         return True

@@ -1,7 +1,10 @@
+"""Everything related to training ultralisks goes here"""
 from sc2.constants import ULTRALISK, ZERGGROUNDARMORSLEVEL3
 
 
 class TrainUltralisk:
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -20,5 +23,6 @@ class TrainUltralisk:
         return True
 
     async def handle(self, iteration):
+        """Execute the action of training ultralisks"""
         self.ai.actions.append(self.ai.larvae.random.train(ULTRALISK))
         return True

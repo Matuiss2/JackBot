@@ -1,7 +1,10 @@
+"""Everything related to training queens goes here"""
 from sc2.constants import LAIR, QUEEN
 
 
 class TrainQueen:
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
         self.hatchery = None
@@ -23,5 +26,6 @@ class TrainQueen:
         )
 
     async def handle(self, iteration):
+        """Execute the action of training queens"""
         self.ai.actions.append(self.hatcheries_random.train(QUEEN))
         return True

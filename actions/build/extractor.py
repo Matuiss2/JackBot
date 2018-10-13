@@ -1,7 +1,10 @@
+"""Everything related to building logic for the extractors goes here"""
 from sc2.constants import EXTRACTOR
 
 
 class BuildExtractor:
+    """Can be improved, the ratio mineral-vespene still sightly off"""
+
     def __init__(self, ai):
         self.ai = ai
         self.drone = None
@@ -10,9 +13,9 @@ class BuildExtractor:
     async def should_handle(self, iteration):
         """Couldnt find another way to build the geysers its way to inefficient,
          also the logic can be improved, sometimes it over collect vespene sometime it under collect"""
-        if self.ai.vespene > self.ai.minerals * 1.75:
-            return False
-        if not (self.ai.townhalls.ready and self.ai.can_afford(EXTRACTOR)):
+        if (self.ai.vespene > self.ai.minerals * 1.75) or (
+            not (self.ai.townhalls.ready and self.ai.can_afford(EXTRACTOR))
+        ):
             return False
 
         gas = self.ai.extractors
@@ -36,5 +39,6 @@ class BuildExtractor:
         return False
 
     async def handle(self, iteration):
+        """Just finish the action of building the extractor"""
         self.ai.actions.append(self.drone.build(EXTRACTOR, self.geyser))
         return True
