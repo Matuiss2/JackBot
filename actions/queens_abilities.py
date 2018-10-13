@@ -1,7 +1,10 @@
+"""Everything related to queen abilities and distribution goes here"""
 from sc2.constants import EFFECT_INJECTLARVA, QUEENSPAWNLARVATIMER
 
 
 class QueensAbilities:
+    """Can be improved(Defense not utility)"""
+
     def __init__(self, ai):
         self.ai = ai
         self.queens = None
@@ -23,6 +26,7 @@ class QueensAbilities:
         return True
 
     async def handle(self, iteration):
+        """Assign a queen to each base to make constant injections and the extras for creep spread"""
         for queen in self.queens.idle:
             if self.enemies.closer_than(8, queen.position):
                 self.ai.actions.append(queen.attack(self.enemies.closest_to(queen.position)))

@@ -1,9 +1,15 @@
+"""Everything related to scouting with drones goes here"""
+
+
 class Drone:
+    """Ok for now, maybe can be replaced later for zerglings"""
+
     def __init__(self, ai):
         self.ai = ai
         self.scout_tag = None
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return self.ai.drones and iteration % 1000 == 300
 
     async def handle(self, iteration):

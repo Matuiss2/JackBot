@@ -58,7 +58,7 @@ from actions.train.worker import TrainWorker
 from actions.train.zergling import TrainZergling
 from actions.unit.creep_tumor import CreepTumor
 from actions.unit.drone import Drone
-from actions.unit.hatchery import Hatchery
+from actions.unit.buildings import Buildings
 from actions.unit.overlord import Overlord
 from actions.unit.overseer import Overseer
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
@@ -68,12 +68,12 @@ from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
-from actions.building_positioning import building_positioning
+from actions.building_positioning import BuildingPositioning
 from creep_spread import CreepControl
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
+class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
 
     def __init__(self, debug=False):
@@ -90,7 +90,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
             Drone(self),
             Overseer(self),
             Overlord(self),
-            Hatchery(self),
+            Buildings(self),
         ]
 
         self.train_commands = [
@@ -158,6 +158,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
         self.ground_enemies = None
 
     def get_units(self):
+        """Make all repeated units global"""
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
@@ -183,6 +184,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
 
     def set_game_step(self):
+        """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
         if self.ground_enemies:
             if len(self.ground_enemies) > 5:
                 self._client.game_step = 2
@@ -192,6 +194,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
             self._client.game_step = 8
 
     async def on_unit_created(self, unit):
+        """Prepares all the building locations near a new expansion"""
         if unit.type_id is HATCHERY:
             await self.prepare_building_positions(unit)
 
@@ -240,6 +243,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
             await self.do_actions(self.actions)
 
     async def run_commands(self, commands, iteration):
+        """Group all requirements and execution for a class logic"""
         for command in commands:
             if await command.should_handle(iteration):
                 if self.debug:
@@ -247,11 +251,13 @@ class EarlyAggro(sc2.BotAI, CreepControl, building_positioning):
                 await command.handle(iteration)
 
     def can_train(self, unit_type, larva=True):
+        """Global requirements for creating an unit"""
         return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type)
 
     def prepare_expansions(self):
+        """Prepare all expansion locations and put it in order based on distance"""
         start = self.start_location
-        expansions = self.expansion_locations
+        expansions = list(self.expansion_locations)
         waypoints = [point for point in expansions]
         waypoints.sort(key=lambda p: (p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2)
         self.ordered_expansions = [Point2((p[0], p[1])) for p in waypoints]

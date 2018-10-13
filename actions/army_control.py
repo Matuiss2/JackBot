@@ -1,3 +1,4 @@
+"""Everything related to controlling army units goes here"""
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -22,11 +23,14 @@ from .micro import Micro
 
 
 class ArmyControl(Micro):
+    """Can be improved"""
+
     def __init__(self, ai):
         self.ai = ai
         self.retreat_units = set()
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
 
     async def handle(self, iteration):

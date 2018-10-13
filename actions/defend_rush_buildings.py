@@ -1,12 +1,16 @@
+"""Everything related to handling very close proxies with drones goes here"""
 from sc2.constants import BUNKER, DRONE, PHOTONCANNON, PLANETARYFORTRESS, PROBE, SCV, SPINECRAWLER
 
 
 class DefendRushBuildings:
+    """Untested"""
+
     def __init__(self, ai):
         self.ai = ai
         self.rush_buildings = None
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         self.rush_buildings = self.ai.known_enemy_structures.not_flying.filter(
             lambda building: any(
                 [
@@ -18,7 +22,7 @@ class DefendRushBuildings:
         return self.rush_buildings and self.ai.bases
 
     def is_being_attacked(self, unit):
-        # only for enemy units, returns how often they are attacked
+        """Only for enemy units, returns how often they are attacked"""
         attackers = 0
         near_units = self.ai.units.filter(lambda x: x.is_attacking)
         for attacker in near_units:
@@ -27,6 +31,7 @@ class DefendRushBuildings:
         return attackers
 
     async def handle(self, iteration):
+        """Send workers aggressively to handle the near proxy / cannon rush"""
         # self.rush_buildings = self.ai.known_enemy_structures.closer_than(20, self.bases.first)
         enemy_worker = self.ai.known_enemy_units.of_type([PROBE, DRONE, SCV]).filter(
             lambda unit: any([unit.distance_to(our_building) <= 30 for our_building in self.ai.units.structure])

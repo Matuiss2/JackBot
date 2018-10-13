@@ -1,12 +1,16 @@
+"""Everything related to cancelling buildings goes here"""
 from sc2.constants import CANCEL
 
 
-class Hatchery:
+class Buildings:
+    """Ok for now, can be improved, it fails sometimes but is VERY rare"""
+
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
-        return (self.ai.close_enemy_production and self.ai.time < 300) or self.ai.units.structure.not_ready
+        """Requirements to run handle"""
+        return self.ai.time < 300 if self.ai.close_enemy_production else self.ai.units.structure.not_ready
 
     async def handle(self, iteration):
         """Make the cancelling general"""
