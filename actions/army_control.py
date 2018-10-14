@@ -97,9 +97,7 @@ class ArmyControl(Micro):
             else:
                 if not self.retreat_units or self.ai.close_enemies_to_base or self.ai.time >= 1000:
                     if enemy_building:
-                        self.ai.adding(
-                            attacking_unit.attack(enemy_building.closest_to(attacking_unit.position))
-                        )
+                        self.ai.adding(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                         continue
                     elif targets:
                         self.ai.adding(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
