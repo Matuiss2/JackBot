@@ -16,5 +16,5 @@ class TrainMutalisk:
 
     async def handle(self, iteration):
         """Execute the action of training mutas"""
-        self.ai.adding(self.ai.larvae.random.train(MUTALISK))
+        self.ai.add_action(self.ai.larvae.random.train(MUTALISK))
         return True

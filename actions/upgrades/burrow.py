@@ -20,5 +20,5 @@ class UpgradeBurrow:
     async def handle(self, iteration):
         """Execute the action of upgrading burrow"""
         chosen_base = self.ai.hatcheries.idle.closest_to(self.ai._game_info.map_center)
-        self.ai.adding(chosen_base(RESEARCH_BURROW))
+        self.ai.add_action(chosen_base(RESEARCH_BURROW))
         return True

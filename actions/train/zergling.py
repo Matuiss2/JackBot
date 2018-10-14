@@ -34,5 +34,5 @@ class TrainZergling:
 
     async def handle(self, iteration):
         """Execute the action of training zerglings"""
-        self.ai.adding(self.ai.larvae.random.train(ZERGLING))
+        self.ai.add_action(self.ai.larvae.random.train(ZERGLING))
         return True

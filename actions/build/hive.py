@@ -19,7 +19,7 @@ class BuildHive:
 
     async def handle(self, iteration):
         """Finishes the action of making the hive"""
-        self.ai.adding(self.lairs.ready.first(UPGRADETOHIVE_HIVE))
+        self.ai.add_action(self.lairs.ready.first(UPGRADETOHIVE_HIVE))
         return True
 
     async def morphing_lairs(self):

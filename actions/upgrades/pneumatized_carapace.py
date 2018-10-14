@@ -20,5 +20,5 @@ class UpgradePneumatizedCarapace:
     async def handle(self, iteration):
         """Execute the action of upgrading overlord speed"""
         chosen_base = self.ai.hatcheries.closest_to(self.ai._game_info.map_center)
-        self.ai.adding(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
+        self.ai.add_action(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
         return True

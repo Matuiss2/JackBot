@@ -40,7 +40,7 @@ class CreepControl:
         positions = [
             Point2(
                 (
-                    location.x + spread_distance * math.cos(math.pi * alpha * 2 / location_attempts),
+                    location.x + spread_distance * math.cos(math.pi * alpha + 2 / location_attempts),
                     location.y + spread_distance * math.sin(math.pi * alpha * 2 / location_attempts),
                 )
             )
@@ -68,13 +68,13 @@ class CreepControl:
                 # 8.5 it doesnt get in the way of the injection
                 if all(c_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
                     if not tumors:
-                        self.adding(unit(unit_ability, c_location))
+                        self.add_action(unit(unit_ability, c_location))
                         break
                     if unit_ability == BUILD_CREEPTUMOR_QUEEN:
-                        self.adding(unit(unit_ability, c_location))
+                        self.add_action(unit(unit_ability, c_location))
                         break
                     if c_location.distance_to_closest(tumors) >= 4:
-                        self.adding(unit(unit_ability, c_location))
+                        self.add_action(unit(unit_ability, c_location))
                         break
 
             if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor

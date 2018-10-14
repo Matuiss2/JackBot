@@ -29,5 +29,5 @@ class TrainOverlord:
 
     async def handle(self, iteration):
         """Execute the action of training overlords"""
-        self.ai.adding(self.ai.larvae.random.train(OVERLORD))
+        self.ai.add_action(self.ai.larvae.random.train(OVERLORD))
         return True

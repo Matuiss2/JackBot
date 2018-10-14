@@ -18,5 +18,5 @@ class UpgradeChitinousPlating:
 
     async def handle(self, iteration):
         """Execute the action of upgrading ultra armor"""
-        self.ai.adding(self.ai.caverns.idle.first(RESEARCH_CHITINOUSPLATING))
+        self.ai.add_action(self.ai.caverns.idle.first(RESEARCH_CHITINOUSPLATING))
         return True
