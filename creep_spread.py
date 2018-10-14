@@ -55,17 +55,18 @@ class CreepControl:
             if tumors:
                 valid_placements = sorted(
                     valid_placements,
-                    key=lambda pos: pos.distance_to_closest(tumors) - pos.distance_to(self.enemy_start_locations[0]),
+                    key=lambda pos: pos.distance_to_closest(tumors)
+                    - pos.distance_to_point2(self.enemy_start_locations[0]),
                     reverse=True,
                 )
             else:
                 valid_placements = sorted(
-                    valid_placements, key=lambda pos: pos.distance_to(self.enemy_start_locations[0])
+                    valid_placements, key=lambda pos: pos.distance_to_point2(self.enemy_start_locations[0])
                 )
             # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
             for c_location in valid_placements:
                 # 8.5 it doesnt get in the way of the injection
-                if all(c_location.distance_to(el) > 8.5 for el in self.expansion_locations):
+                if all(c_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
                     if not tumors:
                         self.actions.append(unit(unit_ability, c_location))
                         break
