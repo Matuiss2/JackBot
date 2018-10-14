@@ -12,7 +12,7 @@ class BuildingPositioning:
             Point2((x + start.position.x, y + start.position.y))
             for x in range(-12, 13)
             for y in range(-12, 13)
-            if 144 >= x ** 2 + y ** 2 >= 64
+            if 144 >= x * x + y * y >= 64
         ]
         resources = self.state.mineral_field.closer_than(10, start)
         behind_resources = [point for point in all_points if 2 < point.distance_to(resources.closest_to(point)) < 4]
