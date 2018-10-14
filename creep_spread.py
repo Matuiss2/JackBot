@@ -40,7 +40,7 @@ class CreepControl:
         positions = [
             Point2(
                 (
-                    location.x + spread_distance * math.cos(math.pi * alpha + 2 / location_attempts),
+                    location.x + spread_distance * math.cos(math.pi * alpha * 2 / location_attempts),
                     location.y + spread_distance * math.sin(math.pi * alpha * 2 / location_attempts),
                 )
             )
