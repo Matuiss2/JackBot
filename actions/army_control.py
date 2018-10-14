@@ -112,7 +112,7 @@ class ArmyControl(Micro):
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
-        if unit.distance_to(self.rally_point) > 5:
+        if unit.position.distance_to_point2(self.rally_point) > 5:
             self.ai.actions.append(unit.move(self.rally_point))
 
     def has_retreated(self, unit):

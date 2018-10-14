@@ -34,7 +34,9 @@ class DefendRushBuildings:
         """Send workers aggressively to handle the near proxy / cannon rush"""
         # self.rush_buildings = self.ai.known_enemy_structures.closer_than(20, self.bases.first)
         enemy_worker = self.ai.known_enemy_units.of_type([PROBE, DRONE, SCV]).filter(
-            lambda unit: any([unit.distance_to(our_building) <= 30 for our_building in self.ai.units.structure])
+            lambda unit: any(
+                [unit.distance_to(our_building) <= 30 for our_building in self.ai.units.structure]
+            )
         )
         for target in enemy_worker:
             available = self.ai.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
