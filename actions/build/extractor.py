@@ -40,5 +40,5 @@ class BuildExtractor:
 
     async def handle(self, iteration):
         """Just finish the action of building the extractor"""
-        self.ai.actions.append(self.drone.build(EXTRACTOR, self.geyser))
+        self.ai.adding(self.drone.build(EXTRACTOR, self.geyser))
         return True
