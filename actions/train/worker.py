@@ -27,5 +27,5 @@ class TrainWorker:
 
     async def handle(self, iteration):
         """Execute the action of training drones"""
-        self.ai.actions.append(self.ai.larvae.random.train(DRONE))
+        self.ai.adding(self.ai.larvae.random.train(DRONE))
         return True

@@ -24,5 +24,5 @@ class TrainUltralisk:
 
     async def handle(self, iteration):
         """Execute the action of training ultralisks"""
-        self.ai.actions.append(self.ai.larvae.random.train(ULTRALISK))
+        self.ai.adding(self.ai.larvae.random.train(ULTRALISK))
         return True
