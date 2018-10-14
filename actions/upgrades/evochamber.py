@@ -33,6 +33,6 @@ class UpgradeEvochamber:
             upgrades = await self.ai.get_available_abilities(evo)
             for upgrade in upgrades:
                 if upgrade in self.upgrade_list and self.ai.can_afford(upgrade):
-                    self.ai.actions.append(evo(upgrade))
+                    self.ai.add_action(evo(upgrade))
                     return True
         return True

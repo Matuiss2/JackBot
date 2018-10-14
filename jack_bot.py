@@ -78,8 +78,9 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
 
     def __init__(self, debug=False):
         CreepControl.__init__(self)
-
         self.debug = debug
+        self.actions = []
+        self.add_action = None
         self.unit_commands = [
             DefendWorkerRush(self),
             DefendRushBuildings(self),
@@ -125,8 +126,6 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
             UpgradePneumatizedCarapace(self),
             # UpgradeBurrow(self),
         ]
-
-        self.actions = []
         self.locations = []
         self.ordered_expansions = []
         self.building_positions = []
@@ -204,9 +203,8 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
         self.set_game_step()
         self.close_enemies_to_base = False
         self.close_enemy_production = False
-
         self.actions = []
-
+        self.add_action = self.actions.append
         if iteration == 0:
             # self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
@@ -266,4 +264,4 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
         """Split the workers on the beginning """
         for drone in self.drones:
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
-            self.actions.append(drone.gather(closest_mineral_patch))
+            self.add_action(drone.gather(closest_mineral_patch))

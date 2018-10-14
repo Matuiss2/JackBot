@@ -24,7 +24,7 @@ class BuildLair:
 
     async def handle(self, iteration):
         """Finishes the action of making the lair choosing the safest base"""
-        self.ai.actions.append(self.hatcheries.ready.furthest_to(self.ai._game_info.map_center)(UPGRADETOLAIR_LAIR))
+        self.ai.add_action(self.hatcheries.ready.furthest_to(self.ai._game_info.map_center)(UPGRADETOLAIR_LAIR))
         return True
 
     async def morphing_hatcheries(self):

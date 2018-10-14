@@ -20,4 +20,4 @@ class Buildings:
                 or building.health_percentage < 0.1
                 and building.build_progress > 0.15
             ):
-                self.ai.actions.append((building(CANCEL)))
+                self.ai.add_action((building(CANCEL)))

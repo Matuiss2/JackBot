@@ -17,6 +17,6 @@ class Overseer:
 
         selected_ov = self.ai.overseers.first
         if atk_force:
-            self.ai.actions.append(selected_ov.move(atk_force.closest_to(selected_ov.position)))
+            self.ai.add_action(selected_ov.move(atk_force.closest_to(selected_ov.position)))
         elif self.ai.townhalls:
-            self.ai.actions.append(selected_ov.move(self.ai.townhalls.closest_to(selected_ov.position)))
+            self.ai.add_action(selected_ov.move(self.ai.townhalls.closest_to(selected_ov.position)))

@@ -9,7 +9,7 @@ class BuildPit:
 
     async def should_handle(self, iteration):
         """Builds the infestation pit, placement can maybe be improved(far from priority)"""
-        if self.ai.pits:
+        if self.ai.pits or len(self.ai.townhalls) < 4:
             return False
 
         if self.ai.already_pending(INFESTATIONPIT):

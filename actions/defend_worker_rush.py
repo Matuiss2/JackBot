@@ -59,7 +59,7 @@ class DefendWorkerRush(Micro):
         if drone.health <= 6:
             if not drone.is_collecting:
                 mineral_field = self.ai.state.mineral_field.closest_to(base.first.position)
-                self.ai.actions.append(drone.gather(mineral_field))
+                self.ai.add_action(drone.gather(mineral_field))
             else:
                 self.defender_tags.remove(drone.tag)
             return True
@@ -67,7 +67,7 @@ class DefendWorkerRush(Micro):
 
     def build_defense_force(self, enemy_count):
         """Finds the right amount for the defense force(max twice of the attacker number ideally)"""
-        self.defender_tags = self.defense_force(2 * enemy_count)
+        self.defender_tags = self.defense_force(enemy_count + enemy_count)
 
     def refill_defense_force(self, enemy_count):
         """If there is less workers on the defenders force than the ideal refill it"""
@@ -82,7 +82,7 @@ class DefendWorkerRush(Micro):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
         if self.defenders:
             for drone in self.defenders:
-                self.ai.actions.append(drone.gather(self.ai.state.mineral_field.closest_to(base.first)))
+                self.ai.add_action(drone.gather(self.ai.state.mineral_field.closest_to(base.first)))
                 continue
         self.defender_tags = []
         self.defenders = None
@@ -98,4 +98,4 @@ class DefendWorkerRush(Micro):
 
     def calculate_defender_deficit(self, enemy_count):
         """Calculates the deficit on the defense force"""
-        return min(len(self.ai.drones) - 1, 2 * enemy_count) - len(self.defenders)
+        return min(len(self.ai.drones) - 1, enemy_count + enemy_count) - len(self.defenders)

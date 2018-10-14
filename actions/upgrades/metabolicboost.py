@@ -20,5 +20,5 @@ class UpgradeMetabolicBoost:
     async def handle(self, iteration):
         """Execute the action of upgrading zergling speed"""
         pool = self.ai.pools.ready
-        self.ai.actions.append(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
+        self.ai.add_action(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
         return True

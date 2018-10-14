@@ -13,7 +13,7 @@ class BuildExtractor:
     async def should_handle(self, iteration):
         """Couldnt find another way to build the geysers its way to inefficient,
          also the logic can be improved, sometimes it over collect vespene sometime it under collect"""
-        if (self.ai.vespene > self.ai.minerals * 1.75) or (
+        if (self.ai.vespene > self.ai.minerals) or (
             not (self.ai.townhalls.ready and self.ai.can_afford(EXTRACTOR))
         ):
             return False
@@ -33,12 +33,12 @@ class BuildExtractor:
                 self.geyser = geyser
                 return True
             pit = self.ai.pits
-            if pit and gas_amount < 7 and not self.ai.already_pending(EXTRACTOR):
+            if pit and gas_amount < 8 and self.ai.already_pending(EXTRACTOR) < 2:
                 self.geyser = geyser
                 return True
         return False
 
     async def handle(self, iteration):
         """Just finish the action of building the extractor"""
-        self.ai.actions.append(self.drone.build(EXTRACTOR, self.geyser))
+        self.ai.add_action(self.drone.build(EXTRACTOR, self.geyser))
         return True
