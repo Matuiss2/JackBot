@@ -29,11 +29,11 @@ class QueensAbilities:
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
         for queen in self.queens.idle:
             if self.enemies.closer_than(8, queen.position):
-                self.ai.actions.append(queen.attack(self.enemies.closest_to(queen.position)))
+                self.ai.adding(queen.attack(self.enemies.closest_to(queen.position)))
                 continue
             selected = self.hatchery.closest_to(queen.position)
             if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                self.ai.actions.append(queen(EFFECT_INJECTLARVA, selected))
+                self.ai.adding(queen(EFFECT_INJECTLARVA, selected))
                 continue
             elif queen.energy >= 25:
                 await self.ai.place_tumor(queen)
@@ -42,7 +42,7 @@ class QueensAbilities:
             if not self.queens.closer_than(4, hatch):
                 for queen in self.queens.idle:
                     if not self.ai.townhalls.closer_than(4, queen):
-                        self.ai.actions.append(queen.move(hatch.position))
+                        self.ai.adding(queen.move(hatch.position))
                         break
 
         return True

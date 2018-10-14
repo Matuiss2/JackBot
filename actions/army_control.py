@@ -42,7 +42,6 @@ class ArmyControl(Micro):
         targets = None
         combined_enemies = None
         enemy_building = self.ai.known_enemy_structures
-
         if self.ai.hives and not self.zergling_atk_speed:
             self.zergling_atk_speed = self.ai.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
 
@@ -68,7 +67,7 @@ class ArmyControl(Micro):
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
             if attacking_unit.type_id == MUTALISK and enemy_building.flying:
-                self.ai.actions.append(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
+                self.ai.adding(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
                 continue
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
                 self.has_retreated(attacking_unit)
@@ -87,10 +86,10 @@ class ArmyControl(Micro):
                     if self.micro_zerglings(targets, attacking_unit):
                         continue
                 else:
-                    self.ai.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                    self.ai.adding(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                     continue
             elif enemy_building.closer_than(30, attacking_unit.position):
-                self.ai.actions.append(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
+                self.ai.adding(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
             elif self.ai.time < 1000 and not self.ai.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
@@ -98,12 +97,12 @@ class ArmyControl(Micro):
             else:
                 if not self.retreat_units or self.ai.close_enemies_to_base or self.ai.time >= 1000:
                     if enemy_building:
-                        self.ai.actions.append(
+                        self.ai.adding(
                             attacking_unit.attack(enemy_building.closest_to(attacking_unit.position))
                         )
                         continue
                     elif targets:
-                        self.ai.actions.append(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                        self.ai.adding(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                         continue
                     else:
                         self.attack_startlocation(attacking_unit)
@@ -113,7 +112,7 @@ class ArmyControl(Micro):
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
         if unit.position.distance_to_point2(self.rally_point) > 5:
-            self.ai.actions.append(unit.move(self.rally_point))
+            self.ai.adding(unit.move(self.rally_point))
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated"""
@@ -151,7 +150,7 @@ class ArmyControl(Micro):
             if self.move_to_next_target(unit, targets):
                 return True
 
-        self.ai.actions.append(unit.attack(targets.closest_to(unit.position)))
+        self.ai.adding(unit.attack(targets.closest_to(unit.position)))
         return True
 
     def idle_unit(self, unit):
@@ -176,11 +175,11 @@ class ArmyControl(Micro):
         """Attack the starting location"""
         enemy_building = self.ai.known_enemy_structures.not_flying
         if enemy_building:
-            self.ai.actions.append(
+            self.ai.adding(
                 unit.attack(enemy_building.closest_to(self.ai.townhalls.furthest_to(self.ai.game_info.map_center)))
             )
 
     def attack_startlocation(self, unit):
         """It tell to attack the starting location"""
         if self.ai.enemy_start_locations:
-            self.ai.actions.append(unit.attack(self.ai.enemy_start_locations[0]))
+            self.ai.adding(unit.attack(self.ai.enemy_start_locations[0]))

@@ -12,7 +12,7 @@ class Micro:
             return True
         target = enemies.closest_to(unit)
         if target:
-            self.ai.actions.append(unit.attack(target))
+            self.ai.adding(unit.attack(target))
             return True
         return None
 
@@ -27,12 +27,12 @@ class Micro:
     def move_lowhp(self, unit, enemies):
         """Move to enemy with lowest HP"""
         target = self.closest_lowest_hp(unit, enemies)
-        self.ai.actions.append(unit.move(target))
+        self.ai.adding(unit.move(target))
 
     def attack_lowhp(self, unit, enemies):
         """Attack enemy with lowest HP"""
         target = self.closest_lowest_hp(unit, enemies)
-        self.ai.actions.append(unit.attack(target))
+        self.ai.adding(unit.attack(target))
 
     def closest_lowest_hp(self, unit, enemies):
         """Find the closest of the lowest hp enemies"""

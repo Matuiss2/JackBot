@@ -41,7 +41,7 @@ class DistributeWorkers:
         for drone in self.ai.drones.idle:
             if self.mineral_fields:
                 mf = self.mineral_fields.closest_to(drone)
-                self.ai.actions.append(drone.gather(mf))
+                self.ai.adding(drone.gather(mf))
 
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""
@@ -105,7 +105,7 @@ class DistributeWorkers:
 
     def distribute_to_extractor(self, deficit_extractors, worker):
         """Check vespene actual saturation and when the requirement are filled saturate the geyser"""
-        self.ai.actions.append(worker.gather(deficit_extractors[0][0]))
+        self.ai.adding(worker.gather(deficit_extractors[0][0]))
         deficit_extractors[0][1] += 1
         if deficit_extractors[0][1] == 0:
             del deficit_extractors[0]
@@ -115,7 +115,7 @@ class DistributeWorkers:
         drone_target = mineral_fields_deficit[0]
         if len(mineral_fields_deficit) >= 2:
             del mineral_fields_deficit[0]
-        self.ai.actions.append(worker.gather(drone_target))
+        self.ai.adding(worker.gather(drone_target))
         deficit_bases[0][1] += 1
         if deficit_bases[0][1] == 0:
             del deficit_bases[0]
@@ -127,7 +127,7 @@ class DistributeWorkers:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
                 if 0 < required_drones < self.ai.drones.amount:
                     for drone in self.ai.drones.random_group_of(required_drones):
-                        self.ai.actions.append(drone.gather(extractor))
+                        self.ai.adding(drone.gather(extractor))
 
     @property
     def require_gas(self):

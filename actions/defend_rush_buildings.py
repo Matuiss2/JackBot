@@ -40,7 +40,7 @@ class DefendRushBuildings:
             available = self.ai.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
             if not self.is_being_attacked(target) and available:
                 attacker = available.closest_to(target)
-                self.ai.actions.append(attacker.attack(target))
+                self.ai.adding(attacker.attack(target))
         attacking_buildings = self.rush_buildings.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:
@@ -51,7 +51,7 @@ class DefendRushBuildings:
                 )  # filter x with not target order in attacking buildings
                 if attackers_needed > self.is_being_attacked(target) and available:
                     attacker = available.closest_to(target)
-                    self.ai.actions.append(attacker.attack(target))
+                    self.ai.adding(attacker.attack(target))
 
         if not_attacking_buildings:
             for target in not_attacking_buildings:
@@ -59,4 +59,4 @@ class DefendRushBuildings:
                 available = self.ai.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
                 if attackers_needed > self.is_being_attacked(target) and available:
                     attacker = available.closest_to(target)
-                    self.ai.actions.append(attacker.attack(target))
+                    self.ai.adding(attacker.attack(target))
