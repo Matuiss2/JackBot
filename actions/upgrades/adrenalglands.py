@@ -22,5 +22,5 @@ class UpgradeAdrenalGlands:
     async def handle(self, iteration):
         """Execute the action of upgrading zergling atk speed"""
         pool = self.ai.pools.ready
-        self.ai.actions.append(pool.first(RESEARCH_ZERGLINGADRENALGLANDS))
+        self.ai.adding(pool.first(RESEARCH_ZERGLINGADRENALGLANDS))
         return True
