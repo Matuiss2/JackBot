@@ -19,4 +19,4 @@ class Drone:
         scout = self.ai.drones.closest_to(start)
         waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
         for point in waypoints:
-            self.ai.actions.append(scout.move(point, queue=True))
+            self.ai.adding(scout.move(point, queue=True))
