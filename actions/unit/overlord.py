@@ -1,13 +1,20 @@
+"""Everything related to controlling overlords goes here"""
+
+
 class Overlord:
+    """Can be expanded further to spread vision better on the map"""
+
     def __init__(self, ai):
         self.ai = ai
         self.first_ov_scout = False
         self.second_ov_scout = False
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return self.ai.overlords and self.ai.enemy_start_locations
 
     async def handle(self, iteration):
+        """Send the ovs to the center and near the natural"""
         # enemy_main = self.ai.enemy_start_locations[0]  # point2
         # enemy_natural = min(
         #    self.ai.ordered_expansions,
@@ -17,12 +24,11 @@ class Overlord:
         # )
         if not self.first_ov_scout:
             self.first_ov_scout = True
-            waypoints = [point for point in self.ai.expansion_locations]
-            start = self.ai.start_location
-            natural = sorted(waypoints, key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))[1]
-            self.ai.actions.append(self.ai.overlords.first.move(natural.towards(self.ai._game_info.map_center, 10)))
+            self.ai.add_action(
+                self.ai.overlords.first.move(self.ai.ordered_expansions[1].towards(self.ai._game_info.map_center, 10))
+            )
         elif not self.second_ov_scout and len(self.ai.overlords.ready) == 2:
             second_ov = self.ai.overlords.ready.closest_to(self.ai.townhalls.first)
             self.second_ov_scout = True
-            self.ai.actions.append(second_ov.move(self.ai._game_info.map_center))
-        # self.ai.actions.append(self.ai.overlords.first.move(enemy_natural.towards(enemy_main, -11)))
+            self.ai.add_action(second_ov.move(self.ai._game_info.map_center))
+        # self.ai.add_action(self.ai.overlords.first.move(enemy_natural.towards(enemy_main, -11)))
