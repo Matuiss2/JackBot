@@ -65,7 +65,7 @@ class ArmyControl(Micro):
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
         atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
-        if self.ai.floating_buildings_bm and self.ai.supply_used == 200:
+        if self.ai.floating_buildings_bm and self.ai.supply_used >= 199:
             atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks | self.ai.queens
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
