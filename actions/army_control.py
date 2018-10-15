@@ -61,7 +61,9 @@ class ArmyControl(Micro):
                 AUTOTURRET,
             }
             filtered_enemies = self.ai.known_enemy_units.not_structure.exclude_type(excluded_units)
-            static_defence = self.ai.known_enemy_units.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
+            static_defence = self.ai.known_enemy_structures.of_type(
+                {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS}
+            )
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
         atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
@@ -75,22 +77,20 @@ class ArmyControl(Micro):
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
                 self.has_retreated(attacking_unit)
                 continue
-            if (
-                targets
-                and targets.closer_than(17, attacking_unit.position)
-                and await self.ai._client.query_pathing(
-                    attacking_unit.position, targets.closest_to(attacking_unit.position).position
-                )
-            ):
-
+            if targets and targets.closer_than(17, attacking_unit.position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if attacking_unit.type_id == ZERGLING:
-                    if self.micro_zerglings(targets, attacking_unit):
+                if await self.ai._client.query_pathing(
+                    attacking_unit.position, targets.closest_to(attacking_unit.position).position
+                ):
+                    if attacking_unit.type_id == ZERGLING:
+                        if self.micro_zerglings(targets, attacking_unit):
+                            continue
+                    else:
+                        self.ai.add_action(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
                         continue
                 else:
-                    self.ai.add_action(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
-                    continue
+                    self.ai.add_action(attacking_unit.attack(targets.closest_to(attacking_unit.position).position))
             elif enemy_building.closer_than(30, attacking_unit.position):
                 self.ai.add_action(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
                 continue
