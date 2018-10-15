@@ -29,7 +29,7 @@ class BuildExtractor:
                 if not gas and self.ai.pools:
                     self.geyser = geyser
                     return True
-            if self.ai.time > 960 and gas_amount < 10:
+            if (self.ai.time > 900 or self.ai.spires) and gas_amount < 11:
                 self.geyser = geyser
                 return True
             pit = self.ai.pits
