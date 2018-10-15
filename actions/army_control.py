@@ -200,5 +200,5 @@ class ArmyControl(Micro):
                     self.ai.add_action(zergling.move(location))
                     self.ai.add_action(zergling(BURROWDOWN_ZERGLING, queue=True))
                 else:
-                    self.ai.burrowed_linge.remove(zergling)
+                    self.ai.burrowed_lings.remove(zergling)
 
