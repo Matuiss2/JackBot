@@ -3,9 +3,12 @@ from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
     BUNKER,
+    BURROW,
+    BURROWDOWN_ZERGLING,
     DISRUPTORPHASED,
     DRONE,
     EGG,
+    HATCHERY,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
@@ -18,6 +21,7 @@ from sc2.constants import (
     SPINECRAWLER,
     ZERGLING,
     ZERGLINGATTACKSPEED,
+    ZERGLINGBURROWED,
 )
 
 from .micro import Micro
@@ -184,3 +188,4 @@ class ArmyControl(Micro):
         """It tell to attack the starting location"""
         if self.ai.enemy_start_locations:
             self.ai.add_action(unit.attack(self.ai.enemy_start_locations[0]))
+

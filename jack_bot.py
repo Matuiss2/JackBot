@@ -63,17 +63,18 @@ from actions.unit.overlord import Overlord
 from actions.unit.overseer import Overseer
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 
-# from actions.upgrades.burrow import UpgradeBurrow
+from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
 from actions.building_positioning import BuildingPositioning
+from actions.block_expansions import BlockExpansions
 from creep_spread import CreepControl
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
+class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
 
     def __init__(self, debug=False):
@@ -82,6 +83,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
         self.actions = []
         self.add_action = None
         self.unit_commands = [
+            BlockExpansions(self),
             DefendWorkerRush(self),
             DefendRushBuildings(self),
             DistributeWorkers(self),
@@ -124,7 +126,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
             UpgradeAdrenalGlands(self),
             UpgradeEvochamber(self),
             UpgradePneumatizedCarapace(self),
-            # UpgradeBurrow(self),
+            UpgradeBurrow(self),
         ]
         self.locations = []
         self.ordered_expansions = []
@@ -140,6 +142,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
         self.drones = None
         self.queens = None
         self.zerglings = None
+        self.burrowed_lings = []
         self.ultralisks = None
         self.overseers = None
         self.evochambers = None
@@ -165,7 +168,9 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
         self.overlords = self.units(OVERLORD)
         self.drones = self.units(DRONE)
         self.queens = self.units(QUEEN)
-        self.zerglings = self.units(ZERGLING)
+        self.zerglings = (
+            self.units(ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(ZERGLING)
+        )
         self.ultralisks = self.units(ULTRALISK)
         self.overseers = self.units(OVERSEER)
         self.evochambers = self.units(EVOLUTIONCHAMBER)

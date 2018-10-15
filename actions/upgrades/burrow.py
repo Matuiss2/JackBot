@@ -11,7 +11,7 @@ class UpgradeBurrow:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         return (
-            self.ai.lairs
+            len(self.ai.townhalls) >= 2
             and self.ai.hatcheries.idle
             and not self.ai.already_pending_upgrade(BURROW)
             and self.ai.can_afford(RESEARCH_BURROW)
