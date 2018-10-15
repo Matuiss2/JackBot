@@ -13,7 +13,7 @@ class BuildExtractor:
     async def should_handle(self, iteration):
         """Couldnt find another way to build the geysers its way to inefficient,
          also the logic can be improved, sometimes it over collect vespene sometime it under collect"""
-        if (self.ai.vespene > self.ai.minerals) or (
+        if (self.ai.vespene > self.ai.minerals * 1.5) or (
             not (self.ai.townhalls.ready and self.ai.can_afford(EXTRACTOR))
         ):
             return False
