@@ -140,6 +140,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
         self.drones = None
         self.queens = None
         self.zerglings = None
+        self.burrowed_lings = []
         self.ultralisks = None
         self.overseers = None
         self.evochambers = None
@@ -165,7 +166,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
         self.overlords = self.units(OVERLORD)
         self.drones = self.units(DRONE)
         self.queens = self.units(QUEEN)
-        self.zerglings = self.units(ZERGLING)
+        self.zerglings = self.units(ZERGLING).filter(lambda z: z not in self.burrowed_lings)
         self.ultralisks = self.units(ULTRALISK)
         self.overseers = self.units(OVERSEER)
         self.evochambers = self.units(EVOLUTIONCHAMBER)
