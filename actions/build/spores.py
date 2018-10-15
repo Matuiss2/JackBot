@@ -21,7 +21,7 @@ class BuildSpores:
         base = self.ai.townhalls
         spores = self.ai.spores
 
-        if not len(spores) < len(base.ready):
+        if (not len(spores) < len(base.ready)) or self.ai.close_enemies_to_base:
             return False
 
         self.selected_base = base.random
