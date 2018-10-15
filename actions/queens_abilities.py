@@ -27,7 +27,7 @@ class QueensAbilities:
 
     async def handle(self, iteration):
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
-        if not (self.ai.floating_buildings_bm and self.ai.supply_used == 200):
+        if not (self.ai.floating_buildings_bm and self.ai.supply_used >= 199):
             for queen in self.queens.idle:
                 if self.enemies.closer_than(8, queen.position):
                     self.ai.add_action(queen.attack(self.enemies.closest_to(queen.position)))
