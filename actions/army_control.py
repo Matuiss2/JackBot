@@ -113,7 +113,6 @@ class ArmyControl(Micro):
                         self.attack_startlocation(attacking_unit)
                 elif self.ai.townhalls:
                     self.move_to_rallying_point(attacking_unit)
-        await self.burrow_zerglings_group()
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
@@ -190,13 +189,3 @@ class ArmyControl(Micro):
         if self.ai.enemy_start_locations:
             self.ai.add_action(unit.attack(self.ai.enemy_start_locations[0]))
 
-    async def burrow_zerglings_group(self):
-        if not self.ai.burrowed_lings and len(self.ai.zerglings) >= 6 and self.ai.already_pending_upgrade(BURROW) == 1:
-            self.ai.burrowed_lings = self.ai.zerglings.random_group_of(6)
-            for n, zergling in enumerate(self.ai.burrowed_lings):
-                location = self.ai.ordered_expansions[-n - 1]
-                if await self.ai.can_place(HATCHERY, location):
-                    self.ai.add_action(zergling.move(location))
-                    self.ai.add_action(zergling(BURROWDOWN_ZERGLING, queue=True))
-                else:
-                    self.ai.burrowed_lings.remove(zergling)
