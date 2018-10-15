@@ -220,7 +220,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning):
                     self.close_enemies_to_base = True
                     break
 
-        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(50, self.start_location):
+        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY, PHOTONCANNON}).closer_than(75, self.start_location):
             self.close_enemy_production = True
 
         if (

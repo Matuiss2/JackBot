@@ -26,7 +26,6 @@ if __name__ == "__main__":
                 "DreamcatcherLE",
                 "FractureLE",
                 "LostAndFoundLE",
-                "ParaSiteLE",
             ]
         )
 

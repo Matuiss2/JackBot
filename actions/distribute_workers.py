@@ -132,7 +132,7 @@ class DistributeWorkers:
     @property
     def require_gas(self):
         """One of the requirements for gas collecting"""
-        return self.require_gas_for_speedlings or (self.ai.vespene < self.ai.minerals)
+        return self.require_gas_for_speedlings or (self.ai.vespene * 1.5 < self.ai.minerals )
 
     @property
     def require_gas_for_speedlings(self):
