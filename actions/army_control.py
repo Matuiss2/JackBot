@@ -3,6 +3,8 @@ from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
     BUNKER,
+    BURROW,
+    BURROWDOWN_ZERGLING,
     DISRUPTORPHASED,
     DRONE,
     EGG,
@@ -18,6 +20,7 @@ from sc2.constants import (
     SPINECRAWLER,
     ZERGLING,
     ZERGLINGATTACKSPEED,
+    ZERGLINGBURROWED,
 )
 
 from .micro import Micro
@@ -31,6 +34,7 @@ class ArmyControl(Micro):
         self.retreat_units = set()
         self.rally_point = None
         self.zergling_atk_speed = False
+        self.burrowed_lings = []
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
@@ -109,6 +113,7 @@ class ArmyControl(Micro):
                         self.attack_startlocation(attacking_unit)
                 elif self.ai.townhalls:
                     self.move_to_rallying_point(attacking_unit)
+        self.burrow_zerglings_group()
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
@@ -184,3 +189,12 @@ class ArmyControl(Micro):
         """It tell to attack the starting location"""
         if self.ai.enemy_start_locations:
             self.ai.add_action(unit.attack(self.ai.enemy_start_locations[0]))
+
+    def burrow_zerglings_group(self):
+        zerglings = self.ai.zerglings
+        if not self.burrowed_lings and len(zerglings) >= 6 and self.ai.already_pending_upgrade(BURROW) == 1:
+            self.burrowed_lings = zerglings.random_group_of(6)
+            self.ai.zerglings -= self.burrowed_lings
+        if self.burrowed_lings:
+            for z in self.burrowed_lings.filter(lambda zergl: zergl.type_id != ZERGLINGBURROWED):
+                self.ai.add_action(z(BURROWDOWN_ZERGLING))
