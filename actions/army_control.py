@@ -193,7 +193,6 @@ class ArmyControl(Micro):
     async def burrow_zerglings_group(self):
         if not self.ai.burrowed_lings and len(self.ai.zerglings) >= 6 and self.ai.already_pending_upgrade(BURROW) == 1:
             self.ai.burrowed_lings = self.ai.zerglings.random_group_of(6)
-            self.ai.zerglings -= self.ai.burrowed_lings
             for n, zergling in enumerate(self.ai.burrowed_lings):
                 location = self.ai.ordered_expansions[-n - 1]
                 if await self.ai.can_place(HATCHERY, location):
@@ -201,4 +200,3 @@ class ArmyControl(Micro):
                     self.ai.add_action(zergling(BURROWDOWN_ZERGLING, queue=True))
                 else:
                     self.ai.burrowed_lings.remove(zergling)
-
