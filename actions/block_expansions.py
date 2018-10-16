@@ -22,7 +22,6 @@ class BlockExpansions:
         self.ai.burrowed_lings = [
             unit.tag for unit in zerglings.sorted_by_distance_to(self.ai.ordered_expansions[1])[:6]
         ]
-        print(len(self.ai.burrowed_lings))
         for n, zergling in enumerate(zerglings.tags_in(self.ai.burrowed_lings)):
             location = self.ai.ordered_expansions[-n - 1]
 
