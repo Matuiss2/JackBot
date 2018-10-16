@@ -188,4 +188,3 @@ class ArmyControl(Micro):
         """It tell to attack the starting location"""
         if self.ai.enemy_start_locations:
             self.ai.add_action(unit.attack(self.ai.enemy_start_locations[0]))
-
