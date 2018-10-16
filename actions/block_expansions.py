@@ -19,7 +19,10 @@ class BlockExpansions:
 
     async def handle(self, iteration):
         zerglings = self.ai.zerglings.idle
-        self.ai.burrowed_lings = [unit.tag for unit in zerglings.random_group_of(6)]
+        self.ai.burrowed_lings = [
+            unit.tag for unit in zerglings.sorted_by_distance_to(self.ai.ordered_expansions[1])[:6]
+        ]
+        print(len(self.ai.burrowed_lings))
         for n, zergling in enumerate(zerglings.tags_in(self.ai.burrowed_lings)):
             location = self.ai.ordered_expansions[-n - 1]
 
