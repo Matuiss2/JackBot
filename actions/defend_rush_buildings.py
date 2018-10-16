@@ -1,5 +1,5 @@
 """Everything related to handling very close proxies with drones goes here"""
-from sc2.constants import BUNKER, DRONE, PHOTONCANNON, PLANETARYFORTRESS, PROBE, SCV, SPINECRAWLER
+from sc2.constants import BUNKER, DRONE, PHOTONCANNON, PLANETARYFORTRESS, PROBE, SCV, SPINECRAWLER, AUTOTURRET
 
 
 class DefendRushBuildings:
@@ -11,7 +11,7 @@ class DefendRushBuildings:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        self.rush_buildings = self.ai.known_enemy_structures.not_flying.filter(
+        self.rush_buildings = self.ai.known_enemy_structures.exclude_type(AUTOTURRET).not_flying.filter(
             lambda building: any(
                 [
                     building.distance_to(our_building) <= 30
