@@ -12,6 +12,7 @@ class UpgradeBurrow:
         """Requirements to run handle"""
         return (
             len(self.ai.townhalls) >= 2
+            and len(self.ai.zerglings) >= 13
             and self.ai.hatcheries.idle
             and not self.ai.already_pending_upgrade(BURROW)
             and self.ai.can_afford(RESEARCH_BURROW)
