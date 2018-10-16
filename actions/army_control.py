@@ -130,7 +130,7 @@ class ArmyControl(Micro):
             self.ai.townhalls
             and not self.ai.close_enemies_to_base
             and not self.ai.units.structure.closer_than(7, unit.position)
-            and len(combined_enemies.closer_than(15, unit.position))
+            and len(combined_enemies.closer_than(20, unit.position))
             >= len(self.ai.zerglings.closer_than(20, unit.position))
             + len(self.ai.ultralisks.closer_than(20, unit.position)) * 6
         ):
