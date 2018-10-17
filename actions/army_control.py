@@ -3,12 +3,9 @@ from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
     BUNKER,
-    BURROW,
-    BURROWDOWN_ZERGLING,
     DISRUPTORPHASED,
     DRONE,
     EGG,
-    HATCHERY,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
@@ -21,7 +18,6 @@ from sc2.constants import (
     SPINECRAWLER,
     ZERGLING,
     ZERGLINGATTACKSPEED,
-    ZERGLINGBURROWED,
 )
 
 from .micro import Micro
