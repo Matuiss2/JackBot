@@ -24,7 +24,7 @@ class BuildSpores:
         if (not len(spores) < len(base.ready)) or self.ai.close_enemies_to_base:
             return False
 
-        self.selected_base = base.random
+        self.selected_base = base.ready.random
         return (
             (self.enemy_flying_dmg_units or self.ai.time >= 420)
             and not self.ai.already_pending(SPORECRAWLER)
