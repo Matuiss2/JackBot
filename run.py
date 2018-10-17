@@ -19,14 +19,7 @@ if __name__ == "__main__":
         # Local game
         print("Starting local game...")
         random_map = random.choice(
-            [
-                "AcidPlantLE",
-                "BlueshiftLE",
-                "CeruleanFallLE",
-                "DreamcatcherLE",
-                "FractureLE",
-                "LostAndFoundLE",
-            ]
+            ["AcidPlantLE", "BlueshiftLE", "CeruleanFallLE", "DreamcatcherLE", "FractureLE", "LostAndFoundLE"]
         )
 
         sc2.run_game(sc2.maps.get(random_map), [bot, Computer(Race.Random, Difficulty.CheatVision)], realtime=False)
