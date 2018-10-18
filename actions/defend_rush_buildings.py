@@ -14,12 +14,12 @@ class DefendRushBuildings:
         self.rush_buildings = self.ai.known_enemy_structures.exclude_type(AUTOTURRET).not_flying.filter(
             lambda building: any(
                 [
-                    building.distance_to(our_building) <= 30
+                    building.distance_to(our_building) <= 25
                     for our_building in (self.ai.units.structure - self.ai.tumors)
                 ]
             )
         )
-        return self.rush_buildings and self.ai.bases
+        return self.rush_buildings and self.ai.bases and self.ai.time <= 190
 
     def is_being_attacked(self, unit):
         """Only for enemy units, returns how often they are attacked"""
