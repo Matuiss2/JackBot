@@ -11,15 +11,11 @@ class DefendRushBuildings:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        self.rush_buildings = self.ai.known_enemy_structures.exclude_type(AUTOTURRET).not_flying.filter(
-            lambda building: any(
-                [
-                    building.distance_to(our_building) <= 25
-                    for our_building in (self.ai.units.structure - self.ai.tumors)
-                ]
+        if self.ai.bases:
+            self.rush_buildings = self.ai.known_enemy_structures.exclude_type(AUTOTURRET).closer_than(
+                30, self.ai.bases.furthest_to(self.ai._game_info.map_center)
             )
-        )
-        return self.rush_buildings and self.ai.bases and self.ai.time <= 190
+        return self.rush_buildings and self.ai.time <= 180
 
     def is_being_attacked(self, unit):
         """Only for enemy units, returns how often they are attacked"""
