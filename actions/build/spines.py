@@ -24,7 +24,7 @@ class BuildSpines:
         await self.ai.build(
             SPINECRAWLER,
             near=self.ai.townhalls.furthest_to(self.ai._game_info.map_center).position.towards(
-                self.ai._game_info.map_center, 9
+                self.ai.main_base_ramp.depot_in_middle, 10
             ),
         )
         return True

@@ -1,5 +1,5 @@
 """Everything related to cancelling buildings goes here"""
-from sc2.constants import CANCEL
+from sc2.constants import CANCEL, HATCHERY
 
 
 class Buildings:
@@ -16,8 +16,12 @@ class Buildings:
         """Make the cancelling general"""
         for building in self.ai.units.structure.not_ready.filter(lambda x: x.type_id not in self.ai.tumors):
             if (
-                building.health_percentage < building.build_progress - 0.4
-                or building.health_percentage < 0.1
-                and building.build_progress > 0.15
+                (
+                    building.health_percentage < building.build_progress - 0.4
+                    or building.health_percentage < 0.1
+                    and building.build_progress > 0.15
+                )
+                or building.type_id == HATCHERY
+                and self.ai.close_enemy_production
             ):
                 self.ai.add_action((building(CANCEL)))

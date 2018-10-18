@@ -4,6 +4,7 @@ from sc2.constants import BURROW, BURROWDOWN_ZERGLING
 
 class BlockExpansions:
     """Needs few improvements like refill the force in case of failing until it succeeds(for a while at least)"""
+
     def __init__(self, ai):
         self.ai = ai
 

@@ -25,7 +25,7 @@ class Overlord:
         if not self.first_ov_scout:
             self.first_ov_scout = True
             self.ai.add_action(
-                self.ai.overlords.first.move(self.ai.ordered_expansions[1].towards(self.ai._game_info.map_center, 10))
+                self.ai.overlords.first.move(self.ai.ordered_expansions[1].towards(self.ai._game_info.map_center, 20))
             )
         elif not self.second_ov_scout and len(self.ai.overlords.ready) == 2:
             second_ov = self.ai.overlords.ready.closest_to(self.ai.townhalls.first)

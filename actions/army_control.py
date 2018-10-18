@@ -71,6 +71,19 @@ class ArmyControl(Micro):
             atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks | self.ai.queens
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
+            if (
+                self.ai.close_enemy_production
+                and self.ai.spines
+                and not self.ai.spines.closer_than(2, attacking_unit.position)
+                and self.ai.time <= 450
+            ):
+                if targets and targets.closer_than(4, attacking_unit.position):
+                    if attacking_unit.type_id == ZERGLING:
+                        if self.micro_zerglings(targets, attacking_unit):
+                            continue
+                else:
+                    self.ai.add_action(attacking_unit.move(self.ai.spines.closest_to(attacking_unit.position)))
+                    continue
             if attacking_unit.type_id in [MUTALISK, QUEEN] and enemy_building.flying:
                 self.ai.add_action(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
                 continue
@@ -166,10 +179,11 @@ class ArmyControl(Micro):
             self.move_to_rallying_point(unit)
             return True
         enemy_building = self.ai.known_enemy_structures
-        if enemy_building and self.ai.townhalls:
-            self.attack_closest_building(unit)
-        else:
-            self.attack_startlocation(unit)
+        if not self.ai.close_enemy_production:
+            if enemy_building and self.ai.townhalls:
+                self.attack_closest_building(unit)
+            else:
+                self.attack_startlocation(unit)
         return False
 
     def attack_closest_building(self, unit):
