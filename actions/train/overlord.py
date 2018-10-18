@@ -14,11 +14,10 @@ class TrainOverlord:
             if self.ai.can_train(OVERLORD):
                 base_amount = len(self.ai.townhalls)  # so it just calculate once per loop
                 if (
-                    (len(self.ai.workers.ready) == 14
+                    len(self.ai.workers.ready) == 14
                     or (len(self.ai.overlords) == 2 and base_amount == 1)
-                    or (base_amount == 2 and not self.ai.pools))
-                    and not self.ai.close_enemy_production
-                ):
+                    or (base_amount == 2 and not self.ai.pools)
+                ) and not self.ai.close_enemy_production:
                     return False
                 if (base_amount in (1, 2) and self.ai.already_pending(OVERLORD)) or (
                     self.ai.already_pending(OVERLORD) >= 2

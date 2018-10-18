@@ -75,9 +75,9 @@ class ArmyControl(Micro):
                 self.ai.close_enemy_production
                 and self.ai.spines
                 and not self.ai.spines.closer_than(2, attacking_unit.position)
-                and self.ai.time <= 450
+                and (self.ai.time <= 480 or len(self.ai.zerglings) <= 14)
             ):
-                if targets and targets.closer_than(4, attacking_unit.position):
+                if targets and targets.closer_than(5, attacking_unit.position):
                     if attacking_unit.type_id == ZERGLING:
                         if self.micro_zerglings(targets, attacking_unit):
                             continue
@@ -151,13 +151,13 @@ class ArmyControl(Micro):
     def micro_zerglings(self, targets, unit):
         """Target low hp units smartly, and surrounds when attack cd is down"""
         if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
-            if unit.weapon_cooldown <= 0.25:
+            if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
                 if self.attack_close_target(unit, targets):
                     return True
             else:
                 if self.move_to_next_target(unit, targets):
                     return True
-        elif unit.weapon_cooldown <= 0.35:  # more than half of the attack time with adrenal glands (0.35)
+        elif unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
             if self.attack_close_target(unit, targets):
                 return True
         else:

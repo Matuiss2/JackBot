@@ -4,6 +4,7 @@ from sc2.constants import SPIRE
 
 class BuildSpire:
     """Untested"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -13,6 +14,7 @@ class BuildSpire:
             not self.ai.spires
             and self.ai.can_afford(SPIRE)
             and self.ai.floating_buildings_bm
+            and not self.ai.already_pending(SPIRE)
             and (self.ai.lairs or self.ai.hives)
         )
 

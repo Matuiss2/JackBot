@@ -1,5 +1,5 @@
 """Everything related to handling very close proxies with drones goes here"""
-from sc2.constants import BUNKER, DRONE, PHOTONCANNON, PLANETARYFORTRESS, PROBE, SCV, SPINECRAWLER, AUTOTURRET
+from sc2.constants import BUNKER, DRONE, PHOTONCANNON, PLANETARYFORTRESS, PROBE, SCV, SPINECRAWLER, AUTOTURRET, BARRACKS
 
 
 class DefendRushBuildings:
@@ -11,15 +11,11 @@ class DefendRushBuildings:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        self.rush_buildings = self.ai.known_enemy_structures.exclude_type(AUTOTURRET).not_flying.filter(
-            lambda building: any(
-                [
-                    building.distance_to(our_building) <= 25
-                    for our_building in (self.ai.units.structure - self.ai.tumors)
-                ]
+        if self.ai.bases:
+            self.rush_buildings = self.ai.known_enemy_structures.exclude_type({AUTOTURRET, BARRACKS}).closer_than(
+                50, self.ai.bases.furthest_to(self.ai._game_info.map_center)
             )
-        )
-        return self.rush_buildings and self.ai.bases and self.ai.time <= 190
+        return self.rush_buildings and self.ai.time <= 270
 
     def is_being_attacked(self, unit):
         """Only for enemy units, returns how often they are attacked"""
@@ -34,7 +30,7 @@ class DefendRushBuildings:
         """Send workers aggressively to handle the near proxy / cannon rush"""
         # self.rush_buildings = self.ai.known_enemy_structures.closer_than(20, self.bases.first)
         enemy_worker = self.ai.known_enemy_units.of_type([PROBE, DRONE, SCV]).filter(
-            lambda unit: any([unit.distance_to(our_building) <= 30 for our_building in self.ai.units.structure])
+            lambda unit: any([unit.distance_to(our_building) <= 50 for our_building in self.ai.units.structure])
         )
         for target in enemy_worker:
             available = self.ai.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
@@ -45,7 +41,7 @@ class DefendRushBuildings:
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:
             for target in attacking_buildings:
-                attackers_needed = int(target.radius * 3)
+                attackers_needed = 3
                 available = self.ai.drones.filter(
                     lambda x: x.order_target not in [y.tag for y in attacking_buildings]
                 )  # filter x with not target order in attacking buildings
@@ -55,7 +51,7 @@ class DefendRushBuildings:
 
         if not_attacking_buildings:
             for target in not_attacking_buildings:
-                attackers_needed = int(target.radius * 3)
+                attackers_needed = 3
                 available = self.ai.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
                 if attackers_needed > self.is_being_attacked(target) and available:
                     attacker = available.closest_to(target)
