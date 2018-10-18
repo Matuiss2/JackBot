@@ -1,7 +1,9 @@
+"""Everything related to the expansion logic goes here"""
 from sc2.constants import HATCHERY
 
 
 class BuildExpansion:
+    """Ok for now"""
     def __init__(self, ai):
         self.ai = ai
 
@@ -25,29 +27,31 @@ class BuildExpansion:
             self.ai.townhalls
             and self.ai.can_afford(HATCHERY)
             and not self.ai.close_enemies_to_base
-            and not self.ai.close_enemy_production
+            and (not self.ai.close_enemy_production or self.ai.time > 690)
             and not self.ai.already_pending(HATCHERY)
-            and not (self.ai.known_enemy_structures.closer_than(50, self.ai.start_location) and self.ai.time < 300)
-        ):
 
-            if base_amount <= 4:
-                if base_amount == 2:
-                    if self.ai.time > 330 or len(self.ai.zerglings) > 31:
-                        self.expand_now = True
+        ):
+            if not (self.ai.known_enemy_structures.closer_than(50, self.ai.start_location) and self.ai.time < 300):
+
+                if base_amount <= 4:
+                    if base_amount == 2:
+                        if self.ai.time > 330 or len(self.ai.zerglings) > 31:
+                            self.expand_now = True
+                            return True
+                    else:
+                        # if base_amount == 3:
+                        #     await self.build_macrohatch()
+                        # else:
                         return True
-                else:
-                    # if base_amount == 3:
-                    #     await self.build_macrohatch()
-                    # else:
+                elif self.ai.caverns:
                     return True
-            elif self.ai.caverns:
-                return True
 
         return False
 
     async def handle(self, iteration):
+        """Expands to the nearest expansion location using the nearest drone to it"""
         if self.worker_to_first_base == self.send_worker:
-            self.ai.actions.append(await self.send_worker_to_next_expansion())
+            self.ai.add_action(await self.send_worker_to_next_expansion())
             self.worker_to_first_base = self.did_send_worker
             return True
 
@@ -58,11 +62,12 @@ class BuildExpansion:
         for expansion in self.ai.ordered_expansions:
             if await self.ai.can_place(HATCHERY, expansion):
                 drone = self.ai.workers.closest_to(expansion)
-                self.ai.actions.append(drone.build(HATCHERY, expansion))
+                self.ai.add_action(drone.build(HATCHERY, expansion))
                 return True
 
         return False
 
     async def send_worker_to_next_expansion(self):
+        """Send the worker to the first expansion so its placed faster"""
         worker = self.ai.workers.gathering.first
         return worker.move(await self.ai.get_next_expansion())

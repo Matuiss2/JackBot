@@ -3,6 +3,7 @@
 
 import enum
 
+
 class BuffId(enum.Enum):
     NULL = 0
     RADAR25 = 1
@@ -292,6 +293,7 @@ class BuffId(enum.Enum):
     INFESTORENSNAREMAKEPRECURSORREHEIGHTSOURCE = 285
     NEXUSSHIELDOVERCHARGE = 286
     PARASITICBOMBDELAYTIMEDLIFE = 287
+
 
 for item in BuffId:
     assert not item.name in globals()

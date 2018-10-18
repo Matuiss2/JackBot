@@ -1,11 +1,15 @@
+"""Upgrading zergling speed"""
 from sc2.constants import RESEARCH_ZERGLINGMETABOLICBOOST, ZERGLINGMOVEMENTSPEED
 
 
 class UpgradeMetabolicBoost:
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         if not self.ai.pools.ready.idle:
             return False
 
@@ -14,6 +18,7 @@ class UpgradeMetabolicBoost:
         )
 
     async def handle(self, iteration):
+        """Execute the action of upgrading zergling speed"""
         pool = self.ai.pools.ready
-        self.ai.actions.append(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
+        self.ai.add_action(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
         return True

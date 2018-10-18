@@ -3,6 +3,7 @@
 
 import enum
 
+
 class AbilityId(enum.Enum):
     NULL_NULL = 0
     SMART = 1
@@ -1230,6 +1231,7 @@ class AbilityId(enum.Enum):
     OVERLORDSINGLETRANSPORT_OVERLORDTRANSPORTUNLOAD = 3773
     VIPERPARASITICBOMBRELAY_PARASITICBOMB = 3776
     PARASITICBOMBRELAYDODGE_PARASITICBOMB = 3778
+
 
 for item in AbilityId:
     assert not item.name in globals()

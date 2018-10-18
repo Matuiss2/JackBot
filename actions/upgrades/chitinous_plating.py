@@ -1,11 +1,15 @@
+"""Upgrading ultras special armor"""
 from sc2.constants import CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING
 
 
 class UpgradeChitinousPlating:
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return (
             self.ai.caverns
             and not self.ai.already_pending_upgrade(CHITINOUSPLATING)
@@ -13,5 +17,6 @@ class UpgradeChitinousPlating:
         )
 
     async def handle(self, iteration):
-        self.ai.actions.append(self.ai.caverns.idle.first(RESEARCH_CHITINOUSPLATING))
+        """Execute the action of upgrading ultra armor"""
+        self.ai.add_action(self.ai.caverns.idle.first(RESEARCH_CHITINOUSPLATING))
         return True

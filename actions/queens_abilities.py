@@ -1,7 +1,10 @@
+"""Everything related to queen abilities and distribution goes here"""
 from sc2.constants import EFFECT_INJECTLARVA, QUEENSPAWNLARVATIMER
 
 
 class QueensAbilities:
+    """Can be improved(Defense not utility)"""
+
     def __init__(self, ai):
         self.ai = ai
         self.queens = None
@@ -23,22 +26,24 @@ class QueensAbilities:
         return True
 
     async def handle(self, iteration):
-        for queen in self.queens.idle:
-            if self.enemies.closer_than(8, queen.position):
-                self.ai.actions.append(queen.attack(self.enemies.closest_to(queen.position)))
-                continue
-            selected = self.hatchery.closest_to(queen.position)
-            if queen.energy >= 25 and self.ai.tumors and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                self.ai.actions.append(queen(EFFECT_INJECTLARVA, selected))
-                continue
-            elif queen.energy >= 25:
-                await self.ai.place_tumor(queen)
+        """Assign a queen to each base to make constant injections and the extras for creep spread"""
+        if not (self.ai.floating_buildings_bm and self.ai.supply_used >= 199):
+            for queen in self.queens.idle:
+                if self.enemies.closer_than(10, queen.position):
+                    self.ai.add_action(queen.attack(self.enemies.closest_to(queen.position)))
+                    continue
+                selected = self.hatchery.closest_to(queen.position)
+                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
+                    self.ai.add_action(queen(EFFECT_INJECTLARVA, selected))
+                    continue
+                elif queen.energy >= 25:
+                    await self.ai.place_tumor(queen)
 
-        for hatch in self.hatchery.ready.noqueue:
-            if not self.queens.closer_than(4, hatch):
-                for queen in self.queens.idle:
-                    if not self.ai.townhalls.closer_than(4, queen):
-                        self.ai.actions.append(queen.move(hatch.position))
-                        break
+            for hatch in self.hatchery.ready.noqueue:
+                if not self.queens.closer_than(4, hatch):
+                    for queen in self.queens.idle:
+                        if not self.ai.townhalls.closer_than(4, queen):
+                            self.ai.add_action(queen.move(hatch.position))
+                            break
 
-        return True
+            return True

@@ -1,3 +1,4 @@
+"""Everything related to defending a worker rush goes here"""
 import heapq
 
 from sc2.constants import DRONE, PROBE, SCV
@@ -6,6 +7,8 @@ from .micro import Micro
 
 
 class DefendWorkerRush(Micro):
+    """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
         self.base = None
@@ -14,6 +17,7 @@ class DefendWorkerRush(Micro):
         self.defender_tags = None
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         self.base = self.ai.hatcheries.ready
         if not self.base:
             return False
@@ -51,19 +55,22 @@ class DefendWorkerRush(Micro):
                             self.move_lowhp(drone, self.enemy_units_close)
 
     def save_lowhp_drone(self, drone, base):
+        """Remove drones with less 6 hp from the defending force"""
         if drone.health <= 6:
             if not drone.is_collecting:
                 mineral_field = self.ai.state.mineral_field.closest_to(base.first.position)
-                self.ai.actions.append(drone.gather(mineral_field))
+                self.ai.add_action(drone.gather(mineral_field))
             else:
                 self.defender_tags.remove(drone.tag)
             return True
         return False
 
     def build_defense_force(self, enemy_count):
-        self.defender_tags = self.defense_force(2 * enemy_count)
+        """Finds the right amount for the defense force(max twice of the attacker number ideally)"""
+        self.defender_tags = self.defense_force(enemy_count + enemy_count)
 
     def refill_defense_force(self, enemy_count):
+        """If there is less workers on the defenders force than the ideal refill it"""
         self.defenders = self.ai.drones.filter(lambda worker: worker.tag in self.defender_tags and worker.health > 0)
         defender_deficit = self.calculate_defender_deficit(enemy_count)
 
@@ -72,19 +79,23 @@ class DefendWorkerRush(Micro):
             self.defender_tags = self.defender_tags + additional_drones
 
     def clear_defense_force(self, base):
+        """If there is more workers on the defenders force than the ideal put it back to mining"""
         if self.defenders:
             for drone in self.defenders:
-                self.ai.actions.append(drone.gather(self.ai.state.mineral_field.closest_to(base.first)))
+                self.ai.add_action(drone.gather(self.ai.state.mineral_field.closest_to(base.first)))
                 continue
         self.defender_tags = []
         self.defenders = None
 
     def defense_force(self, count):
+        """Put all drones needed on the defenders force - order based on health"""
         highest_hp_drones = self.highest_hp_drones(count)
         return [unit.tag for unit in highest_hp_drones]
 
     def highest_hp_drones(self, count):
+        """Order the drones based on health(highest first)"""
         return heapq.nlargest(count, self.ai.drones.collecting, key=lambda drones: drones.health)
 
     def calculate_defender_deficit(self, enemy_count):
-        return min(len(self.ai.drones) - 1, 2 * enemy_count) - len(self.defenders)
+        """Calculates the deficit on the defense force"""
+        return min(len(self.ai.drones) - 1, enemy_count + enemy_count) - len(self.defenders)

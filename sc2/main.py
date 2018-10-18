@@ -2,6 +2,7 @@ import asyncio
 import async_timeout
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 from .sc2process import SC2Process
@@ -11,6 +12,7 @@ from .player import Human, Bot
 from .data import Race, Difficulty, Result, ActionResult, CreateGameError
 from .game_state import GameState
 from .protocol import ConnectionAlreadyClosed
+
 
 async def _play_game_human(client, player_id, realtime, game_time_limit):
     while True:
@@ -24,6 +26,7 @@ async def _play_game_human(client, player_id, realtime, game_time_limit):
 
         if not realtime:
             await client.step()
+
 
 async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_time_limit):
     game_data = await client.get_game_data()
@@ -65,7 +68,7 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
                     logger.warning(f"Running AI step: out of time")
         except Exception as e:
             # NOTE: this message is caught by pytest suite
-            logger.exception(f"AI step threw an error") # DO NOT EDIT!
+            logger.exception(f"AI step threw an error")  # DO NOT EDIT!
             logger.error(f"resigning due to previous error")
             ai.on_end(Result.Defeat)
             return Result.Defeat
@@ -81,6 +84,7 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
 
         iteration += 1
 
+
 async def _play_game(player, client, realtime, portconfig, step_time_limit=None, game_time_limit=None):
     assert isinstance(realtime, bool), repr(realtime)
 
@@ -95,6 +99,7 @@ async def _play_game(player, client, realtime, portconfig, step_time_limit=None,
     logging.info(f"Result for player id: {player_id}: {result}")
     return result
 
+
 async def _setup_host_game(server, map_settings, players, realtime):
     r = await server.create_game(map_settings, players, realtime)
     if r.create_game.HasField("error"):
@@ -107,7 +112,9 @@ async def _setup_host_game(server, map_settings, players, realtime):
     return Client(server._ws)
 
 
-async def _host_game(map_settings, players, realtime, portconfig=None, save_replay_as=None, step_time_limit=None, game_time_limit=None):
+async def _host_game(
+    map_settings, players, realtime, portconfig=None, save_replay_as=None, step_time_limit=None, game_time_limit=None
+):
     assert len(players) > 0, "Can't create a game without players"
 
     assert any(isinstance(p, (Human, Bot)) for p in players)
@@ -129,7 +136,10 @@ async def _host_game(map_settings, players, realtime, portconfig=None, save_repl
 
         return result
 
-async def _host_game_aiter(map_settings, players, realtime, portconfig=None, save_replay_as=None, step_time_limit=None, game_time_limit=None):
+
+async def _host_game_aiter(
+    map_settings, players, realtime, portconfig=None, save_replay_as=None, step_time_limit=None, game_time_limit=None
+):
     assert len(players) > 0, "Can't create a game without players"
 
     assert any(isinstance(p, (Human, Bot)) for p in players)
@@ -153,6 +163,7 @@ async def _host_game_aiter(map_settings, players, realtime, portconfig=None, sav
             new_players = yield result
             if new_players is not None:
                 players = new_players
+
 
 def _host_game_iter(*args, **kwargs):
     game = _host_game_aiter(*args, **kwargs)
@@ -179,17 +190,18 @@ async def _join_game(players, realtime, portconfig, save_replay_as=None, step_ti
 
         return result
 
+
 def run_game(map_settings, players, **kwargs):
     if sum(isinstance(p, (Human, Bot)) for p in players) > 1:
         join_kwargs = {k: v for k, v in kwargs.items() if k != "save_replay_as"}
 
         portconfig = Portconfig()
-        result = asyncio.get_event_loop().run_until_complete(asyncio.gather(
-            _host_game(map_settings, players, **kwargs, portconfig=portconfig),
-            _join_game(players, **join_kwargs, portconfig=portconfig)
-        ))
-    else:
         result = asyncio.get_event_loop().run_until_complete(
-            _host_game(map_settings, players, **kwargs)
+            asyncio.gather(
+                _host_game(map_settings, players, **kwargs, portconfig=portconfig),
+                _join_game(players, **join_kwargs, portconfig=portconfig),
+            )
         )
+    else:
+        result = asyncio.get_event_loop().run_until_complete(_host_game(map_settings, players, **kwargs))
     return result

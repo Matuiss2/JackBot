@@ -12,10 +12,12 @@ import portpicker
 import aiohttp
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 from .paths import Paths
 from .controller import Controller
+
 
 class kill_switch(object):
     _to_kill: List[Any] = []
@@ -30,6 +32,7 @@ class kill_switch(object):
         logger.info("kill_switch: Process cleanup")
         for p in cls._to_kill:
             p._clean()
+
 
 class SC2Process:
     def __init__(self, host: str = "127.0.0.1", port: Optional[int] = None, fullscreen: bool = False) -> None:
@@ -76,19 +79,25 @@ class SC2Process:
     def _launch(self):
         args = [
             str(Paths.EXECUTABLE),
-            "-listen", self._host,
-            "-port", str(self._port),
-            "-displayMode", "1" if self._fullscreen else "0",
-            "-dataDir", str(Paths.BASE),
-            "-tempDir", self._tmp_dir
+            "-listen",
+            self._host,
+            "-port",
+            str(self._port),
+            "-displayMode",
+            "1" if self._fullscreen else "0",
+            "-dataDir",
+            str(Paths.BASE),
+            "-tempDir",
+            self._tmp_dir,
         ]
 
         if logger.getEffectiveLevel() <= logging.DEBUG:
             args.append("-verbose")
 
-        return subprocess.Popen(args,
+        return subprocess.Popen(
+            args,
             cwd=(str(Paths.CWD) if Paths.CWD else None),
-            #, env=run_config.env
+            # , env=run_config.env
         )
 
     async def _connect(self):

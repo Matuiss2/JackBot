@@ -1,11 +1,15 @@
+"""Upgrading ov speed"""
 from sc2.constants import OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE
 
 
 class UpgradePneumatizedCarapace:
+    """Ok for now, maybe use overlord speed more and upgrade it earlier"""
+
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
+        """Requirements to run handle"""
         return (
             self.ai.caverns
             and self.ai.hatcheries
@@ -14,6 +18,7 @@ class UpgradePneumatizedCarapace:
         )
 
     async def handle(self, iteration):
+        """Execute the action of upgrading overlord speed"""
         chosen_base = self.ai.hatcheries.closest_to(self.ai._game_info.map_center)
-        self.ai.actions.append(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
+        self.ai.add_action(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
         return True
