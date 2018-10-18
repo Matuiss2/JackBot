@@ -41,7 +41,7 @@ class DefendRushBuildings:
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:
             for target in attacking_buildings:
-                attackers_needed = int(target.radius * 3.5)
+                attackers_needed = 3
                 available = self.ai.drones.filter(
                     lambda x: x.order_target not in [y.tag for y in attacking_buildings]
                 )  # filter x with not target order in attacking buildings
@@ -51,7 +51,7 @@ class DefendRushBuildings:
 
         if not_attacking_buildings:
             for target in not_attacking_buildings:
-                attackers_needed = int(target.radius * 3.5)
+                attackers_needed = 3
                 available = self.ai.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
                 if attackers_needed > self.is_being_attacked(target) and available:
                     attacker = available.closest_to(target)

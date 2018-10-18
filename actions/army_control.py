@@ -139,7 +139,7 @@ class ArmyControl(Micro):
             self.ai.townhalls
             and not self.ai.close_enemies_to_base
             and not self.ai.units.structure.closer_than(7, unit.position)
-            and len(combined_enemies.closer_than(20, unit.position))
+            and len(combined_enemies.exclude_type({DRONE, SCV, PROBE}).closer_than(20, unit.position))
             >= len(self.ai.zerglings.closer_than(20, unit.position))
             + len(self.ai.ultralisks.closer_than(20, unit.position)) * 6
         ):
@@ -150,14 +150,16 @@ class ArmyControl(Micro):
 
     def micro_zerglings(self, targets, unit):
         """Target low hp units smartly, and surrounds when attack cd is down"""
-        if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
-            if unit.weapon_cooldown <= 0.25:
+        if (
+            self.zergling_atk_speed
+        ):  # more than half of the attack time with adrenal glands (0.35) times the game speed times the frames per sec
+            if unit.weapon_cooldown <= 0.25 * 22.4:
                 if self.attack_close_target(unit, targets):
                     return True
             else:
                 if self.move_to_next_target(unit, targets):
                     return True
-        elif unit.weapon_cooldown <= 0.35:  # more than half of the attack time with adrenal glands (0.35)
+        elif unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
             if self.attack_close_target(unit, targets):
                 return True
         else:
