@@ -27,7 +27,7 @@ class BuildExpansion:
             self.ai.townhalls
             and self.ai.can_afford(HATCHERY)
             and not self.ai.close_enemies_to_base
-            and not self.ai.close_enemy_production
+            and (not self.ai.close_enemy_production or self.ai.time > 690)
             and not self.ai.already_pending(HATCHERY)
 
         ):

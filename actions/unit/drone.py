@@ -10,7 +10,7 @@ class Drone:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        return self.ai.drones and iteration % 1000 == 300
+        return self.ai.drones and iteration % 2000 == 150 and not self.ai.close_enemy_production
 
     async def handle(self, iteration):
         """It sends a drone to scout the map, starting with the closest place then going base by base to the furthest"""

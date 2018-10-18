@@ -25,7 +25,7 @@ class TrainZergling:
             if not len(self.ai.ultralisks) * 8.5 > len(self.ai.zerglings):
                 return False
 
-        if self.ai.spires.ready:
+        if self.ai.floating_buildings_bm:
             if self.ai.supply_used > 150:
                 return False
             if not len(self.ai.mutalisks) * 10 > len(self.ai.zerglings):

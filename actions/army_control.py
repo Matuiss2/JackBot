@@ -75,9 +75,9 @@ class ArmyControl(Micro):
                 self.ai.close_enemy_production
                 and self.ai.spines
                 and not self.ai.spines.closer_than(2, attacking_unit.position)
-                and self.ai.time <= 450
+                and (self.ai.time <= 480 or len(self.ai.zerglings) <= 14)
             ):
-                if targets and targets.closer_than(4, attacking_unit.position):
+                if targets and targets.closer_than(5, attacking_unit.position):
                     if attacking_unit.type_id == ZERGLING:
                         if self.micro_zerglings(targets, attacking_unit):
                             continue

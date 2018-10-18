@@ -15,8 +15,8 @@ class BuildSpines:
 
         return (
             self.ai.close_enemy_production
-            and self.ai.time <= 300
-            and len(self.ai.spines) + self.ai.already_pending(SPINECRAWLER) < 3
+            and len(self.ai.spines) < 4
+            and self.ai.already_pending(SPINECRAWLER) < 2
         )
 
     async def handle(self, iteration):
@@ -24,7 +24,7 @@ class BuildSpines:
         await self.ai.build(
             SPINECRAWLER,
             near=self.ai.townhalls.furthest_to(self.ai._game_info.map_center).position.towards(
-                self.ai.main_base_ramp.depot_in_middle, 10
+                self.ai.main_base_ramp.depot_in_middle, 14
             ),
         )
         return True
