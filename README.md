@@ -24,3 +24,8 @@ _Optimization and micro-optimization_
  _Bug fixes_
  
  - Prevent errors using checks on spines
+ 
+_Functional changes_
+
+- Making the first scout earlier(drone)
+
