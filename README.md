@@ -20,3 +20,7 @@ _Optimization and micro-optimization_
 
 - Exchanging list for the much faster sets or tuples on jack_bot, defend_worker_rush, defend_rush_buildings,
  upgrades/evochamber
+ 
+ _Bug fixes_
+ 
+ - Prevent errors using checks on spines
