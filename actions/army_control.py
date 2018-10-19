@@ -84,7 +84,7 @@ class ArmyControl(Micro):
                 else:
                     self.ai.add_action(attacking_unit.move(self.ai.spines.closest_to(attacking_unit.position)))
                     continue
-            if attacking_unit.type_id in [MUTALISK, QUEEN] and enemy_building.flying:
+            if attacking_unit.type_id in (MUTALISK, QUEEN) and enemy_building.flying:
                 self.ai.add_action(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
                 continue
             if attacking_unit.tag in self.retreat_units and self.ai.townhalls:

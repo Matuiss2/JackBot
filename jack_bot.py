@@ -81,7 +81,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.debug = debug
         self.actions = []
         self.add_action = None
-        self.unit_commands = [
+        self.unit_commands = {
             BlockExpansions(self),
             DefendWorkerRush(self),
             DefendRushBuildings(self),
@@ -93,9 +93,9 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
             Overseer(self),
             Overlord(self),
             Buildings(self),
-        ]
+        }
 
-        self.train_commands = [
+        self.train_commands = {
             TrainOverlord(self),
             TrainWorker(self),
             TrainQueen(self),
@@ -103,9 +103,9 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
             TrainZergling(self),
             TrainOverseer(self),
             TrainMutalisk(self),
-        ]
+        }
 
-        self.build_commands = [
+        self.build_commands = {
             BuildPool(self),
             BuildExpansion(self),
             BuildExtractor(self),
@@ -117,16 +117,16 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
             BuildSpines(self),
             BuildSpores(self),
             BuildSpire(self),
-        ]
+        }
 
-        self.upgrade_commands = [
+        self.upgrade_commands = {
             UpgradeChitinousPlating(self),
             UpgradeMetabolicBoost(self),
             UpgradeAdrenalGlands(self),
             UpgradeEvochamber(self),
             UpgradePneumatizedCarapace(self),
             UpgradeBurrow(self),
-        ]
+        }
         self.locations = []
         self.ordered_expansions = []
         self.building_positions = []
@@ -177,7 +177,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units.of_type([CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED])
+        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
         self.larvae = self.units(LARVA)
         self.extractors = self.units(EXTRACTOR)
         self.pit = self.units(INFESTATIONPIT)

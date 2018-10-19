@@ -22,7 +22,7 @@ class DefendWorkerRush(Micro):
         if not self.base:
             return False
 
-        self.enemy_units_close = self.ai.known_enemy_units.closer_than(8, self.base.first).of_type([PROBE, DRONE, SCV])
+        self.enemy_units_close = self.ai.known_enemy_units.closer_than(8, self.base.first).of_type({PROBE, DRONE, SCV})
         return (
             self.enemy_units_close
             and not self.defender_tags

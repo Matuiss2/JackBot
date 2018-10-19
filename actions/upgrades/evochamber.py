@@ -14,14 +14,14 @@ class UpgradeEvochamber:
 
     def __init__(self, ai):
         self.ai = ai
-        self.upgrade_list = [
+        self.upgrade_list = {
             RESEARCH_ZERGMELEEWEAPONSLEVEL1,
             RESEARCH_ZERGMELEEWEAPONSLEVEL2,
             RESEARCH_ZERGMELEEWEAPONSLEVEL3,
             RESEARCH_ZERGGROUNDARMORLEVEL1,
             RESEARCH_ZERGGROUNDARMORLEVEL2,
             RESEARCH_ZERGGROUNDARMORLEVEL3,
-        ]
+        }
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
