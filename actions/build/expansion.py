@@ -4,6 +4,7 @@ from sc2.constants import HATCHERY
 
 class BuildExpansion:
     """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -29,8 +30,8 @@ class BuildExpansion:
             and not self.ai.close_enemies_to_base
             and (not self.ai.close_enemy_production or self.ai.time > 690)
             and not self.ai.already_pending(HATCHERY)
+        ):  # Too many booleans on 1 if statement (separating don't work because it cause another pylint error)
 
-        ):
             if not (self.ai.known_enemy_structures.closer_than(50, self.ai.start_location) and self.ai.time < 300):
 
                 if base_amount <= 4:

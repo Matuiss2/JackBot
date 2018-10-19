@@ -36,7 +36,7 @@ class ArmyControl(Micro):
         """Requirements to run handle"""
         return self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
 
-    async def handle(self, iteration):
+    async def handle(self, iteration):  # needs further refactoring(too-many-branches, too-many-statements)
         """It surrounds and target low hp units, also retreats when overwhelmed,
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""

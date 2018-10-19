@@ -17,7 +17,6 @@ from sc2.constants import (
     MUTALISK,
     OVERLORD,
     OVERSEER,
-    PHOTONCANNON,
     PROBE,
     QUEEN,
     SCV,

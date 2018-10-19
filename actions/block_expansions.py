@@ -26,8 +26,8 @@ class BlockExpansions:
         self.ai.burrowed_lings = [
             unit.tag for unit in zerglings.sorted_by_distance_to(self.ai.ordered_expansions[1])[:6]
         ]
-        for n, zergling in enumerate(zerglings.tags_in(self.ai.burrowed_lings)):
-            location = self.ai.ordered_expansions[-n - 1]
+        for list_index, zergling in enumerate(zerglings.tags_in(self.ai.burrowed_lings)):
+            location = self.ai.ordered_expansions[-list_index - 1]
 
             # are we allowed to query into the dark?
             # if await self.ai.can_place(HATCHERY, location):

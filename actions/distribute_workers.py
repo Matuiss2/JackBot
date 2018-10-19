@@ -40,8 +40,8 @@ class DistributeWorkers:
         """If the worker is idle send to the closest mineral"""
         for drone in self.ai.drones.idle:
             if self.mineral_fields:
-                mf = self.mineral_fields.closest_to(drone)
-                self.ai.add_action(drone.gather(mf))
+                mineral_field = self.mineral_fields.closest_to(drone)
+                self.ai.add_action(drone.gather(mineral_field))
 
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""
