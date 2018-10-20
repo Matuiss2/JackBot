@@ -18,13 +18,13 @@ class BuildSpores:
             if [au for au in self.ai.known_enemy_units.flying if au.can_attack_ground]:
                 self.enemy_flying_dmg_units = True
 
-        base = self.ai.townhalls
+        base = self.ai.townhalls.ready
         spores = self.ai.spores
 
-        if (not len(spores) < len(base.ready)) or self.ai.close_enemies_to_base:
+        if (not len(spores) < len(base)) or self.ai.close_enemies_to_base:
             return False
 
-        self.selected_base = base.ready.random
+        self.selected_base = base.random
         return (
             (self.enemy_flying_dmg_units or self.ai.time >= 420)
             and not self.ai.already_pending(SPORECRAWLER)
