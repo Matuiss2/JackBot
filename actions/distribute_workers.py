@@ -107,7 +107,7 @@ class DistributeWorkers:
         """Check vespene actual saturation and when the requirement are filled saturate the geyser"""
         self.ai.add_action(worker.gather(deficit_extractors[0][0]))
         deficit_extractors[0][1] += 1
-        if deficit_extractors[0][1] == 0:
+        if not deficit_extractors[0][1]:
             del deficit_extractors[0]
 
     def distribute_to_mineral_field(self, mineral_fields_deficit, worker, deficit_bases):
@@ -117,7 +117,7 @@ class DistributeWorkers:
             del mineral_fields_deficit[0]
         self.ai.add_action(worker.gather(drone_target))
         deficit_bases[0][1] += 1
-        if deficit_bases[0][1] == 0:
+        if not deficit_bases[0][1]:
             del deficit_bases[0]
 
     def gather_gas(self):

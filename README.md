@@ -27,6 +27,8 @@ _Optimization and micro-optimization_
  
  - Prevent errors using checks on spines
  
+ - Exchanging integers comparisons for boolean checks(==0 --> not) on jack_bot, distribute_workers
+ 
 _Functional changes_
 
 - Making the first scout earlier(drone)
