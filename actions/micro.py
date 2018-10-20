@@ -10,9 +10,9 @@ class Micro:
         if targets_close:
             self.attack_lowhp(unit, targets_close)
             return True
-        buldings_close = self.ai.known_enemy_units.in_attack_range_of(unit)
-        if buldings_close:
-            self.attack_lowhp(unit, buldings_close)
+        buildings_in_attack_range = self.ai.known_enemy_units.in_attack_range_of(unit)
+        if buildings_in_attack_range:
+            self.attack_lowhp(unit, buildings_in_attack_range)
             return True
         target = enemies.closest_to(unit)
         if target:
