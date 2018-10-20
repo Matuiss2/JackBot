@@ -11,6 +11,7 @@ class TrainOverlord:
     async def should_handle(self, iteration):
         """We still get supply blocked when ultralisk come out, can be improved"""
         if not self.ai.supply_cap >= 200 and self.ai.supply_left < (7 + self.ai.supply_used // 7):
+            overlords_in_queue = self.ai.already_pending
             if self.ai.can_train(OVERLORD):
                 base_amount = len(self.ai.townhalls)  # so it just calculate once per loop
                 if (
@@ -20,8 +21,8 @@ class TrainOverlord:
                 ):
                     if not self.ai.close_enemy_production:
                         return False
-                if (base_amount in (1, 2) and self.ai.already_pending(OVERLORD)) or (
-                    self.ai.already_pending(OVERLORD) >= 2
+                if (base_amount in (1, 2) and overlords_in_queue(OVERLORD)) or (
+                        overlords_in_queue(OVERLORD) >= 2
                 ):
                     return False
                 return True
