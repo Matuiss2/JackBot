@@ -12,16 +12,17 @@ class TrainWorker:
         """Should this action be handled"""
         workers_total = len(self.ai.workers)
         geysirs = self.ai.extractors
-
+        in_queue = self.ai.already_pending
+        drones_in_queue = in_queue(DRONE)
         if not self.ai.close_enemies_to_base and self.ai.can_train(DRONE):
-            if workers_total == 12 and not self.ai.already_pending(DRONE) and self.ai.time < 200:
+            if workers_total == 12 and not drones_in_queue and self.ai.time < 200:
                 return True
-            if workers_total in (13, 14, 15) and len(self.ai.overlords) + self.ai.already_pending(OVERLORD) > 1:
+            if workers_total in (13, 14, 15) and len(self.ai.overlords) + in_queue(OVERLORD) > 1:
                 if workers_total == 15 and geysirs and self.ai.pools and self.ai.time < 250:
                     return True
                 return True
             optimal_workers = min(sum(x.ideal_harvesters for x in self.ai.townhalls | geysirs), 90 - len(geysirs))
-            if workers_total + self.ai.already_pending(DRONE) < optimal_workers and len(self.ai.zerglings) > 13:
+            if workers_total + drones_in_queue < optimal_workers and len(self.ai.zerglings) > 13:
                 return True
         return False
 
