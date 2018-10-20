@@ -178,8 +178,8 @@ class ArmyControl(Micro):
         ):
             self.move_to_rallying_point(unit)
             return True
-        enemy_building = self.ai.known_enemy_structures
         if not self.ai.close_enemy_production:
+            enemy_building = self.ai.enemy_structures
             if enemy_building and self.ai.townhalls:
                 self.attack_closest_building(unit)
             else:
@@ -188,10 +188,10 @@ class ArmyControl(Micro):
 
     def attack_closest_building(self, unit):
         """Attack the starting location"""
-        enemy_building = self.ai.known_enemy_structures.not_flying
+        enemy_building = self.ai.enemy_structures.not_flying
         if enemy_building:
             self.ai.add_action(
-                unit.attack(enemy_building.closest_to(self.ai.townhalls.furthest_to(self.ai.game_info.map_center)))
+                unit.attack(enemy_building.closest_to(self.ai.furthes_townhall_to_map_center))
             )
 
     def attack_startlocation(self, unit):

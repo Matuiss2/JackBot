@@ -10,15 +10,23 @@ class Micro:
         if targets_close:
             self.attack_lowhp(unit, targets_close)
             return True
-        buildings_in_attack_range = self.ai.known_enemy_units.in_attack_range_of(unit)
-        if buildings_in_attack_range:
-            self.attack_lowhp(unit, buildings_in_attack_range)
+
+        if self.attack_in_range(unit):
             return True
+
         target = enemies.closest_to(unit)
         if target:
             self.ai.add_action(unit.attack(target))
             return True
         return None
+
+    def attack_in_range(self, unit):
+        """Attacks the lowest hp enemy in range of the unit"""
+        target_in_range = self.ai.enemies.in_attack_range_of(unit)
+        if target_in_range:
+            self.attack_lowhp(unit, target_in_range)
+            return True
+        return False
 
     def move_to_next_target(self, unit, enemies):
         """It helps on the targeting and positioning"""

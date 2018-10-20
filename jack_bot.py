@@ -156,7 +156,10 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.pit = None
         self.spores = None
         self.spires = None
+        self.enemies = None
+        self.enemy_structures = None
         self.ground_enemies = None
+        self.furthes_townhall_to_map_center = None
 
     def get_units(self):
         """Make all repeated units global"""
@@ -184,7 +187,10 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.spores = self.units(SPORECRAWLER)
         self.spires = self.units(SPIRE)
         self.mutalisks = self.units(MUTALISK)
+        self.enemies = self.known_enemy_units
+        self.enemy_structures = self.known_enemy_structures
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
+        self.furthes_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
