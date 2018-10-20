@@ -27,7 +27,7 @@ _Optimization and micro-optimization_
  
 - Simplify drones, remove double calculation
 
-- Reducing dots(methods or properties calls)on army_control, jack_bot, micro, queen_abilities, overseer, 
+- Reducing dots(methods or properties calls) where I could 
 
  _Bug fixes_
  

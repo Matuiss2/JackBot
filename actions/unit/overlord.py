@@ -15,6 +15,8 @@ class Overlord:
 
     async def handle(self, iteration):
         """Send the ovs to the center and near the natural"""
+        action = self.ai.add_action
+        map_center = self.ai._game_info.map_center
         # enemy_main = self.ai.enemy_start_locations[0]  # point2
         # enemy_natural = min(
         #    self.ai.ordered_expansions,
@@ -24,11 +26,11 @@ class Overlord:
         # )
         if not self.first_ov_scout:
             self.first_ov_scout = True
-            self.ai.add_action(
-                self.ai.overlords.first.move(self.ai.ordered_expansions[1].towards(self.ai._game_info.map_center, 18))
+            action(
+                self.ai.overlords.first.move(self.ai.ordered_expansions[1].towards(map_center, 18))
             )
         elif not self.second_ov_scout and len(self.ai.overlords.ready) == 2:
             second_ov = self.ai.overlords.ready.closest_to(self.ai.townhalls.first)
             self.second_ov_scout = True
-            self.ai.add_action(second_ov.move(self.ai._game_info.map_center))
-        # self.ai.add_action(self.ai.overlords.first.move(enemy_natural.towards(enemy_main, -11)))
+            action(second_ov.move(map_center))
+        # action(self.ai.overlords.first.move(enemy_natural.towards(enemy_main, -11)))
