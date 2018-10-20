@@ -21,11 +21,12 @@ class BuildExtractor:
         gas = self.ai.extractors
         gas_amount = len(gas)  # so it calculate just once per step
         vgs = self.ai.state.vespene_geyser.closer_than(10, self.ai.townhalls.ready.random)
+        extractor_in_queue = self.ai.already_pending(EXTRACTOR)
         for geyser in vgs:
             self.drone = self.ai.select_build_worker(geyser.position)
             if not self.drone:
                 return False
-            if not self.ai.already_pending(EXTRACTOR):
+            if not extractor_in_queue:
                 if not gas and self.ai.pools:
                     self.geyser = geyser
                     return True
