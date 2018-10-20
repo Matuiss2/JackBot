@@ -14,9 +14,11 @@ class Overseer:
     async def handle(self, iteration):
         """It sends the overseer at the closest ally, can be improved a lot"""
         atk_force = self.ai.zerglings | self.ai.ultralisks
-
+        action = self.ai.add_action
         selected_ov = self.ai.overseers.first
+        move_overseer = selected_ov.move
+        overseer_position = selected_ov.position
         if atk_force:
-            self.ai.add_action(selected_ov.move(atk_force.closest_to(selected_ov.position)))
+            action(move_overseer(atk_force.closest_to(overseer_position)))
         elif self.ai.townhalls:
-            self.ai.add_action(selected_ov.move(self.ai.townhalls.closest_to(selected_ov.position)))
+            action(move_overseer(self.ai.townhalls.closest_to(overseer_position)))
