@@ -26,13 +26,15 @@ class BuildEvochamber:
     async def handle(self, iteration):
         """Build it behind the mineral line if there is space, if not uses later placement"""
         position = await self.ai.get_production_position()
+        base = self.ai.townhalls
+        map_center = self.ai.game_info.map_center
         if position:
             await self.ai.build(EVOLUTIONCHAMBER, position)
             return True
 
-        furthest_base = self.ai.townhalls.furthest_to(self.ai.game_info.map_center)
-        second_base = (self.ai.townhalls - {furthest_base}).closest_to(furthest_base)
+        furthest_base = base.furthest_to(map_center)
+        second_base = (base - {furthest_base}).closest_to(furthest_base)
         await self.ai.build(
-                EVOLUTIONCHAMBER, second_base.position.towards_with_random_angle(self.ai.game_info.map_center, -14)
+                EVOLUTIONCHAMBER, second_base.position.towards_with_random_angle(map_center, -14)
             )
         return True
