@@ -16,12 +16,18 @@ _Style changes_
 
 - Small reformatting changes on army_control
 
+- Fix typos on army_control
+
 _Optimization and micro-optimization_ 
 
 - Exchanging list for the much faster sets or tuples on defend_worker_rush, defend_rush_buildings,
  upgrades/evochamber
+  
+- Exchanging list-comp for the faster generators where we can on building_positioning, worker
  
 - Simplify drones, remove double calculation
+
+- Reducing property calls on army_control, jack_bot, micro
 
  _Bug fixes_
  

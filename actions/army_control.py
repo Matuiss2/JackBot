@@ -191,7 +191,7 @@ class ArmyControl(Micro):
         enemy_building = self.ai.enemy_structures.not_flying
         if enemy_building:
             self.ai.add_action(
-                unit.attack(enemy_building.closest_to(self.ai.furthes_townhall_to_map_center))
+                unit.attack(enemy_building.closest_to(self.ai.furthest_townhall_to_map_center))
             )
 
     def attack_startlocation(self, unit):

@@ -20,7 +20,7 @@ class TrainWorker:
                 if workers_total == 15 and geysirs and self.ai.pools and self.ai.time < 250:
                     return True
                 return True
-            optimal_workers = min(sum([x.ideal_harvesters for x in self.ai.townhalls | geysirs]), 90 - len(geysirs))
+            optimal_workers = min(sum(x.ideal_harvesters for x in self.ai.townhalls | geysirs), 90 - len(geysirs))
             if workers_total + self.ai.already_pending(DRONE) < optimal_workers and len(self.ai.zerglings) > 13:
                 return True
         return False
