@@ -28,22 +28,25 @@ class QueensAbilities:
     async def handle(self, iteration):
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
         if not (self.ai.floating_buildings_bm and self.ai.supply_used >= 199):
+            action = self.ai.add_action
             for queen in self.queens.idle:
-                if self.enemies.closer_than(10, queen.position):
-                    self.ai.add_action(queen.attack(self.enemies.closest_to(queen.position)))
+                queen_position = queen.position
+                queen_energy = queen.energy
+                if self.enemies.closer_than(10, queen_position):
+                    action(queen.attack(self.enemies.closest_to(queen_position)))
                     continue
                 selected = self.hatchery.closest_to(queen.position)
-                if queen.energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                    self.ai.add_action(queen(EFFECT_INJECTLARVA, selected))
+                if queen_energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
+                    action(queen(EFFECT_INJECTLARVA, selected))
                     continue
-                elif queen.energy >= 25:
+                elif queen_energy >= 25:
                     await self.ai.place_tumor(queen)
 
             for hatch in self.hatchery.ready.noqueue:
                 if not self.queens.closer_than(4, hatch):
                     for queen in self.queens.idle:
                         if not self.ai.townhalls.closer_than(4, queen):
-                            self.ai.add_action(queen.move(hatch.position))
+                            action(queen.move(hatch.position))
                             break
 
             return True
