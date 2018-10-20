@@ -51,8 +51,9 @@ class BuildExpansion:
 
     async def handle(self, iteration):
         """Expands to the nearest expansion location using the nearest drone to it"""
+        action = self.ai.add_action
         if self.worker_to_first_base == self.send_worker:
-            self.ai.add_action(await self.send_worker_to_next_expansion())
+            action(await self.send_worker_to_next_expansion())
             self.worker_to_first_base = self.did_send_worker
             return True
 
@@ -63,7 +64,7 @@ class BuildExpansion:
         for expansion in self.ai.ordered_expansions:
             if await self.ai.can_place(HATCHERY, expansion):
                 drone = self.ai.workers.closest_to(expansion)
-                self.ai.add_action(drone.build(HATCHERY, expansion))
+                action(drone.build(HATCHERY, expansion))
                 return True
 
         return False
