@@ -34,7 +34,7 @@ class BuildExtractor:
                 self.geyser = geyser
                 return True
             pit = self.ai.pits
-            if pit and gas_amount < 8 and not self.ai.already_pending(EXTRACTOR):
+            if pit and gas_amount < 8 and not extractor_in_queue:
                 self.geyser = geyser
                 return True
         return False
