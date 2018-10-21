@@ -34,23 +34,34 @@ class ArmyControl(Micro):
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        return self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
+        local_controller = self.ai
+        return local_controller.zerglings | local_controller.ultralisks | local_controller.mutalisks
 
     async def handle(self, iteration):  # needs further refactoring(too-many-branches, too-many-statements)
         """It surrounds and target low hp units, also retreats when overwhelmed,
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""
+        local_controller = self.ai
+        action = local_controller.add_action
         targets = None
         combined_enemies = None
-        enemy_building = self.ai.known_enemy_structures
-        if not self.zergling_atk_speed and self.ai.hives:
-            self.zergling_atk_speed = self.ai.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-        if self.ai.townhalls:
-            self.rally_point = self.ai.townhalls.closest_to(self.ai._game_info.map_center).position.towards(
-                self.ai._game_info.map_center, 10
-            )
-
-        if self.ai.known_enemy_units:
+        enemy_building = local_controller.known_enemy_structures
+        map_center = local_controller._game_info.map_center
+        bases = local_controller.townhalls
+        enemy_units = local_controller.known_enemy_units
+        zerglings = local_controller.zerglings
+        ultralisks = local_controller.ultralisks
+        mutalisks = local_controller.mutalisks
+        spines = local_controller.spines
+        flying_buildings = enemy_building.flying
+        close_enemies_to_base = local_controller.close_enemies_to_base
+        closest_enemy_building = enemy_building.closest_to
+        game_time = local_controller.time
+        if not self.zergling_atk_speed and local_controller.hives:
+            self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+        if bases:
+            self.rally_point = bases.closest_to(map_center).position.towards(map_center, 10)
+        if enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
                 DISRUPTORPHASED,
@@ -60,67 +71,67 @@ class ArmyControl(Micro):
                 INFESTEDTERRAN,
                 AUTOTURRET,
             }
-            filtered_enemies = self.ai.known_enemy_units.not_structure.exclude_type(excluded_units)
-            static_defence = self.ai.known_enemy_structures.of_type(
-                {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS}
-            )
+            filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
+            static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
-        atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks
-        if self.ai.floating_buildings_bm and self.ai.supply_used >= 199:
-            atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks | self.ai.queens
-        # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
+        atk_force = zerglings | ultralisks | mutalisks
+        if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
+            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
+        # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
+            unit_position = attacking_unit.position
+            unit_type = attacking_unit.type_id
+            attack_command = attacking_unit.attack
             if (
-                self.ai.close_enemy_production
-                and self.ai.spines
-                and not self.ai.spines.closer_than(2, attacking_unit.position)
-                and (self.ai.time <= 480 or len(self.ai.zerglings) <= 14)
+                local_controller.close_enemy_production
+                and spines
+                and not spines.closer_than(2, unit_position)
+                and (game_time <= 480 or len(zerglings) <= 14)
             ):
-                if targets and targets.closer_than(5, attacking_unit.position):
-                    if attacking_unit.type_id == ZERGLING:
+                if targets and targets.closer_than(5, unit_position):
+                    if unit_type == ZERGLING:
                         if self.micro_zerglings(targets, attacking_unit):
                             continue
                 else:
-                    self.ai.add_action(attacking_unit.move(self.ai.spines.closest_to(attacking_unit.position)))
+                    action(attacking_unit.move(spines.closest_to(unit_position)))
                     continue
-            if attacking_unit.type_id in (MUTALISK, QUEEN) and enemy_building.flying:
-                self.ai.add_action(attacking_unit.attack(enemy_building.flying.closest_to(attacking_unit.position)))
+            if unit_type in (MUTALISK, QUEEN) and flying_buildings:
+                action(attack_command(flying_buildings.closest_to(unit_position)))
                 continue
-            if attacking_unit.tag in self.retreat_units and self.ai.townhalls:
+            if attacking_unit.tag in self.retreat_units and bases:
                 self.has_retreated(attacking_unit)
                 continue
-            if targets and targets.closer_than(17, attacking_unit.position):
+            if targets and targets.closer_than(17, unit_position):
+                closest_target = targets.closest_to
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if await self.ai._client.query_pathing(
-                    attacking_unit.position, targets.closest_to(attacking_unit.position).position
-                ):
-                    if attacking_unit.type_id == ZERGLING:
+                if await local_controller._client.query_pathing(unit_position, closest_target(unit_position).position):
+                    if unit_type == ZERGLING:
                         if self.micro_zerglings(targets, attacking_unit):
                             continue
                     else:
-                        self.ai.add_action(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                        action(attack_command(closest_target(unit_position)))
                         continue
                 else:
-                    self.ai.add_action(attacking_unit.attack(targets.closest_to(attacking_unit.position).position))
-            elif enemy_building.closer_than(30, attacking_unit.position):
-                self.ai.add_action(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
+                    action(attack_command(closest_target(unit_position).position))
+            elif enemy_building.closer_than(30, unit_position):
+                action(attack_command(closest_enemy_building(unit_position)))
                 continue
-            elif self.ai.time < 1000 and not self.ai.close_enemies_to_base:
+            elif game_time < 1000 and not close_enemies_to_base:
                 self.idle_unit(attacking_unit)
                 continue
             else:
-                if not self.retreat_units or self.ai.close_enemies_to_base or self.ai.time >= 1000:
+                if not self.retreat_units or close_enemies_to_base or game_time >= 1000:
                     if enemy_building:
-                        self.ai.add_action(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
+                        action(attack_command(closest_enemy_building(unit_position)))
                         continue
                     elif targets:
-                        self.ai.add_action(attacking_unit.attack(targets.closest_to(attacking_unit.position)))
+                        action(attack_command(targets.closest_to(unit_position)))
                         continue
                     else:
                         self.attack_startlocation(attacking_unit)
-                elif self.ai.townhalls:
+                elif bases:
                     self.move_to_rallying_point(attacking_unit)
 
     def move_to_rallying_point(self, unit):
@@ -135,13 +146,14 @@ class ArmyControl(Micro):
 
     def retreat_unit(self, unit, combined_enemies):
         """Tell the unit to retreat when overwhelmed"""
+        local_controller = self.ai
         if (
-            self.ai.townhalls
-            and not self.ai.close_enemies_to_base
-            and not self.ai.units.structure.closer_than(7, unit.position)
+            local_controller.townhalls
+            and not local_controller.close_enemies_to_base
+            and not local_controller.units.structure.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
-            >= len(self.ai.zerglings.closer_than(20, unit.position))
-            + len(self.ai.ultralisks.closer_than(20, unit.position)) * 6
+            >= len(local_controller.zerglings.closer_than(20, unit.position))
+            + len(local_controller.ultralisks.closer_than(20, unit.position)) * 6
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -169,18 +181,19 @@ class ArmyControl(Micro):
 
     def idle_unit(self, unit):
         """Control the idle units, by gathering then or telling then to attack"""
+        local_controller = self.ai
         if (
-            len(self.ai.ultralisks.ready) < 4
-            and self.ai.supply_used not in range(198, 201)
-            and len(self.ai.zerglings.ready) < 41
-            and self.ai.townhalls
+            len(local_controller.ultralisks.ready) < 4
+            and local_controller.supply_used not in range(198, 201)
+            and len(local_controller.zerglings.ready) < 41
+            and local_controller.townhalls
             and self.retreat_units
         ):
             self.move_to_rallying_point(unit)
             return True
-        if not self.ai.close_enemy_production:
-            enemy_building = self.ai.enemy_structures
-            if enemy_building and self.ai.townhalls:
+        if not local_controller.close_enemy_production:
+            enemy_building = local_controller.enemy_structures
+            if enemy_building and local_controller.townhalls:
                 self.attack_closest_building(unit)
             else:
                 self.attack_startlocation(unit)
@@ -188,13 +201,15 @@ class ArmyControl(Micro):
 
     def attack_closest_building(self, unit):
         """Attack the starting location"""
-        enemy_building = self.ai.enemy_structures.not_flying
+        local_controller = self.ai
+        enemy_building = local_controller.enemy_structures.not_flying
         if enemy_building:
-            self.ai.add_action(
-                unit.attack(enemy_building.closest_to(self.ai.furthest_townhall_to_map_center))
+            local_controller.add_action(
+                unit.attack(enemy_building.closest_to(local_controller.furthest_townhall_to_map_center))
             )
 
     def attack_startlocation(self, unit):
         """It tell to attack the starting location"""
-        if self.ai.enemy_start_locations:
-            self.ai.add_action(unit.attack(self.ai.enemy_start_locations[0]))
+        local_controller = self.ai
+        if local_controller.enemy_start_locations:
+            local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))

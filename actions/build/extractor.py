@@ -13,27 +13,29 @@ class BuildExtractor:
     async def should_handle(self, iteration):
         """Couldnt find another way to build the geysers its way to inefficient,
          also the logic can be improved, sometimes it over collect vespene sometime it under collect"""
-        if (self.ai.vespene * 1.25 > self.ai.minerals) or (
-            not (self.ai.townhalls.ready and self.ai.can_afford(EXTRACTOR))
+        local_controller = self.ai
+        finished_bases = local_controller.townhalls.ready
+        if (local_controller.vespene * 1.25 > local_controller.minerals) or (
+            not (finished_bases and local_controller.can_afford(EXTRACTOR))
         ):
             return False
 
-        gas = self.ai.extractors
+        gas = local_controller.extractors
         gas_amount = len(gas)  # so it calculate just once per step
-        vgs = self.ai.state.vespene_geyser.closer_than(10, self.ai.townhalls.ready.random)
-        extractor_in_queue = self.ai.already_pending(EXTRACTOR)
+        vgs = local_controller.state.vespene_geyser.closer_than(10, finished_bases.random)
+        extractor_in_queue = local_controller.already_pending(EXTRACTOR)
         for geyser in vgs:
-            self.drone = self.ai.select_build_worker(geyser.position)
+            self.drone = local_controller.select_build_worker(geyser.position)
             if not self.drone:
                 return False
             if not extractor_in_queue:
-                if not gas and self.ai.pools:
+                if not gas and local_controller.pools:
                     self.geyser = geyser
                     return True
-            if (self.ai.time > 900 or self.ai.spires) and gas_amount < 11:
+            if (local_controller.time > 900 or local_controller.spires) and gas_amount < 11:
                 self.geyser = geyser
                 return True
-            pit = self.ai.pits
+            pit = local_controller.pits
             if pit and gas_amount < 8 and not extractor_in_queue:
                 self.geyser = geyser
                 return True

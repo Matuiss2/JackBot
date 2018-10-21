@@ -21,9 +21,7 @@ class TrainOverlord:
                 ):
                     if not self.ai.close_enemy_production:
                         return False
-                if (base_amount in (1, 2) and overlords_in_queue(OVERLORD)) or (
-                        overlords_in_queue(OVERLORD) >= 2
-                ):
+                if (base_amount in (1, 2) and overlords_in_queue(OVERLORD)) or (overlords_in_queue(OVERLORD) >= 2):
                     return False
                 return True
             return False

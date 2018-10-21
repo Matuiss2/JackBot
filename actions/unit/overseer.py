@@ -9,16 +9,21 @@ class Overseer:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        return self.ai.overseers and (self.ai.zerglings | self.ai.ultralisks or self.ai.townhalls)
+        local_controller = self.ai
+        return local_controller.overseers and (
+            local_controller.zerglings | local_controller.ultralisks or local_controller.townhalls
+        )
 
     async def handle(self, iteration):
         """It sends the overseer at the closest ally, can be improved a lot"""
-        atk_force = self.ai.zerglings | self.ai.ultralisks
-        action = self.ai.add_action
-        selected_ov = self.ai.overseers.first
+        local_controller = self.ai
+        bases = local_controller.townhalls
+        atk_force = local_controller.zerglings | local_controller.ultralisks
+        action = local_controller.add_action
+        selected_ov = local_controller.overseers.first
         move_overseer = selected_ov.move
         overseer_position = selected_ov.position
         if atk_force:
             action(move_overseer(atk_force.closest_to(overseer_position)))
-        elif self.ai.townhalls:
-            action(move_overseer(self.ai.townhalls.closest_to(overseer_position)))
+        elif bases:
+            action(move_overseer(bases.closest_to(overseer_position)))

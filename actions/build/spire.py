@@ -10,15 +10,17 @@ class BuildSpire:
 
     async def should_handle(self, iteration):
         """Build the spire if only floating buildings left"""
+        local_controller = self.ai
         return (
-            not self.ai.spires
-            and self.ai.can_afford(SPIRE)
-            and self.ai.floating_buildings_bm
-            and not self.ai.already_pending(SPIRE)
-            and (self.ai.lairs or self.ai.hives)
+            not local_controller.spires
+            and local_controller.can_afford(SPIRE)
+            and local_controller.floating_buildings_bm
+            and not local_controller.already_pending(SPIRE)
+            and (local_controller.lairs or local_controller.hives)
         )
 
     async def handle(self, iteration):
         """ Put the spire near the pool"""
-        await self.ai.build(SPIRE, near=self.ai.pools.first)
+        local_controller = self.ai
+        await local_controller.build(SPIRE, near=local_controller.pools.first)
         return True

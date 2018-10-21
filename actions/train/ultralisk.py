@@ -11,18 +11,20 @@ class TrainUltralisk:
     async def should_handle(self, iteration):
         """Good for now but it might need to be changed vs particular
          enemy units compositions"""
-        if not self.ai.caverns.ready:
+        local_controller = self.ai
+        if not local_controller.caverns.ready:
             return False
 
-        if not self.ai.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) and self.ai.time > 780:
+        if not local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) and local_controller.time > 780:
             return False
 
-        if not self.ai.can_train(ULTRALISK):
+        if not local_controller.can_train(ULTRALISK):
             return False
 
         return True
 
     async def handle(self, iteration):
         """Execute the action of training ultralisks"""
-        self.ai.add_action(self.ai.larvae.random.train(ULTRALISK))
+        local_controller = self.ai
+        local_controller.add_action(local_controller.larvae.random.train(ULTRALISK))
         return True

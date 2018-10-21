@@ -13,9 +13,10 @@ class QueensAbilities:
 
     async def should_handle(self, iteration):
         """Injection and creep spread, can be expanded so it accepts transfusion"""
-        self.queens = self.ai.queens
-        self.hatchery = self.ai.townhalls
-        self.enemies = self.ai.known_enemy_units.not_structure
+        local_controller = self.ai
+        self.queens = local_controller.queens
+        self.hatchery = local_controller.townhalls
+        self.enemies = local_controller.known_enemy_units.not_structure
 
         if not self.queens:
             return False
@@ -27,8 +28,9 @@ class QueensAbilities:
 
     async def handle(self, iteration):
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
-        if not (self.ai.floating_buildings_bm and self.ai.supply_used >= 199):
-            action = self.ai.add_action
+        local_controller = self.ai
+        if not (local_controller.floating_buildings_bm and local_controller.supply_used >= 199):
+            action = local_controller.add_action
             for queen in self.queens.idle:
                 queen_position = queen.position
                 queen_energy = queen.energy
@@ -40,12 +42,12 @@ class QueensAbilities:
                     action(queen(EFFECT_INJECTLARVA, selected))
                     continue
                 elif queen_energy >= 25:
-                    await self.ai.place_tumor(queen)
+                    await local_controller.place_tumor(queen)
 
             for hatch in self.hatchery.ready.noqueue:
                 if not self.queens.closer_than(4, hatch):
                     for queen in self.queens.idle:
-                        if not self.ai.townhalls.closer_than(4, queen):
+                        if not local_controller.townhalls.closer_than(4, queen):
                             action(queen.move(hatch.position))
                             break
 

@@ -27,7 +27,7 @@ _Optimization and micro-optimization_
  
 - Simplify drones, remove double calculation
 
-- Reducing dots(methods or properties calls) where I could 
+- Reducing dots(methods or properties calls) and make variable locals where I could 
 
  _Bug fixes_
  
