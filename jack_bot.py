@@ -190,7 +190,8 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.enemies = self.known_enemy_units
         self.enemy_structures = self.known_enemy_structures
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
-        self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
+        if self.townhalls:
+            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
