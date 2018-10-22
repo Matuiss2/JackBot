@@ -15,7 +15,7 @@ class TrainZergling:
         game_time = local_controller.time
         if (
             not local_controller.pools.ready or not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-        ) and not local_controller.close_enemies_to_base:
+        ) and not local_controller.close_enemy_production:
             return False
 
         if not local_controller.can_train(ZERGLING):
