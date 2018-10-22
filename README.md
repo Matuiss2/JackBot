@@ -31,7 +31,7 @@ _Optimization and micro-optimization_
 
  _Bug fixes_
  
- - Prevent errors using checks on spines
+ - Prevent errors using checks on spines, jack_bot
  
  - Exchanging integers comparisons for boolean checks(==0 --> not) on jack_bot, distribute_workers
  
