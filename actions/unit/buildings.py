@@ -9,15 +9,23 @@ class Buildings:
         self.ai = ai
 
     async def should_handle(self, iteration):
+        local_controller = self.ai
         """Requirements to run handle"""
-        return self.ai.time < 300 if self.ai.close_enemy_production else self.ai.units.structure.not_ready
+        return (
+            local_controller.time < 300
+            if local_controller.close_enemy_production
+            else local_controller.units.structure.not_ready
+        )
 
     async def handle(self, iteration):
         """Make the cancelling general"""
-        for building in self.ai.units.structure.not_ready.filter(lambda x: x.type_id not in self.ai.tumors):
+        local_controller = self.ai
+        for building in local_controller.units.structure.not_ready.filter(
+            lambda x: x.type_id not in local_controller.tumors
+        ):
             if (
                 building.health_percentage < building.build_progress - 0.5
                 or building.health_percentage < 0.05
                 and building.build_progress > 0.1
-            ) or (building.type_id == HATCHERY and self.ai.close_enemy_production):
-                self.ai.add_action((building(CANCEL)))
+            ) or (building.type_id == HATCHERY and local_controller.close_enemy_production):
+                local_controller.add_action((building(CANCEL)))

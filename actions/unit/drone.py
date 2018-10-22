@@ -10,13 +10,12 @@ class Drone:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        return self.ai.drones and iteration % 2000 == 150 and not self.ai.close_enemy_production
+        local_controller = self.ai
+        return local_controller.drones and iteration % 2000 == 75 and not local_controller.close_enemy_production
 
     async def handle(self, iteration):
         """It sends a drone to scout the map, starting with the closest place then going base by base to the furthest"""
-        waypoints = [point for point in self.ai.expansion_locations]
-        start = self.ai.start_location
-        scout = self.ai.drones.closest_to(start)
-        waypoints.sort(key=lambda p: ((p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2))
-        for point in waypoints:
-            self.ai.add_action(scout.move(point, queue=True))
+        local_controller = self.ai
+        scout = local_controller.drones.closest_to(local_controller.start_location)
+        for point in local_controller.ordered_expansions:
+            local_controller.add_action(scout.move(point, queue=True))

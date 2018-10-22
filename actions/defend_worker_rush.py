@@ -18,11 +18,14 @@ class DefendWorkerRush(Micro):
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        self.base = self.ai.hatcheries.ready
+        local_controller = self.ai
+        self.base = local_controller.hatcheries.ready
         if not self.base:
             return False
 
-        self.enemy_units_close = self.ai.known_enemy_units.closer_than(8, self.base.first).of_type([PROBE, DRONE, SCV])
+        self.enemy_units_close = local_controller.known_enemy_units.closer_than(8, self.base.first).of_type(
+            {PROBE, DRONE, SCV}
+        )
         return (
             self.enemy_units_close
             and not self.defender_tags
@@ -35,7 +38,6 @@ class DefendWorkerRush(Micro):
     async def handle(self, iteration):
         """It destroys every worker rush without losing more than 2 workers,
          it counter scouting worker rightfully now, its too big and can be split"""
-
         if self.enemy_units_close and not self.defender_tags:
             self.build_defense_force(len(self.enemy_units_close))
 
@@ -56,10 +58,11 @@ class DefendWorkerRush(Micro):
 
     def save_lowhp_drone(self, drone, base):
         """Remove drones with less 6 hp from the defending force"""
+        local_controller = self.ai
         if drone.health <= 6:
             if not drone.is_collecting:
-                mineral_field = self.ai.state.mineral_field.closest_to(base.first.position)
-                self.ai.add_action(drone.gather(mineral_field))
+                mineral_field = local_controller.state.mineral_field.closest_to(base.first.position)
+                local_controller.add_action(drone.gather(mineral_field))
             else:
                 self.defender_tags.remove(drone.tag)
             return True
@@ -80,9 +83,10 @@ class DefendWorkerRush(Micro):
 
     def clear_defense_force(self, base):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
+        local_controller = self.ai
         if self.defenders:
             for drone in self.defenders:
-                self.ai.add_action(drone.gather(self.ai.state.mineral_field.closest_to(base.first)))
+                local_controller.add_action(drone.gather(local_controller.state.mineral_field.closest_to(base.first)))
                 continue
         self.defender_tags = []
         self.defenders = None

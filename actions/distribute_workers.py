@@ -14,15 +14,16 @@ class DistributeWorkers:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        self.mining_bases = self.ai.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(
+        local_controller = self.ai
+        self.mining_bases = local_controller.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(
             lambda base: base.ideal_harvesters > 0
         )
         self.mineral_fields = self.mineral_fields_of(self.mining_bases)
-        mining_places = self.mining_bases | self.ai.extractors.ready
+        mining_places = self.mining_bases | local_controller.extractors.ready
 
         self.deficit_bases, self.workers_to_distribute = self.calculate_distribution(mining_places)
 
-        return (self.ai.drones.idle or self.workers_to_distribute) and (self.require_gas or self.deficit_bases)
+        return (local_controller.drones.idle or self.workers_to_distribute) and (self.require_gas or self.deficit_bases)
 
     async def handle(self, iteration):
         """Groups the resulting actions from all functions below"""
@@ -38,17 +39,19 @@ class DistributeWorkers:
 
     def distribute_idle_workers(self):
         """If the worker is idle send to the closest mineral"""
-        for drone in self.ai.drones.idle:
+        local_controller = self.ai
+        for drone in local_controller.drones.idle:
             if self.mineral_fields:
-                mf = self.mineral_fields.closest_to(drone)
-                self.ai.add_action(drone.gather(mf))
+                mineral_field = self.mineral_fields.closest_to(drone)
+                local_controller.add_action(drone.gather(mineral_field))
 
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""
-        workers_to_distribute = [drone for drone in self.ai.drones.idle]
-        mineral_tags = {mf.tag for mf in self.ai.state.mineral_field}
-        mining_places = mining_bases | self.ai.extractors.ready
-        extractor_tags = {ref.tag for ref in self.ai.extractors}
+        local_controller = self.ai
+        workers_to_distribute = [drone for drone in local_controller.drones.idle]
+        mineral_tags = {mf.tag for mf in local_controller.state.mineral_field}
+        mining_places = mining_bases | local_controller.extractors.ready
+        extractor_tags = {ref.tag for ref in local_controller.extractors}
         deficit_bases = []
 
         for mining_place in mining_places:
@@ -56,11 +59,11 @@ class DistributeWorkers:
             if difference > 0:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
-                        moving_drone = self.ai.drones.filter(
+                        moving_drone = local_controller.drones.filter(
                             lambda x: x.order_target in extractor_tags and x not in workers_to_distribute
                         )
                     else:
-                        moving_drone = self.ai.drones.filter(
+                        moving_drone = local_controller.drones.filter(
                             lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
                         )
                     if moving_drone:
@@ -107,7 +110,7 @@ class DistributeWorkers:
         """Check vespene actual saturation and when the requirement are filled saturate the geyser"""
         self.ai.add_action(worker.gather(deficit_extractors[0][0]))
         deficit_extractors[0][1] += 1
-        if deficit_extractors[0][1] == 0:
+        if not deficit_extractors[0][1]:
             del deficit_extractors[0]
 
     def distribute_to_mineral_field(self, mineral_fields_deficit, worker, deficit_bases):
@@ -117,30 +120,33 @@ class DistributeWorkers:
             del mineral_fields_deficit[0]
         self.ai.add_action(worker.gather(drone_target))
         deficit_bases[0][1] += 1
-        if deficit_bases[0][1] == 0:
+        if not deficit_bases[0][1]:
             del deficit_bases[0]
 
     def gather_gas(self):
         """Performs the action of sending drones to geysers"""
+        local_controller = self.ai
         if self.require_gas:
-            for extractor in self.ai.extractors:
+            for extractor in local_controller.extractors:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
-                if 0 < required_drones < self.ai.drones.amount:
-                    for drone in self.ai.drones.random_group_of(required_drones):
-                        self.ai.add_action(drone.gather(extractor))
+                if 0 < required_drones < local_controller.drones.amount:
+                    for drone in local_controller.drones.random_group_of(required_drones):
+                        local_controller.add_action(drone.gather(extractor))
 
     @property
     def require_gas(self):
         """One of the requirements for gas collecting"""
-        return self.require_gas_for_speedlings or (self.ai.vespene * 1.5 < self.ai.minerals)
+        local_controller = self.ai
+        return self.require_gas_for_speedlings or (local_controller.vespene * 1.5 < local_controller.minerals)
 
     @property
     def require_gas_for_speedlings(self):
         """Gas collecting on the beginning so it research zergling speed fast"""
+        local_controller = self.ai
         return (
-            len(self.ai.extractors.ready) == 1
-            and not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
-            and self.ai.vespene < 100
+            len(local_controller.extractors.ready) == 1
+            and not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            and local_controller.vespene < 100
         )
 
     def mineral_fields_of(self, bases):

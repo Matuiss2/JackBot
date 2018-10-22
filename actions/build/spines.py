@@ -4,27 +4,26 @@ from sc2.constants import SPINECRAWLER
 
 class BuildSpines:
     """New placement untested"""
+
     def __init__(self, ai):
         self.ai = ai
         self.lairs = None
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        if not self.ai.pools.ready:
+        local_controller = self.ai
+        if not local_controller.pools.ready and not local_controller.townhalls:
             return False
 
-        return (
-            self.ai.close_enemy_production
-            and len(self.ai.spines) < 4
-            and self.ai.already_pending(SPINECRAWLER) < 2
-        )
+        return local_controller.close_enemy_production and len(local_controller.spines) < 4 and local_controller.already_pending(SPINECRAWLER) < 2
 
     async def handle(self, iteration):
         """Build the spines on the first base near the ramp in case there is a proxy"""
-        await self.ai.build(
+        local_controller = self.ai
+        await local_controller.build(
             SPINECRAWLER,
-            near=self.ai.townhalls.furthest_to(self.ai._game_info.map_center).position.towards(
-                self.ai.main_base_ramp.depot_in_middle, 14
+            near=local_controller.townhalls.furthest_to(local_controller._game_info.map_center).position.towards(
+                local_controller.main_base_ramp.depot_in_middle, 14
             ),
         )
         return True

@@ -17,7 +17,6 @@ from sc2.constants import (
     MUTALISK,
     OVERLORD,
     OVERSEER,
-    PHOTONCANNON,
     PROBE,
     QUEEN,
     SCV,
@@ -157,7 +156,10 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.pit = None
         self.spores = None
         self.spires = None
+        self.enemies = None
+        self.enemy_structures = None
         self.ground_enemies = None
+        self.furthest_townhall_to_map_center = None
 
     def get_units(self):
         """Make all repeated units global"""
@@ -178,14 +180,17 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units.of_type([CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED])
+        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
         self.larvae = self.units(LARVA)
         self.extractors = self.units(EXTRACTOR)
         self.pit = self.units(INFESTATIONPIT)
         self.spores = self.units(SPORECRAWLER)
         self.spires = self.units(SPIRE)
         self.mutalisks = self.units(MUTALISK)
+        self.enemies = self.known_enemy_units
+        self.enemy_structures = self.known_enemy_structures
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
+        self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
@@ -210,7 +215,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.close_enemy_production = False
         self.actions = []
         self.add_action = self.actions.append
-        if iteration == 0:
+        if not iteration:
             # self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
             # await self.prepare_building_positions(self.units(HATCHERY).first)

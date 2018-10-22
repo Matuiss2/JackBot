@@ -10,27 +10,29 @@ class BuildCavern:
 
     async def should_handle(self, iteration):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
-        if self.ai.caverns:
+        local_controller = self.ai
+        if local_controller.caverns:
             return False
 
         return (
-            self.ai.evochambers
-            and self.ai.hives
-            and self.ai.can_afford(ULTRALISKCAVERN)
-            and not self.ai.already_pending(ULTRALISKCAVERN)
+                local_controller.evochambers
+            and local_controller.hives
+            and local_controller.can_afford(ULTRALISKCAVERN)
+            and not local_controller.already_pending(ULTRALISKCAVERN)
         )
 
     async def handle(self, iteration):
         """Build it behind the mineral line if there is space, if not build between the main and natural"""
-        position = await self.ai.get_production_position()
+        local_controller = self.ai
+        position = await local_controller.get_production_position()
         if position:
-            await self.ai.build(ULTRALISKCAVERN, position)
+            await local_controller.build(ULTRALISKCAVERN, position)
             return True
 
-        await self.ai.build(
+        await local_controller.build(
             ULTRALISKCAVERN,
-            near=self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards(
-                self.ai.main_base_ramp.depot_in_middle, 6
+            near=local_controller.townhalls.furthest_to(local_controller.game_info.map_center).position.towards(
+                local_controller.main_base_ramp.depot_in_middle, 6
             ),
         )
         return True

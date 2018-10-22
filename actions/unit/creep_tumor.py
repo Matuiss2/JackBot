@@ -10,7 +10,8 @@ class CreepTumor:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        self.tumors = self.ai.tumors.tags_not_in(self.ai.used_tumors)
+        local_controller = self.ai
+        self.tumors = local_controller.tumors.tags_not_in(local_controller.used_tumors)
         return self.tumors
 
     async def handle(self, iteration):

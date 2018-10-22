@@ -1,15 +1,41 @@
 # Greedy_bot
 
-Its a bot that focus on early agro, then tries to make a transition
+Its a bot that focus on early aggro, then tries to make a transition
 
-TODO implement code to deal with floating buildings BM
+**Change log:**
 
-TODO not keep attacking when ramp is blocked (improve retreat function using unit values)
+_Style changes_
 
-TODO creep spread can get better, it stops when near ramps(no vision)
+- Adding todo comments for refactoring on army_control, expansion
 
-TODO Make the creep queens be on the border of the creep to place a new tumor
+- Cleaning unused stuff on jack_bot
 
-TODO decision making
+- Follow variable style convention on distribute_workers, block_expansions
 
-TODO better values / timings(will have to take advise from strong players)
+- Fix too many booleans on a single if statement pylint error on train/overlord, expansion
+
+- Small reformatting changes on army_control
+
+- Fix typos on army_control
+
+_Optimization and micro-optimization_ 
+
+- Exchanging list for the much faster sets or tuples on defend_worker_rush, defend_rush_buildings,
+ upgrades/evochamber
+  
+- Exchanging list-comp for the faster generators where we can on building_positioning, worker
+ 
+- Simplify drones, remove double calculation
+
+- Reducing dots(methods or properties calls) and make variable locals where I could 
+
+ _Bug fixes_
+ 
+ - Prevent errors using checks on spines
+ 
+ - Exchanging integers comparisons for boolean checks(==0 --> not) on jack_bot, distribute_workers
+ 
+_Functional changes_
+
+- Making the first scout earlier(drone)
+

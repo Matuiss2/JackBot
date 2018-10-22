@@ -10,17 +10,19 @@ class UpgradeBurrow:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
+        local_controller = self.ai
         return (
-            len(self.ai.zerglings) >= 13
-            and (not self.ai.close_enemies_to_base or self.ai.time > 300)
-            and (not self.ai.close_enemy_production or self.ai.time > 300)
-            and self.ai.hatcheries.idle
-            and not self.ai.already_pending_upgrade(BURROW)
-            and self.ai.can_afford(RESEARCH_BURROW)
+            len(local_controller.zerglings) >= 13
+            and (not local_controller.close_enemies_to_base or local_controller.time > 300)
+            and (not local_controller.close_enemy_production or local_controller.time > 300)
+            and local_controller.hatcheries.idle
+            and not local_controller.already_pending_upgrade(BURROW)
+            and local_controller.can_afford(RESEARCH_BURROW)
         )
 
     async def handle(self, iteration):
         """Execute the action of upgrading burrow"""
-        chosen_base = self.ai.hatcheries.idle.closest_to(self.ai._game_info.map_center)
-        self.ai.add_action(chosen_base(RESEARCH_BURROW))
+        local_controller = self.ai
+        chosen_base = local_controller.hatcheries.idle.closest_to(local_controller._game_info.map_center)
+        local_controller.add_action(chosen_base(RESEARCH_BURROW))
         return True
