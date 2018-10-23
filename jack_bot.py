@@ -225,7 +225,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
 
         if self.ground_enemies:
             for hatch in self.townhalls:
-                close_enemy = self.ground_enemies.closer_than(40, hatch.position)
+                close_enemy = self.ground_enemies.closer_than(25, hatch.position)
                 enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
                 if enemies:
                     self.close_enemies_to_base = True

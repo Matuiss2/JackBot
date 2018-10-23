@@ -12,7 +12,7 @@ class UpgradeBurrow:
         """Requirements to run handle"""
         local_controller = self.ai
         return (
-            len(local_controller.zerglings) >= 13
+            len(local_controller.zerglings) >= 19
             and (not local_controller.close_enemies_to_base or local_controller.time > 300)
             and (not local_controller.close_enemy_production or local_controller.time > 300)
             and local_controller.hatcheries.idle

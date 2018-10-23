@@ -152,7 +152,7 @@ class ArmyControl(Micro):
             and not local_controller.close_enemies_to_base
             and not local_controller.units.structure.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
-            >= len(local_controller.zerglings.closer_than(20, unit.position))
+            >= len(local_controller.zerglings.closer_than(13, unit.position))
             + len(local_controller.ultralisks.closer_than(20, unit.position)) * 6
         ):
             self.move_to_rallying_point(unit)
