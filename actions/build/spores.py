@@ -28,7 +28,8 @@ class BuildSpores:
 
         self.selected_base = base.random
         return (
-            (self.enemy_flying_dmg_units or local_controller.time >= 420)
+            # (self.enemy_flying_dmg_units or local_controller.time >= 420)
+            (self.enemy_flying_dmg_units or local_controller.time >= 120)
             and not local_controller.already_pending(SPORECRAWLER)
             and not spores.closer_than(15, self.selected_base.position)
             and local_controller.can_afford(SPORECRAWLER)
@@ -38,8 +39,9 @@ class BuildSpores:
         """Build the spore right on the middle of the base"""
         local_controller = self.ai
         state = local_controller.state
-        for base in local_controller.townhalls:
-            spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
+        for base in local_controller.townhalls.ready:
+            # spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
+            spore_position = base.position.towards(state.mineral_field.closer_than(10, base).center, 3.5).rounded
             if not local_controller.spores.closer_than(15, spore_position):
                 await local_controller.build(SPORECRAWLER, spore_position)
                 return True
