@@ -12,10 +12,13 @@ class BuildSpines:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        if not local_controller.pools.ready and not local_controller.townhalls:
-            return False
-
-        return local_controller.close_enemy_production and len(local_controller.spines) < 4 and local_controller.already_pending(SPINECRAWLER) < 2
+        return (
+            local_controller.pools.ready
+            and local_controller.townhalls
+            and local_controller.close_enemy_production
+            and len(local_controller.spines) < 4
+            and local_controller.already_pending(SPINECRAWLER) < 2
+        )
 
     async def handle(self, iteration):
         """Build the spines on the first base near the ramp in case there is a proxy"""

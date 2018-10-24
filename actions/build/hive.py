@@ -4,6 +4,7 @@ from sc2.constants import CANCEL_MORPHHIVE, HIVE, UPGRADETOHIVE_HIVE
 
 class BuildHive:
     """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
         self.lairs = None
@@ -16,7 +17,12 @@ class BuildHive:
 
         self.lairs = local_controller.lairs.ready
 
-        return local_controller.pit.ready and self.lairs.idle and local_controller.can_afford(HIVE) and not await self.morphing_lairs()
+        return (
+            local_controller.pit.ready
+            and self.lairs.idle
+            and local_controller.can_afford(HIVE)
+            and not await self.morphing_lairs()
+        )
 
     async def handle(self, iteration):
         """Finishes the action of making the hive"""

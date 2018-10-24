@@ -28,14 +28,17 @@ class BuildExpansion:
         self.expand_now = False
 
         if (
-                base
+            base
             and local_controller.can_afford(HATCHERY)
             and not local_controller.close_enemies_to_base
             and (not local_controller.close_enemy_production or game_time > 690)
             and not local_controller.already_pending(HATCHERY)
         ):  # Too many booleans on 1 if statement (separating don't work because it cause another pylint error)
 
-            if not (local_controller.known_enemy_structures.closer_than(50, local_controller.start_location) and game_time < 300):
+            if not (
+                local_controller.known_enemy_structures.closer_than(50, local_controller.start_location)
+                and game_time < 300
+            ):
 
                 if base_amount <= 4:
                     if base_amount == 2:

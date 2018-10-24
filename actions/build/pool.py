@@ -4,6 +4,7 @@ from sc2.constants import SPAWNINGPOOL
 
 class BuildPool:
     """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -14,7 +15,10 @@ class BuildPool:
             not local_controller.already_pending(SPAWNINGPOOL)
             and not local_controller.pools
             and local_controller.can_afford(SPAWNINGPOOL)
-            and (len(local_controller.townhalls) >= 2 or (local_controller.close_enemy_production and local_controller.time < 300))
+            and (
+                len(local_controller.townhalls) >= 2
+                or (local_controller.close_enemy_production and local_controller.time < 300)
+            )
         )
 
     async def handle(self, iteration):
@@ -32,6 +36,4 @@ class BuildPool:
         """Previous placement"""
         local_controller = self.ai
         map_center = local_controller.game_info.map_center
-        return local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(
-            map_center, -10
-        )
+        return local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -10)

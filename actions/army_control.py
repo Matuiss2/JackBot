@@ -191,7 +191,7 @@ class ArmyControl(Micro):
         ):
             self.move_to_rallying_point(unit)
             return True
-        if not local_controller.close_enemy_production:
+        if not local_controller.close_enemy_production or local_controller.time >= 480:
             enemy_building = local_controller.enemy_structures
             if enemy_building and local_controller.townhalls:
                 self.attack_closest_building(unit)

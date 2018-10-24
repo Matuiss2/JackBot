@@ -8,6 +8,7 @@ class Overlord:
         self.ai = ai
         self.first_ov_scout = False
         self.second_ov_scout = False
+        self.third_ov_scout = False
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
@@ -34,5 +35,9 @@ class Overlord:
         elif not self.second_ov_scout and len(local_controller.overlords.ready) == 2:
             second_ov = local_controller.overlords.ready.closest_to(local_controller.townhalls.first)
             self.second_ov_scout = True
-            action(second_ov.move(map_center))
+            action(second_ov.move(local_controller.ordered_expansions[1]))
         # action(local_controller.overlords.first.move(enemy_natural.towards(enemy_main, -11)))
+        elif self.second_ov_scout and not self.third_ov_scout and len(local_controller.overlords.ready) == 3:
+            self.third_ov_scout = True
+            third_ov = local_controller.overlords.ready.closest_to(local_controller.townhalls.furthest_to(map_center))
+            action(third_ov.move(map_center))
