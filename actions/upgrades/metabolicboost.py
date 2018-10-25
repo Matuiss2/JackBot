@@ -10,15 +10,17 @@ class UpgradeMetabolicBoost:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        if not self.ai.pools.ready.idle:
+        local_controller = self.ai
+        if not local_controller.pools.ready.idle:
             return False
 
-        return not self.ai.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and self.ai.can_afford(
+        return not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.can_afford(
             RESEARCH_ZERGLINGMETABOLICBOOST
         )
 
     async def handle(self, iteration):
         """Execute the action of upgrading zergling speed"""
-        pool = self.ai.pools.ready
-        self.ai.add_action(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
+        local_controller = self.ai
+        pool = local_controller.pools.ready
+        local_controller.add_action(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
         return True

@@ -29,10 +29,11 @@ class UpgradeEvochamber:
 
     async def handle(self, iteration):
         """Execute the action of upgrading armor and melee attacks"""
-        for evo in self.ai.evochambers.idle:
-            upgrades = await self.ai.get_available_abilities(evo)
+        local_controller = self.ai
+        for evo in local_controller.evochambers.idle:
+            upgrades = await local_controller.get_available_abilities(evo)
             for upgrade in upgrades:
-                if upgrade in self.upgrade_list and self.ai.can_afford(upgrade):
-                    self.ai.add_action(evo(upgrade))
+                if upgrade in self.upgrade_list and local_controller.can_afford(upgrade):
+                    local_controller.add_action(evo(upgrade))
                     return True
         return True
