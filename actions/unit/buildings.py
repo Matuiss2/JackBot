@@ -10,11 +10,11 @@ class Buildings:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        return self.ai.time < 300 if self.ai.close_enemy_production else self.ai.units.structure.not_ready
+        return self.ai.time < 300 if self.ai.close_enemy_production else self.ai.structures.not_ready
 
     async def handle(self, iteration):
         """Make the cancelling general"""
-        for building in self.ai.units.structure.not_ready.filter(lambda x: x.type_id not in self.ai.tumors):
+        for building in self.ai.structures.not_ready.filter(lambda x: x.type_id not in self.ai.tumors):
             if (
                 building.health_percentage < building.build_progress - 0.5
                 or building.health_percentage < 0.05

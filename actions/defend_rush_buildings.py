@@ -12,7 +12,7 @@ class DefendRushBuildings:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         if self.ai.bases:
-            self.rush_buildings = self.ai.known_enemy_structures.exclude_type({AUTOTURRET, BARRACKS}).closer_than(
+            self.rush_buildings = self.ai.enemy_structures.exclude_type({AUTOTURRET, BARRACKS}).closer_than(
                 50, self.ai.bases.furthest_to(self.ai._game_info.map_center)
             )
         return self.rush_buildings and self.ai.time <= 270
@@ -28,9 +28,9 @@ class DefendRushBuildings:
 
     async def handle(self, iteration):
         """Send workers aggressively to handle the near proxy / cannon rush"""
-        # self.rush_buildings = self.ai.known_enemy_structures.closer_than(20, self.bases.first)
+        # self.rush_buildings = self.ai.enemy_structures.closer_than(20, self.bases.first)
         enemy_worker = self.ai.known_enemy_units.of_type({PROBE, DRONE, SCV}).filter(
-            lambda unit: any([unit.distance_to(our_building) <= 50 for our_building in self.ai.units.structure])
+            lambda unit: any([unit.distance_to(our_building) <= 50 for our_building in self.ai.structures])
         )
         for target in enemy_worker:
             available = self.ai.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
