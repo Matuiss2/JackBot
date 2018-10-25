@@ -27,6 +27,12 @@ from sc2.constants import (
     ULTRALISK,
     ULTRALISKCAVERN,
     ZERGLING,
+    RAVEN,
+    OBSERVER,
+    WARPPRISM,
+    MEDIVAC,
+    VIPER,
+    CORRUPTOR,
 )
 from sc2.position import Point2
 
@@ -84,6 +90,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.debug = debug
         self.actions = []
         self.add_action = None
+        self.excluded = {DRONE, SCV, PROBE, OVERLORD, OVERSEER, RAVEN, OBSERVER, WARPPRISM, MEDIVAC, VIPER, CORRUPTOR}
         self.unit_commands = [
             BlockExpansions(self),
             DefendWorkerRush(self),
@@ -134,6 +141,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.ordered_expansions = []
         self.building_positions = []
 
+
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
         if self.ground_enemies:
@@ -156,6 +164,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.set_game_step()
         self.close_enemies_to_base = False
         self.close_enemy_production = False
+        self.counter_attack_vs_flying = False
         self.actions = []
         self.add_action = self.actions.append
         if not iteration:

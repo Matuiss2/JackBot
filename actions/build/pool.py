@@ -4,30 +4,36 @@ from sc2.constants import SPAWNINGPOOL
 
 class BuildPool:
     """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
         """Should this action be handled"""
+        local_controller = self.ai
         return (
-            not self.ai.already_pending(SPAWNINGPOOL)
-            and not self.ai.pools
-            and self.ai.can_afford(SPAWNINGPOOL)
-            and (len(self.ai.townhalls) >= 2 or (self.ai.close_enemy_production and self.ai.time < 300))
+            not local_controller.already_pending(SPAWNINGPOOL)
+            and not local_controller.pools
+            and local_controller.can_afford(SPAWNINGPOOL)
+            and (
+                len(local_controller.townhalls) >= 2
+                or (local_controller.close_enemy_production and local_controller.time < 300)
+            )
         )
 
     async def handle(self, iteration):
         """Build it behind the mineral line if there is space, if not uses later placement"""
-        position = await self.ai.get_production_position()
+        local_controller = self.ai
+        position = await local_controller.get_production_position()
         if position:
-            await self.ai.build(SPAWNINGPOOL, position)
+            await local_controller.build(SPAWNINGPOOL, position)
             return True
 
-        await self.ai.build(SPAWNINGPOOL, near=self.find_position())
+        await local_controller.build(SPAWNINGPOOL, near=self.find_position())
         return True
 
     def find_position(self):
         """Previous placement"""
-        return self.ai.townhalls.furthest_to(self.ai.game_info.map_center).position.towards_with_random_angle(
-            self.ai.game_info.map_center, -10
-        )
+        local_controller = self.ai
+        map_center = local_controller.game_info.map_center
+        return local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -10)

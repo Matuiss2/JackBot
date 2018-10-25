@@ -4,6 +4,7 @@ from sc2.constants import SPORECRAWLER
 
 class BuildSpores:
     """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
         self.selected_base = None
@@ -11,35 +12,34 @@ class BuildSpores:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
-        if not self.ai.pools.ready:
+        local_controller = self.ai
+        if not local_controller.pools.ready:
             return False
 
-        if self.ai.known_enemy_units.flying:
-            if [au for au in self.ai.known_enemy_units.flying if au.can_attack_ground]:
+        if local_controller.known_enemy_units.flying:
+            if [au for au in local_controller.known_enemy_units.flying if au.can_attack_ground]:
                 self.enemy_flying_dmg_units = True
 
-        base = self.ai.townhalls
-        spores = self.ai.spores
+        base = local_controller.townhalls.ready
+        spores = local_controller.spores
 
-        if (not len(spores) < len(base.ready)) or self.ai.close_enemies_to_base:
+        if (not len(spores) < len(base)) or local_controller.close_enemies_to_base:
             return False
 
-        self.selected_base = base.ready.random
+        self.selected_base = base.random
         return (
-            (self.enemy_flying_dmg_units or self.ai.time >= 420)
-            and not self.ai.already_pending(SPORECRAWLER)
+            (self.enemy_flying_dmg_units or local_controller.time >= 420)
+            and not local_controller.already_pending(SPORECRAWLER)
             and not spores.closer_than(15, self.selected_base.position)
-            and self.ai.can_afford(SPORECRAWLER)
+            and local_controller.can_afford(SPORECRAWLER)
         )
 
     async def handle(self, iteration):
         """Build the spore right on the middle of the base"""
-        for base in self.ai.townhalls:
-            spore_position = (
-                (self.ai.state.mineral_field | self.ai.state.vespene_geyser)
-                    .closer_than(10, base)
-                    .center.towards(base, 1)
-                )
-            if not self.ai.spores.closer_than(15, spore_position):
-                await self.ai.build(SPORECRAWLER, spore_position)
+        local_controller = self.ai
+        state = local_controller.state
+        for base in local_controller.townhalls.ready:
+            spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
+            if not local_controller.spores.closer_than(15, spore_position):
+                await local_controller.build(SPORECRAWLER, spore_position)
                 return True

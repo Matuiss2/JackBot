@@ -12,17 +12,17 @@ class TrainQueen:
 
     async def should_handle(self, iteration):
         """It possibly can get better but it seems good enough for now"""
-
-        self.hatchery = self.ai.townhalls.exclude_type(LAIR).noqueue.ready
+        local_controller = self.ai
+        self.hatchery = local_controller.townhalls.exclude_type(LAIR).noqueue.ready
         if self.hatchery:
             self.hatcheries_random = self.hatchery.random
 
         return (
             self.hatchery
-            and self.ai.pools.ready
-            and len(self.ai.queens) < len(self.hatchery) + 1
-            and not self.ai.already_pending(QUEEN)
-            and self.ai.can_train(QUEEN, larva=False)
+            and local_controller.pools.ready
+            and len(local_controller.queens) < len(self.hatchery) + 1
+            and not local_controller.already_pending(QUEEN)
+            and local_controller.can_train(QUEEN, larva=False)
         )
 
     async def handle(self, iteration):

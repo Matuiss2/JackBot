@@ -10,17 +10,19 @@ class TrainOverseer:
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
+        local_controller = self.ai
         return (
-            (self.ai.lairs or self.ai.hives)
-            and self.ai.overlords
+            (local_controller.lairs or local_controller.hives)
+            and local_controller.overlords
             and not await self.morphing_overlords()
-            and self.ai.can_afford(OVERSEER)
-            and not self.ai.overseers
+            and local_controller.can_afford(OVERSEER)
+            and not local_controller.overseers
         )
 
     async def handle(self, iteration):
         """Morph the overseer"""
-        self.ai.actions.append(self.ai.overlords.random(MORPH_OVERSEER))
+        local_controller = self.ai
+        local_controller.actions.append(local_controller.overlords.random(MORPH_OVERSEER))
 
     async def morphing_overlords(self):
         """Check if there is a overlord morphing looping through all cocoons"""
