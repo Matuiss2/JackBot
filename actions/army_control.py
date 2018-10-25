@@ -72,6 +72,11 @@ class ArmyControl(Micro):
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         ling_count = len(self.ai.zerglings)
         for attacking_unit in atk_force:
+
+            # are we dodging any effect?
+            if self.dodge_effects(attacking_unit):
+                continue
+
             if (
                 self.ai.close_enemy_production
                 and self.ai.spines

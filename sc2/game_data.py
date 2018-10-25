@@ -24,6 +24,7 @@ class GameData(object):
         }
         self.units = {u.unit_id: UnitTypeData(self, u) for u in data.units if u.available}
         self.upgrades = {u.upgrade_id: UpgradeData(self, u) for u in data.upgrades}
+        self.effects = {e.effect_id: EffectRawData(self, e) for e in data.effects}
 
     @lru_cache(maxsize=256)
     def calculate_ability_cost(self, ability) -> "Cost":
@@ -60,6 +61,29 @@ class GameData(object):
                 return upgrade.cost
 
         return Cost(0, 0)
+
+class EffectRawData(object):
+    def __init__(self, game_data, proto):
+        self._game_data = game_data
+        self._proto = proto
+
+        # assert self.id != 0
+
+    @property
+    def id(self) -> int:
+        return self._proto.effect_id
+
+    @property
+    def name(self) -> str:
+        return self._proto.name
+
+    @property
+    def friendly_name(self) -> str:
+        return self._proto.friendly_name
+
+    @property
+    def radius(self) -> float:
+        return self._proto.radius
 
 
 class AbilityData(object):
