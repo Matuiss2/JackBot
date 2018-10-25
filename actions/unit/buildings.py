@@ -9,8 +9,8 @@ class Buildings:
         self.ai = ai
 
     async def should_handle(self, iteration):
-        local_controller = self.ai
         """Requirements to run handle"""
+        local_controller = self.ai
         return (
             local_controller.time < 300
             if local_controller.close_enemy_production

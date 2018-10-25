@@ -12,7 +12,7 @@ _Style changes_
 
 - Follow variable style convention on distribute_workers, block_expansions
 
-- Fix too many booleans on a single if statement pylint error on train/overlord, expansion
+- Fix too many booleans on a single if statement pylint error on train/overlord, expansion, build/evochamber
 
 - Small reformatting changes on army_control
 

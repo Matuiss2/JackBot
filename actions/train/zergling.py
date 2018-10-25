@@ -34,7 +34,7 @@ class TrainZergling:
         return True
 
     async def handle(self, iteration):
-        local_controller = self.ai
         """Execute the action of training zerglings"""
+        local_controller = self.ai
         local_controller.add_action(local_controller.larvae.random.train(ZERGLING))
         return True
