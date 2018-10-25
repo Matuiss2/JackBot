@@ -60,7 +60,7 @@ class DataContainer:
         self.enemies = None
         self.enemy_structures = None
         self.ground_enemies = None
-        self.furthes_townhall_to_map_center = None
+        self.furthest_townhall_to_map_center = None
 
     def prepare_data(self):
         """Prepares the data"""
@@ -92,7 +92,7 @@ class DataContainer:
         self.enemy_structures = self.known_enemy_structures
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
         if self.townhalls:
-            self.furthes_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
+            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
         self.structures = self.units.structure
 
         if self.ground_enemies:
