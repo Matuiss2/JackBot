@@ -53,3 +53,4 @@ _Functional changes_
 
 - Preventing errors with drone pulls by limiting it a bit
 
+- Adding trigger for attacking when flying units with damage are close(needs improvements)

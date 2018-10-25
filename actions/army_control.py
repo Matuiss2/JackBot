@@ -188,6 +188,7 @@ class ArmyControl(Micro):
             and len(local_controller.zerglings.ready) < 41
             and local_controller.townhalls
             and self.retreat_units
+            and not local_controller.counter_attack_vs_flying
         ):
             self.move_to_rallying_point(unit)
             return True
