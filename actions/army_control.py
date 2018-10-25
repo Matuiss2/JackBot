@@ -152,8 +152,8 @@ class ArmyControl(Micro):
             and not local_controller.close_enemies_to_base
             and not local_controller.units.structure.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
-            >= len(local_controller.zerglings.closer_than(20, unit.position))
-            + len(local_controller.ultralisks.closer_than(20, unit.position)) * 6
+            >= len(local_controller.zerglings.closer_than(13, unit.position))
+            + len(local_controller.ultralisks.closer_than(13, unit.position)) * 6
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -188,10 +188,11 @@ class ArmyControl(Micro):
             and len(local_controller.zerglings.ready) < 41
             and local_controller.townhalls
             and self.retreat_units
+            and not local_controller.counter_attack_vs_flying
         ):
             self.move_to_rallying_point(unit)
             return True
-        if not local_controller.close_enemy_production:
+        if not local_controller.close_enemy_production or local_controller.time >= 480:
             enemy_building = local_controller.enemy_structures
             if enemy_building and local_controller.townhalls:
                 self.attack_closest_building(unit)

@@ -14,7 +14,8 @@ class TrainZergling:
         zerglings = local_controller.zerglings
         game_time = local_controller.time
         if (
-            not local_controller.pools.ready or not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            not local_controller.pools.ready
+            or (not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 160)
         ) and not local_controller.close_enemy_production:
             return False
 
@@ -33,7 +34,7 @@ class TrainZergling:
         return True
 
     async def handle(self, iteration):
-        local_controller = self.ai
         """Execute the action of training zerglings"""
+        local_controller = self.ai
         local_controller.add_action(local_controller.larvae.random.train(ZERGLING))
         return True

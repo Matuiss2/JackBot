@@ -4,6 +4,7 @@ from sc2.constants import SPORECRAWLER
 
 class BuildSpores:
     """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
         self.selected_base = None
@@ -37,12 +38,8 @@ class BuildSpores:
         """Build the spore right on the middle of the base"""
         local_controller = self.ai
         state = local_controller.state
-        for base in local_controller.townhalls:
-            spore_position = (
-                (state.mineral_field | state.vespene_geyser)
-                    .closer_than(10, base)
-                    .center.towards(base, 1)
-                )
+        for base in local_controller.townhalls.ready:
+            spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
             if not local_controller.spores.closer_than(15, spore_position):
                 await local_controller.build(SPORECRAWLER, spore_position)
                 return True

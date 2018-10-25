@@ -4,6 +4,7 @@ from sc2.constants import INFESTATIONPIT, ZERGGROUNDARMORSLEVEL2
 
 class BuildPit:
     """Ok for now"""
+
     def __init__(self, ai):
         self.ai = ai
 
@@ -18,7 +19,7 @@ class BuildPit:
             return False
 
         return (
-                local_controller.evochambers
+            local_controller.evochambers
             and local_controller.lairs.ready
             and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
             and local_controller.can_afford(INFESTATIONPIT)
@@ -35,9 +36,7 @@ class BuildPit:
             return True
 
         await local_controller.build(
-                INFESTATIONPIT,
-                near=local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(
-                    map_center, -14
-                ),
-            )
+            INFESTATIONPIT,
+            near=local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -14),
+        )
         return True

@@ -15,13 +15,16 @@ class BuildEvochamber:
         local_controller = self.ai
         pool = local_controller.pools
         evochamber = local_controller.evochambers
-        if (
-            pool.ready
-            and local_controller.can_afford(EVOLUTIONCHAMBER)
-            and len(local_controller.townhalls) >= 3
-            and len(evochamber) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
-        ):
-            return True
+        if pool.ready:
+            if (
+                local_controller.can_afford(EVOLUTIONCHAMBER)
+                and (
+                    len(local_controller.townhalls) >= 3
+                    or (local_controller.close_enemy_production and len(local_controller.spines.ready) >= 4)
+                )
+                and len(evochamber) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
+            ):
+                return True
         return False
 
     async def handle(self, iteration):
@@ -36,7 +39,5 @@ class BuildEvochamber:
 
         furthest_base = base.furthest_to(map_center)
         second_base = (base - {furthest_base}).closest_to(furthest_base)
-        await local_controller.build(
-                EVOLUTIONCHAMBER, second_base.position.towards_with_random_angle(map_center, -14)
-            )
+        await local_controller.build(EVOLUTIONCHAMBER, second_base.position.towards_with_random_angle(map_center, -14))
         return True

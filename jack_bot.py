@@ -27,6 +27,12 @@ from sc2.constants import (
     ULTRALISK,
     ULTRALISKCAVERN,
     ZERGLING,
+    RAVEN,
+    OBSERVER,
+    WARPPRISM,
+    MEDIVAC,
+    VIPER,
+    CORRUPTOR,
 )
 from sc2.position import Point2
 
@@ -81,6 +87,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.debug = debug
         self.actions = []
         self.add_action = None
+        self.excluded = {DRONE, SCV, PROBE, OVERLORD, OVERSEER, RAVEN, OBSERVER, WARPPRISM, MEDIVAC, VIPER, CORRUPTOR}
         self.unit_commands = [
             BlockExpansions(self),
             DefendWorkerRush(self),
@@ -133,6 +140,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.close_enemies_to_base = False
         self.close_enemy_production = False
         self.floating_buildings_bm = False
+        self.counter_attack_vs_flying = False
         self.hatcheries = None
         self.lairs = None
         self.hives = None
@@ -190,7 +198,8 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.enemies = self.known_enemy_units
         self.enemy_structures = self.known_enemy_structures
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
-        self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
+        if self.townhalls:
+            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
@@ -213,6 +222,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.set_game_step()
         self.close_enemies_to_base = False
         self.close_enemy_production = False
+        self.counter_attack_vs_flying = False
         self.actions = []
         self.add_action = self.actions.append
         if not iteration:
@@ -224,11 +234,14 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
 
         if self.ground_enemies:
             for hatch in self.townhalls:
-                close_enemy = self.ground_enemies.closer_than(40, hatch.position)
+                close_enemy = self.ground_enemies.closer_than(25, hatch.position)
+                close_enemy_flying = self.known_enemy_units.flying.closer_than(30, hatch.position)
                 enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
-                if enemies:
+                enemies_flying = close_enemy_flying.exclude_type(self.excluded)
+                if enemies_flying and not self.counter_attack_vs_flying:
+                    self.counter_attack_vs_flying = True
+                if enemies and not self.close_enemies_to_base:
                     self.close_enemies_to_base = True
-                    break
 
         if self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(75, self.start_location):
             self.close_enemy_production = True

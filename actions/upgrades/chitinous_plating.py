@@ -18,7 +18,7 @@ class UpgradeChitinousPlating:
         )
 
     async def handle(self, iteration):
-        local_controller = self.ai
         """Execute the action of upgrading ultra armor"""
+        local_controller = self.ai
         local_controller.add_action(local_controller.caverns.idle.first(RESEARCH_CHITINOUSPLATING))
         return True
