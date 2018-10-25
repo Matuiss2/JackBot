@@ -42,7 +42,7 @@ class ArmyControl(Micro):
         Name army_micro because it is in army.py."""
         targets = None
         combined_enemies = None
-        enemy_building = self.ai.known_enemy_structures
+        enemy_building = self.ai.enemy_structures
         if not self.zergling_atk_speed and self.ai.hives:
             self.zergling_atk_speed = self.ai.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
         if self.ai.townhalls:
@@ -61,7 +61,7 @@ class ArmyControl(Micro):
                 AUTOTURRET,
             }
             filtered_enemies = self.ai.known_enemy_units.not_structure.exclude_type(excluded_units)
-            static_defence = self.ai.known_enemy_structures.of_type(
+            static_defence = self.ai.enemy_structures.of_type(
                 {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS}
             )
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
@@ -70,12 +70,13 @@ class ArmyControl(Micro):
         if self.ai.floating_buildings_bm and self.ai.supply_used >= 199:
             atk_force = self.ai.zerglings | self.ai.ultralisks | self.ai.mutalisks | self.ai.queens
         # enemy_detection = self.ai.known_enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
+        ling_count = len(self.ai.zerglings)
         for attacking_unit in atk_force:
             if (
                 self.ai.close_enemy_production
                 and self.ai.spines
                 and not self.ai.spines.closer_than(2, attacking_unit.position)
-                and (self.ai.time <= 480 or len(self.ai.zerglings) <= 14)
+                and (self.ai.time <= 480 or ling_count <= 14)
             ):
                 if targets and targets.closer_than(5, attacking_unit.position):
                     if attacking_unit.type_id == ZERGLING:
@@ -138,7 +139,7 @@ class ArmyControl(Micro):
         if (
             self.ai.townhalls
             and not self.ai.close_enemies_to_base
-            and not self.ai.units.structure.closer_than(7, unit.position)
+            and not self.ai.structures.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
             >= len(self.ai.zerglings.closer_than(20, unit.position))
             + len(self.ai.ultralisks.closer_than(20, unit.position)) * 6
