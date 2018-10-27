@@ -74,7 +74,7 @@ class DataContainer:
     def prepare_data(self):
         """Prepares the data"""
         self.counter_attack_vs_flying = False
-
+        self.close_enemies_to_base = False
         # prepare units
         self.structures = self.units.structure
 
