@@ -44,9 +44,7 @@ class DefendRushBuildings:
         action = local_controller.add_action
         # self.rush_buildings = local_controller.known_enemy_structures.closer_than(20, self.bases.first)
         enemy_worker = local_controller.known_enemy_units.of_type({PROBE, DRONE, SCV}).filter(
-            lambda unit: any(
-                [unit.distance_to(our_building) <= 50 for our_building in local_controller.structures]
-            )
+            lambda unit: any([unit.distance_to(our_building) <= 50 for our_building in local_controller.structures])
         )
         for target in enemy_worker:
             available = local_controller.drones.filter(lambda x: x.is_collecting and not x.is_attacking)

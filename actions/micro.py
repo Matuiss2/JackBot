@@ -2,6 +2,7 @@
 from sc2.position import Point2
 from sc2.unit import Unit
 
+
 class Micro:
     """Group all helpers, for unit control and targeting here"""
 
@@ -23,9 +24,7 @@ class Micro:
             furthest_neighbor_to_effect = center_of_effect.furthest(neighbors8_of_unit)
 
             move_away = -1 * danger_zone
-            self.ai.add_action(
-                unit.move(furthest_neighbor_to_effect.towards(unit.position, move_away))
-            )
+            self.ai.add_action(unit.move(furthest_neighbor_to_effect.towards(unit.position, move_away)))
         return True
 
     def attack_close_target(self, unit, enemies):

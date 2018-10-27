@@ -61,6 +61,7 @@ class GameData(object):
 
         return Cost(0, 0)
 
+
 class EffectRawData(object):
     def __init__(self, game_data, proto):
         self._game_data = game_data

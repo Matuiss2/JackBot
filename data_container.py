@@ -33,6 +33,7 @@ from sc2.constants import (
     CORRUPTOR,
 )
 
+
 class DataContainer:
     """This is the main data container for all data the bot requires"""
 
@@ -90,8 +91,7 @@ class DataContainer:
         self.drones = self.units(DRONE)
         self.queens = self.units(QUEEN)
         self.zerglings = (
-            self.units(ZERGLING).tags_not_in(self.burrowed_lings)
-            if self.burrowed_lings else self.units(ZERGLING)
+            self.units(ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(ZERGLING)
         )
         self.ultralisks = self.units(ULTRALISK)
         self.overseers = self.units(OVERSEER)
@@ -100,11 +100,7 @@ class DataContainer:
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units.of_type({
-            CREEPTUMORQUEEN,
-            CREEPTUMOR,
-            CREEPTUMORBURROWED
-        })
+        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
         self.larvae = self.units(LARVA)
         self.extractors = self.units(EXTRACTOR)
         self.pit = self.units(INFESTATIONPIT)
@@ -124,11 +120,7 @@ class DataContainer:
 
     def check_for_proxy_buildings(self) -> bool:
         """Check if there are any proxy buildings"""
-        return bool(
-            self.enemy_structures
-                .of_type({BARRACKS, GATEWAY})
-                .closer_than(75, self.start_location)
-        )
+        return bool(self.enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(75, self.start_location))
 
     def check_for_floating_buildings(self) -> bool:
         """Check if some terran wants to be funny with lifting up"""
@@ -152,22 +144,16 @@ class DataContainer:
                 WARPPRISM,
                 MEDIVAC,
                 VIPER,
-                CORRUPTOR
+                CORRUPTOR,
             }
-            excluded_from_ground = {
-                DRONE,
-                SCV,
-                PROBE
-            }
+            excluded_from_ground = {DRONE, SCV, PROBE}
             for hatch in self.bases:
 
-                close_enemy = self.ground_enemies\
-                    .exclude_type(excluded_from_ground)\
-                    .closer_than(25, hatch.position)
+                close_enemy = self.ground_enemies.exclude_type(excluded_from_ground).closer_than(25, hatch.position)
 
-                close_enemy_flying = self.flying_enemies\
-                    .exclude_type(excluded_from_flying)\
-                    .closer_than(30, hatch.position)
+                close_enemy_flying = self.flying_enemies.exclude_type(excluded_from_flying).closer_than(
+                    30, hatch.position
+                )
 
                 if close_enemy and not self.close_enemies_to_base:
                     self.close_enemies_to_base = True
@@ -178,5 +164,4 @@ class DataContainer:
     def prepare_bases_data(self):
         """Prepare data related to our bases"""
         if self.bases:
-            self.furthest_townhall_to_map_center = self.bases\
-                .furthest_to(self.game_info.map_center)
+            self.furthest_townhall_to_map_center = self.bases.furthest_to(self.game_info.map_center)
