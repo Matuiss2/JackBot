@@ -32,6 +32,7 @@ class DataContainer:
     def __init__(self):
         self.close_enemies_to_base = False
         self.close_enemy_production = False
+        self.counter_attack_vs_flying = False
         self.floating_buildings_bm = False
         self.hatcheries = None
         self.lairs = None
@@ -95,20 +96,30 @@ class DataContainer:
             self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
         self.structures = self.units.structure
 
+
         if self.ground_enemies:
             for hatch in self.townhalls:
-                close_enemy = self.ground_enemies.closer_than(40, hatch.position)
+                close_enemy = self.ground_enemies.closer_than(25, hatch.position)
+                close_enemy_flying = self.known_enemy_units.flying.closer_than(30, hatch.position)
                 enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
-                if enemies:
+                enemies_flying = close_enemy_flying.exclude_type(self.excluded)
+                if enemies_flying and not self.counter_attack_vs_flying:
+                    self.counter_attack_vs_flying = True
+                if enemies and not self.close_enemies_to_base:
                     self.close_enemies_to_base = True
-                    break
 
+        self.check_for_proxy_buildings()
+        self.check_for_floating_buildings()
+
+    def check_for_proxy_buildings(self):
         if self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(75, self.start_location):
             self.close_enemy_production = True
 
+    def check_for_floating_buildings(self):
         if (
             self.known_enemy_structures.flying
             and len(self.known_enemy_structures) == len(self.known_enemy_structures.flying)
             and self.time > 300
         ):
             self.floating_buildings_bm = True
+
