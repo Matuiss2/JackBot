@@ -47,7 +47,7 @@ class CreepControl:
             for alpha in range(location_attempts)
         ]
         # check if any of the positions are valid
-        valid_placements = await self._client.query_building_placement(ability, positions)
+        valid_placements = await self.client.query_building_placement(ability, positions)
         # filter valid results
         valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ActionResult.Success]
         if valid_placements:

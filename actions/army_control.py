@@ -46,7 +46,7 @@ class ArmyControl(Micro):
         targets = None
         combined_enemies = None
         enemy_building = local_controller.known_enemy_structures
-        map_center = local_controller._game_info.map_center
+        map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
         enemy_units = local_controller.known_enemy_units
         zerglings = local_controller.zerglings
@@ -106,7 +106,7 @@ class ArmyControl(Micro):
                 closest_target = targets.closest_to
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if await local_controller._client.query_pathing(unit_position, closest_target(unit_position).position):
+                if await local_controller.client.query_pathing(unit_position, closest_target(unit_position).position):
                     if unit_type == ZERGLING:
                         if self.micro_zerglings(targets, attacking_unit):
                             continue
