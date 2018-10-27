@@ -1,6 +1,40 @@
-from sc2.constants import UnitTypeId
+from sc2.constants import (
+    HATCHERY,
+    LAIR,
+    HIVE,
+    OVERLORD,
+    DRONE,
+    QUEEN,
+    ZERGLING,
+    ULTRALISK,
+    OVERSEER,
+    EVOLUTIONCHAMBER,
+    ULTRALISKCAVERN,
+    SPAWNINGPOOL,
+    INFESTATIONPIT,
+    SPINECRAWLER,
+    CREEPTUMORQUEEN,
+    CREEPTUMOR,
+    CREEPTUMORBURROWED,
+    LARVA,
+    EXTRACTOR,
+    SPORECRAWLER,
+    SPIRE,
+    MUTALISK,
+    BARRACKS,
+    GATEWAY,
+    SCV,
+    PROBE,
+    RAVEN,
+    OBSERVER,
+    WARPPRISM,
+    MEDIVAC,
+    VIPER,
+    CORRUPTOR,
+)
 
 class DataContainer:
+    """This is the main data container for all data the bot requires"""
 
     def __init__(self):
         self.close_enemies_to_base = False
@@ -45,38 +79,38 @@ class DataContainer:
         self.structures = self.units.structure
 
         # Prepare bases
-        self.hatcheries = self.units(UnitTypeId.HATCHERY)
-        self.lairs = self.units(UnitTypeId.LAIR)
-        self.hives = self.units(UnitTypeId.HIVE)
+        self.hatcheries = self.units(HATCHERY)
+        self.lairs = self.units(LAIR)
+        self.hives = self.units(HIVE)
         self.bases = self.hatcheries | self.lairs | self.hives
         self.prepare_bases_data()
 
         # prepare own units
-        self.overlords = self.units(UnitTypeId.OVERLORD)
-        self.drones = self.units(UnitTypeId.DRONE)
-        self.queens = self.units(UnitTypeId.QUEEN)
+        self.overlords = self.units(OVERLORD)
+        self.drones = self.units(DRONE)
+        self.queens = self.units(QUEEN)
         self.zerglings = (
-            self.units(UnitTypeId.ZERGLING).tags_not_in(self.burrowed_lings)
-            if self.burrowed_lings else self.units(UnitTypeId.ZERGLING)
+            self.units(ZERGLING).tags_not_in(self.burrowed_lings)
+            if self.burrowed_lings else self.units(ZERGLING)
         )
-        self.ultralisks = self.units(UnitTypeId.ULTRALISK)
-        self.overseers = self.units(UnitTypeId.OVERSEER)
-        self.evochambers = self.units(UnitTypeId.EVOLUTIONCHAMBER)
-        self.caverns = self.units(UnitTypeId.ULTRALISKCAVERN)
-        self.pools = self.units(UnitTypeId.SPAWNINGPOOL)
-        self.pits = self.units(UnitTypeId.INFESTATIONPIT)
-        self.spines = self.units(UnitTypeId.SPINECRAWLER)
+        self.ultralisks = self.units(ULTRALISK)
+        self.overseers = self.units(OVERSEER)
+        self.evochambers = self.units(EVOLUTIONCHAMBER)
+        self.caverns = self.units(ULTRALISKCAVERN)
+        self.pools = self.units(SPAWNINGPOOL)
+        self.pits = self.units(INFESTATIONPIT)
+        self.spines = self.units(SPINECRAWLER)
         self.tumors = self.units.of_type({
-            UnitTypeId.CREEPTUMORQUEEN,
-            UnitTypeId.CREEPTUMOR,
-            UnitTypeId.CREEPTUMORBURROWED
+            CREEPTUMORQUEEN,
+            CREEPTUMOR,
+            CREEPTUMORBURROWED
         })
-        self.larvae = self.units(UnitTypeId.LARVA)
-        self.extractors = self.units(UnitTypeId.EXTRACTOR)
-        self.pit = self.units(UnitTypeId.INFESTATIONPIT)
-        self.spores = self.units(UnitTypeId.SPORECRAWLER)
-        self.spires = self.units(UnitTypeId.SPIRE)
-        self.mutalisks = self.units(UnitTypeId.MUTALISK)
+        self.larvae = self.units(LARVA)
+        self.extractors = self.units(EXTRACTOR)
+        self.pit = self.units(INFESTATIONPIT)
+        self.spores = self.units(SPORECRAWLER)
+        self.spires = self.units(SPIRE)
+        self.mutalisks = self.units(MUTALISK)
 
         # prepare enemy units
         self.enemies = self.known_enemy_units
@@ -92,7 +126,7 @@ class DataContainer:
         """Check if there are any proxy buildings"""
         return bool(
             self.enemy_structures
-                .of_type({UnitTypeId.BARRACKS, UnitTypeId.GATEWAY})
+                .of_type({BARRACKS, GATEWAY})
                 .closer_than(75, self.start_location)
         )
 
@@ -108,22 +142,22 @@ class DataContainer:
         """Prepare data related to enemy units"""
         if self.enemies:
             excluded_from_flying = {
-                UnitTypeId.DRONE,
-                UnitTypeId.SCV,
-                UnitTypeId.PROBE,
-                UnitTypeId.OVERLORD,
-                UnitTypeId.OVERSEER,
-                UnitTypeId.RAVEN,
-                UnitTypeId.OBSERVER,
-                UnitTypeId.WARPPRISM,
-                UnitTypeId.MEDIVAC,
-                UnitTypeId.VIPER,
-                UnitTypeId.CORRUPTOR
+                DRONE,
+                SCV,
+                PROBE,
+                OVERLORD,
+                OVERSEER,
+                RAVEN,
+                OBSERVER,
+                WARPPRISM,
+                MEDIVAC,
+                VIPER,
+                CORRUPTOR
             }
             excluded_from_ground = {
-                UnitTypeId.DRONE,
-                UnitTypeId.SCV,
-                UnitTypeId.PROBE
+                DRONE,
+                SCV,
+                PROBE
             }
             for hatch in self.bases:
 
