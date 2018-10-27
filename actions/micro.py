@@ -15,7 +15,6 @@ class Micro:
             danger_zone = effect_data.radius + unit.radius + .1
             clostest_effect_position_to_unit = unit.position.closest(effect.positions)
 
-            # Are we in the danger zone
             if not unit.position.distance_to_point2(clostest_effect_position_to_unit) < danger_zone:
                 continue
 
