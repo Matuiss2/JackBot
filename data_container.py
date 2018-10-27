@@ -1,31 +1,4 @@
-from sc2.constants import (
-    BARRACKS,
-    CREEPTUMOR,
-    CREEPTUMORBURROWED,
-    CREEPTUMORQUEEN,
-    DRONE,
-    EVOLUTIONCHAMBER,
-    EXTRACTOR,
-    GATEWAY,
-    HATCHERY,
-    HIVE,
-    INFESTATIONPIT,
-    LAIR,
-    LARVA,
-    MUTALISK,
-    OVERLORD,
-    OVERSEER,
-    PROBE,
-    QUEEN,
-    SCV,
-    SPAWNINGPOOL,
-    SPINECRAWLER,
-    SPIRE,
-    SPORECRAWLER,
-    ULTRALISK,
-    ULTRALISKCAVERN,
-    ZERGLING,
-)
+from sc2.constants import UnitTypeId
 
 class DataContainer:
 
@@ -68,30 +41,30 @@ class DataContainer:
         self.close_enemies_to_base = False
         self.close_enemy_production = False
         self.counter_attack_vs_flying = False
-        self.hatcheries = self.units(HATCHERY)
-        self.lairs = self.units(LAIR)
-        self.hives = self.units(HIVE)
+        self.hatcheries = self.units(UnitTypeId.HATCHERY)
+        self.lairs = self.units(UnitTypeId.LAIR)
+        self.hives = self.units(UnitTypeId.HIVE)
         self.bases = self.hatcheries | self.lairs | self.hives
-        self.overlords = self.units(OVERLORD)
-        self.drones = self.units(DRONE)
-        self.queens = self.units(QUEEN)
+        self.overlords = self.units(UnitTypeId.OVERLORD)
+        self.drones = self.units(UnitTypeId.DRONE)
+        self.queens = self.units(UnitTypeId.QUEEN)
         self.zerglings = (
-            self.units(ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(ZERGLING)
+            self.units(UnitTypeId.ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(UnitTypeId.ZERGLING)
         )
-        self.ultralisks = self.units(ULTRALISK)
-        self.overseers = self.units(OVERSEER)
-        self.evochambers = self.units(EVOLUTIONCHAMBER)
-        self.caverns = self.units(ULTRALISKCAVERN)
-        self.pools = self.units(SPAWNINGPOOL)
-        self.pits = self.units(INFESTATIONPIT)
-        self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
-        self.larvae = self.units(LARVA)
-        self.extractors = self.units(EXTRACTOR)
-        self.pit = self.units(INFESTATIONPIT)
-        self.spores = self.units(SPORECRAWLER)
-        self.spires = self.units(SPIRE)
-        self.mutalisks = self.units(MUTALISK)
+        self.ultralisks = self.units(UnitTypeId.ULTRALISK)
+        self.overseers = self.units(UnitTypeId.OVERSEER)
+        self.evochambers = self.units(UnitTypeId.EVOLUTIONCHAMBER)
+        self.caverns = self.units(UnitTypeId.ULTRALISKCAVERN)
+        self.pools = self.units(UnitTypeId.SPAWNINGPOOL)
+        self.pits = self.units(UnitTypeId.INFESTATIONPIT)
+        self.spines = self.units(UnitTypeId.SPINECRAWLER)
+        self.tumors = self.units.of_type({UnitTypeId.CREEPTUMORQUEEN, UnitTypeId.CREEPTUMOR, UnitTypeId.CREEPTUMORBURROWED})
+        self.larvae = self.units(UnitTypeId.LARVA)
+        self.extractors = self.units(UnitTypeId.EXTRACTOR)
+        self.pit = self.units(UnitTypeId.INFESTATIONPIT)
+        self.spores = self.units(UnitTypeId.SPORECRAWLER)
+        self.spires = self.units(UnitTypeId.SPIRE)
+        self.mutalisks = self.units(UnitTypeId.MUTALISK)
         self.enemies = self.known_enemy_units
         self.enemy_structures = self.known_enemy_structures
         self.ground_enemies = self.known_enemy_units.not_flying.not_structure
@@ -100,11 +73,24 @@ class DataContainer:
         self.structures = self.units.structure
 
         if self.ground_enemies:
+            excluded_from_flying = {
+                UnitTypeId.DRONE,
+                UnitTypeId.SCV,
+                UnitTypeId.PROBE,
+                UnitTypeId.OVERLORD,
+                UnitTypeId.OVERSEER,
+                UnitTypeId.RAVEN,
+                UnitTypeId.OBSERVER,
+                UnitTypeId.WARPPRISM,
+                UnitTypeId.MEDIVAC,
+                UnitTypeId.VIPER,
+                UnitTypeId.CORRUPTOR
+            }
             for hatch in self.townhalls:
                 close_enemy = self.ground_enemies.closer_than(25, hatch.position)
                 close_enemy_flying = self.known_enemy_units.flying.closer_than(30, hatch.position)
-                enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
-                enemies_flying = close_enemy_flying.exclude_type(self.excluded)
+                enemies = close_enemy.exclude_type({UnitTypeId.DRONE, UnitTypeId.SCV, UnitTypeId.PROBE})
+                enemies_flying = close_enemy_flying.exclude_type(excluded_from_flying)
                 if enemies_flying and not self.counter_attack_vs_flying:
                     self.counter_attack_vs_flying = True
                 if enemies and not self.close_enemies_to_base:
@@ -114,10 +100,16 @@ class DataContainer:
         self.check_for_floating_buildings()
 
     def check_for_proxy_buildings(self):
-        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(75, self.start_location):
+        """Check if there are any proxy buildings"""
+        if (
+            self.known_enemy_structures
+                .of_type({UnitTypeId.BARRACKS, UnitTypeId.GATEWAY})
+                .closer_than(75, self.start_location)
+        ):
             self.close_enemy_production = True
 
     def check_for_floating_buildings(self):
+        """Check if some terran wants to be funny with lifting up"""
         if (
             self.known_enemy_structures.flying
             and len(self.known_enemy_structures) == len(self.known_enemy_structures.flying)

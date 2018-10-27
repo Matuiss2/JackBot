@@ -90,7 +90,6 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.debug = debug
         self.actions = []
         self.add_action = None
-        self.excluded = {DRONE, SCV, PROBE, OVERLORD, OVERSEER, RAVEN, OBSERVER, WARPPRISM, MEDIVAC, VIPER, CORRUPTOR}
         self.unit_commands = [
             BlockExpansions(self),
             DefendWorkerRush(self),
@@ -140,7 +139,6 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.locations = []
         self.ordered_expansions = []
         self.building_positions = []
-
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
