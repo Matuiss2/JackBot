@@ -14,13 +14,13 @@ class Buildings:
         return (
             local_controller.time < 300
             if local_controller.close_enemy_production
-            else local_controller.units.structure.not_ready
+            else local_controller.structures.not_ready
         )
 
     async def handle(self, iteration):
         """Make the cancelling general"""
         local_controller = self.ai
-        for building in local_controller.units.structure.not_ready.filter(
+        for building in local_controller.structures.not_ready.filter(
             lambda x: x.type_id not in local_controller.tumors
         ):
             if (

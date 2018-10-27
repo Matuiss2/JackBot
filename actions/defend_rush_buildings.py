@@ -24,7 +24,7 @@ class DefendRushBuildings:
         """Requirements to run handle"""
         local_controller = self.ai
         if local_controller.bases:
-            self.rush_buildings = local_controller.known_enemy_structures.exclude_type(
+            self.rush_buildings = local_controller.enemy_structures.exclude_type(
                 {AUTOTURRET, BARRACKS, GATEWAY}
             ).closer_than(50, local_controller.bases.furthest_to(local_controller._game_info.map_center))
         return self.rush_buildings and local_controller.time <= 270 and len(local_controller.drones) >= 13
@@ -45,7 +45,7 @@ class DefendRushBuildings:
         # self.rush_buildings = local_controller.known_enemy_structures.closer_than(20, self.bases.first)
         enemy_worker = local_controller.known_enemy_units.of_type({PROBE, DRONE, SCV}).filter(
             lambda unit: any(
-                [unit.distance_to(our_building) <= 50 for our_building in local_controller.units.structure]
+                [unit.distance_to(our_building) <= 50 for our_building in local_controller.structures]
             )
         )
         for target in enemy_worker:

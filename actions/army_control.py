@@ -45,7 +45,7 @@ class ArmyControl(Micro):
         action = local_controller.add_action
         targets = None
         combined_enemies = None
-        enemy_building = local_controller.known_enemy_structures
+        enemy_building = local_controller.enemy_structures
         map_center = local_controller._game_info.map_center
         bases = local_controller.townhalls
         enemy_units = local_controller.known_enemy_units
@@ -150,7 +150,7 @@ class ArmyControl(Micro):
         if (
             local_controller.townhalls
             and not local_controller.close_enemies_to_base
-            and not local_controller.units.structure.closer_than(7, unit.position)
+            and not local_controller.structures.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
             >= len(local_controller.zerglings.closer_than(13, unit.position))
             + len(local_controller.ultralisks.closer_than(13, unit.position)) * 6
