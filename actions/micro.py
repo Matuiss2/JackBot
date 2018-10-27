@@ -54,6 +54,7 @@ class Micro:
         return False
 
     def filter_in_attack_range_of(self, unit, targets):
+        """filter targets who are in attack range of the unit"""
         return targets.subgroup([target for target in targets if unit.target_in_range(target)])
 
     def move_to_next_target(self, unit, enemies):
