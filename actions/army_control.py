@@ -80,6 +80,8 @@ class ArmyControl(Micro):
             atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
+            if self.dodge_effects(attacking_unit):
+                continue
             unit_position = attacking_unit.position
             unit_type = attacking_unit.type_id
             attack_command = attacking_unit.attack
