@@ -1,5 +1,4 @@
 """Every helper for controlling units go here"""
-import random
 from sc2.position import Point2
 from sc2.unit import Unit
 
@@ -8,21 +7,27 @@ class Micro:
 
     def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
-        if self.ai.state.effects:
-            for effect in self.ai.state.effects:
-                effect_data = self.ai._game_data.effects[effect.id]
-                danger_zone = effect_data.radius + unit.radius + .1
-                clostest_effect_position_to_unit = unit.position.closest(effect.positions)
+        if not self.ai.state.effects:
+            return False
 
-                # Are we in the danger zone
-                if unit.position.distance_to_point2(clostest_effect_position_to_unit) < danger_zone:
-                    move_away = -1 * danger_zone
-                    neighbors8_of_unit = list(unit.position.neighbors8)
-                    center_of_effect = Point2.center(effect.positions)
-                    clostest_neighbor_to_effect = center_of_effect.furthest(neighbors8_of_unit)
-                    self.ai.add_action(unit.move(clostest_neighbor_to_effect.towards(unit.position, move_away)))
-            return True
-        return False
+        for effect in self.ai.state.effects:
+            effect_data = self.ai._game_data.effects[effect.id]
+            danger_zone = effect_data.radius + unit.radius + .1
+            clostest_effect_position_to_unit = unit.position.closest(effect.positions)
+
+            # Are we in the danger zone
+            if not unit.position.distance_to_point2(clostest_effect_position_to_unit) < danger_zone:
+                continue
+
+            neighbors8_of_unit = list(unit.position.neighbors8)
+            center_of_effect = Point2.center(effect.positions)
+            furthest_neighbor_to_effect = center_of_effect.furthest(neighbors8_of_unit)
+
+            move_away = -1 * danger_zone
+            self.ai.add_action(
+                unit.move(furthest_neighbor_to_effect.towards(unit.position, move_away))
+            )
+        return True
 
     def attack_close_target(self, unit, enemies):
         """It targets lowest hp units on its range, if there is any, attack the closest"""
