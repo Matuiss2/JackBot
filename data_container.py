@@ -99,7 +99,6 @@ class DataContainer:
             self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
         self.structures = self.units.structure
 
-
         if self.ground_enemies:
             for hatch in self.townhalls:
                 close_enemy = self.ground_enemies.closer_than(25, hatch.position)

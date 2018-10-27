@@ -159,15 +159,12 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
 
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
-        # self.get_units()
         self.prepare_data()
         self.set_game_step()
         self.actions = []
         self.add_action = self.actions.append
         if not iteration:
-            # self._client.game_step = 4  # actions every 4 frames-(optimizing so we can get it to 1 is ideal)
             self.locations = list(self.expansion_locations.keys())
-            # await self.prepare_building_positions(self.units(HATCHERY).first)
             self.prepare_expansions()
             self.split_workers()
 
