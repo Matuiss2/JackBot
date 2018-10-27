@@ -162,9 +162,6 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         # self.get_units()
         self.prepare_data()
         self.set_game_step()
-        self.close_enemies_to_base = False
-        self.close_enemy_production = False
-        self.counter_attack_vs_flying = False
         self.actions = []
         self.add_action = self.actions.append
         if not iteration:

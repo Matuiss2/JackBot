@@ -65,6 +65,9 @@ class DataContainer:
 
     def prepare_data(self):
         """Prepares the data"""
+        self.close_enemies_to_base = False
+        self.close_enemy_production = False
+        self.counter_attack_vs_flying = False
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
