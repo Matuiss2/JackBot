@@ -45,8 +45,8 @@ class ArmyControl(Micro):
         action = local_controller.add_action
         targets = None
         combined_enemies = None
-        enemy_building = local_controller.known_enemy_structures
-        map_center = local_controller.game_info.map_center
+        enemy_building = local_controller.enemy_structures
+        map_center = local_controller._game_info.map_center
         bases = local_controller.townhalls
         enemy_units = local_controller.known_enemy_units
         zerglings = local_controller.zerglings
@@ -80,6 +80,8 @@ class ArmyControl(Micro):
             atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         for attacking_unit in atk_force:
+            if self.dodge_effects(attacking_unit):
+                continue
             unit_position = attacking_unit.position
             unit_type = attacking_unit.type_id
             attack_command = attacking_unit.attack
@@ -150,7 +152,7 @@ class ArmyControl(Micro):
         if (
             local_controller.townhalls
             and not local_controller.close_enemies_to_base
-            and not local_controller.units.structure.closer_than(7, unit.position)
+            and not local_controller.structures.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
             >= len(local_controller.zerglings.closer_than(13, unit.position))
             + len(local_controller.ultralisks.closer_than(13, unit.position)) * 6

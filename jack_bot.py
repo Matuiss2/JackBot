@@ -36,6 +36,8 @@ from sc2.constants import (
 )
 from sc2.position import Point2
 
+from data_container import DataContainer
+
 from actions.army_control import ArmyControl
 from actions.build.cavern import BuildCavern
 from actions.build.evochamber import BuildEvochamber
@@ -79,11 +81,12 @@ from creep_spread import CreepControl
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
+class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, BlockExpansions):
     """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
 
     def __init__(self, debug=False):
         CreepControl.__init__(self)
+        DataContainer.__init__(self)
         self.debug = debug
         self.actions = []
         self.add_action = None
@@ -137,69 +140,7 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
         self.locations = []
         self.ordered_expansions = []
         self.building_positions = []
-        self.close_enemies_to_base = False
-        self.close_enemy_production = False
-        self.floating_buildings_bm = False
-        self.counter_attack_vs_flying = False
-        self.hatcheries = None
-        self.lairs = None
-        self.hives = None
-        self.bases = None
-        self.overlords = None
-        self.drones = None
-        self.queens = None
-        self.zerglings = None
-        self.burrowed_lings = []
-        self.ultralisks = None
-        self.overseers = None
-        self.evochambers = None
-        self.caverns = None
-        self.pools = None
-        self.pits = None
-        self.spines = None
-        self.tumors = None
-        self.larvae = None
-        self.extractors = None
-        self.mutalisks = None
-        self.pit = None
-        self.spores = None
-        self.spires = None
-        self.enemies = None
-        self.enemy_structures = None
-        self.ground_enemies = None
-        self.furthest_townhall_to_map_center = None
 
-    def get_units(self):
-        """Make all repeated units global"""
-        self.hatcheries = self.units(HATCHERY)
-        self.lairs = self.units(LAIR)
-        self.hives = self.units(HIVE)
-        self.bases = self.hatcheries | self.lairs | self.hives
-        self.overlords = self.units(OVERLORD)
-        self.drones = self.units(DRONE)
-        self.queens = self.units(QUEEN)
-        self.zerglings = (
-            self.units(ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(ZERGLING)
-        )
-        self.ultralisks = self.units(ULTRALISK)
-        self.overseers = self.units(OVERSEER)
-        self.evochambers = self.units(EVOLUTIONCHAMBER)
-        self.caverns = self.units(ULTRALISKCAVERN)
-        self.pools = self.units(SPAWNINGPOOL)
-        self.pits = self.units(INFESTATIONPIT)
-        self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
-        self.larvae = self.units(LARVA)
-        self.extractors = self.units(EXTRACTOR)
-        self.pit = self.units(INFESTATIONPIT)
-        self.spores = self.units(SPORECRAWLER)
-        self.spires = self.units(SPIRE)
-        self.mutalisks = self.units(MUTALISK)
-        self.enemies = self.known_enemy_units
-        self.enemy_structures = self.known_enemy_structures
-        self.ground_enemies = self.known_enemy_units.not_flying.not_structure
-        if self.townhalls:
-            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
@@ -218,7 +159,8 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
 
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
-        self.get_units()
+        # self.get_units()
+        self.prepare_data()
         self.set_game_step()
         self.close_enemies_to_base = False
         self.close_enemy_production = False
@@ -231,27 +173,6 @@ class EarlyAggro(sc2.BotAI, CreepControl, BuildingPositioning, BlockExpansions):
             # await self.prepare_building_positions(self.units(HATCHERY).first)
             self.prepare_expansions()
             self.split_workers()
-
-        if self.ground_enemies:
-            for hatch in self.townhalls:
-                close_enemy = self.ground_enemies.closer_than(25, hatch.position)
-                close_enemy_flying = self.known_enemy_units.flying.closer_than(30, hatch.position)
-                enemies = close_enemy.exclude_type({DRONE, SCV, PROBE})
-                enemies_flying = close_enemy_flying.exclude_type(self.excluded)
-                if enemies_flying and not self.counter_attack_vs_flying:
-                    self.counter_attack_vs_flying = True
-                if enemies and not self.close_enemies_to_base:
-                    self.close_enemies_to_base = True
-
-        if self.known_enemy_structures.of_type({BARRACKS, GATEWAY}).closer_than(75, self.start_location):
-            self.close_enemy_production = True
-
-        if (
-            self.known_enemy_structures.flying
-            and len(self.known_enemy_structures) == len(self.known_enemy_structures.flying)
-            and self.time > 300
-        ):
-            self.floating_buildings_bm = True
 
         await self.run_commands(self.unit_commands, iteration)
         await self.run_commands(self.train_commands, iteration)
