@@ -34,7 +34,6 @@ class BuildExpansion:
             and (not local_controller.close_enemy_production or game_time > 690)
             and not local_controller.already_pending(HATCHERY)
         ):  # Too many booleans on 1 if statement (separating don't work because it cause another pylint error)
-
             if not (
                 local_controller.enemy_structures.closer_than(50, local_controller.start_location)
                 and game_time < 300
