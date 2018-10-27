@@ -41,10 +41,19 @@ class DataContainer:
         self.close_enemies_to_base = False
         self.close_enemy_production = False
         self.counter_attack_vs_flying = False
+
+        # prepare units
+        self.structures = self.units.structure
+
+        # Prepare bases
         self.hatcheries = self.units(UnitTypeId.HATCHERY)
         self.lairs = self.units(UnitTypeId.LAIR)
         self.hives = self.units(UnitTypeId.HIVE)
         self.bases = self.hatcheries | self.lairs | self.hives
+        if self.bases:
+            self.furthest_townhall_to_map_center = self.bases.furthest_to(self.game_info.map_center)
+
+        # prepare own units
         self.overlords = self.units(UnitTypeId.OVERLORD)
         self.drones = self.units(UnitTypeId.DRONE)
         self.queens = self.units(UnitTypeId.QUEEN)
@@ -65,14 +74,14 @@ class DataContainer:
         self.spores = self.units(UnitTypeId.SPORECRAWLER)
         self.spires = self.units(UnitTypeId.SPIRE)
         self.mutalisks = self.units(UnitTypeId.MUTALISK)
-        self.enemies = self.known_enemy_units
-        self.enemy_structures = self.known_enemy_structures
-        self.ground_enemies = self.known_enemy_units.not_flying.not_structure
-        if self.townhalls:
-            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
-        self.structures = self.units.structure
 
-        if self.ground_enemies:
+        # prepare enemy units
+        self.enemies = self.known_enemy_units
+        self.flying_enemies = self.enemies.flying
+        self.ground_enemies = self.enemies.not_flying.not_structure
+        self.enemy_structures = self.known_enemy_structures
+
+        if self.enemies:
             excluded_from_flying = {
                 UnitTypeId.DRONE,
                 UnitTypeId.SCV,
@@ -86,9 +95,9 @@ class DataContainer:
                 UnitTypeId.VIPER,
                 UnitTypeId.CORRUPTOR
             }
-            for hatch in self.townhalls:
+            for hatch in self.bases:
                 close_enemy = self.ground_enemies.closer_than(25, hatch.position)
-                close_enemy_flying = self.known_enemy_units.flying.closer_than(30, hatch.position)
+                close_enemy_flying = self.flying_enemies.closer_than(30, hatch.position)
                 enemies = close_enemy.exclude_type({UnitTypeId.DRONE, UnitTypeId.SCV, UnitTypeId.PROBE})
                 enemies_flying = close_enemy_flying.exclude_type(excluded_from_flying)
                 if enemies_flying and not self.counter_attack_vs_flying:
@@ -102,7 +111,7 @@ class DataContainer:
     def check_for_proxy_buildings(self):
         """Check if there are any proxy buildings"""
         if (
-            self.known_enemy_structures
+            self.enemy_structures
                 .of_type({UnitTypeId.BARRACKS, UnitTypeId.GATEWAY})
                 .closer_than(75, self.start_location)
         ):
@@ -111,8 +120,8 @@ class DataContainer:
     def check_for_floating_buildings(self):
         """Check if some terran wants to be funny with lifting up"""
         if (
-            self.known_enemy_structures.flying
-            and len(self.known_enemy_structures) == len(self.known_enemy_structures.flying)
+            self.enemy_structures.flying
+            and len(self.enemy_structures) == len(self.enemy_structures.flying)
             and self.time > 300
         ):
             self.floating_buildings_bm = True
