@@ -180,4 +180,3 @@ class DataContainer:
         if self.bases:
             self.furthest_townhall_to_map_center = self.bases\
                 .furthest_to(self.game_info.map_center)
-
