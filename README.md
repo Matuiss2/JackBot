@@ -18,6 +18,8 @@ _Style changes_
 
 - Small reformatting changes everywhere it could
 
+- Replace protected attributes for public ones
+
 - Fix typos on army_control
 
 _Optimization and micro-optimization_ 

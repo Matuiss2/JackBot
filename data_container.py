@@ -1,3 +1,4 @@
+"""All global variables and triggers are grouped here"""
 from sc2.constants import (
     HATCHERY,
     LAIR,
@@ -83,7 +84,7 @@ class DataContainer:
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
-        self.bases = self.hatcheries | self.lairs | self.hives
+        self.bases = self.townhalls
         self.prepare_bases_data()
 
         # prepare own units

@@ -46,7 +46,7 @@ class ArmyControl(Micro):
         targets = None
         combined_enemies = None
         enemy_building = local_controller.enemy_structures
-        map_center = local_controller._game_info.map_center
+        map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
         enemy_units = local_controller.known_enemy_units
         zerglings = local_controller.zerglings
