@@ -19,9 +19,9 @@ class Micro:
         for effect in self.ai.state.effects:
             effect_data = self.ai.game_data.effects[effect.id]
             danger_zone = effect_data.radius + unit.radius + .1
-            clostest_effect_position_to_unit = unit.position.closest(effect.positions)
+            closest_effect_position_to_unit = unit.position.closest(effect.positions)
 
-            if not unit.position.distance_to_point2(clostest_effect_position_to_unit) < danger_zone:
+            if not unit.position.distance_to_point2(closest_effect_position_to_unit) < danger_zone:
                 continue
 
             neighbors8_of_unit = list(unit.position.neighbors8)
