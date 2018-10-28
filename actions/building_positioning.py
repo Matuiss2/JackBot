@@ -28,6 +28,8 @@ class BuildingPositioning:
                             ]
                         ):
                             self.building_positions.append(point)
+                    else:
+                        self.building_positions.append(point)
 
     async def get_production_position(self):
         """Find the safest position looping through all possible ones"""

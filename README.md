@@ -6,6 +6,8 @@ Its a bot that focus on early aggro, then tries to make a transition
 
 _Style changes_
 
+- Refactoring the main
+
 - Adding todo comments for refactoring on army_control, expansion
 
 - Cleaning unused stuff on jack_bot
@@ -14,7 +16,7 @@ _Style changes_
 
 - Fix too many booleans on a single if statement pylint error on train/overlord, expansion, build/evochamber
 
-- Small reformatting changes on army_control
+- Small reformatting changes everywhere it could
 
 - Fix typos on army_control
 

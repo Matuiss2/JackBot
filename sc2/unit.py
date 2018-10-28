@@ -294,7 +294,10 @@ class Unit(object):
             return self._ground_weapon
 
         if self.weapons:
-            self._ground_weapon = next((weapon for weapon in self.weapons if weapon.type in {TargetType.Ground.value, TargetType.Any.value}), None)
+            self._ground_weapon = next(
+                (weapon for weapon in self.weapons if weapon.type in {TargetType.Ground.value, TargetType.Any.value}),
+                None,
+            )
             return self._ground_weapon
 
         return None
@@ -306,7 +309,9 @@ class Unit(object):
             return self._air_weapon
 
         if self.weapons:
-            self._air_weapon = next((weapon for weapon in self.weapons if weapon.type in {TargetType.Air.value, TargetType.Any.value}), None)
+            self._air_weapon = next(
+                (weapon for weapon in self.weapons if weapon.type in {TargetType.Air.value, TargetType.Any.value}), None
+            )
             return self._air_weapon
 
         return None
