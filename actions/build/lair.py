@@ -31,7 +31,7 @@ class BuildLair:
         """Finishes the action of making the lair choosing the safest base"""
         local_controller = self.ai
         local_controller.add_action(
-            self.hatcheries.ready.furthest_to(local_controller._game_info.map_center)(UPGRADETOLAIR_LAIR)
+            self.hatcheries.ready.furthest_to(local_controller.game_info.map_center)(UPGRADETOLAIR_LAIR)
         )
         return True
 

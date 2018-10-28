@@ -146,11 +146,11 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
         if self.ground_enemies:
             if len(self.ground_enemies) > 5:
-                self._client.game_step = 2
+                self.client.game_step = 2
             else:
-                self._client.game_step = 4
+                self.client.game_step = 4
         else:
-            self._client.game_step = 8
+            self.client.game_step = 8
 
     async def on_unit_created(self, unit):
         """Prepares all the building locations near a new expansion"""

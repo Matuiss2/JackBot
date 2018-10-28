@@ -23,6 +23,6 @@ class UpgradeBurrow:
     async def handle(self, iteration):
         """Execute the action of upgrading burrow"""
         local_controller = self.ai
-        chosen_base = local_controller.hatcheries.idle.closest_to(local_controller._game_info.map_center)
+        chosen_base = local_controller.hatcheries.idle.closest_to(local_controller.game_info.map_center)
         local_controller.add_action(chosen_base(RESEARCH_BURROW))
         return True

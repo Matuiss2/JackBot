@@ -108,7 +108,7 @@ class ArmyControl(Micro):
                 closest_target = targets.closest_to
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if await local_controller._client.query_pathing(unit_position, closest_target(unit_position).position):
+                if await local_controller.client.query_pathing(unit_position, closest_target(unit_position).position):
                     if unit_type == ZERGLING:
                         if self.micro_zerglings(targets, attacking_unit):
                             continue
