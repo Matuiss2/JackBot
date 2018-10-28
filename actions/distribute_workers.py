@@ -1,8 +1,10 @@
 """Everything related to distributing drones to the right resource goes here"""
 from sc2.constants import EXTRACTOR, HATCHERY, HIVE, LAIR, ZERGLINGMOVEMENTSPEED
 
+from .micro import Micro
 
-class DistributeWorkers:
+
+class DistributeWorkers(Micro):
     """Some things can be improved(mostly about the ratio mineral-vespene)"""
 
     def __init__(self, ai):
@@ -27,14 +29,12 @@ class DistributeWorkers:
 
     async def handle(self, iteration):
         """Groups the resulting actions from all functions below"""
+        self.drone_dodge()
         self.gather_gas()
-
         self.distribute_to_deficits(
             self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
         )
-
         self.distribute_idle_workers()
-
         return True
 
     def distribute_idle_workers(self):
@@ -44,6 +44,11 @@ class DistributeWorkers:
             if self.mineral_fields:
                 mineral_field = self.mineral_fields.closest_to(drone)
                 local_controller.add_action(drone.gather(mineral_field))
+
+    def drone_dodge(self):
+        for drone in self.ai.drones:
+            self.dodge_effects(drone)
+            continue
 
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""
