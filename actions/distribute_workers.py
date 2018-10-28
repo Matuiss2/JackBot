@@ -46,6 +46,7 @@ class DistributeWorkers(Micro):
                 local_controller.add_action(drone.gather(mineral_field))
 
     def drone_dodge(self):
+        """Avoiding effects"""
         for drone in self.ai.drones:
             self.dodge_effects(drone)
             continue
