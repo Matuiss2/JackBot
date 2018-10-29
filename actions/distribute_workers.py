@@ -48,8 +48,8 @@ class DistributeWorkers(Micro):
     def drone_dodge(self):
         """Avoiding effects"""
         for drone in self.ai.drones:
-            self.dodge_effects(drone)
-            continue
+            if self.dodge_effects(drone):
+                continue
 
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""
