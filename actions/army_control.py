@@ -46,9 +46,6 @@ class ArmyControl(Micro):
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
-        close_enemies_to_base = local_controller.close_enemies_to_base
-        closest_enemy_building = enemy_building.closest_to
-        game_time = local_controller.time
         if not self.zergling_atk_speed and local_controller.hives:
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
         if bases:
@@ -77,21 +74,14 @@ class ArmyControl(Micro):
                 if await self.handling_walls_and_attacking(attacking_unit, targets):
                     continue
             elif enemy_building.closer_than(30, unit_position):
-                action(attack_command(closest_enemy_building(unit_position)))
+                action(attack_command(enemy_building.closest_to(unit_position)))
                 continue
-            elif game_time < 1000 and not close_enemies_to_base:
+            elif local_controller.time < 1000 and not local_controller.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
                 continue
             else:
-                if not self.retreat_units or close_enemies_to_base or game_time >= 1000:
-                    if enemy_building:
-                        action(attack_command(closest_enemy_building(unit_position)))
-                        continue
-                    elif targets:
-                        action(attack_command(targets.closest_to(unit_position)))
-                        continue
-                    else:
-                        self.attack_startlocation(attacking_unit)
+                if self.keep_attacking(attacking_unit, targets):
+                    continue
                 elif bases:
                     self.move_to_rallying_point(attacking_unit)
 
@@ -252,3 +242,21 @@ class ArmyControl(Micro):
         else:
             action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
             return True
+
+    def keep_attacking(self, unit, target):
+        """It keeps the attack going if it meets the requirements no matter what"""
+        local_controller = self.ai
+        unit_position = unit.position
+        attack_command = unit.attack
+        action = local_controller.add_action
+        enemy_building = local_controller.enemy_structures
+        if not self.retreat_units or local_controller.close_enemies_to_base or local_controller.time >= 1000:
+            if enemy_building:
+                action(attack_command(enemy_building.closest_to(unit_position)))
+                return True
+            if target:
+                action(attack_command(target.closest_to(unit_position)))
+                return True
+            self.attack_startlocation(unit)
+            return True
+        return False
