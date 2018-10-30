@@ -46,7 +46,6 @@ class ArmyControl(Micro):
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
-        flying_buildings = enemy_building.flying
         close_enemies_to_base = local_controller.close_enemies_to_base
         closest_enemy_building = enemy_building.closest_to
         game_time = local_controller.time
@@ -62,14 +61,13 @@ class ArmyControl(Micro):
             unit_position = attacking_unit.position
             unit_type = attacking_unit.type_id
             attack_command = attacking_unit.attack
-            if self.anti_proxy_logic(attacking_unit):
+            if self.anti_proxy_trigger(attacking_unit):
                 if self.attack_enemy_proxy_units(targets, attacking_unit):
                     continue
                 else:
                     action(attacking_unit.move(local_controller.spines.closest_to(attacking_unit)))
                     continue
-            if unit_type in (MUTALISK, QUEEN) and flying_buildings:
-                action(attack_command(flying_buildings.closest_to(unit_position)))
+            if self.anti_terran_bm(attacking_unit):
                 continue
             if attacking_unit.tag in self.retreat_units and bases:
                 self.has_retreated(attacking_unit)
@@ -187,7 +185,7 @@ class ArmyControl(Micro):
         if local_controller.enemy_start_locations:
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
 
-    def anti_proxy_logic(self, unit):
+    def anti_proxy_trigger(self, unit):
         """It triggers the anti-proxy logic"""
         local_controller = self.ai
         spines = local_controller.spines
@@ -235,3 +233,13 @@ class ArmyControl(Micro):
         if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
             atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
         return combined_enemies, targets, atk_force
+
+    def anti_terran_bm(self, unit):
+        """Logic for countering the floating buildings bm"""
+        local_controller = self.ai
+        enemy_building = local_controller.enemy_structures
+        flying_buildings = enemy_building.flying
+        if unit.type_id in (MUTALISK, QUEEN) and flying_buildings:
+            local_controller.add_action(unit.attack(flying_buildings.closest_to(unit.position)))
+            return True
+        return False
