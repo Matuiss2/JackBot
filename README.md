@@ -6,7 +6,7 @@ Its a bot that focus on early aggro, then tries to make a transition
 
 _Style changes_
 
-- Refactoring the main
+- Big refactor on main, army_control 
 
 - Adding todo comments for refactoring on army_control, expansion
 

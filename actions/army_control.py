@@ -59,7 +59,6 @@ class ArmyControl(Micro):
             if self.dodge_effects(attacking_unit):
                 continue
             unit_position = attacking_unit.position
-            unit_type = attacking_unit.type_id
             attack_command = attacking_unit.attack
             if self.anti_proxy_trigger(attacking_unit):
                 if self.attack_enemy_proxy_units(targets, attacking_unit):
@@ -73,18 +72,10 @@ class ArmyControl(Micro):
                 self.has_retreated(attacking_unit)
                 continue
             if targets and targets.closer_than(17, unit_position):
-                closest_target = targets.closest_to
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if await local_controller.client.query_pathing(unit_position, closest_target(unit_position).position):
-                    if unit_type == ZERGLING:
-                        if self.micro_zerglings(targets, attacking_unit):
-                            continue
-                    else:
-                        action(attack_command(closest_target(unit_position)))
-                        continue
-                else:
-                    action(attack_command(closest_target(unit_position).position))
+                if await self.handling_walls_and_attacking(attacking_unit, targets):
+                    continue
             elif enemy_building.closer_than(30, unit_position):
                 action(attack_command(closest_enemy_building(unit_position)))
                 continue
@@ -243,3 +234,21 @@ class ArmyControl(Micro):
             local_controller.add_action(unit.attack(flying_buildings.closest_to(unit.position)))
             return True
         return False
+
+    async def handling_walls_and_attacking(self, unit, target):
+        """It micros normally if no wall, if there is one attack it"""
+        local_controller = self.ai
+        unit_position = unit.position
+        closest_target = target.closest_to
+        attack_command = unit.attack
+        action = local_controller.add_action
+        if await local_controller.client.query_pathing(unit, closest_target(unit).position):
+            if unit.type_id == ZERGLING:
+                if self.micro_zerglings(target, unit):
+                    return True
+            else:
+                action(attack_command(closest_target(unit_position)))
+                return True
+        else:
+            action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
+            return True
