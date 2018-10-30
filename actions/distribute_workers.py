@@ -29,12 +29,12 @@ class DistributeWorkers(Micro):
 
     async def handle(self, iteration):
         """Groups the resulting actions from all functions below"""
-        self.drone_dodge()
         self.gather_gas()
         self.distribute_to_deficits(
             self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
         )
         self.distribute_idle_workers()
+        self.drone_dodge()
         return True
 
     def distribute_idle_workers(self):
