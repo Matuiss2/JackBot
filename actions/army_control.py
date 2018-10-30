@@ -43,16 +43,9 @@ class ArmyControl(Micro):
         Name army_micro because it is in army.py."""
         local_controller = self.ai
         action = local_controller.add_action
-        targets = None
-        combined_enemies = None
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
-        enemy_units = local_controller.known_enemy_units
-        zerglings = local_controller.zerglings
-        ultralisks = local_controller.ultralisks
-        mutalisks = local_controller.mutalisks
-        spines = local_controller.spines
         flying_buildings = enemy_building.flying
         close_enemies_to_base = local_controller.close_enemies_to_base
         closest_enemy_building = enemy_building.closest_to
@@ -61,42 +54,19 @@ class ArmyControl(Micro):
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
         if bases:
             self.rally_point = bases.closest_to(map_center).position.towards(map_center, 10)
-        if enemy_units:
-            excluded_units = {
-                ADEPTPHASESHIFT,
-                DISRUPTORPHASED,
-                EGG,
-                LARVA,
-                INFESTEDTERRANSEGG,
-                INFESTEDTERRAN,
-                AUTOTURRET,
-            }
-            filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
-            static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-            combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
-            targets = static_defence | filtered_enemies.not_flying
-        atk_force = zerglings | ultralisks | mutalisks
-        if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
-            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
+        combined_enemies, targets, atk_force = self.set_unit_groups()
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
                 continue
             unit_position = attacking_unit.position
             unit_type = attacking_unit.type_id
             attack_command = attacking_unit.attack
-            if (
-                local_controller.close_enemy_production
-                and spines
-                and not spines.closer_than(2, unit_position)
-                and (game_time <= 480 or len(zerglings) <= 14)
-            ):
-                if targets and targets.closer_than(5, unit_position):
-                    if unit_type == ZERGLING:
-                        if self.micro_zerglings(targets, attacking_unit):
-                            continue
+            if self.anti_proxy_logic(attacking_unit):
+                if self.attack_enemy_proxy_units(targets, attacking_unit):
+                    continue
                 else:
-                    action(attacking_unit.move(spines.closest_to(unit_position)))
+                    action(attacking_unit.move(local_controller.spines.closest_to(attacking_unit)))
                     continue
             if unit_type in (MUTALISK, QUEEN) and flying_buildings:
                 action(attack_command(flying_buildings.closest_to(unit_position)))
@@ -190,10 +160,10 @@ class ArmyControl(Micro):
             and len(local_controller.zerglings.ready) < 41
             and local_controller.townhalls
             and self.retreat_units
-            and not local_controller.counter_attack_vs_flying
         ):
-            self.move_to_rallying_point(unit)
-            return True
+            if not local_controller.counter_attack_vs_flying:
+                self.move_to_rallying_point(unit)
+                return True
         if not local_controller.close_enemy_production or local_controller.time >= 480:
             enemy_building = local_controller.enemy_structures
             if enemy_building and local_controller.townhalls:
@@ -216,3 +186,52 @@ class ArmyControl(Micro):
         local_controller = self.ai
         if local_controller.enemy_start_locations:
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
+
+    def anti_proxy_logic(self, unit):
+        """It triggers the anti-proxy logic"""
+        local_controller = self.ai
+        spines = local_controller.spines
+        return (
+            local_controller.close_enemy_production
+            and spines
+            and not spines.closer_than(2, unit)
+            and (local_controller.time <= 480 or len(local_controller.zerglings) <= 14)
+        )
+
+    def attack_enemy_proxy_units(self, targets, unit):
+        """Attack the proxy army if it get too close to the ramp"""
+        return (
+            targets
+            and targets.closer_than(5, unit)
+            and unit.type_id == ZERGLING
+            and self.micro_zerglings(targets, unit)
+        )
+
+    def set_unit_groups(self):
+        """Set the targets, combined_enemies and atk_force"""
+        targets = None
+        combined_enemies = None
+        local_controller = self.ai
+        enemy_units = local_controller.known_enemy_units
+        enemy_building = local_controller.enemy_structures
+        zerglings = local_controller.zerglings
+        ultralisks = local_controller.ultralisks
+        mutalisks = local_controller.mutalisks
+        if enemy_units:
+            excluded_units = {
+                ADEPTPHASESHIFT,
+                DISRUPTORPHASED,
+                EGG,
+                LARVA,
+                INFESTEDTERRANSEGG,
+                INFESTEDTERRAN,
+                AUTOTURRET,
+            }
+            filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
+            static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
+            combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
+            targets = static_defence | filtered_enemies.not_flying
+        atk_force = zerglings | ultralisks | mutalisks
+        if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
+            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
+        return combined_enemies, targets, atk_force
