@@ -1,24 +1,59 @@
 """Every helper for controlling units go here"""
+from sc2.position import Point2
+from sc2.unit import Unit
 
 
 class Micro:
     """Group all helpers, for unit control and targeting here"""
 
+    def dodge_effects(self, unit: Unit) -> bool:
+        """Dodge any effects"""
+        if not self.ai.state.effects:
+            return False
+
+        for effect in self.ai.state.effects:
+            effect_data = self.ai._game_data.effects[effect.id]
+            danger_zone = effect_data.radius + unit.radius + .1
+            clostest_effect_position_to_unit = unit.position.closest(effect.positions)
+
+            if not unit.position.distance_to_point2(clostest_effect_position_to_unit) < danger_zone:
+                continue
+
+            neighbors8_of_unit = list(unit.position.neighbors8)
+            center_of_effect = Point2.center(effect.positions)
+            furthest_neighbor_to_effect = center_of_effect.furthest(neighbors8_of_unit)
+
+            move_away = -1 * danger_zone
+            self.ai.add_action(unit.move(furthest_neighbor_to_effect.towards(unit.position, move_away)))
+        return True
+
     def attack_close_target(self, unit, enemies):
         """It targets lowest hp units on its range, if there is any, attack the closest"""
-        targets_close = enemies.in_attack_range_of(unit)
+        targets_close = self.filter_in_attack_range_of(unit, enemies)
         if targets_close:
             self.attack_lowhp(unit, targets_close)
             return True
-        buldings_close = self.ai.known_enemy_units.in_attack_range_of(unit)
-        if buldings_close:
-            self.attack_lowhp(unit, buldings_close)
+
+        if self.attack_in_range(unit):
             return True
+
         target = enemies.closest_to(unit)
         if target:
             self.ai.add_action(unit.attack(target))
             return True
         return None
+
+    def attack_in_range(self, unit):
+        """Attacks the lowest hp enemy in range of the unit"""
+        target_in_range = self.filter_in_attack_range_of(unit, self.ai.enemies)
+        if target_in_range:
+            self.attack_lowhp(unit, target_in_range)
+            return True
+        return False
+
+    def filter_in_attack_range_of(self, unit, targets):
+        """filter targets who are in attack range of the unit"""
+        return targets.subgroup([target for target in targets if unit.target_in_range(target)])
 
     def move_to_next_target(self, unit, enemies):
         """It helps on the targeting and positioning"""

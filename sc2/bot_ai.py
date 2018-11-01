@@ -48,6 +48,10 @@ class BotAI(object):
         return self._game_info
 
     @property
+    def client(self) -> "Client":
+        return self._client
+
+    @property
     def start_location(self) -> Point2:
         return self._game_info.player_start_location
 
@@ -160,8 +164,8 @@ class BotAI(object):
                 # already taken
                 continue
 
-            th = self.townhalls.first
-            d = await self._client.query_pathing(th.position, el)
+            startp = self._game_info.player_start_location
+            d = await self._client.query_pathing(startp, el)
             if d is None:
                 continue
 
@@ -184,9 +188,11 @@ class BotAI(object):
         expansion_locations = self.expansion_locations
         owned_expansions = self.owned_expansions
         worker_pool = []
+        actions = []
+
         for idle_worker in self.workers.idle:
             mf = self.state.mineral_field.closest_to(idle_worker)
-            await self.do(idle_worker.gather(mf))
+            actions.append(idle_worker.gather(mf))
 
         for location, townhall in owned_expansions.items():
             workers = self.workers.closer_than(20, location)
@@ -214,10 +220,10 @@ class BotAI(object):
                 if worker_pool:
                     w = worker_pool.pop()
                     if len(w.orders) == 1 and w.orders[0].ability.id in [AbilityId.HARVEST_RETURN]:
-                        await self.do(w.move(g))
-                        await self.do(w.return_resource(queue=True))
+                        actions.append(w.move(g))
+                        actions.append(w.return_resource(queue=True))
                     else:
-                        await self.do(w.gather(g))
+                        actions.append(w.gather(g))
 
         for location, townhall in owned_expansions.items():
             actual = townhall.assigned_harvesters
@@ -229,11 +235,13 @@ class BotAI(object):
                     w = worker_pool.pop()
                     mf = self.state.mineral_field.closest_to(townhall)
                     if len(w.orders) == 1 and w.orders[0].ability.id in [AbilityId.HARVEST_RETURN]:
-                        await self.do(w.move(townhall))
-                        await self.do(w.return_resource(queue=True))
-                        await self.do(w.gather(mf, queue=True))
+                        actions.append(w.move(townhall))
+                        actions.append(w.return_resource(queue=True))
+                        actions.append(w.gather(mf, queue=True))
                     else:
-                        await self.do(w.gather(mf))
+                        actions.append(w.gather(mf))
+
+        await self.do_actions(actions)
 
     @property
     def owned_expansions(self):
@@ -253,7 +261,8 @@ class BotAI(object):
 
     def can_feed(self, unit_type: UnitTypeId) -> bool:
         """ Checks if you have enough free supply to build the unit """
-        return self.supply_left >= self._game_data.units[unit_type.value]._proto.food_required
+        required = self._game_data.units[unit_type.value]._proto.food_required
+        return required == 0 or self.supply_left >= required
 
     def can_afford(
         self, item_id: Union[UnitTypeId, UpgradeId, AbilityId], check_supply_cost: bool = True
@@ -462,7 +471,10 @@ class BotAI(object):
         return await self.do(unit.build(building, p))
 
     async def do(self, action):
-        assert self.can_afford(action)
+        if not self.can_afford(action):
+            logger.warning(f"Cannot afford action {action}")
+            return ActionResult.Error
+
         r = await self._client.actions(action, game_data=self._game_data)
 
         if not r:  # success

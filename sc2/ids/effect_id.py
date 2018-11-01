@@ -4,7 +4,7 @@
 import enum
 
 
-class EffectId(enum.Enum):
+class EffectId(enum.IntEnum):
     NULL = 0
     PSISTORMPERSISTENT = 1
     GUARDIANSHIELDPERSISTENT = 2
