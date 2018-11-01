@@ -60,3 +60,6 @@ _Functional changes_
 - Adding trigger for attacking when flying units with damage are close(needs improvements)
 
 - Dodging effects
+
+- Adding hatcheries to anti-proxy logic triggers
+
