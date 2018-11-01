@@ -32,7 +32,7 @@ class CreepControl:
             return None
 
         # defining vars
-        ability = self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
+        ability = self.game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
         location_attempts = 30
         spread_distance = 8
         location = unit.position

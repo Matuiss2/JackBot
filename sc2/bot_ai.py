@@ -52,6 +52,10 @@ class BotAI(object):
         return self._client
 
     @property
+    def game_data(self) -> GameData:
+        return self._game_data
+
+    @property
     def start_location(self) -> Point2:
         return self._game_info.player_start_location
 
