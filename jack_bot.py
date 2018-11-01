@@ -1,43 +1,8 @@
 """SC2 zerg bot by Helfull, Matuiss, Thommath and Tweakimp"""
 import sc2
-from sc2.constants import (
-    BARRACKS,
-    CREEPTUMOR,
-    CREEPTUMORBURROWED,
-    CREEPTUMORQUEEN,
-    DRONE,
-    EVOLUTIONCHAMBER,
-    EXTRACTOR,
-    GATEWAY,
-    HATCHERY,
-    HIVE,
-    INFESTATIONPIT,
-    LAIR,
-    LARVA,
-    MUTALISK,
-    OVERLORD,
-    OVERSEER,
-    PROBE,
-    QUEEN,
-    SCV,
-    SPAWNINGPOOL,
-    SPINECRAWLER,
-    SPIRE,
-    SPORECRAWLER,
-    ULTRALISK,
-    ULTRALISKCAVERN,
-    ZERGLING,
-    RAVEN,
-    OBSERVER,
-    WARPPRISM,
-    MEDIVAC,
-    VIPER,
-    CORRUPTOR,
-)
+from sc2.constants import HATCHERY
 from sc2.position import Point2
-
 from data_container import DataContainer
-
 from actions.army_control import ArmyControl
 from actions.build.cavern import BuildCavern
 from actions.build.evochamber import BuildEvochamber
@@ -48,14 +13,12 @@ from actions.build.lair import BuildLair
 from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
-
 from actions.build.spire import BuildSpire
 from actions.build.spores import BuildSpores
 from actions.defend_worker_rush import DefendWorkerRush
 from actions.defend_rush_buildings import DefendRushBuildings
 from actions.distribute_workers import DistributeWorkers
 from actions.queens_abilities import QueensAbilities
-
 from actions.train.mutalisk import TrainMutalisk
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
@@ -69,7 +32,6 @@ from actions.unit.buildings import Buildings
 from actions.unit.overlord import Overlord
 from actions.unit.overseer import Overseer
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
-
 from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber

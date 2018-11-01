@@ -3,6 +3,11 @@ from sc2.position import Point2
 from sc2.unit import Unit
 
 
+def filter_in_attack_range_of(unit, targets):
+    """filter targets who are in attack range of the unit"""
+    return targets.subgroup([target for target in targets if unit.target_in_range(target)])
+
+
 class Micro:
     """Group all helpers, for unit control and targeting here"""
 
@@ -12,11 +17,11 @@ class Micro:
             return False
 
         for effect in self.ai.state.effects:
-            effect_data = self.ai._game_data.effects[effect.id]
+            effect_data = self.ai.game_data.effects[effect.id]
             danger_zone = effect_data.radius + unit.radius + .1
-            clostest_effect_position_to_unit = unit.position.closest(effect.positions)
+            closest_effect_position_to_unit = unit.position.closest(effect.positions)
 
-            if not unit.position.distance_to_point2(clostest_effect_position_to_unit) < danger_zone:
+            if not unit.position.distance_to_point2(closest_effect_position_to_unit) < danger_zone:
                 continue
 
             neighbors8_of_unit = list(unit.position.neighbors8)
@@ -29,7 +34,7 @@ class Micro:
 
     def attack_close_target(self, unit, enemies):
         """It targets lowest hp units on its range, if there is any, attack the closest"""
-        targets_close = self.filter_in_attack_range_of(unit, enemies)
+        targets_close = filter_in_attack_range_of(unit, enemies)
         if targets_close:
             self.attack_lowhp(unit, targets_close)
             return True
@@ -45,15 +50,11 @@ class Micro:
 
     def attack_in_range(self, unit):
         """Attacks the lowest hp enemy in range of the unit"""
-        target_in_range = self.filter_in_attack_range_of(unit, self.ai.enemies)
+        target_in_range = filter_in_attack_range_of(unit, self.ai.enemies)
         if target_in_range:
             self.attack_lowhp(unit, target_in_range)
             return True
         return False
-
-    def filter_in_attack_range_of(self, unit, targets):
-        """filter targets who are in attack range of the unit"""
-        return targets.subgroup([target for target in targets if unit.target_in_range(target)])
 
     def move_to_next_target(self, unit, enemies):
         """It helps on the targeting and positioning"""
