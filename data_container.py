@@ -79,43 +79,10 @@ class DataContainer:
         self.close_enemies_to_base = False
         # prepare units
         self.structures = self.units.structure
-
-        # Prepare bases
-        self.hatcheries = self.units(HATCHERY)
-        self.lairs = self.units(LAIR)
-        self.hives = self.units(HIVE)
-        self.bases = self.townhalls
-        self.prepare_bases_data()
-
-        # prepare own units
-        self.overlords = self.units(OVERLORD)
-        self.drones = self.units(DRONE)
-        self.queens = self.units(QUEEN)
-        self.zerglings = (
-            self.units(ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(ZERGLING)
-        )
-        self.ultralisks = self.units(ULTRALISK)
-        self.overseers = self.units(OVERSEER)
-        self.evochambers = self.units(EVOLUTIONCHAMBER)
-        self.caverns = self.units(ULTRALISKCAVERN)
-        self.pools = self.units(SPAWNINGPOOL)
-        self.pits = self.units(INFESTATIONPIT)
-        self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
-        self.larvae = self.units(LARVA)
-        self.extractors = self.units(EXTRACTOR)
-        self.pit = self.units(INFESTATIONPIT)
-        self.spores = self.units(SPORECRAWLER)
-        self.spires = self.units(SPIRE)
-        self.mutalisks = self.units(MUTALISK)
-
-        # prepare enemy units
-        self.enemies = self.known_enemy_units
-        self.flying_enemies = self.enemies.flying
-        self.ground_enemies = self.enemies.not_flying.not_structure
-        self.enemy_structures = self.known_enemy_structures
-
-        self.prepare_enemy_data_points()
+        self.initialize_bases()
+        self.initialize_units()
+        self.initialize_buildings()
+        self.initialize_enemies()
         self.close_enemy_production = self.check_for_proxy_buildings()
         self.floating_buildings_bm = self.check_for_floating_buildings()
 
@@ -161,6 +128,48 @@ class DataContainer:
 
                 if close_enemy_flying and not self.counter_attack_vs_flying:
                     self.counter_attack_vs_flying = True
+
+    def initialize_bases(self):
+        """Initialize the bases"""
+        self.hatcheries = self.units(HATCHERY)
+        self.lairs = self.units(LAIR)
+        self.hives = self.units(HIVE)
+        self.bases = self.townhalls
+        self.prepare_bases_data()
+
+    def initialize_units(self):
+        """Initialize our units"""
+        self.overlords = self.units(OVERLORD)
+        self.drones = self.units(DRONE)
+        self.queens = self.units(QUEEN)
+        self.zerglings = (
+            self.units(ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(ZERGLING)
+        )
+        self.ultralisks = self.units(ULTRALISK)
+        self.overseers = self.units(OVERSEER)
+        self.mutalisks = self.units(MUTALISK)
+        self.larvae = self.units(LARVA)
+
+    def initialize_buildings(self):
+        """Initialize our buildings"""
+        self.evochambers = self.units(EVOLUTIONCHAMBER)
+        self.caverns = self.units(ULTRALISKCAVERN)
+        self.pools = self.units(SPAWNINGPOOL)
+        self.pits = self.units(INFESTATIONPIT)
+        self.spines = self.units(SPINECRAWLER)
+        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
+        self.extractors = self.units(EXTRACTOR)
+        self.pit = self.units(INFESTATIONPIT)
+        self.spores = self.units(SPORECRAWLER)
+        self.spires = self.units(SPIRE)
+
+    def initialize_enemies(self):
+        """Initialize everything related to enemies"""
+        self.enemies = self.known_enemy_units
+        self.flying_enemies = self.enemies.flying
+        self.ground_enemies = self.enemies.not_flying.not_structure
+        self.enemy_structures = self.known_enemy_structures
+        self.prepare_enemy_data_points()
 
     def prepare_bases_data(self):
         """Prepare data related to our bases"""
