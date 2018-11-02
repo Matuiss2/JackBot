@@ -14,8 +14,7 @@ class UpgradePneumatizedCarapace:
         return (
             local_controller.caverns
             and local_controller.hatcheries
-            and not local_controller.already_pending_upgrade(OVERLORDSPEED)
-            and local_controller.can_afford(RESEARCH_PNEUMATIZEDCARAPACE)
+            and local_controller.can_upgrade(OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE)
         )
 
     async def handle(self, iteration):

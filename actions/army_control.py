@@ -37,7 +37,7 @@ class ArmyControl(Micro):
         local_controller = self.ai
         return local_controller.zerglings | local_controller.ultralisks | local_controller.mutalisks
 
-    async def handle(self, iteration):  # needs further refactoring(too-many-branches, too-many-statements)
+    async def handle(self, iteration):  # needs further refactoring(too-many-branches)
         """It surrounds and target low hp units, also retreats when overwhelmed,
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""

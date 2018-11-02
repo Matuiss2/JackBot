@@ -154,6 +154,10 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         """Global requirements for building unique buildings"""
         return not self.already_pending(unit_type) and self.can_afford(unit_type) and not building
 
+    def can_upgrade(self, upgrade, research):
+        """Global requirements for upgrades"""
+        return not self.already_pending_upgrade(upgrade) and self.can_afford(research)
+
     def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on distance"""
         start = self.start_location
