@@ -3,6 +3,7 @@ from sc2.constants import (
     HATCHERY,
     LAIR,
     HIVE,
+    HYDRALISKDEN,
     OVERLORD,
     DRONE,
     QUEEN,
@@ -32,6 +33,7 @@ from sc2.constants import (
     MEDIVAC,
     VIPER,
     CORRUPTOR,
+    HYDRALISK,
 )
 
 
@@ -46,6 +48,7 @@ class DataContainer:
         self.hatcheries = None
         self.lairs = None
         self.hives = None
+        self.hydras = None
         self.bases = None
         self.overlords = None
         self.drones = None
@@ -56,6 +59,7 @@ class DataContainer:
         self.overseers = None
         self.evochambers = None
         self.caverns = None
+        self.hydradens = None
         self.pools = None
         self.pits = None
         self.spines = None
@@ -149,11 +153,13 @@ class DataContainer:
         self.overseers = self.units(OVERSEER)
         self.mutalisks = self.units(MUTALISK)
         self.larvae = self.units(LARVA)
+        self.hydras = self.units(HYDRALISK)
 
     def initialize_buildings(self):
         """Initialize our buildings"""
         self.evochambers = self.units(EVOLUTIONCHAMBER)
         self.caverns = self.units(ULTRALISKCAVERN)
+        self.hydradens = self.units(HYDRALISKDEN)
         self.pools = self.units(SPAWNINGPOOL)
         self.pits = self.units(INFESTATIONPIT)
         self.spines = self.units(SPINECRAWLER)

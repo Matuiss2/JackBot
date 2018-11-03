@@ -9,6 +9,7 @@ from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
 from actions.build.extractor import BuildExtractor
 from actions.build.hive import BuildHive
+from actions.build.hydraden import BuildHydraden
 from actions.build.lair import BuildLair
 from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
@@ -19,6 +20,7 @@ from actions.defend_worker_rush import DefendWorkerRush
 from actions.defend_rush_buildings import DefendRushBuildings
 from actions.distribute_workers import DistributeWorkers
 from actions.queens_abilities import QueensAbilities
+from actions.train.hydras import TrainHydralisk
 from actions.train.mutalisk import TrainMutalisk
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
@@ -74,6 +76,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             TrainZergling(self),
             TrainOverseer(self),
             TrainMutalisk(self),
+            TrainHydralisk(self),
         ]
 
         self.build_commands = [
@@ -88,6 +91,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             BuildSpines(self),
             BuildSpores(self),
             BuildSpire(self),
+            BuildHydraden(self)
         ]
 
         self.upgrade_commands = [
@@ -123,6 +127,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.set_game_step()
         self.actions = []
         self.add_action = self.actions.append
+
         if not iteration:
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()

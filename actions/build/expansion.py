@@ -38,15 +38,7 @@ class BuildExpansion:
                 local_controller.enemy_structures.closer_than(50, local_controller.start_location) and game_time < 300
             ):
                 if base_amount <= 4:
-                    if base_amount == 2:
-                        if game_time > 330 or len(local_controller.zerglings) > 31:
-                            self.expand_now = True
-                            return True
-                    else:
-                        # if base_amount == 3:
-                        #     await self.build_macrohatch()
-                        # else:
-                        return True
+                    return True
                 elif local_controller.caverns:
                     return True
 

@@ -21,6 +21,7 @@ class BuildPit:
             and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
             and local_controller.can_build_uniques(INFESTATIONPIT, local_controller.pits)
             and base
+            and local_controller.hydradens.ready
         )
 
     async def handle(self, iteration):

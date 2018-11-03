@@ -35,8 +35,10 @@ class BuildExtractor:
             if (local_controller.time > 900 or local_controller.spires) and gas_amount < 11:
                 self.geyser = geyser
                 return True
-            pit = local_controller.pits
-            if pit and gas_amount < 8 and not extractor_in_queue:
+            if local_controller.hydradens and gas_amount < 5 and not extractor_in_queue:
+                self.geyser = geyser
+                return True
+            if local_controller.pits and gas_amount < 8 and not extractor_in_queue:
                 self.geyser = geyser
                 return True
         return False

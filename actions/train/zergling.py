@@ -21,11 +21,13 @@ class TrainZergling:
 
         if not local_controller.can_train(ZERGLING):
             return False
-
-        if local_controller.caverns.ready and game_time < 1380:
-            if not len(local_controller.ultralisks) * 8.5 > len(zerglings):
-                return False
-
+        if game_time < 1380:
+            if local_controller.caverns.ready:
+                if not len(local_controller.ultralisks) * 8.5 > len(zerglings):
+                    return False
+            if local_controller.hydradens.ready:
+                if not len(local_controller.hydras) * 3 > len(zerglings):
+                    return False
         if local_controller.floating_buildings_bm:
             if local_controller.supply_used > 150:
                 return False
