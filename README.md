@@ -24,4 +24,6 @@ _Functional changes_
 
 - Implement range upgrades
 
+
 - Major tweaks so hydras transitions went smoother 
+
