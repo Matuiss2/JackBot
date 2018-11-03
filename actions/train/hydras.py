@@ -11,6 +11,9 @@ class TrainHydralisk:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
+        if local_controller.caverns.ready:
+            if not len(local_controller.ultralisks) * 2.75 > len(local_controller.hydras):
+                return False
         if not local_controller.can_train(HYDRALISK):
             return False
         return local_controller.hydradens.ready

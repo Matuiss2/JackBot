@@ -10,6 +10,7 @@ from sc2.constants import (
     INFESTEDTERRANSEGG,
     LARVA,
     MUTALISK,
+    HYDRALISK,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
@@ -104,7 +105,8 @@ class ArmyControl(Micro):
             and not local_controller.structures.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
             >= len(local_controller.zerglings.closer_than(13, unit.position))
-            + len(local_controller.ultralisks.closer_than(13, unit.position)) * 6
+            + len(local_controller.ultralisks.closer_than(13, unit.position)) * 8
+            + len(local_controller.hydras.closer_than(13, unit.position)) * 3
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -196,6 +198,7 @@ class ArmyControl(Micro):
         zerglings = local_controller.zerglings
         ultralisks = local_controller.ultralisks
         mutalisks = local_controller.mutalisks
+        hydralisks = local_controller.hydras
         if enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -210,9 +213,9 @@ class ArmyControl(Micro):
             static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
-        atk_force = zerglings | ultralisks | mutalisks
+        atk_force = zerglings | ultralisks | mutalisks | hydralisks
         if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
-            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
+            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens | hydralisks
         return combined_enemies, targets, atk_force
 
     def anti_terran_bm(self, unit):
@@ -234,8 +237,9 @@ class ArmyControl(Micro):
         action = local_controller.add_action
         if await local_controller.client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
-                if self.micro_zerglings(target, unit):
-                    return True
+                return self.micro_zerglings(target, unit)
+            if unit.type_id == HYDRALISK:
+                return self.micro_hydras(unit)
             else:
                 action(attack_command(closest_target(unit_position)))
                 return True
@@ -260,3 +264,9 @@ class ArmyControl(Micro):
             self.attack_startlocation(unit)
             return True
         return False
+
+    def micro_hydras(self, unit):
+        """Control the hydras"""
+        local_controller = self.ai
+        local_controller.add_action(unit.attack(local_controller.enemies.closest_to(unit.position)))
+        return True

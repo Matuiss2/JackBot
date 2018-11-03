@@ -39,6 +39,8 @@ from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
+from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
+from actions.upgrades.hydra_speed import UpgradeMuscularAugments
 from actions.building_positioning import BuildingPositioning
 from actions.block_expansions import BlockExpansions
 from creep_spread import CreepControl
@@ -91,7 +93,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             BuildSpines(self),
             BuildSpores(self),
             BuildSpire(self),
-            BuildHydraden(self)
+            BuildHydraden(self),
         ]
 
         self.upgrade_commands = [
@@ -101,6 +103,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             UpgradeEvochamber(self),
             UpgradePneumatizedCarapace(self),
             UpgradeBurrow(self),
+            UpgradeGroovedSpines(self),
+            UpgradeMuscularAugments(self),
         ]
         self.locations = []
         self.ordered_expansions = []

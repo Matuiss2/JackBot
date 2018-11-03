@@ -32,6 +32,9 @@ class BuildExtractor:
                 if not gas and local_controller.pools:
                     self.geyser = geyser
                     return True
+                if gas_amount < 3 <= len(local_controller.bases):
+                    self.geyser = geyser
+                    return True
             if (local_controller.time > 900 or local_controller.spires) and gas_amount < 11:
                 self.geyser = geyser
                 return True
