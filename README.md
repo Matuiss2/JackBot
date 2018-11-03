@@ -19,3 +19,9 @@ _Optimization and micro-optimization_
  _Bug fixes_ 
  
 _Functional changes_
+
+- Implement hydralisks 
+
+- Implement range upgrades
+
+- Major tweaks so hydras transitions went smoother 
