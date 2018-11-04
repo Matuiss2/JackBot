@@ -38,3 +38,4 @@ _Functional changes_
 - Don't make hydras on hydradens vs terran bm(it usually locks the mutalisks)
 
 - Requirements for 3rd base reduced drastically(No difference vs early pressure but huge difference vs macro)
+
