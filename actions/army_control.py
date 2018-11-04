@@ -36,7 +36,12 @@ class ArmyControl(Micro):
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        return local_controller.zerglings | local_controller.ultralisks | local_controller.mutalisks
+        return (
+            local_controller.zerglings
+            | local_controller.ultralisks
+            | local_controller.mutalisks
+            | local_controller.hydras
+        )
 
     async def handle(self, iteration):  # needs further refactoring(too-many-branches)
         """It surrounds and target low hp units, also retreats when overwhelmed,
@@ -50,7 +55,7 @@ class ArmyControl(Micro):
         if not self.zergling_atk_speed and local_controller.hives:
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
         if bases:
-            self.rally_point = bases.closest_to(map_center).position.towards(map_center, 10)
+            self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         combined_enemies, targets, atk_force = self.set_unit_groups()
         for attacking_unit in atk_force:
@@ -223,7 +228,7 @@ class ArmyControl(Micro):
         local_controller = self.ai
         enemy_building = local_controller.enemy_structures
         flying_buildings = enemy_building.flying
-        if unit.type_id in (MUTALISK, QUEEN) and flying_buildings:
+        if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and flying_buildings:
             local_controller.add_action(unit.attack(flying_buildings.closest_to(unit.position)))
             return True
         return False

@@ -14,9 +14,11 @@ class TrainHydralisk:
         if local_controller.caverns.ready:
             if not len(local_controller.ultralisks) * 2.75 > len(local_controller.hydras):
                 return False
-        if not local_controller.can_train(HYDRALISK):
-            return False
-        return local_controller.hydradens.ready
+        return (
+            local_controller.hydradens.ready
+            and not local_controller.floating_buildings_bm
+            and local_controller.can_train(HYDRALISK)
+        )
 
     async def handle(self, iteration):
         """Execute the action of training mutas"""

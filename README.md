@@ -24,4 +24,17 @@ _Functional changes_
 
 - Implement range upgrades
 
-- Major tweaks so hydras transitions went smoother 
+- Major tweaks so hydras transitions go smoother 
+
+- Close enemy triggers with 20 instead of 25 (more time to regroup and stronger counter attack)
+
+- Rally point now only considers finished bases(it no longer leaves unnecessary openings on the defense early) 
+
+- Zerglings mandatory train trigger with no zergling speed started changed from 170 to 150(usually zergling speed starts
+140 so no need to wait more than 10 seconds for it)
+
+- Minimum zergling amount for worker production reduced to 15 from 17(better long term eco, with no cost for defense)
+
+- Don't make hydras on hydradens vs terran bm(it usually locks the mutalisks)
+
+- Requirements for 3rd base reduced drastically(No difference vs early pressure but huge difference vs macro)

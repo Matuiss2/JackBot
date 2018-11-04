@@ -15,10 +15,9 @@ class TrainZergling:
         game_time = local_controller.time
         if (
             not local_controller.pools.ready
-            or (not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 160)
+            or (not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150)
         ) and not local_controller.close_enemy_production:
             return False
-
         if not local_controller.can_train(ZERGLING):
             return False
         if game_time < 1380:

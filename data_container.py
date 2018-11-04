@@ -121,7 +121,7 @@ class DataContainer:
             excluded_from_ground = {DRONE, SCV, PROBE}
             for hatch in self.bases:
 
-                close_enemy = self.ground_enemies.exclude_type(excluded_from_ground).closer_than(25, hatch.position)
+                close_enemy = self.ground_enemies.exclude_type(excluded_from_ground).closer_than(20, hatch.position)
 
                 close_enemy_flying = self.flying_enemies.exclude_type(excluded_from_flying).closer_than(
                     30, hatch.position
