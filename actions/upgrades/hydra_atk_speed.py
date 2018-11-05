@@ -11,10 +11,9 @@ class UpgradeGroovedSpines:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        if not local_controller.hydradens.ready.noqueue.idle:
-            return False
         return (
-            local_controller.can_upgrade(EVOLVEGROOVEDSPINES, RESEARCH_GROOVEDSPINES)
+            local_controller.hydradens.ready.noqueue.idle
+            and local_controller.can_upgrade(EVOLVEGROOVEDSPINES, RESEARCH_GROOVEDSPINES)
             and not local_controller.floating_buildings_bm
         )
 

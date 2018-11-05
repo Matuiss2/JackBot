@@ -12,11 +12,9 @@ class BuildPit:
         """Builds the infestation pit, placement can maybe be improved(far from priority)"""
         local_controller = self.ai
         base = local_controller.townhalls
-        if len(base) < 4:
-            return False
-
         return (
-            local_controller.evochambers
+            (not len(base) < 4)
+            and local_controller.evochambers
             and local_controller.lairs.ready
             and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
             and local_controller.can_build_uniques(INFESTATIONPIT, local_controller.pits)
@@ -32,7 +30,6 @@ class BuildPit:
         if position:
             await local_controller.build(INFESTATIONPIT, position)
             return True
-
         await local_controller.build(
             INFESTATIONPIT,
             near=local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -14),

@@ -131,17 +131,14 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.set_game_step()
         self.actions = []
         self.add_action = self.actions.append
-
         if not iteration:
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
             self.split_workers()
-
         await self.run_commands(self.unit_commands, iteration)
         await self.run_commands(self.train_commands, iteration)
         await self.run_commands(self.build_commands, iteration)
         await self.run_commands(self.upgrade_commands, iteration)
-
         if self.actions:
             if self.debug:
                 print(self.actions)

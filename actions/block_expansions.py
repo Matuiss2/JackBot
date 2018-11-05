@@ -12,14 +12,12 @@ class BlockExpansions:
         """Requirements for handle"""
         local_controller = self.ai
         zerglings = local_controller.zerglings.idle
-        if (
+        return (
             zerglings
             and not local_controller.burrowed_lings
             and len(zerglings) >= 6
             and local_controller.already_pending_upgrade(BURROW) == 1
-        ):
-            return True
-        return False
+        )
 
     async def handle(self, iteration):
         """Take the 6 'safest' zerglings and send them to the closest enemy expansion locations to burrow"""

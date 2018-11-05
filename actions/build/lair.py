@@ -12,13 +12,10 @@ class BuildLair:
     async def should_handle(self, iteration):
         """Builds the infestation pit, placement can maybe be improved(far from priority)"""
         local_controller = self.ai
-        if local_controller.lairs or local_controller.hives:
-            return False
-
         self.hatcheries = local_controller.hatcheries.ready
-
         return (
-            self.hatcheries.idle
+            (not (local_controller.lairs or local_controller.hives))
+            and self.hatcheries.idle
             and (
                 len(local_controller.townhalls) >= 3
                 or (local_controller.close_enemy_production and len(local_controller.evochambers.ready) >= 2)

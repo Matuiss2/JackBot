@@ -40,21 +40,17 @@ class DefendWorkerRush(Micro):
          it counter scouting worker rightfully now, its too big and can be split"""
         if self.enemy_units_close and not self.defender_tags:
             self.build_defense_force(len(self.enemy_units_close))
-
         if self.defender_tags and not self.enemy_units_close:
             self.clear_defense_force(self.base)
-
         if self.defender_tags and self.enemy_units_close:
             self.refill_defense_force(len(self.enemy_units_close))
-
             for drone in self.defenders:
                 # 6 hp is the lowest you can take a hit and still survive
                 if not self.save_lowhp_drone(drone, self.base):
                     if drone.weapon_cooldown <= 0.60:
                         self.attack_close_target(drone, self.enemy_units_close)
-                    else:
-                        if not self.move_to_next_target(drone, self.enemy_units_close):
-                            self.move_lowhp(drone, self.enemy_units_close)
+                    elif not self.move_to_next_target(drone, self.enemy_units_close):
+                        self.move_lowhp(drone, self.enemy_units_close)
 
     def save_lowhp_drone(self, drone, base):
         """Remove drones with less 6 hp from the defending force"""
@@ -76,7 +72,6 @@ class DefendWorkerRush(Micro):
         """If there is less workers on the defenders force than the ideal refill it"""
         self.defenders = self.ai.drones.filter(lambda worker: worker.tag in self.defender_tags and worker.health > 0)
         defender_deficit = self.calculate_defender_deficit(enemy_count)
-
         if defender_deficit > 0:
             additional_drones = self.defense_force(defender_deficit)
             self.defender_tags = self.defender_tags + additional_drones

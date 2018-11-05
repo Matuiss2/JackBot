@@ -19,7 +19,6 @@ class BuildExtractor:
             not (finished_bases and local_controller.can_afford(EXTRACTOR))
         ):
             return False
-
         gas = local_controller.extractors
         gas_amount = len(gas)  # so it calculate just once per step
         vgs = local_controller.state.vespene_geyser.closer_than(10, finished_bases.random)
@@ -29,19 +28,13 @@ class BuildExtractor:
             if not self.drone:
                 return False
             if not extractor_in_queue:
-                if not gas and local_controller.pools:
-                    self.geyser = geyser
-                    return True
-                if gas_amount < 3 <= len(local_controller.bases):
+                if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.bases)):
                     self.geyser = geyser
                     return True
             if (local_controller.time > 900 or local_controller.spires) and gas_amount < 11:
                 self.geyser = geyser
                 return True
-            if local_controller.hydradens and gas_amount < 5 and not extractor_in_queue:
-                self.geyser = geyser
-                return True
-            if local_controller.pits and gas_amount < 8 and not extractor_in_queue:
+            if local_controller.hydradens and gas_amount < 9 and not extractor_in_queue:
                 self.geyser = geyser
                 return True
         return False

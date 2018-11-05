@@ -23,7 +23,6 @@ class BuildPool:
         if position:
             await local_controller.build(SPAWNINGPOOL, position)
             return True
-
         await local_controller.build(SPAWNINGPOOL, near=self.find_position())
         return True
 

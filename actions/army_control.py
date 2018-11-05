@@ -127,18 +127,12 @@ class ArmyControl(Micro):
         """Target low hp units smartly, and surrounds when attack cd is down"""
         if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
             if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
-                if self.attack_close_target(unit, targets):
-                    return True
-            else:
-                if self.move_to_next_target(unit, targets):
-                    return True
-        elif unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
-            if self.attack_close_target(unit, targets):
-                return True
-        else:
-            if self.move_to_next_target(unit, targets):
-                return True
-
+                return self.attack_close_target(unit, targets)
+            return self.move_to_next_target(unit, targets)
+        if unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
+            return self.attack_close_target(unit, targets)
+        if self.move_to_next_target(unit, targets):
+            return True
         self.ai.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
@@ -250,12 +244,10 @@ class ArmyControl(Micro):
         if await local_controller.client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(target, unit)
-            else:
-                action(attack_command(closest_target(unit_position)))
-                return True
-        else:
-            action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
+            action(attack_command(closest_target(unit_position)))
             return True
+        action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
+        return True
 
     def keep_attacking(self, unit, target):
         """It keeps the attack going if it meets the requirements no matter what"""

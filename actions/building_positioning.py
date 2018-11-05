@@ -37,5 +37,4 @@ class BuildingPositioning:
             for building_position in self.building_positions:
                 if await self.can_place(EVOLUTIONCHAMBER, building_position):
                     return building_position
-        else:
-            return None
+        return None

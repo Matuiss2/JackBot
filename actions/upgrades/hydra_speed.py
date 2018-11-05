@@ -11,10 +11,9 @@ class UpgradeMuscularAugments:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        if not local_controller.hydradens.ready.noqueue.idle:
-            return False
         return (
-            local_controller.can_upgrade(EVOLVEMUSCULARAUGMENTS, RESEARCH_MUSCULARAUGMENTS)
+            local_controller.hydradens.ready.noqueue.idle
+            and local_controller.can_upgrade(EVOLVEMUSCULARAUGMENTS, RESEARCH_MUSCULARAUGMENTS)
             and not local_controller.floating_buildings_bm
         )
 

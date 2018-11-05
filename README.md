@@ -14,7 +14,15 @@ _Style changes_
 
 - Removing outdated comments on army_control
 
+- Reduce the code everywhere 
+
+- Remove unnecessary spaces
+
 _Optimization and micro-optimization_ 
+
+- Remove unnecessary 'if' checks 
+
+- Remove unnecessary 'not' checks 
 
  _Bug fixes_ 
  

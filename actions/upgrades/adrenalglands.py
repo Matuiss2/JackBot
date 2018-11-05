@@ -11,11 +11,10 @@ class UpgradeAdrenalGlands:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        if not local_controller.pools.ready.idle:
-            return False
-
         return (
-            local_controller.can_upgrade(ZERGLINGATTACKSPEED, RESEARCH_ZERGLINGADRENALGLANDS) and local_controller.hives
+            local_controller.pools.ready.idle
+            and local_controller.can_upgrade(ZERGLINGATTACKSPEED, RESEARCH_ZERGLINGADRENALGLANDS)
+            and local_controller.hives
         )
 
     async def handle(self, iteration):

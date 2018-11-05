@@ -62,7 +62,6 @@ class DefendRushBuildings:
                 if attackers_needed > self.is_being_attacked(target) and available:
                     attacker = available.closest_to(target)
                     action(attacker.attack(target))
-
         if not_attacking_buildings:
             for target in not_attacking_buildings:
                 attackers_needed = 3

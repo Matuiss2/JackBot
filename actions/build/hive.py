@@ -12,13 +12,10 @@ class BuildHive:
     async def should_handle(self, iteration):
         """Builds the infestation pit, placement can maybe be improved(far from priority)"""
         local_controller = self.ai
-        if local_controller.hives:
-            return False
-
         self.lairs = local_controller.lairs.ready
-
         return (
-            local_controller.pit.ready
+            not local_controller.hives
+            and local_controller.pit.ready
             and self.lairs.idle
             and local_controller.can_afford(HIVE)
             and not await self.morphing_lairs()

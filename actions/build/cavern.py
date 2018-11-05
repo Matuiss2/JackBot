@@ -24,7 +24,6 @@ class BuildCavern:
         if position:
             await local_controller.build(ULTRALISKCAVERN, position)
             return True
-
         await local_controller.build(
             ULTRALISKCAVERN,
             near=local_controller.townhalls.furthest_to(local_controller.game_info.map_center).position.towards(
