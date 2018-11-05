@@ -37,7 +37,7 @@ class BuildExpansion:
             if not (
                 local_controller.enemy_structures.closer_than(50, local_controller.start_location) and game_time < 300
             ):
-                if base_amount <= 4:
+                if base_amount <= 5:
                     if base_amount == 2:
                      if len(local_controller.zerglings) > 19 or game_time >= 285:
                         return True

@@ -57,7 +57,7 @@ class ArmyControl(Micro):
         if bases:
             self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
-        combined_enemies, targets, atk_force = self.set_unit_groups()
+        combined_enemies, targets, atk_force, hydra_targets = self.set_unit_groups()
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
                 continue
@@ -74,6 +74,11 @@ class ArmyControl(Micro):
             if attacking_unit.tag in self.retreat_units and bases:
                 self.has_retreated(attacking_unit)
                 continue
+            if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
+                if self.micro_hydras(attacking_unit):
+                    continue
+                if self.retreat_unit(attacking_unit, combined_enemies):
+                    continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
@@ -143,7 +148,7 @@ class ArmyControl(Micro):
         if (
             len(local_controller.ultralisks.ready) < 4
             and local_controller.supply_used not in range(198, 201)
-            and len(local_controller.zerglings.ready) < 41
+            and len(local_controller.zerglings.ready) + len(local_controller.hydras) < 41
             and local_controller.townhalls
             and self.retreat_units
         ):
@@ -196,6 +201,7 @@ class ArmyControl(Micro):
     def set_unit_groups(self):
         """Set the targets, combined_enemies and atk_force"""
         targets = None
+        hydra_targets = None
         combined_enemies = None
         local_controller = self.ai
         enemy_units = local_controller.known_enemy_units
@@ -218,10 +224,11 @@ class ArmyControl(Micro):
             static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
+            hydra_targets = static_defence | filtered_enemies
         atk_force = zerglings | ultralisks | mutalisks | hydralisks
         if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
             atk_force = zerglings | ultralisks | mutalisks | local_controller.queens | hydralisks
-        return combined_enemies, targets, atk_force
+        return combined_enemies, targets, atk_force, hydra_targets
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
@@ -243,8 +250,6 @@ class ArmyControl(Micro):
         if await local_controller.client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(target, unit)
-            if unit.type_id == HYDRALISK:
-                return self.micro_hydras(unit)
             else:
                 action(attack_command(closest_target(unit_position)))
                 return True

@@ -26,7 +26,10 @@ class TrainWorker:
             optimal_workers = min(
                 sum(x.ideal_harvesters for x in local_controller.townhalls | geysirs), 90 - len(geysirs)
             )
-            if workers_total + drones_in_queue < optimal_workers and len(local_controller.zerglings) > 15:
+            if (
+                workers_total + drones_in_queue < optimal_workers
+                and len(local_controller.zerglings) + len(local_controller.hydras) > 15
+            ):
                 return True
         return False
 
