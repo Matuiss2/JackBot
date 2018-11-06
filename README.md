@@ -36,8 +36,6 @@ _Functional changes_
 
 - Implement range upgrades
 
-- Major tweaks so hydras transitions go smoother 
-
 - Close enemy triggers with 20 instead of 25 (more time to regroup and stronger counter attack)
 
 - Rally point now only considers finished bases(it no longer leaves unnecessary openings on the defense early) 
@@ -55,3 +53,9 @@ _Functional changes_
 
 - Allow 6 bases to go up before the cavern(with hydras it cant support constant production and go hive with only 5 
 bases)
+
+- Change overlord scouting order(It lost to 3WL on fracture on the previous one)
+
+- Raise hydra count multiplier 1 -> 2 for the attack trigger(1 wasnt enough the attack triggered way to little)
+
+- Don't make drones when receiving air attacks(might need changes vs light harass)

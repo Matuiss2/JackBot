@@ -16,7 +16,11 @@ class TrainWorker:
         in_queue = local_controller.already_pending
         drones_in_queue = in_queue(DRONE)
         game_time = local_controller.time
-        if not local_controller.close_enemies_to_base and local_controller.can_train(DRONE):
+        if (
+            not local_controller.close_enemies_to_base
+            and local_controller.can_train(DRONE)
+            and not local_controller.counter_attack_vs_flying
+        ):
             if workers_total == 12 and not drones_in_queue and game_time < 200:
                 return True
             if workers_total in (13, 14, 15) and len(local_controller.overlords) + in_queue(OVERLORD) > 1:

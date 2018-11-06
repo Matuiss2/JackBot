@@ -142,7 +142,7 @@ class ArmyControl(Micro):
         if (
             len(local_controller.ultralisks.ready) < 4
             and local_controller.supply_used not in range(198, 201)
-            and len(local_controller.zerglings.ready) + len(local_controller.hydras) < 41
+            and len(local_controller.zerglings.ready) + len(local_controller.hydras) * 2 < 41
             and local_controller.townhalls
             and self.retreat_units
         ):

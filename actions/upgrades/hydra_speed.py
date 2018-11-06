@@ -1,5 +1,5 @@
 """Upgrading zerglings atk speed"""
-from sc2.constants import RESEARCH_MUSCULARAUGMENTS, EVOLVEMUSCULARAUGMENTS
+from sc2.constants import RESEARCH_MUSCULARAUGMENTS, EVOLVEMUSCULARAUGMENTS,EVOLVEGROOVEDSPINES
 
 
 class UpgradeMuscularAugments:
@@ -15,6 +15,7 @@ class UpgradeMuscularAugments:
             local_controller.hydradens.ready.noqueue.idle
             and local_controller.can_upgrade(EVOLVEMUSCULARAUGMENTS, RESEARCH_MUSCULARAUGMENTS)
             and not local_controller.floating_buildings_bm
+            and local_controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1
         )
 
     async def handle(self, iteration):

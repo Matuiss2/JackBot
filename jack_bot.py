@@ -69,7 +69,6 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             Overlord(self),
             Buildings(self),
         ]
-
         self.train_commands = [
             TrainOverlord(self),
             TrainWorker(self),
@@ -80,7 +79,6 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             TrainMutalisk(self),
             TrainHydralisk(self),
         ]
-
         self.build_commands = [
             BuildPool(self),
             BuildExpansion(self),
@@ -95,7 +93,6 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             BuildSpire(self),
             BuildHydraden(self),
         ]
-
         self.upgrade_commands = [
             UpgradeChitinousPlating(self),
             UpgradeMetabolicBoost(self),
