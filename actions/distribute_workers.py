@@ -34,6 +34,7 @@ class DistributeWorkers(Micro):
             self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
         )
         self.distribute_idle_workers()
+        self.drone_dodge()
         return True
 
     def distribute_idle_workers(self):
