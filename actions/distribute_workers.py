@@ -29,7 +29,6 @@ class DistributeWorkers(Micro):
 
     async def handle(self, iteration):
         """Groups the resulting actions from all functions below"""
-        self.drone_dodge()
         self.gather_gas()
         self.distribute_to_deficits(
             self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
@@ -44,12 +43,6 @@ class DistributeWorkers(Micro):
             if self.mineral_fields:
                 mineral_field = self.mineral_fields.closest_to(drone)
                 local_controller.add_action(drone.gather(mineral_field))
-
-    def drone_dodge(self):
-        """Avoiding effects"""
-        for drone in self.ai.drones:
-            if self.dodge_effects(drone):
-                continue
 
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""

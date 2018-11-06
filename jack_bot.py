@@ -150,7 +150,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         """Global requirements for creating an unit"""
         return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type)
 
-    def can_build_uniques(self, unit_type, building):
+    def can_build_unique(self, unit_type, building):
         """Global requirements for building unique buildings"""
         return not self.already_pending(unit_type) and self.can_afford(unit_type) and not building
 
