@@ -1,5 +1,5 @@
 """Upgrading zerglings atk speed"""
-from sc2.constants import RESEARCH_MUSCULARAUGMENTS, EVOLVEMUSCULARAUGMENTS,EVOLVEGROOVEDSPINES
+from sc2.constants import RESEARCH_MUSCULARAUGMENTS, EVOLVEMUSCULARAUGMENTS, EVOLVEGROOVEDSPINES
 
 
 class UpgradeMuscularAugments:

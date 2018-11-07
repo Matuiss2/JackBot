@@ -54,7 +54,7 @@ class ArmyControl(Micro):
         bases = local_controller.townhalls
         if not self.zergling_atk_speed and local_controller.hives:
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-        if bases:
+        if bases.ready:
             self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
         combined_enemies, targets, atk_force, hydra_targets = self.set_unit_groups()

@@ -29,7 +29,9 @@ _Optimization and micro-optimization_
  - Hydras now attack air units on the attack if its the closest
  
  - Hydraden doesnt queue upgrades anymore 
-
+ 
+ - Fix crashing bug with the rally point
+ 
 _Functional changes_
 
 - Implement hydralisks 
@@ -59,3 +61,11 @@ bases)
 - Raise hydra count multiplier 1 -> 2 for the attack trigger(1 wasnt enough the attack triggered way to little)
 
 - Don't make drones when receiving air attacks(might need changes vs light harass)
+
+- Commit less drones against proxies
+
+- Stop sending drones when there is no more hope to take down the proxy
+
+- Don't make hydraden before 3 bases
+
+- Don't research ranged upgrades until hydraden starts 

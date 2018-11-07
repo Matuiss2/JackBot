@@ -40,6 +40,15 @@ class UpgradeEvochamber:
             upgrades = await local_controller.get_available_abilities(evo)
             for upgrade in upgrades:
                 if upgrade in self.upgrade_list and local_controller.can_afford(upgrade):
-                    local_controller.add_action(evo(upgrade))
-                    return True
+                    if upgrade in (
+                        RESEARCH_ZERGMISSILEWEAPONSLEVEL1,
+                        RESEARCH_ZERGMISSILEWEAPONSLEVEL2,
+                        RESEARCH_ZERGMISSILEWEAPONSLEVEL3,
+                    ):
+                        if local_controller.hydradens:
+                            local_controller.add_action(evo(upgrade))
+                            return True
+                    else:
+                        local_controller.add_action(evo(upgrade))
+                        return True
         return True

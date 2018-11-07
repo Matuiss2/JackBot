@@ -27,7 +27,12 @@ class DefendRushBuildings:
             self.rush_buildings = local_controller.enemy_structures.exclude_type(
                 {AUTOTURRET, BARRACKS, GATEWAY}
             ).closer_than(50, local_controller.bases.furthest_to(local_controller.game_info.map_center))
-        return self.rush_buildings and local_controller.time <= 270 and len(local_controller.drones) >= 13
+        return (
+            self.rush_buildings
+            and local_controller.time <= 270
+            and len(local_controller.drones) >= 15
+            and not local_controller.ground_enemies.exclude_type(PROBE)
+        )
 
     def is_being_attacked(self, unit):
         """Only for enemy units, returns how often they are attacked"""
