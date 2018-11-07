@@ -17,7 +17,7 @@ class BuildPit:
             and local_controller.evochambers
             and local_controller.lairs.ready
             and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
-            and local_controller.can_build_uniques(INFESTATIONPIT, local_controller.pits)
+            and local_controller.can_build_unique(INFESTATIONPIT, local_controller.pits)
             and base
             and local_controller.hydradens.ready
         )

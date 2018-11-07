@@ -12,7 +12,7 @@ class BuildSpire:
         """Build the spire if only floating buildings left"""
         local_controller = self.ai
         return (
-            local_controller.can_build_uniques(SPIRE, local_controller.spires)
+            local_controller.can_build_unique(SPIRE, local_controller.spires)
             and local_controller.floating_buildings_bm
             and (local_controller.lairs or local_controller.hives)
         )

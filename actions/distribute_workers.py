@@ -43,12 +43,6 @@ class DistributeWorkers(Micro):
                 mineral_field = self.mineral_fields.closest_to(drone)
                 local_controller.add_action(drone.gather(mineral_field))
 
-    def drone_dodge(self):
-        """Avoiding effects"""
-        for drone in self.ai.drones:
-            if self.dodge_effects(drone):
-                continue
-
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""
         local_controller = self.ai

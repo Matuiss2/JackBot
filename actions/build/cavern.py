@@ -14,7 +14,7 @@ class BuildCavern:
         return (
             local_controller.evochambers
             and local_controller.hives
-            and local_controller.can_build_uniques(ULTRALISKCAVERN, local_controller.caverns)
+            and local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns)
         )
 
     async def handle(self, iteration):
