@@ -15,7 +15,7 @@ class BlockExpansions:
         return (
             zerglings
             and not local_controller.burrowed_lings
-            and len(zerglings) >= 6
+            and len(zerglings) >= 5
             and local_controller.already_pending_upgrade(BURROW) == 1
         )
 
@@ -26,10 +26,10 @@ class BlockExpansions:
         local_controller = self.ai
         zerglings = local_controller.zerglings.idle
         local_controller.burrowed_lings = [
-            unit.tag for unit in zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:6]
+            unit.tag for unit in zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:5]
         ]
         for list_index, zergling in enumerate(zerglings.tags_in(local_controller.burrowed_lings)):
-            location = local_controller.ordered_expansions[-list_index - 1]
+            location = local_controller.ordered_expansions[:-1][-list_index - 1]
 
             # are we allowed to query into the dark?
             # if await local_controller.can_place(HATCHERY, location):
