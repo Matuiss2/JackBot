@@ -2,7 +2,7 @@
 
 
 class Overseer:
-    """Ok for now"""
+    """Can be improved a lot, it barely do its job as of now"""
 
     def __init__(self, ai):
         self.ai = ai

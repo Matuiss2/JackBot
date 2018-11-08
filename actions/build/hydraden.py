@@ -1,15 +1,15 @@
-"""Everything related to building logic for the spires goes here"""
+"""Everything related to building logic for the hydralisk den goes here"""
 from sc2.constants import HYDRALISKDEN
 
 
 class BuildHydraden:
-    """Untested"""
+    """Ok for now"""
 
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """Build the spire if only floating buildings left"""
+        """Build the hydraden"""
         local_controller = self.ai
         return (
             local_controller.can_build_uniques(HYDRALISKDEN, local_controller.hydradens)
@@ -20,7 +20,7 @@ class BuildHydraden:
         )
 
     async def handle(self, iteration):
-        """ Put the spire near the pool"""
+        """Build it behind the mineral line if there is space, if not places it near a pool"""
         local_controller = self.ai
         position = await local_controller.get_production_position()
         if position:

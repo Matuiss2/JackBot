@@ -11,8 +11,8 @@ class BuildExtractor:
         self.geyser = None
 
     async def should_handle(self, iteration):
-        """Couldnt find another way to build the geysers its way to inefficient,
-         also the logic can be improved, sometimes it over collect vespene sometime it under collect"""
+        """Couldn't find another way to build the geysers its way to inefficient,
+         still trying to find the optimal number"""
         local_controller = self.ai
         finished_bases = local_controller.townhalls.ready
         if (local_controller.vespene * 1.25 > local_controller.minerals) or (
@@ -20,7 +20,7 @@ class BuildExtractor:
         ):
             return False
         gas = local_controller.extractors
-        gas_amount = len(gas)  # so it calculate just once per step
+        gas_amount = len(gas)
         vgs = local_controller.state.vespene_geyser.closer_than(10, finished_bases.random)
         extractor_in_queue = local_controller.already_pending(EXTRACTOR)
         for geyser in vgs:

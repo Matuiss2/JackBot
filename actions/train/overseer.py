@@ -3,13 +3,13 @@ from sc2.constants import CANCEL_MORPHOVERSEER, MORPH_OVERSEER, OVERLORDCOCOON, 
 
 
 class TrainOverseer:
-    """Can be expanded"""
+    """Should be expanded"""
 
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """Requirements to run handle"""
+        """Requirements to run handle, limits it to one it need to be expanded"""
         local_controller = self.ai
         return (
             (local_controller.lairs or local_controller.hives)

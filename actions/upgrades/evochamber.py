@@ -34,7 +34,7 @@ class UpgradeEvochamber:
         return self.ai.evochambers.ready.idle
 
     async def handle(self, iteration):
-        """Execute the action of upgrading armor and melee attacks"""
+        """Execute the action of upgrading armor, melee and ranged attacks"""
         local_controller = self.ai
         for evo in local_controller.evochambers.idle:
             upgrades = await local_controller.get_available_abilities(evo)

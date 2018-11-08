@@ -14,7 +14,7 @@ from sc2.constants import (
 
 
 class DefendRushBuildings:
-    """Untested"""
+    """Needs improvements on the quantity"""
 
     def __init__(self, ai):
         self.ai = ai
@@ -44,7 +44,8 @@ class DefendRushBuildings:
         return attackers
 
     async def handle(self, iteration):
-        """Send workers aggressively to handle the near proxy / cannon rush"""
+        """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
+         surface area possible when attacking the buildings"""
         local_controller = self.ai
         action = local_controller.add_action
         # self.rush_buildings = local_controller.known_enemy_structures.closer_than(20, self.bases.first)

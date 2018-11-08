@@ -1,4 +1,4 @@
-"""Upgrading zerglings atk speed"""
+"""Upgrading hydras atk speed"""
 from sc2.constants import RESEARCH_GROOVEDSPINES, EVOLVEGROOVEDSPINES
 
 
@@ -18,7 +18,7 @@ class UpgradeGroovedSpines:
         )
 
     async def handle(self, iteration):
-        """Execute the action of upgrading zergling atk speed"""
+        """Execute the action of upgrading hydras atk speed"""
         local_controller = self.ai
         den = local_controller.hydradens.noqueue
         local_controller.add_action(den.first(RESEARCH_GROOVEDSPINES))

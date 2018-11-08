@@ -10,7 +10,7 @@ class BuildHive:
         self.lairs = None
 
     async def should_handle(self, iteration):
-        """Builds the infestation pit, placement can maybe be improved(far from priority)"""
+        """Builds the hive"""
         local_controller = self.ai
         self.lairs = local_controller.lairs.ready
         return (

@@ -18,6 +18,8 @@ _Style changes_
 
 - Remove unnecessary spaces
 
+- Updating comments
+
 _Optimization and micro-optimization_ 
 
 - Remove unnecessary 'if' checks 
@@ -45,7 +47,8 @@ _Functional changes_
 - Zerglings mandatory train trigger with no zergling speed started changed from 170 to 150(usually zergling speed starts
 140 so no need to wait more than 10 seconds for it)
 
-- Minimum zergling amount for worker production reduced to 15 from 17 also include hydralisks count(better long term eco, with no cost for defense)
+- Minimum zergling amount for worker production reduced to 15 from 17 also include hydralisks count(better long term eco,
+ with no cost for defense)
 
 - Don't make hydras on hydradens or its upgrades vs terran bm(it usually locks the mutalisks)
 
@@ -69,3 +72,5 @@ bases)
 - Don't make hydraden before 3 bases
 
 - Don't research ranged upgrades until hydraden starts 
+
+- Since ultras now come later reduce the limitations for building it, require zerg armor 3 only after 780 -> 870 

@@ -16,7 +16,7 @@ class Overlord:
         return local_controller.overlords and local_controller.enemy_start_locations
 
     async def handle(self, iteration):
-        """Send the ovs to the center and near the natural"""
+        """Send the ovs to the opponents natural, our natural and near it"""
         local_controller = self.ai
         action = local_controller.add_action
         map_center = local_controller.game_info.map_center

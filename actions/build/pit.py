@@ -9,7 +9,7 @@ class BuildPit:
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """Builds the infestation pit, placement can maybe be improved(far from priority)"""
+        """Builds the infestation pit, placement fails on very limited situations"""
         local_controller = self.ai
         base = local_controller.townhalls
         return (

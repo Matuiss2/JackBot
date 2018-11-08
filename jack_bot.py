@@ -1,4 +1,4 @@
-"""SC2 zerg bot by Helfull, Matuiss, Thommath and Tweakimp"""
+"""SC2 zerg bot by JackBot team(Helfull, Matuiss) with huge help of Thommath, Tweakimp and Burny"""
 import sc2
 from sc2.constants import HATCHERY
 from sc2.position import Point2
@@ -48,7 +48,8 @@ from creep_spread import CreepControl
 
 # noinspection PyMissingConstructor
 class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, BlockExpansions):
-    """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
+    """It makes periodic attacks with good surrounding and targeting micro, it goes hydras mid-game
+     and ultras end-game"""
 
     def __init__(self, debug=False):
         CreepControl.__init__(self)

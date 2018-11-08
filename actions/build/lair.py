@@ -3,14 +3,14 @@ from sc2.constants import CANCEL_MORPHLAIR, UPGRADETOLAIR_LAIR
 
 
 class BuildLair:
-    """Maybe can be improved, it can argued that its a bit greedy"""
+    """Maybe can be improved, probably its a bit greedy"""
 
     def __init__(self, ai):
         self.ai = ai
         self.hatcheries = None
 
     async def should_handle(self, iteration):
-        """Builds the infestation pit, placement can maybe be improved(far from priority)"""
+        """Builds the lair"""
         local_controller = self.ai
         self.hatcheries = local_controller.hatcheries.ready
         return (

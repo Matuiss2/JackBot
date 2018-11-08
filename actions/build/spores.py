@@ -32,7 +32,7 @@ class BuildSpores:
             )
 
     async def handle(self, iteration):
-        """Build the spore right on the middle of the base"""
+        """Build the spore right on the middle of the base, sometimes it fails"""
         local_controller = self.ai
         state = local_controller.state
         for base in local_controller.townhalls.ready:

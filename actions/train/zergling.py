@@ -3,13 +3,13 @@ from sc2.constants import ZERGLING, ZERGLINGMOVEMENTSPEED
 
 
 class TrainZergling:
-    """Ok for now, mutas ratio untested"""
+    """Ok for now, hydras ratio untested"""
 
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """good enough for now"""
+        """good enough for now, maybe ratio values can be improved"""
         local_controller = self.ai
         zerglings = local_controller.zerglings
         game_time = local_controller.time

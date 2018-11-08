@@ -3,7 +3,7 @@ from sc2.constants import BURROW, BURROWDOWN_ZERGLING
 
 
 class BlockExpansions:
-    """Needs few improvements like refill the force in case of failing until it succeeds(for a while at least)"""
+    """Needs improvements"""
 
     def __init__(self, ai):
         self.ai = ai
@@ -20,7 +20,9 @@ class BlockExpansions:
         )
 
     async def handle(self, iteration):
-        """Take the 6 'safest' zerglings and send them to the closest enemy expansion locations to burrow"""
+        """Take the 6 'safest' zerglings and send them to the furthest enemy expansion locations to burrow
+        needs improvements refill the force in case of failing until it succeeds(for a while at least),
+         sometimes it just get stuck, also no need to send it to the enemy main"""
         local_controller = self.ai
         zerglings = local_controller.zerglings.idle
         local_controller.burrowed_lings = [

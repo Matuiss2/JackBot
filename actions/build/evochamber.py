@@ -9,9 +9,7 @@ class BuildEvochamber:
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """Builds the evolution chambers, placement can maybe be improved(far from priority),
-        also there is some occasional bug that prevents both to be built at the same time,
-        probably related to placement"""
+        """Builds the evolution chambers"""
         local_controller = self.ai
         pool = local_controller.pools
         evochamber = local_controller.evochambers

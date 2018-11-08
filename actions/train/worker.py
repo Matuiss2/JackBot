@@ -3,13 +3,13 @@ from sc2.constants import DRONE, OVERLORD
 
 
 class TrainWorker:
-    """Ok for the beginning, still needs to find optimal amount for later stages"""
+    """Needs improvements, its very greedy sometimes"""
 
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """Should this action be handled"""
+        """Should this action be handled, needs more smart limitations, its very greedy sometimes"""
         local_controller = self.ai
         workers_total = len(local_controller.workers)
         geysirs = local_controller.extractors

@@ -14,7 +14,7 @@ class TrainUltralisk:
         local_controller = self.ai
         return (
             local_controller.caverns.ready
-            and (local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) or local_controller.time < 780)
+            and (local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3) or local_controller.time < 870)
             and local_controller.can_train(ULTRALISK)
         )
 
