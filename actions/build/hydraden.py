@@ -12,7 +12,7 @@ class BuildHydraden:
         """Build the hydraden"""
         local_controller = self.ai
         return (
-            local_controller.can_build_uniques(HYDRALISKDEN, local_controller.hydradens)
+            local_controller.can_build_unique(HYDRALISKDEN, local_controller.hydradens)
             and local_controller.lairs
             and not local_controller.close_enemy_production
             and not local_controller.floating_buildings_bm

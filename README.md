@@ -34,6 +34,8 @@ _Optimization and micro-optimization_
  
  - Fix crashing bug with the rally point
  
+ - Fix very rare crashing bug on expansion placement
+ 
 _Functional changes_
 
 - Implement hydralisks 
@@ -74,3 +76,5 @@ bases)
 - Don't research ranged upgrades until hydraden starts 
 
 - Since ultras now come later reduce the limitations for building it, require zerg armor 3 only after 780 -> 870 
+
+- Make pool building mandatory after 2:45 (useful only vs worker rushes)

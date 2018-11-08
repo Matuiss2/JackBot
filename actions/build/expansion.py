@@ -56,9 +56,10 @@ class BuildExpansion:
             return True
         for expansion in local_controller.ordered_expansions:
             if await local_controller.can_place(HATCHERY, expansion):
-                drone = local_controller.workers.closest_to(expansion)
-                action(drone.build(HATCHERY, expansion))
-                return True
+                if local_controller.workers:
+                    drone = local_controller.workers.closest_to(expansion)
+                    action(drone.build(HATCHERY, expansion))
+                    return True
         return False
 
     async def send_worker_to_next_expansion(self):
