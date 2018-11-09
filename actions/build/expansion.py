@@ -43,9 +43,6 @@ class BuildExpansion:
                             self.expand_now = True
                             return True
                     else:
-                        # if base_amount == 3:
-                        #     await self.build_macrohatch()
-                        # else:
                         return True
                 elif local_controller.caverns:
                     return True

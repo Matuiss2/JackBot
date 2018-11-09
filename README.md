@@ -14,8 +14,14 @@ _Style changes_
 
 - Removing outdated comments on army_control
 
+- Remove outdated comments on expansion
+
+- Fix too many booleans on a single if statement pylint error on army_control
+
 _Optimization and micro-optimization_ 
 
  _Bug fixes_ 
  
 _Functional changes_
+
+_Optimization and micro-optimization_
