@@ -190,10 +190,10 @@ class ArmyControl(Micro):
             and len(local_controller.zerglings.ready) < 41
             and local_controller.townhalls
             and self.retreat_units
-            and not local_controller.counter_attack_vs_flying
         ):
-            self.move_to_rallying_point(unit)
-            return True
+            if not local_controller.counter_attack_vs_flying:
+                self.move_to_rallying_point(unit)
+                return True
         if not local_controller.close_enemy_production or local_controller.time >= 480:
             enemy_building = local_controller.enemy_structures
             if enemy_building and local_controller.townhalls:
