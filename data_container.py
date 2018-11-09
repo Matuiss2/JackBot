@@ -109,7 +109,8 @@ class DataContainer:
     def check_for_second_bases(self) -> bool:
         """Check if its a one base play"""
         return bool(
-            not self.enemy_structures.of_type({NEXUS, COMMANDCENTER, HATCHERY}).closer_than(
+            self.overlords
+            and not self.enemy_structures.of_type({NEXUS, COMMANDCENTER, HATCHERY}).closer_than(
                 25, self.overlords.furthest_to(self.start_location)
             )
             and self.time > 165

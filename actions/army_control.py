@@ -267,8 +267,9 @@ class ArmyControl(Micro):
             return True
         return False
 
-    def micro_hydras(self, unit):
+    def micro_hydras(self, unit, target):
         """Control the hydras"""
         local_controller = self.ai
-        local_controller.add_action(unit.attack(local_controller.enemies.closest_to(unit.position)))
+        local_controller.add_action(unit.attack(target.closest_to(unit.position)))
         return True
+
