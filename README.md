@@ -83,5 +83,5 @@ bases)
 
 - Since ultras now come later reduce the limitations for building it, require zerg armor 3 only after 780 -> 870 
 
-- Make pool building mandatory after 2:45 (useful only vs worker rushes
+- Make pool building mandatory after 2:45 (useful only vs worker rushes)
 
