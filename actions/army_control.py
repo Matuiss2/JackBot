@@ -77,7 +77,7 @@ class ArmyControl(Micro):
             if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if self.micro_hydras(attacking_unit):
+                if self.micro_hydras(attacking_unit, hydra_targets):
                     continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
