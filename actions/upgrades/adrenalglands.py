@@ -15,9 +15,7 @@ class UpgradeAdrenalGlands:
             return False
 
         return (
-            not local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED)
-            and local_controller.hives
-            and local_controller.can_afford(RESEARCH_ZERGLINGADRENALGLANDS)
+            local_controller.can_upgrade(ZERGLINGATTACKSPEED, RESEARCH_ZERGLINGADRENALGLANDS) and local_controller.hives
         )
 
     async def handle(self, iteration):

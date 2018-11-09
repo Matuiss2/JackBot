@@ -150,6 +150,14 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         """Global requirements for creating an unit"""
         return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type)
 
+    def can_build_unique(self, unit_type, building):
+        """Global requirements for building unique buildings"""
+        return not self.already_pending(unit_type) and self.can_afford(unit_type) and not building
+
+    def can_upgrade(self, upgrade, research):
+        """Global requirements for upgrades"""
+        return not self.already_pending_upgrade(upgrade) and self.can_afford(research)
+
     def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on distance"""
         start = self.start_location
@@ -163,3 +171,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         for drone in self.drones:
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
             self.add_action(drone.gather(closest_mineral_patch))
+
+    async def is_morphing(self, base, cancel):
+        """Check if there is a lair morphing by checking the available abilities"""
+        abilities = await self.get_available_abilities(base)
+        return cancel in abilities

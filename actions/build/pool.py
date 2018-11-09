@@ -11,14 +11,9 @@ class BuildPool:
     async def should_handle(self, iteration):
         """Should this action be handled"""
         local_controller = self.ai
-        return (
-            not local_controller.already_pending(SPAWNINGPOOL)
-            and not local_controller.pools
-            and local_controller.can_afford(SPAWNINGPOOL)
-            and (
-                len(local_controller.townhalls) >= 2
-                or (local_controller.close_enemy_production and local_controller.time < 300)
-            )
+        return local_controller.can_build_unique(SPAWNINGPOOL, local_controller.pools) and (
+            len(local_controller.townhalls) >= 2
+            or (local_controller.close_enemy_production and local_controller.time < 300)
         )
 
     async def handle(self, iteration):

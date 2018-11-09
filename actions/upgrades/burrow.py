@@ -16,8 +16,7 @@ class UpgradeBurrow:
             and (not local_controller.close_enemies_to_base or local_controller.time > 300)
             and (not local_controller.close_enemy_production or local_controller.time > 300)
             and local_controller.hatcheries.idle
-            and not local_controller.already_pending_upgrade(BURROW)
-            and local_controller.can_afford(RESEARCH_BURROW)
+            and local_controller.can_upgrade(BURROW, RESEARCH_BURROW)
         )
 
     async def handle(self, iteration):

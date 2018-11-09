@@ -11,14 +11,10 @@ class BuildCavern:
     async def should_handle(self, iteration):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
         local_controller = self.ai
-        if local_controller.caverns:
-            return False
-
         return (
             local_controller.evochambers
             and local_controller.hives
-            and local_controller.can_afford(ULTRALISKCAVERN)
-            and not local_controller.already_pending(ULTRALISKCAVERN)
+            and local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns)
         )
 
     async def handle(self, iteration):

@@ -7,7 +7,6 @@ class BuildSpines:
 
     def __init__(self, ai):
         self.ai = ai
-        self.lairs = None
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""

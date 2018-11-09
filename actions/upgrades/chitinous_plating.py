@@ -11,11 +11,7 @@ class UpgradeChitinousPlating:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        return (
-            local_controller.caverns
-            and not local_controller.already_pending_upgrade(CHITINOUSPLATING)
-            and local_controller.can_afford(CHITINOUSPLATING)
-        )
+        return local_controller.caverns and local_controller.can_upgrade(CHITINOUSPLATING, CHITINOUSPLATING)
 
     async def handle(self, iteration):
         """Execute the action of upgrading ultra armor"""
