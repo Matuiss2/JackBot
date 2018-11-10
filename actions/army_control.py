@@ -60,7 +60,6 @@ class ArmyControl(Micro):
         self.rally_point = None
         self.zergling_atk_speed = False
         self.hydra_move_speed = False
-        self.hydra_atk_range = False
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
@@ -391,5 +390,3 @@ class ArmyControl(Micro):
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
         if not self.hydra_move_speed and local_controller.hydradens:
             self.hydra_move_speed = local_controller.already_pending_upgrade(EVOLVEMUSCULARAUGMENTS) == 1
-        if not self.hydra_atk_range and local_controller.hydradens:
-            self.hydra_atk_range = local_controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1
