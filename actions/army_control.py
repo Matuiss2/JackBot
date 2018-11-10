@@ -39,6 +39,15 @@ def find_retreat_point(target, unit) -> Point2:
     return Point2((unit.position.x + (deltax / 2), unit.position.y + (deltay / 2)))
 
 
+def trigger_threats(targets, unit, trigger_range):
+    """Identify threats based on range"""
+    threats_list = []
+    for enemy in targets:
+        if enemy.distance_to(unit) < trigger_range:
+            threats_list.append(enemy)
+    return threats_list
+
+
 class ArmyControl(Micro):
     """Can be improved"""
 
@@ -153,15 +162,7 @@ class ArmyControl(Micro):
 
     def micro_hydras(self, targets, unit):
         """Control the hydras"""
-        our_range = unit.ground_range + unit.radius
-        threats = []
-        # Find which enemies are close to us.
-        for enemy in targets:
-            if enemy.distance_to(unit) < 10:
-                threats.append(enemy)
-            else:
-                continue
-        # If enemies are near
+        threats = trigger_threats(targets, unit, 10)
         if threats:
             # Find the closest threat.
             closest_threat = None
@@ -171,30 +172,24 @@ class ArmyControl(Micro):
                     closest_threat = threat
                     closest_threat_distance = threat.distance_to(unit)
             # If there's a close enemy that does damage,
-            if closest_threat is not None:
+            if closest_threat:
+                our_range = unit.ground_range + unit.radius
                 enemy_range = closest_threat.ground_range + closest_threat.radius
                 # For flying enemies,
                 if closest_threat.is_flying:
                     our_range = unit.air_range + unit.radius
                     # Hit and run if we can.
                     if our_range > enemy_range and unit.movement_speed > closest_threat.movement_speed:
-                        self.hit_and_run(closest_threat, unit)
-                        return True
-                    self.stutter_step(closest_threat, unit)
-                    return True
+                        return self.hit_and_run(closest_threat, unit)
+                    return self.stutter_step(closest_threat, unit)
                 # For ground enemies hit and run if we can.
                 if our_range > enemy_range and unit.movement_speed > closest_threat.movement_speed:
-                    self.hit_and_run(closest_threat, unit)
-                    return True
-                self.stutter_step(closest_threat, unit)
-                return True
+                    return self.hit_and_run(closest_threat, unit)
+                return self.stutter_step(closest_threat, unit)
             # If there isn't a close enemy that does damage,
-            if self.attack_close_target(unit, targets):
-                return True
+            return self.attack_close_target(unit, targets)
         # If enemies aren't that near.
-        if self.attack_close_target(unit, targets):
-            return True
-        return False
+        return self.attack_close_target(unit, targets)
 
     def hit_and_run(self, target, unit):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
@@ -305,12 +300,8 @@ class ArmyControl(Micro):
         hydra_targets = None
         combined_enemies = None
         local_controller = self.ai
-        enemy_units = local_controller.known_enemy_units
+        enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
-        zerglings = local_controller.zerglings
-        ultralisks = local_controller.ultralisks
-        mutalisks = local_controller.mutalisks
-        hydralisks = local_controller.hydras
         if enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -326,9 +317,14 @@ class ArmyControl(Micro):
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
             hydra_targets = static_defence | filtered_enemies
-        atk_force = zerglings | ultralisks | mutalisks | hydralisks
+        atk_force = (
+            local_controller.zerglings
+            | local_controller.ultralisks
+            | local_controller.mutalisks
+            | local_controller.hydras
+        )
         if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
-            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens | hydralisks
+            atk_force = atk_force | local_controller.queens
         return combined_enemies, targets, atk_force, hydra_targets
 
     def anti_terran_bm(self, unit):
