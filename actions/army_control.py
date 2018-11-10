@@ -25,6 +25,20 @@ from sc2.position import Point2
 from .micro import Micro
 
 
+def find_pursuit_point(target, unit) -> Point2:
+    """Find a point towards the enemy unit"""
+    deltax = unit.position.x - target.position.x
+    deltay = unit.position.y - target.position.y
+    return Point2((unit.position.x + ((deltax / 2) * -1), unit.position.y + ((deltay / 2) * -1)))
+
+
+def find_retreat_point(target, unit) -> Point2:
+    """Find a point away from the enemy unit"""
+    deltax = unit.position.x - target.position.x
+    deltay = unit.position.y - target.position.y
+    return Point2((unit.position.x + (deltax / 2), unit.position.y + (deltay / 2)))
+
+
 class ArmyControl(Micro):
     """Can be improved"""
 
@@ -168,8 +182,7 @@ class ArmyControl(Micro):
                         return True
                     self.stutter_step(closest_threat, unit)
                     return True
-                # For ground enemies,
-                # Hit and run if we can.
+                # For ground enemies hit and run if we can.
                 if our_range > enemy_range and unit.movement_speed > closest_threat.movement_speed:
                     self.hit_and_run(closest_threat, unit)
                     return True
@@ -211,11 +224,12 @@ class ArmyControl(Micro):
             return True
         # If our unit is too close, run away.
         if unit.distance_to(target) < minimum_distance:
-            retreat_point = self.find_retreat_point(target, unit)
+            retreat_point = find_retreat_point(target, unit)
             action(unit.move(retreat_point))
             return True
         # If our unit is too far, run towards.
-        action(unit.stop())
+        pursuit_point = find_pursuit_point(target, unit)
+        action(unit.move(pursuit_point))
         return True
 
     def stutter_step(self, target, unit):
@@ -225,47 +239,9 @@ class ArmyControl(Micro):
         if not unit.weapon_cooldown:
             action(unit.attack(target))
             return True
-        retreat_point = self.find_retreat_point(target, unit)
+        retreat_point = find_retreat_point(target, unit)
         action(unit.move(retreat_point))
         return True
-
-    def find_retreat_point(self, target, unit) -> Point2:
-        """Find the optimal retreating point based on enemies position"""
-        # If our unit is WEST of the enemy,
-        if unit.position.x < target.position.x:
-            # If our unit is SOUTH WEST of the enemy,
-            if unit.position.y < target.position.y:
-                # Run SOUTH WEST.
-                return Point2((unit.position.x - 1, unit.position.y - 1))
-            # If our unit is NORTH WEST of the enemy,
-            if unit.position.y > target.position.y:
-                # Run NORTH WEST.
-                return Point2((unit.position.x - 1, unit.position.y + 1))
-            # If our unit is directly WEST of the enemy, Run WEST
-            return Point2((unit.position.x - 1, unit.position.y))
-        # If our unit is EAST of the enemy,
-        if unit.position.x > target.position.x:
-            # If our unit is SOUTH EAST of the enemy,
-            if unit.position.y < target.position.y:
-                # Run SOUTH EAST.
-                return Point2((unit.position.x + 1, unit.position.y - 1))
-            # If our unit is NORTH EAST of the enemy,
-            if unit.position.y > target.position.y:
-                # Run NORTH EAST.
-                return Point2((unit.position.x + 1, unit.position.y + 1))
-            # If our unit is directly EAST of the enemy, Run EAST.
-            return Point2((unit.position.x + 1, unit.position.y))
-        # If our unit is directly NORTH of the enemy,
-        if unit.position.y > target.position.y:
-            # Run NORTH
-            return Point2((unit.position.x, unit.position.y + 1))
-        # If our unit is directly SOUTH of the enemy,
-        if unit.position.y < target.position.y:
-            # Run SOUTH
-            return Point2((unit.position.x, unit.position.y - 1))
-        # If our unit is directly under enemy unit. Move towards the rallying point.
-        retreat_point = self.rally_point
-        return retreat_point
 
     def idle_unit(self, unit):
         """Control the idle units, by gathering then or telling then to attack"""
