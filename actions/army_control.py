@@ -6,7 +6,10 @@ from sc2.constants import (
     BUNKER,
     DISRUPTORPHASED,
     DRONE,
+    DUTCHMARAUDERSLOW,
     EGG,
+    EVOLVEGROOVEDSPINES,
+    EVOLVEMUSCULARAUGMENTS,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
@@ -56,6 +59,8 @@ class ArmyControl(Micro):
         self.retreat_units = set()
         self.rally_point = None
         self.zergling_atk_speed = False
+        self.hydra_move_speed = False
+        self.hydra_atk_range = False
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
@@ -76,8 +81,7 @@ class ArmyControl(Micro):
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
-        if not self.zergling_atk_speed and local_controller.hives:
-            self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+        self.behavior_changing_upgrades_check()
         if bases.ready:
             self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
@@ -162,6 +166,16 @@ class ArmyControl(Micro):
 
     def micro_hydras(self, targets, unit):
         """Control the hydras"""
+        our_movespeed = unit.movement_speed
+        # If we've researched Muscular Augments, our movespeed is 125% of base.
+        if self.hydra_move_speed:
+            our_movespeed *= 1.25
+        # If we're on creep, it's 30% more.
+        if self.ai.has_creep(unit):
+            our_movespeed *= 1.30
+        # If we've been hit with Marauder's Concussive Shells, our movespeed is half.
+        if unit.has_buff(DUTCHMARAUDERSLOW):
+            our_movespeed *= 0.5
         threats = trigger_threats(targets, unit, 10)
         if threats:
             # Find the closest threat.
@@ -179,11 +193,11 @@ class ArmyControl(Micro):
                 if closest_threat.is_flying:
                     our_range = unit.air_range + unit.radius
                     # Hit and run if we can.
-                    if our_range > enemy_range and unit.movement_speed > closest_threat.movement_speed:
+                    if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
                         return self.hit_and_run(closest_threat, unit)
                     return self.stutter_step(closest_threat, unit)
                 # For ground enemies hit and run if we can.
-                if our_range > enemy_range and unit.movement_speed > closest_threat.movement_speed:
+                if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
                     return self.hit_and_run(closest_threat, unit)
                 return self.stutter_step(closest_threat, unit)
             # If there isn't a close enemy that does damage,
@@ -208,10 +222,10 @@ class ArmyControl(Micro):
             enemy_range = target.ground_range + target.radius
         # Our unit should stay just outside enemy range, and inside our range.
         if enemy_range > 1:
-            minimum_distance = enemy_range + 0.1
+            minimum_distance = enemy_range + unit.radius + 0.1
             maximum_distance = our_range
         else:
-            minimum_distance = 2
+            minimum_distance = our_range - unit.radius
             maximum_distance = our_range
         # If our unit is in that range, attack.
         if minimum_distance <= unit.distance_to(target) <= maximum_distance:
@@ -369,3 +383,13 @@ class ArmyControl(Micro):
             self.attack_startlocation(unit)
             return True
         return False
+
+    def behavior_changing_upgrades_check(self):
+        """Check for upgrades the will change how the units behavior are calculated"""
+        local_controller = self.ai
+        if not self.zergling_atk_speed and local_controller.hives:
+            self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+        if not self.hydra_move_speed and local_controller.hydradens:
+            self.hydra_move_speed = local_controller.already_pending_upgrade(EVOLVEMUSCULARAUGMENTS) == 1
+        if not self.hydra_atk_range and local_controller.hydradens:
+            self.hydra_atk_range = local_controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1

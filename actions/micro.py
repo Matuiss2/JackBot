@@ -3,6 +3,7 @@ from sc2.position import Point2
 from sc2.unit import Unit
 from sc2.constants import GUARDIANSHIELDPERSISTENT
 
+
 def filter_in_attack_range_of(unit, targets):
     """filter targets who are in attack range of the unit"""
     return targets.subgroup([target for target in targets if unit.target_in_range(target)])
