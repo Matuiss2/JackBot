@@ -1,4 +1,5 @@
 """Everything related to controlling army units goes here"""
+import math
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -20,7 +21,7 @@ from sc2.constants import (
     ZERGLING,
     ZERGLINGATTACKSPEED,
 )
-
+from sc2.position import Point2
 from .micro import Micro
 
 
@@ -77,7 +78,7 @@ class ArmyControl(Micro):
             if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if self.micro_hydras(attacking_unit, hydra_targets):
+                if self.micro_hydras(hydra_targets, attacking_unit):
                     continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
@@ -135,6 +136,136 @@ class ArmyControl(Micro):
             return True
         self.ai.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
+
+    def micro_hydras(self, targets, unit):
+        """Control the hydras"""
+        our_range = unit.ground_range + unit.radius
+        threats = []
+        # Find which enemies are close to us.
+        for enemy in targets:
+            if enemy.distance_to(unit) < 10:
+                threats.append(enemy)
+            else:
+                continue
+        # If enemies are near
+        if threats:
+            # Find the closest threat.
+            closest_threat = None
+            closest_threat_distance = math.inf
+            for threat in threats:
+                if threat.distance_to(unit) < closest_threat_distance and threat.ground_dps:
+                    closest_threat = threat
+                    closest_threat_distance = threat.distance_to(unit)
+            # If there's a close enemy that does damage,
+            if closest_threat is not None:
+                enemy_range = closest_threat.ground_range + closest_threat.radius
+                # For flying enemies,
+                if closest_threat.is_flying:
+                    our_range = unit.air_range + unit.radius
+                    # Hit and run if we can.
+                    if our_range > enemy_range and unit.movement_speed > closest_threat.movement_speed:
+                        self.hit_and_run(closest_threat, unit)
+                        return True
+                    self.stutter_step(closest_threat, unit)
+                    return True
+                # For ground enemies,
+                # Hit and run if we can.
+                if our_range > enemy_range and unit.movement_speed > closest_threat.movement_speed:
+                    self.hit_and_run(closest_threat, unit)
+                    return True
+                self.stutter_step(closest_threat, unit)
+                return True
+            # If there isn't a close enemy that does damage,
+            if self.attack_close_target(unit, targets):
+                return True
+        # If enemies aren't that near.
+        if self.attack_close_target(unit, targets):
+            return True
+        return False
+
+    def hit_and_run(self, target, unit):
+        """Attack when the unit can, run while it can't. We outrun the enemy."""
+        # Only do this when our range > enemy range, our movespeed > enemy movespeed, and enemy is targeting us.
+        local_controller = self.ai
+        action = local_controller.add_action
+        unit_is_air = unit.is_flying
+        target_is_air = target.is_flying
+        if target_is_air:
+            our_range = unit.air_range + unit.radius
+        else:
+            our_range = unit.ground_range + unit.radius
+        if unit_is_air:
+            enemy_range = target.air_range + target.radius
+        else:
+            enemy_range = target.ground_range + target.radius
+        # Our unit should stay just outside enemy range, and inside our range.
+        if enemy_range > 1:
+            minimum_distance = enemy_range + 0.1
+            maximum_distance = our_range
+        else:
+            minimum_distance = 2
+            maximum_distance = our_range
+        # If our unit is in that range, attack.
+        if minimum_distance <= unit.distance_to(target) <= maximum_distance:
+            action(unit.attack(target))
+            return True
+        # If our unit is too close, run away.
+        if unit.distance_to(target) < minimum_distance:
+            retreat_point = self.find_retreat_point(target, unit)
+            action(unit.move(retreat_point))
+            return True
+        # If our unit is too far, run towards.
+        action(unit.stop())
+        return True
+
+    def stutter_step(self, target, unit):
+        """Attack when the unit can, run while it can't. We don't outrun the enemy."""
+        local_controller = self.ai
+        action = local_controller.add_action
+        if not unit.weapon_cooldown:
+            action(unit.attack(target))
+            return True
+        retreat_point = self.find_retreat_point(target, unit)
+        action(unit.move(retreat_point))
+        return True
+
+    def find_retreat_point(self, target, unit) -> Point2:
+        """Find the optimal retreating point based on enemies position"""
+        # If our unit is WEST of the enemy,
+        if unit.position.x < target.position.x:
+            # If our unit is SOUTH WEST of the enemy,
+            if unit.position.y < target.position.y:
+                # Run SOUTH WEST.
+                return Point2((unit.position.x - 1, unit.position.y - 1))
+            # If our unit is NORTH WEST of the enemy,
+            if unit.position.y > target.position.y:
+                # Run NORTH WEST.
+                return Point2((unit.position.x - 1, unit.position.y + 1))
+            # If our unit is directly WEST of the enemy, Run WEST
+            return Point2((unit.position.x - 1, unit.position.y))
+        # If our unit is EAST of the enemy,
+        if unit.position.x > target.position.x:
+            # If our unit is SOUTH EAST of the enemy,
+            if unit.position.y < target.position.y:
+                # Run SOUTH EAST.
+                return Point2((unit.position.x + 1, unit.position.y - 1))
+            # If our unit is NORTH EAST of the enemy,
+            if unit.position.y > target.position.y:
+                # Run NORTH EAST.
+                return Point2((unit.position.x + 1, unit.position.y + 1))
+            # If our unit is directly EAST of the enemy, Run EAST.
+            return Point2((unit.position.x + 1, unit.position.y))
+        # If our unit is directly NORTH of the enemy,
+        if unit.position.y > target.position.y:
+            # Run NORTH
+            return Point2((unit.position.x, unit.position.y + 1))
+        # If our unit is directly SOUTH of the enemy,
+        if unit.position.y < target.position.y:
+            # Run SOUTH
+            return Point2((unit.position.x, unit.position.y - 1))
+        # If our unit is directly under enemy unit. Move towards the rallying point.
+        retreat_point = self.rally_point
+        return retreat_point
 
     def idle_unit(self, unit):
         """Control the idle units, by gathering then or telling then to attack"""
@@ -266,10 +397,3 @@ class ArmyControl(Micro):
             self.attack_startlocation(unit)
             return True
         return False
-
-    def micro_hydras(self, unit, target):
-        """Control the hydras"""
-        local_controller = self.ai
-        local_controller.add_action(unit.attack(target.closest_to(unit.position)))
-        return True
-

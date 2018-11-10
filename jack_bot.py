@@ -1,4 +1,4 @@
-"""SC2 zerg bot by JackBot team(Helfull, Matuiss) with huge help of Thommath, Tweakimp and Burny"""
+"""SC2 zerg bot by JackBot team(Helfull, Matuiss, Niknoc) with huge help of Thommath, Tweakimp and Burny"""
 import sc2
 from sc2.constants import HATCHERY
 from sc2.position import Point2
