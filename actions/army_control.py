@@ -8,6 +8,7 @@ from sc2.constants import (
     DRONE,
     DUTCHMARAUDERSLOW,
     EGG,
+    EVOLVEGROOVEDSPINES,
     EVOLVEMUSCULARAUGMENTS,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
@@ -59,6 +60,7 @@ class ArmyControl(Micro):
         self.rally_point = None
         self.zergling_atk_speed = False
         self.hydra_move_speed = False
+        self.hydra_atk_range = False
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
@@ -174,7 +176,7 @@ class ArmyControl(Micro):
         # If we've been hit with Marauder's Concussive Shells, our movespeed is half.
         if unit.has_buff(DUTCHMARAUDERSLOW):
             our_movespeed *= 0.5
-        threats = trigger_threats(targets, unit, 10)
+        threats = trigger_threats(targets, unit, 17)
         if threats:
             # Find the closest threat.
             closest_threat = None
@@ -186,10 +188,14 @@ class ArmyControl(Micro):
             # If there's a close enemy that does damage,
             if closest_threat:
                 our_range = unit.ground_range + unit.radius
+                if self.hydra_atk_range:
+                    our_range += 1
                 enemy_range = closest_threat.ground_range + closest_threat.radius
                 # For flying enemies,
                 if closest_threat.is_flying:
                     our_range = unit.air_range + unit.radius
+                    if self.hydra_atk_range:
+                        our_range += 1
                     # Hit and run if we can.
                     if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
                         return self.hit_and_run(closest_threat, unit)
@@ -214,23 +220,25 @@ class ArmyControl(Micro):
             our_range = unit.air_range + unit.radius
         else:
             our_range = unit.ground_range + unit.radius
+        if self.hydra_atk_range:
+            our_range += 1
         if unit_is_air:
             enemy_range = target.air_range + target.radius
         else:
             enemy_range = target.ground_range + target.radius
         # Our unit should stay just outside enemy range, and inside our range.
-        if enemy_range > 1:
+        if enemy_range:
             minimum_distance = enemy_range + unit.radius + 0.1
             maximum_distance = our_range
         else:
             minimum_distance = our_range - unit.radius
             maximum_distance = our_range
-        # If our unit is in that range, attack.
-        if minimum_distance <= unit.distance_to(target) <= maximum_distance:
+        # If our unit is in that range, and our attack is not on cooldown, attack.
+        if minimum_distance <= unit.distance_to(target) <= maximum_distance and not unit.weapon_cooldown:
             action(unit.attack(target))
             return True
-        # If our unit is too close, run away.
-        if unit.distance_to(target) < minimum_distance:
+        # If our unit is too close, or our weapon is on cooldown, run away.
+        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown:
             retreat_point = find_retreat_point(target, unit)
             action(unit.move(retreat_point))
             return True
@@ -389,3 +397,5 @@ class ArmyControl(Micro):
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
         if not self.hydra_move_speed and local_controller.hydradens:
             self.hydra_move_speed = local_controller.already_pending_upgrade(EVOLVEMUSCULARAUGMENTS) == 1
+        if not self.hydra_atk_range and local_controller.hydradens:
+            self.hydra_atk_range = local_controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1

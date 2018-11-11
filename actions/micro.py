@@ -29,7 +29,8 @@ class Micro:
             furthest_neighbor_to_effect = center_of_effect.furthest(neighbors8_of_unit)
             move_away = -1 * danger_zone
             self.ai.add_action(unit.move(furthest_neighbor_to_effect.towards(unit.position, move_away)))
-        return True
+            return True
+        return False
 
     def attack_close_target(self, unit, enemies):
         """It targets lowest hp units on its range, if there is any, attack the closest"""
