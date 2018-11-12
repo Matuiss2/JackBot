@@ -3,6 +3,7 @@ import math
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
+    BANELING,
     BUNKER,
     DISRUPTORPHASED,
     DRONE,
@@ -57,6 +58,7 @@ class ArmyControl(Micro):
     def __init__(self, ai):
         self.ai = ai
         self.retreat_units = set()
+        self.triggered_banelings = []
         self.rally_point = None
         self.zergling_atk_speed = False
         self.hydra_move_speed = False
@@ -153,6 +155,33 @@ class ArmyControl(Micro):
 
     def micro_zerglings(self, targets, unit):
         """Target low hp units smartly, and surrounds when attack cd is down"""
+        local_controller = self.ai
+        action = local_controller.add_action
+        threats = trigger_threats(targets, unit, 4)
+        banelings = []
+        # Check for banelings
+        for threat in threats:
+            if threat.type_id == BANELING:
+                banelings.append(threat)
+        # If there are banelings
+        for baneling in banelings:
+            # Check for close banelings
+            if baneling.distance_to(unit) < 3:
+                # If we've triggered any banelings
+                if self.triggered_banelings:
+                    # If we've triggered this baneling, run from it.
+                    if baneling in self.triggered_banelings:
+                        retreat_point = find_retreat_point(baneling, unit)
+                        action(unit.move(retreat_point))
+                        return True
+                    # We haven't triggered this baneling, trigger it.
+                    self.triggered_banelings.append(baneling)
+                    action(unit.attack(baneling))
+                    return True
+                # We haven't triggered any banelings, trigger it.
+                self.triggered_banelings.append(baneling)
+                action(unit.attack(baneling))
+                return True
         if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
             if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
                 return self.attack_close_target(unit, targets)
