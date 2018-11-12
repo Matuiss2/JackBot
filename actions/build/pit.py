@@ -13,7 +13,7 @@ class BuildPit:
         local_controller = self.ai
         base = local_controller.townhalls
         return (
-            (not len(base) < 4)
+            len(base) > 4
             and local_controller.evochambers
             and local_controller.lairs.ready
             and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
