@@ -58,7 +58,7 @@ class ArmyControl(Micro):
     def __init__(self, ai):
         self.ai = ai
         self.retreat_units = set()
-        self.triggered_banelings = []
+        self.baneling_sacrifices = {}
         self.rally_point = None
         self.zergling_atk_speed = False
         self.hydra_move_speed = False
@@ -163,23 +163,30 @@ class ArmyControl(Micro):
         for threat in threats:
             if threat.type_id == BANELING:
                 banelings.append(threat)
-        # If there are banelings
+        # Adjust for dead units
+        for zergling in list(self.baneling_sacrifices):
+            if (
+                zergling not in local_controller.units()
+                or self.baneling_sacrifices[zergling] not in local_controller.known_enemy_units
+            ):
+                del self.baneling_sacrifices[zergling]
+        # React to banelings.
         for baneling in banelings:
             # Check for close banelings
             if baneling.distance_to(unit) < 3:
                 # If we've triggered any banelings
-                if self.triggered_banelings:
+                if self.baneling_sacrifices:
                     # If we've triggered this baneling, run from it.
-                    if baneling in self.triggered_banelings:
+                    if baneling in self.baneling_sacrifices:
                         retreat_point = find_retreat_point(baneling, unit)
                         action(unit.move(retreat_point))
                         return True
                     # We haven't triggered this baneling, trigger it.
-                    self.triggered_banelings.append(baneling)
+                    self.baneling_sacrifices[unit] = baneling
                     action(unit.attack(baneling))
                     return True
                 # We haven't triggered any banelings, trigger it.
-                self.triggered_banelings.append(baneling)
+                self.baneling_sacrifices[unit] = baneling
                 action(unit.attack(baneling))
                 return True
         if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
@@ -206,36 +213,33 @@ class ArmyControl(Micro):
         if unit.has_buff(DUTCHMARAUDERSLOW):
             our_movespeed *= 0.5
         threats = trigger_threats(targets, unit, 17)
-        if threats:
-            # Find the closest threat.
-            closest_threat = None
-            closest_threat_distance = math.inf
-            for threat in threats:
-                if threat.distance_to(unit) < closest_threat_distance and threat.ground_dps:
-                    closest_threat = threat
-                    closest_threat_distance = threat.distance_to(unit)
-            # If there's a close enemy that does damage,
-            if closest_threat:
-                our_range = unit.ground_range + unit.radius
+        # Find the closest threat.
+        closest_threat = None
+        closest_threat_distance = math.inf
+        for threat in threats:
+            if threat.distance_to(unit) < closest_threat_distance and threat.ground_dps:
+                closest_threat = threat
+                closest_threat_distance = threat.distance_to(unit)
+        # If there's a close enemy that does damage,
+        if closest_threat:
+            our_range = unit.ground_range + unit.radius
+            if self.hydra_atk_range:
+                our_range += 1
+            enemy_range = closest_threat.ground_range + closest_threat.radius
+            # For flying enemies,
+            if closest_threat.is_flying:
+                our_range = unit.air_range + unit.radius
                 if self.hydra_atk_range:
                     our_range += 1
-                enemy_range = closest_threat.ground_range + closest_threat.radius
-                # For flying enemies,
-                if closest_threat.is_flying:
-                    our_range = unit.air_range + unit.radius
-                    if self.hydra_atk_range:
-                        our_range += 1
-                    # Hit and run if we can.
-                    if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
-                        return self.hit_and_run(closest_threat, unit)
-                    return self.stutter_step(closest_threat, unit)
-                # For ground enemies hit and run if we can.
+                # Hit and run if we can.
                 if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
                     return self.hit_and_run(closest_threat, unit)
                 return self.stutter_step(closest_threat, unit)
-            # If there isn't a close enemy that does damage,
-            return self.attack_close_target(unit, targets)
-        # If enemies aren't that near.
+            # For ground enemies hit and run if we can.
+            if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
+                return self.hit_and_run(closest_threat, unit)
+            return self.stutter_step(closest_threat, unit)
+        # If there isn't a close enemy that does damage,
         return self.attack_close_target(unit, targets)
 
     def hit_and_run(self, target, unit):
