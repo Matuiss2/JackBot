@@ -177,7 +177,7 @@ class ArmyControl(Micro):
                 # If we've triggered any banelings
                 if self.baneling_sacrifices:
                     # If we've triggered this baneling, run from it.
-                    if baneling in self.baneling_sacrifices:
+                    if baneling in self.baneling_sacrifices.values():
                         retreat_point = find_retreat_point(baneling, unit)
                         action(unit.move(retreat_point))
                         return True
@@ -266,12 +266,12 @@ class ArmyControl(Micro):
         else:
             minimum_distance = our_range - unit.radius
             maximum_distance = our_range
-        # If our unit is in that range, and our attack is not on cooldown, attack.
-        if minimum_distance <= unit.distance_to(target) <= maximum_distance and not unit.weapon_cooldown:
+        # If our unit is in that range attack.
+        if minimum_distance <= unit.distance_to(target) <= maximum_distance:
             action(unit.attack(target))
             return True
-        # If our unit is too close, or our weapon is on cooldown, run away.
-        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown:
+        # If our unit is too close run away.
+        if unit.distance_to(target) < minimum_distance:
             retreat_point = find_retreat_point(target, unit)
             action(unit.move(retreat_point))
             return True
