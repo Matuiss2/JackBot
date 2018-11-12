@@ -3,14 +3,14 @@ from sc2.constants import OVERLORD
 
 
 class TrainOverlord:
-    """Can be improved for its ok for now"""
+    """Should be improved"""
 
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """We still get supply blocked when ultralisk come out, can be improved"""
-        if not self.ai.supply_cap >= 200 and self.ai.supply_left < (7 + self.ai.supply_used // 7):
+        """We still get supply blocked sometimes, can be improved a lot still"""
+        if self.ai.supply_cap <= 200 and self.ai.supply_left < (7 + self.ai.supply_used // 7):
             overlords_in_queue = self.ai.already_pending
             if self.ai.can_train(OVERLORD):
                 base_amount = len(self.ai.townhalls)  # so it just calculate once per loop

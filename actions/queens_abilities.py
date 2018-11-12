@@ -17,14 +17,7 @@ class QueensAbilities:
         self.queens = local_controller.queens
         self.hatchery = local_controller.townhalls
         self.enemies = local_controller.known_enemy_units.not_structure
-
-        if not self.queens:
-            return False
-
-        if not self.hatchery:
-            return False
-
-        return True
+        return self.queens and self.hatchery
 
     async def handle(self, iteration):
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
@@ -43,12 +36,10 @@ class QueensAbilities:
                     continue
                 elif queen_energy >= 25:
                     await local_controller.place_tumor(queen)
-
             for hatch in self.hatchery.ready.noqueue:
                 if not self.queens.closer_than(4, hatch):
                     for queen in self.queens.idle:
                         if not local_controller.townhalls.closer_than(4, queen):
                             action(queen.move(hatch.position))
                             break
-
             return True

@@ -3,13 +3,13 @@ from sc2.constants import CANCEL_MORPHOVERSEER, MORPH_OVERSEER, OVERLORDCOCOON, 
 
 
 class TrainOverseer:
-    """Can be expanded"""
+    """Should be expanded"""
 
     def __init__(self, ai):
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """Requirements to run handle"""
+        """Requirements to run handle, limits it to one it need to be expanded"""
         local_controller = self.ai
         return (
             (local_controller.lairs or local_controller.hives)
@@ -26,12 +26,8 @@ class TrainOverseer:
 
     async def morphing_overlords(self):
         """Check if there is a overlord morphing looping through all cocoons"""
-        for hatch in self.ai.units(OVERLORDCOCOON):
-            if await self.is_morphing(hatch):
+        local_controller = self.ai
+        for hatch in local_controller.units(OVERLORDCOCOON):
+            if await local_controller.is_morphing(hatch, CANCEL_MORPHOVERSEER):
                 return True
         return False
-
-    async def is_morphing(self, hatch):
-        """Check if there is a overlord morphing looping by checking available abilities"""
-        abilities = await self.ai.get_available_abilities(hatch)
-        return CANCEL_MORPHOVERSEER in abilities

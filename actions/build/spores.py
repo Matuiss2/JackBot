@@ -13,29 +13,26 @@ class BuildSpores:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        if not local_controller.pools.ready:
-            return False
-
-        if local_controller.known_enemy_units.flying:
-            if [au for au in local_controller.known_enemy_units.flying if au.can_attack_ground]:
-                self.enemy_flying_dmg_units = True
-
         base = local_controller.townhalls.ready
         spores = local_controller.spores
-
-        if (not len(spores) < len(base)) or local_controller.close_enemies_to_base:
-            return False
-
-        self.selected_base = base.random
-        return (
-            (self.enemy_flying_dmg_units or local_controller.time >= 420)
-            and not local_controller.already_pending(SPORECRAWLER)
-            and not spores.closer_than(15, self.selected_base.position)
-            and local_controller.can_afford(SPORECRAWLER)
-        )
+        if (
+            local_controller.pools.ready
+            and local_controller.known_enemy_units.flying
+            and (not (len(spores) > len(base) or local_controller.close_enemies_to_base))
+        ):
+            if [au for au in local_controller.known_enemy_units.flying if au.can_attack_ground]:
+                self.enemy_flying_dmg_units = True
+        if base:
+            self.selected_base = base.random
+            return (
+                (self.enemy_flying_dmg_units or local_controller.time >= 420)
+                and not local_controller.already_pending(SPORECRAWLER)
+                and not spores.closer_than(15, self.selected_base.position)
+                and local_controller.can_afford(SPORECRAWLER)
+            )
 
     async def handle(self, iteration):
-        """Build the spore right on the middle of the base"""
+        """Build the spore right on the middle of the base, sometimes it fails"""
         local_controller = self.ai
         state = local_controller.state
         for base in local_controller.townhalls.ready:

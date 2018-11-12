@@ -10,6 +10,7 @@ from sc2.constants import (
     INFESTEDTERRANSEGG,
     LARVA,
     MUTALISK,
+    HYDRALISK,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
@@ -35,7 +36,12 @@ class ArmyControl(Micro):
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        return local_controller.zerglings | local_controller.ultralisks | local_controller.mutalisks
+        return (
+            local_controller.zerglings
+            | local_controller.ultralisks
+            | local_controller.mutalisks
+            | local_controller.hydras
+        )
 
     async def handle(self, iteration):  # needs further refactoring(too-many-branches)
         """It surrounds and target low hp units, also retreats when overwhelmed,
@@ -48,10 +54,10 @@ class ArmyControl(Micro):
         bases = local_controller.townhalls
         if not self.zergling_atk_speed and local_controller.hives:
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-        if bases:
-            self.rally_point = bases.closest_to(map_center).position.towards(map_center, 10)
+        if bases.ready:
+            self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
-        combined_enemies, targets, atk_force = self.set_unit_groups()
+        combined_enemies, targets, atk_force, hydra_targets = self.set_unit_groups()
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
                 continue
@@ -68,6 +74,11 @@ class ArmyControl(Micro):
             if attacking_unit.tag in self.retreat_units and bases:
                 self.has_retreated(attacking_unit)
                 continue
+            if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
+                if self.retreat_unit(attacking_unit, combined_enemies):
+                    continue
+                if self.micro_hydras(attacking_unit):
+                    continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
@@ -104,7 +115,8 @@ class ArmyControl(Micro):
             and not local_controller.structures.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
             >= len(local_controller.zerglings.closer_than(13, unit.position))
-            + len(local_controller.ultralisks.closer_than(13, unit.position)) * 6
+            + len(local_controller.ultralisks.closer_than(13, unit.position)) * 8
+            + len(local_controller.hydras.closer_than(13, unit.position)) * 3
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -115,18 +127,12 @@ class ArmyControl(Micro):
         """Target low hp units smartly, and surrounds when attack cd is down"""
         if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
             if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
-                if self.attack_close_target(unit, targets):
-                    return True
-            else:
-                if self.move_to_next_target(unit, targets):
-                    return True
-        elif unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
-            if self.attack_close_target(unit, targets):
-                return True
-        else:
-            if self.move_to_next_target(unit, targets):
-                return True
-
+                return self.attack_close_target(unit, targets)
+            return self.move_to_next_target(unit, targets)
+        if unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
+            return self.attack_close_target(unit, targets)
+        if self.move_to_next_target(unit, targets):
+            return True
         self.ai.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
@@ -136,7 +142,7 @@ class ArmyControl(Micro):
         if (
             len(local_controller.ultralisks.ready) < 4
             and local_controller.supply_used not in range(198, 201)
-            and len(local_controller.zerglings.ready) < 41
+            and len(local_controller.zerglings.ready) + len(local_controller.hydras) * 2 < 41
             and local_controller.townhalls
             and self.retreat_units
         ):
@@ -189,6 +195,7 @@ class ArmyControl(Micro):
     def set_unit_groups(self):
         """Set the targets, combined_enemies and atk_force"""
         targets = None
+        hydra_targets = None
         combined_enemies = None
         local_controller = self.ai
         enemy_units = local_controller.known_enemy_units
@@ -196,6 +203,7 @@ class ArmyControl(Micro):
         zerglings = local_controller.zerglings
         ultralisks = local_controller.ultralisks
         mutalisks = local_controller.mutalisks
+        hydralisks = local_controller.hydras
         if enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -210,17 +218,18 @@ class ArmyControl(Micro):
             static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
-        atk_force = zerglings | ultralisks | mutalisks
+            hydra_targets = static_defence | filtered_enemies
+        atk_force = zerglings | ultralisks | mutalisks | hydralisks
         if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
-            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens
-        return combined_enemies, targets, atk_force
+            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens | hydralisks
+        return combined_enemies, targets, atk_force, hydra_targets
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
         local_controller = self.ai
         enemy_building = local_controller.enemy_structures
         flying_buildings = enemy_building.flying
-        if unit.type_id in (MUTALISK, QUEEN) and flying_buildings:
+        if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and flying_buildings:
             local_controller.add_action(unit.attack(flying_buildings.closest_to(unit.position)))
             return True
         return False
@@ -234,14 +243,11 @@ class ArmyControl(Micro):
         action = local_controller.add_action
         if await local_controller.client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
-                if self.micro_zerglings(target, unit):
-                    return True
-            else:
-                action(attack_command(closest_target(unit_position)))
-                return True
-        else:
-            action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
+                return self.micro_zerglings(target, unit)
+            action(attack_command(closest_target(unit_position)))
             return True
+        action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
+        return True
 
     def keep_attacking(self, unit, target):
         """It keeps the attack going if it meets the requirements no matter what"""
@@ -260,3 +266,9 @@ class ArmyControl(Micro):
             self.attack_startlocation(unit)
             return True
         return False
+
+    def micro_hydras(self, unit):
+        """Control the hydras"""
+        local_controller = self.ai
+        local_controller.add_action(unit.attack(local_controller.enemies.closest_to(unit.position)))
+        return True

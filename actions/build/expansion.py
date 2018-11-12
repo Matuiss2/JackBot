@@ -7,10 +7,8 @@ class BuildExpansion:
 
     def __init__(self, ai):
         self.ai = ai
-
         self.send_worker = 1
         self.did_send_worker = 2
-
         self.worker_to_first_base = False
         self.expand_now = False
 
@@ -24,9 +22,7 @@ class BuildExpansion:
         if not self.worker_to_first_base and base_amount < 2 and local_controller.minerals > 225:
             self.worker_to_first_base = self.send_worker
             return True
-
         self.expand_now = False
-
         if (
             base
             and local_controller.can_afford(HATCHERY)
@@ -37,16 +33,14 @@ class BuildExpansion:
             if not (
                 local_controller.enemy_structures.closer_than(50, local_controller.start_location) and game_time < 300
             ):
-                if base_amount <= 4:
+                if base_amount <= 5:
                     if base_amount == 2:
-                        if game_time > 330 or len(local_controller.zerglings) > 31:
-                            self.expand_now = True
+                        if len(local_controller.zerglings) > 19 or game_time >= 285:
                             return True
                     else:
                         return True
                 elif local_controller.caverns:
                     return True
-
         return False
 
     async def handle(self, iteration):
@@ -57,17 +51,15 @@ class BuildExpansion:
             action(await self.send_worker_to_next_expansion())
             self.worker_to_first_base = self.did_send_worker
             return True
-
         if self.expand_now:
             await local_controller.expand_now()
             return True
-
         for expansion in local_controller.ordered_expansions:
             if await local_controller.can_place(HATCHERY, expansion):
-                drone = local_controller.workers.closest_to(expansion)
-                action(drone.build(HATCHERY, expansion))
-                return True
-
+                if local_controller.workers:
+                    drone = local_controller.workers.closest_to(expansion)
+                    action(drone.build(HATCHERY, expansion))
+                    return True
         return False
 
     async def send_worker_to_next_expansion(self):

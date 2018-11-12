@@ -1,4 +1,4 @@
-"""SC2 zerg bot by Helfull, Matuiss, Thommath and Tweakimp"""
+"""SC2 zerg bot by JackBot team(Helfull, Matuiss, Niknoc) with huge help of Thommath, Tweakimp and Burny"""
 import sc2
 from sc2.constants import HATCHERY
 from sc2.position import Point2
@@ -9,6 +9,7 @@ from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
 from actions.build.extractor import BuildExtractor
 from actions.build.hive import BuildHive
+from actions.build.hydraden import BuildHydraden
 from actions.build.lair import BuildLair
 from actions.build.pit import BuildPit
 from actions.build.pool import BuildPool
@@ -19,6 +20,7 @@ from actions.defend_worker_rush import DefendWorkerRush
 from actions.defend_rush_buildings import DefendRushBuildings
 from actions.distribute_workers import DistributeWorkers
 from actions.queens_abilities import QueensAbilities
+from actions.train.hydras import TrainHydralisk
 from actions.train.mutalisk import TrainMutalisk
 from actions.train.overlord import TrainOverlord
 from actions.train.overseer import TrainOverseer
@@ -37,6 +39,8 @@ from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
+from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
+from actions.upgrades.hydra_speed import UpgradeMuscularAugments
 from actions.building_positioning import BuildingPositioning
 from actions.block_expansions import BlockExpansions
 from creep_spread import CreepControl
@@ -44,7 +48,8 @@ from creep_spread import CreepControl
 
 # noinspection PyMissingConstructor
 class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, BlockExpansions):
-    """It makes periodic attacks with good surrounding and targeting micro, it goes ultras end-game"""
+    """It makes periodic attacks with good surrounding and targeting micro, it goes hydras mid-game
+     and ultras end-game"""
 
     def __init__(self, debug=False):
         CreepControl.__init__(self)
@@ -65,7 +70,6 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             Overlord(self),
             Buildings(self),
         ]
-
         self.train_commands = [
             TrainOverlord(self),
             TrainWorker(self),
@@ -74,8 +78,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             TrainZergling(self),
             TrainOverseer(self),
             TrainMutalisk(self),
+            TrainHydralisk(self),
         ]
-
         self.build_commands = [
             BuildPool(self),
             BuildExpansion(self),
@@ -88,8 +92,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             BuildSpines(self),
             BuildSpores(self),
             BuildSpire(self),
+            BuildHydraden(self),
         ]
-
         self.upgrade_commands = [
             UpgradeChitinousPlating(self),
             UpgradeMetabolicBoost(self),
@@ -97,6 +101,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             UpgradeEvochamber(self),
             UpgradePneumatizedCarapace(self),
             UpgradeBurrow(self),
+            UpgradeGroovedSpines(self),
+            UpgradeMuscularAugments(self),
         ]
         self.locations = []
         self.ordered_expansions = []
@@ -127,12 +133,10 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
             self.split_workers()
-
         await self.run_commands(self.unit_commands, iteration)
         await self.run_commands(self.train_commands, iteration)
         await self.run_commands(self.build_commands, iteration)
         await self.run_commands(self.upgrade_commands, iteration)
-
         if self.actions:
             if self.debug:
                 print(self.actions)

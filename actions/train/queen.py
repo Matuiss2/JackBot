@@ -8,15 +8,11 @@ class TrainQueen:
     def __init__(self, ai):
         self.ai = ai
         self.hatchery = None
-        self.hatcheries_random = None
 
     async def should_handle(self, iteration):
         """It possibly can get better but it seems good enough for now"""
         local_controller = self.ai
         self.hatchery = local_controller.townhalls.exclude_type(LAIR).noqueue.ready
-        if self.hatchery:
-            self.hatcheries_random = self.hatchery.random
-
         return (
             self.hatchery
             and local_controller.pools.ready
@@ -27,5 +23,5 @@ class TrainQueen:
 
     async def handle(self, iteration):
         """Execute the action of training queens"""
-        self.ai.add_action(self.hatcheries_random.train(QUEEN))
+        self.ai.add_action(self.hatchery.random.train(QUEEN))
         return True

@@ -3,7 +3,8 @@ from sc2.constants import CANCEL, HATCHERY
 
 
 class Buildings:
-    """Ok for now, can be improved, it fails sometimes but is VERY rare"""
+    """Ok for now but can be improved, it works every time
+     but it should prevent cancelled buildings to be replaced right after"""
 
     def __init__(self, ai):
         self.ai = ai

@@ -3,7 +3,7 @@ from sc2.constants import BURROW, RESEARCH_BURROW
 
 
 class UpgradeBurrow:
-    """Ok for now, didn't find a way to use it tho"""
+    """Ok for now"""
 
     def __init__(self, ai):
         self.ai = ai

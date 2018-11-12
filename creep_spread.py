@@ -30,7 +30,6 @@ class CreepControl:
             unit_ability = BUILD_CREEPTUMOR_TUMOR
         else:
             return None
-
         # defining vars
         ability = self.game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
         location_attempts = 30
@@ -76,6 +75,5 @@ class CreepControl:
                     if c_location.distance_to_closest(tumors) >= 4:
                         self.add_action(unit(unit_ability, c_location))
                         break
-
             if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
                 self.used_tumors.append(unit.tag)

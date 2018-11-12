@@ -9,23 +9,19 @@ class BuildEvochamber:
         self.ai = ai
 
     async def should_handle(self, iteration):
-        """Builds the evolution chambers, placement can maybe be improved(far from priority),
-        also there is some occasional bug that prevents both to be built at the same time,
-        probably related to placement"""
+        """Builds the evolution chambers"""
         local_controller = self.ai
         pool = local_controller.pools
         evochamber = local_controller.evochambers
-        if pool.ready:
-            if (
-                local_controller.can_afford(EVOLUTIONCHAMBER)
-                and (
-                    len(local_controller.townhalls) >= 3
-                    or (local_controller.close_enemy_production and len(local_controller.spines.ready) >= 4)
-                )
-                and len(evochamber) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
-            ):
-                return True
-        return False
+        return (
+            pool.ready
+            and local_controller.can_afford(EVOLUTIONCHAMBER)
+            and (
+                len(local_controller.townhalls) >= 3
+                or (local_controller.close_enemy_production and len(local_controller.spines.ready) >= 4)
+            )
+            and len(evochamber) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
+        )
 
     async def handle(self, iteration):
         """Build it behind the mineral line if there is space, if not uses later placement"""

@@ -1,7 +1,7 @@
 """Every helper for controlling units go here"""
 from sc2.position import Point2
 from sc2.unit import Unit
-
+from sc2.constants import GUARDIANSHIELDPERSISTENT
 
 def filter_in_attack_range_of(unit, targets):
     """filter targets who are in attack range of the unit"""
@@ -15,19 +15,17 @@ class Micro:
         """Dodge any effects"""
         if not self.ai.state.effects:
             return False
-
         for effect in self.ai.state.effects:
+            if effect.id == GUARDIANSHIELDPERSISTENT:
+                continue
             effect_data = self.ai.game_data.effects[effect.id]
             danger_zone = effect_data.radius + unit.radius + .1
             closest_effect_position_to_unit = unit.position.closest(effect.positions)
-
             if not unit.position.distance_to_point2(closest_effect_position_to_unit) < danger_zone:
                 continue
-
             neighbors8_of_unit = list(unit.position.neighbors8)
             center_of_effect = Point2.center(effect.positions)
             furthest_neighbor_to_effect = center_of_effect.furthest(neighbors8_of_unit)
-
             move_away = -1 * danger_zone
             self.ai.add_action(unit.move(furthest_neighbor_to_effect.towards(unit.position, move_away)))
         return True
@@ -38,10 +36,8 @@ class Micro:
         if targets_close:
             self.attack_lowhp(unit, targets_close)
             return True
-
         if self.attack_in_range(unit):
             return True
-
         target = enemies.closest_to(unit)
         if target:
             self.ai.add_action(unit.attack(target))

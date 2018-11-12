@@ -3,7 +3,7 @@ from sc2.constants import OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE
 
 
 class UpgradePneumatizedCarapace:
-    """Ok for now, maybe use overlord speed more and upgrade it earlier"""
+    """Ok for now, maybe use overlord speed more and upgrade it earlier once our bots gets even more reactive"""
 
     def __init__(self, ai):
         self.ai = ai

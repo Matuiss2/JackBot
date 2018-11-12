@@ -22,9 +22,7 @@ class DistributeWorkers(Micro):
         )
         self.mineral_fields = self.mineral_fields_of(self.mining_bases)
         mining_places = self.mining_bases | local_controller.extractors.ready
-
         self.deficit_bases, self.workers_to_distribute = self.calculate_distribution(mining_places)
-
         return (local_controller.drones.idle or self.workers_to_distribute) and (self.require_gas or self.deficit_bases)
 
     async def handle(self, iteration):
@@ -34,7 +32,6 @@ class DistributeWorkers(Micro):
             self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
         )
         self.distribute_idle_workers()
-        self.drone_dodge()
         return True
 
     def distribute_idle_workers(self):
@@ -53,7 +50,6 @@ class DistributeWorkers(Micro):
         mining_places = mining_bases | local_controller.extractors.ready
         extractor_tags = {ref.tag for ref in local_controller.extractors}
         deficit_bases = []
-
         for mining_place in mining_places:
             difference = mining_place.surplus_harvesters
             if difference > 0:
@@ -70,7 +66,6 @@ class DistributeWorkers(Micro):
                         workers_to_distribute.append(moving_drone.closest_to(mining_place))
             elif difference < 0:
                 deficit_bases.append([mining_place, difference])
-
         return deficit_bases, workers_to_distribute
 
     def mineral_fields_deficit(self, mineral_fields, deficit_bases):
@@ -90,12 +85,9 @@ class DistributeWorkers(Micro):
     def distribute_to_deficits(self, mining_bases, workers_to_distribute, mineral_fields, deficit_bases):
         """Distribute workers so it saturates the bases"""
         deficit_bases = [x for x in deficit_bases if x[0].type_id != EXTRACTOR]
-
         if deficit_bases and workers_to_distribute:
             mineral_fields_deficit = self.mineral_fields_deficit(mineral_fields, deficit_bases)
-
             deficit_extractors = [x for x in deficit_bases if x[0].type_id == EXTRACTOR]
-
             for worker in workers_to_distribute:
                 if mining_bases and deficit_bases and mineral_fields_deficit:
                     self.distribute_to_mineral_field(mineral_fields_deficit, worker, deficit_bases)
