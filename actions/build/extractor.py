@@ -22,19 +22,18 @@ class BuildExtractor:
         gas = local_controller.extractors
         gas_amount = len(gas)
         vgs = local_controller.state.vespene_geyser.closer_than(10, finished_bases.random)
-        extractor_in_queue = local_controller.already_pending(EXTRACTOR)
         for geyser in vgs:
             self.drone = local_controller.select_build_worker(geyser.position)
-            if not self.drone:
+            if not self.drone or local_controller.already_pending(EXTRACTOR):
                 return False
-            if not extractor_in_queue:
-                if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.bases)):
-                    self.geyser = geyser
-                    return True
-            if (local_controller.time > 900 or local_controller.spires) and gas_amount < 11:
+            if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.bases)) or ():
                 self.geyser = geyser
                 return True
-            if local_controller.hydradens and gas_amount < 9 and not extractor_in_queue:
+            if (
+                (local_controller.time > 900 or local_controller.spires)
+                and gas_amount < 11
+                or (local_controller.hydradens and gas_amount < 9)
+            ):
                 self.geyser = geyser
                 return True
         return False
