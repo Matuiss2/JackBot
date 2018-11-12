@@ -35,12 +35,10 @@ class BuildExpansion:
             ):
                 if base_amount <= 5:
                     if base_amount == 2:
-                        if len(local_controller.zerglings) > 19 or game_time >= 285:
-                            return True
-                    else:
-                        return True
-                elif local_controller.caverns:
+                        return len(local_controller.zerglings) > 19 or game_time >= 285
                     return True
+                return local_controller.caverns
+            return False
         return False
 
     async def handle(self, iteration):
