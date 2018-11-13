@@ -30,16 +30,14 @@ from .micro import Micro
 
 def find_pursuit_point(target, unit) -> Point2:
     """Find a point towards the enemy unit"""
-    deltax = unit.position.x - target.position.x
-    deltay = unit.position.y - target.position.y
-    return Point2((unit.position.x + ((deltax / 2) * -1), unit.position.y + ((deltay / 2) * -1)))
+    difference = unit.position - target.position
+    return Point2((unit.position.x + (difference.x / 2) * -1, unit.position.y + (difference.y / 2) * -1))
 
 
 def find_retreat_point(target, unit) -> Point2:
     """Find a point away from the enemy unit"""
-    deltax = unit.position.x - target.position.x
-    deltay = unit.position.y - target.position.y
-    return Point2((unit.position.x + (deltax / 2), unit.position.y + (deltay / 2)))
+    difference = unit.position - target.position
+    return Point2((unit.position.x + (difference.x / 2), unit.position.y + (difference.y / 2)))
 
 
 def trigger_threats(targets, unit, trigger_range):
@@ -167,6 +165,9 @@ class ArmyControl(Micro):
     def micro_hydras(self, targets, unit):
         """Control the hydras"""
         our_movespeed = unit.movement_speed
+        our_range = unit.ground_range + unit.radius
+        if self.hydra_atk_range:
+            our_range += 1
         # If we've researched Muscular Augments, our movespeed is 125% of base.
         if self.hydra_move_speed:
             our_movespeed *= 1.25
@@ -177,36 +178,21 @@ class ArmyControl(Micro):
         if unit.has_buff(DUTCHMARAUDERSLOW):
             our_movespeed *= 0.5
         threats = trigger_threats(targets, unit, 17)
-        if threats:
-            # Find the closest threat.
-            closest_threat = None
-            closest_threat_distance = math.inf
-            for threat in threats:
-                if threat.distance_to(unit) < closest_threat_distance and threat.ground_dps:
-                    closest_threat = threat
-                    closest_threat_distance = threat.distance_to(unit)
-            # If there's a close enemy that does damage,
-            if closest_threat:
-                our_range = unit.ground_range + unit.radius
-                if self.hydra_atk_range:
-                    our_range += 1
-                enemy_range = closest_threat.ground_range + closest_threat.radius
-                # For flying enemies,
-                if closest_threat.is_flying:
-                    our_range = unit.air_range + unit.radius
-                    if self.hydra_atk_range:
-                        our_range += 1
-                    # Hit and run if we can.
-                    if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
-                        return self.hit_and_run(closest_threat, unit)
-                    return self.stutter_step(closest_threat, unit)
-                # For ground enemies hit and run if we can.
-                if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
-                    return self.hit_and_run(closest_threat, unit)
-                return self.stutter_step(closest_threat, unit)
-            # If there isn't a close enemy that does damage,
-            return self.attack_close_target(unit, targets)
-        # If enemies aren't that near.
+        # Find the closest threat.
+        closest_threat = None
+        closest_threat_distance = math.inf
+        for threat in threats:
+            if threat.distance_to(unit) < closest_threat_distance and threat.ground_dps:
+                closest_threat = threat
+                closest_threat_distance = threat.distance_to(unit)
+        # If there's a close enemy that does damage,
+        if closest_threat:
+            enemy_range = closest_threat.ground_range + closest_threat.radius
+            # Hit and run if we can.
+            if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
+                return self.hit_and_run(closest_threat, unit)
+            return self.stutter_step(closest_threat, unit)
+        # If there isn't a close enemy that does damage,
         return self.attack_close_target(unit, targets)
 
     def hit_and_run(self, target, unit):
@@ -214,18 +200,10 @@ class ArmyControl(Micro):
         # Only do this when our range > enemy range, our movespeed > enemy movespeed, and enemy is targeting us.
         local_controller = self.ai
         action = local_controller.add_action
-        unit_is_air = unit.is_flying
-        target_is_air = target.is_flying
-        if target_is_air:
-            our_range = unit.air_range + unit.radius
-        else:
-            our_range = unit.ground_range + unit.radius
+        our_range = unit.ground_range + unit.radius
+        enemy_range = target.ground_range + target.radius
         if self.hydra_atk_range:
             our_range += 1
-        if unit_is_air:
-            enemy_range = target.air_range + target.radius
-        else:
-            enemy_range = target.ground_range + target.radius
         # Our unit should stay just outside enemy range, and inside our range.
         if enemy_range:
             minimum_distance = enemy_range + unit.radius + 0.1
@@ -233,12 +211,15 @@ class ArmyControl(Micro):
         else:
             minimum_distance = our_range - unit.radius
             maximum_distance = our_range
-        # If our unit is in that range, and our attack is not on cooldown, attack.
-        if minimum_distance <= unit.distance_to(target) <= maximum_distance and not unit.weapon_cooldown:
+        # Check to make sure this range isn't negative.
+        if minimum_distance > maximum_distance:
+            minimum_distance = maximum_distance - unit.radius
+        # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
+        if minimum_distance <= unit.distance_to(target) <= maximum_distance and unit.weapon_cooldown <= 0.13:
             action(unit.attack(target))
             return True
-        # If our unit is too close, or our weapon is on cooldown, run away.
-        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown:
+        # If our unit is too close, or our weapon is on more than one quarter cooldown, run away.
+        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 0.13:
             retreat_point = find_retreat_point(target, unit)
             action(unit.move(retreat_point))
             return True
