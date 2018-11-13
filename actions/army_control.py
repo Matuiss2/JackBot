@@ -1,8 +1,8 @@
 """Everything related to controlling army units goes here"""
-import math
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
+    BANELING,
     BUNKER,
     DISRUPTORPHASED,
     DRONE,
@@ -35,6 +35,7 @@ class ArmyControl(HydraControl, Micro):
     def __init__(self, ai):
         self.ai = ai
         self.retreat_units = set()
+        self.baneling_sacrifices = {}
         self.rally_point = None
         self.zergling_atk_speed = False
         self.hydra_move_speed = False
@@ -83,7 +84,7 @@ class ArmyControl(HydraControl, Micro):
             if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if self.micro_hydras(hydra_targets, attacking_unit):
+                if self.micro_hydras(hydra_targets, attacking_unit, self.hydra_move_speed, self.hydra_atk_range):
                     continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
@@ -133,7 +134,7 @@ class ArmyControl(HydraControl, Micro):
         """Target low hp units smartly, and surrounds when attack cd is down"""
         local_controller = self.ai
         action = local_controller.add_action
-        threats = trigger_threats(targets, unit, 4)
+        threats = self.trigger_threats(targets, unit, 4)
         banelings = []
         # Check for banelings
         for threat in threats:
@@ -154,7 +155,7 @@ class ArmyControl(HydraControl, Micro):
                 if self.baneling_sacrifices:
                     # If we've triggered this baneling, run from it.
                     if baneling in self.baneling_sacrifices.values():
-                        retreat_point = find_retreat_point(baneling, unit)
+                        retreat_point = self.find_retreat_point(baneling, unit)
                         action(unit.move(retreat_point))
                         return True
                     # We haven't triggered this baneling, trigger it.
