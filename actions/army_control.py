@@ -3,7 +3,6 @@ import math
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
-    BANELING,
     BUNKER,
     DISRUPTORPHASED,
     DRONE,
@@ -25,40 +24,17 @@ from sc2.constants import (
     ZERGLING,
     ZERGLINGATTACKSPEED,
 )
-from sc2.position import Point2
+
 from .micro import Micro
+from .hydras_control import HydraControl
 
 
-def find_pursuit_point(target, unit) -> Point2:
-    """Find a point towards the enemy unit"""
-    deltax = unit.position.x - target.position.x
-    deltay = unit.position.y - target.position.y
-    return Point2((unit.position.x + ((deltax / 2) * -1), unit.position.y + ((deltay / 2) * -1)))
-
-
-def find_retreat_point(target, unit) -> Point2:
-    """Find a point away from the enemy unit"""
-    deltax = unit.position.x - target.position.x
-    deltay = unit.position.y - target.position.y
-    return Point2((unit.position.x + (deltax / 2), unit.position.y + (deltay / 2)))
-
-
-def trigger_threats(targets, unit, trigger_range):
-    """Identify threats based on range"""
-    threats_list = []
-    for enemy in targets:
-        if enemy.distance_to(unit) < trigger_range:
-            threats_list.append(enemy)
-    return threats_list
-
-
-class ArmyControl(Micro):
+class ArmyControl(HydraControl, Micro):
     """Can be improved"""
 
     def __init__(self, ai):
         self.ai = ai
         self.retreat_units = set()
-        self.baneling_sacrifices = {}
         self.rally_point = None
         self.zergling_atk_speed = False
         self.hydra_move_speed = False
@@ -198,97 +174,6 @@ class ArmyControl(Micro):
         if self.move_to_next_target(unit, targets):
             return True
         self.ai.add_action(unit.attack(targets.closest_to(unit.position)))
-        return True
-
-    def micro_hydras(self, targets, unit):
-        """Control the hydras"""
-        our_movespeed = unit.movement_speed
-        # If we've researched Muscular Augments, our movespeed is 125% of base.
-        if self.hydra_move_speed:
-            our_movespeed *= 1.25
-        # If we're on creep, it's 30% more.
-        if self.ai.has_creep(unit):
-            our_movespeed *= 1.30
-        # If we've been hit with Marauder's Concussive Shells, our movespeed is half.
-        if unit.has_buff(DUTCHMARAUDERSLOW):
-            our_movespeed *= 0.5
-        threats = trigger_threats(targets, unit, 17)
-        # Find the closest threat.
-        closest_threat = None
-        closest_threat_distance = math.inf
-        for threat in threats:
-            if threat.distance_to(unit) < closest_threat_distance and threat.ground_dps:
-                closest_threat = threat
-                closest_threat_distance = threat.distance_to(unit)
-        # If there's a close enemy that does damage,
-        if closest_threat:
-            our_range = unit.ground_range + unit.radius
-            if self.hydra_atk_range:
-                our_range += 1
-            enemy_range = closest_threat.ground_range + closest_threat.radius
-            # For flying enemies,
-            if closest_threat.is_flying:
-                our_range = unit.air_range + unit.radius
-                if self.hydra_atk_range:
-                    our_range += 1
-                # Hit and run if we can.
-                if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
-                    return self.hit_and_run(closest_threat, unit)
-                return self.stutter_step(closest_threat, unit)
-            # For ground enemies hit and run if we can.
-            if our_range > enemy_range and our_movespeed > closest_threat.movement_speed:
-                return self.hit_and_run(closest_threat, unit)
-            return self.stutter_step(closest_threat, unit)
-        # If there isn't a close enemy that does damage,
-        return self.attack_close_target(unit, targets)
-
-    def hit_and_run(self, target, unit):
-        """Attack when the unit can, run while it can't. We outrun the enemy."""
-        # Only do this when our range > enemy range, our movespeed > enemy movespeed, and enemy is targeting us.
-        local_controller = self.ai
-        action = local_controller.add_action
-        unit_is_air = unit.is_flying
-        target_is_air = target.is_flying
-        if target_is_air:
-            our_range = unit.air_range + unit.radius
-        else:
-            our_range = unit.ground_range + unit.radius
-        if self.hydra_atk_range:
-            our_range += 1
-        if unit_is_air:
-            enemy_range = target.air_range + target.radius
-        else:
-            enemy_range = target.ground_range + target.radius
-        # Our unit should stay just outside enemy range, and inside our range.
-        if enemy_range:
-            minimum_distance = enemy_range + unit.radius + 0.1
-            maximum_distance = our_range
-        else:
-            minimum_distance = our_range - unit.radius
-            maximum_distance = our_range
-        # If our unit is in that range attack.
-        if minimum_distance <= unit.distance_to(target) <= maximum_distance:
-            action(unit.attack(target))
-            return True
-        # If our unit is too close run away.
-        if unit.distance_to(target) < minimum_distance:
-            retreat_point = find_retreat_point(target, unit)
-            action(unit.move(retreat_point))
-            return True
-        # If our unit is too far, run towards.
-        pursuit_point = find_pursuit_point(target, unit)
-        action(unit.move(pursuit_point))
-        return True
-
-    def stutter_step(self, target, unit):
-        """Attack when the unit can, run while it can't. We don't outrun the enemy."""
-        local_controller = self.ai
-        action = local_controller.add_action
-        if not unit.weapon_cooldown:
-            action(unit.attack(target))
-            return True
-        retreat_point = find_retreat_point(target, unit)
-        action(unit.move(retreat_point))
         return True
 
     def idle_unit(self, unit):
