@@ -6,6 +6,8 @@ from sc2.constants import (
     DISRUPTORPHASED,
     DRONE,
     EGG,
+    EVOLVEGROOVEDSPINES,
+    EVOLVEMUSCULARAUGMENTS,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
@@ -22,9 +24,10 @@ from sc2.constants import (
 )
 
 from .micro import Micro
+from .hydras_control import HydraControl
 
 
-class ArmyControl(Micro):
+class ArmyControl(HydraControl, Micro):
     """Can be improved"""
 
     def __init__(self, ai):
@@ -32,6 +35,8 @@ class ArmyControl(Micro):
         self.retreat_units = set()
         self.rally_point = None
         self.zergling_atk_speed = False
+        self.hydra_move_speed = False
+        self.hydra_atk_range = False
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
@@ -52,8 +57,7 @@ class ArmyControl(Micro):
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
-        if not self.zergling_atk_speed and local_controller.hives:
-            self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+        self.behavior_changing_upgrades_check()
         if bases.ready:
             self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
         # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
@@ -77,7 +81,7 @@ class ArmyControl(Micro):
             if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if self.micro_hydras(attacking_unit):
+                if self.micro_hydras(hydra_targets, attacking_unit, self.hydra_move_speed, self.hydra_atk_range):
                     continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
@@ -198,12 +202,8 @@ class ArmyControl(Micro):
         hydra_targets = None
         combined_enemies = None
         local_controller = self.ai
-        enemy_units = local_controller.known_enemy_units
+        enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
-        zerglings = local_controller.zerglings
-        ultralisks = local_controller.ultralisks
-        mutalisks = local_controller.mutalisks
-        hydralisks = local_controller.hydras
         if enemy_units:
             excluded_units = {
                 ADEPTPHASESHIFT,
@@ -219,9 +219,14 @@ class ArmyControl(Micro):
             combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
             hydra_targets = static_defence | filtered_enemies
-        atk_force = zerglings | ultralisks | mutalisks | hydralisks
+        atk_force = (
+            local_controller.zerglings
+            | local_controller.ultralisks
+            | local_controller.mutalisks
+            | local_controller.hydras
+        )
         if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
-            atk_force = zerglings | ultralisks | mutalisks | local_controller.queens | hydralisks
+            atk_force = atk_force | local_controller.queens
         return combined_enemies, targets, atk_force, hydra_targets
 
     def anti_terran_bm(self, unit):
@@ -267,8 +272,12 @@ class ArmyControl(Micro):
             return True
         return False
 
-    def micro_hydras(self, unit):
-        """Control the hydras"""
+    def behavior_changing_upgrades_check(self):
+        """Check for upgrades the will change how the units behavior are calculated"""
         local_controller = self.ai
-        local_controller.add_action(unit.attack(local_controller.enemies.closest_to(unit.position)))
-        return True
+        if not self.zergling_atk_speed and local_controller.hives:
+            self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+        if not self.hydra_move_speed and local_controller.hydradens:
+            self.hydra_move_speed = local_controller.already_pending_upgrade(EVOLVEMUSCULARAUGMENTS) == 1
+        if not self.hydra_atk_range and local_controller.hydradens:
+            self.hydra_atk_range = local_controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1

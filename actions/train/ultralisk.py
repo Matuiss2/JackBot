@@ -12,10 +12,7 @@ class TrainUltralisk:
         """Good for now but it might need to be changed vs particular
          enemy units compositions"""
         local_controller = self.ai
-        return (
-            local_controller.caverns.ready
-            and local_controller.can_train(ULTRALISK)
-        )
+        return local_controller.caverns.ready and local_controller.can_train(ULTRALISK)
 
     async def handle(self, iteration):
         """Execute the action of training ultralisks"""

@@ -82,7 +82,6 @@ class DefendWorkerRush(Micro):
         if self.defenders:
             for drone in self.defenders:
                 local_controller.add_action(drone.gather(local_controller.state.mineral_field.closest_to(base.first)))
-                continue
         self.defender_tags = []
         self.defenders = None
 
