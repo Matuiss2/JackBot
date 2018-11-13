@@ -2,7 +2,6 @@
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
-    BANELING,
     BUNKER,
     DISRUPTORPHASED,
     DRONE,
@@ -26,9 +25,10 @@ from sc2.constants import (
 
 from .micro import Micro
 from .hydras_control import HydraControl
+from .zergling_control import ZerglingControl
 
 
-class ArmyControl(HydraControl, Micro):
+class ArmyControl(ZerglingControl, HydraControl, Micro):
     """Can be improved"""
 
     def __init__(self, ai):
@@ -129,61 +129,6 @@ class ArmyControl(HydraControl, Micro):
             return True
         return False
 
-    def micro_zerglings(self, targets, unit):
-        """Target low hp units smartly, and surrounds when attack cd is down"""
-        local_controller = self.ai
-        action = local_controller.add_action
-        threats = self.trigger_threats(targets, unit, 5)
-        # If the enemy has banelings, run baneling dodging code.
-        if local_controller.known_enemy_units.of_type(BANELING):
-            banelings = []
-            # Check for banelings
-            for threat in threats:
-                if threat.type_id == BANELING:
-                    banelings.append(threat)
-            # Adjust for dead units
-            for zergling in list(self.baneling_sacrifices):
-                if (
-                    zergling not in local_controller.units()
-                    or self.baneling_sacrifices[zergling] not in local_controller.known_enemy_units
-                ):
-                    del self.baneling_sacrifices[zergling]
-            # React to banelings.
-            for baneling in banelings:
-                # Check for close banelings
-                if baneling.distance_to(unit) < 4:
-                    # If we've triggered any banelings
-                    if self.baneling_sacrifices:
-                        # If we've triggered this baneling
-                        if baneling in self.baneling_sacrifices.values():
-                            # And this zergling is triggering it, attack it
-                            if unit in self.baneling_sacrifices:
-                                if baneling == self.baneling_sacrifices[unit]:
-                                    action(unit.attack(baneling))
-                                    return True
-                            # Otherwise, run from it.
-                            retreat_point = self.find_retreat_point(baneling, unit)
-                            action(unit.move(retreat_point))
-                            return True
-                        # We haven't triggered this baneling, trigger it.
-                        self.baneling_sacrifices[unit] = baneling
-                        action(unit.attack(baneling))
-                        return True
-                    # We haven't triggered any banelings, trigger it.
-                    self.baneling_sacrifices[unit] = baneling
-                    action(unit.attack(baneling))
-                    return True
-        if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
-            if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
-                return self.attack_close_target(unit, targets)
-            return self.move_to_next_target(unit, targets)
-        if unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
-            return self.attack_close_target(unit, targets)
-        if self.move_to_next_target(unit, targets):
-            return True
-        self.ai.add_action(unit.attack(targets.closest_to(unit.position)))
-        return True
-
     def idle_unit(self, unit):
         """Control the idle units, by gathering then or telling then to attack"""
         local_controller = self.ai
@@ -237,7 +182,7 @@ class ArmyControl(HydraControl, Micro):
             targets
             and targets.closer_than(5, unit)
             and unit.type_id == ZERGLING
-            and self.micro_zerglings(targets, unit)
+            and self.micro_zerglings(unit, targets)
         )
 
     def set_unit_groups(self):
@@ -292,7 +237,7 @@ class ArmyControl(HydraControl, Micro):
         action = local_controller.add_action
         if await local_controller.client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
-                return self.micro_zerglings(target, unit)
+                return self.micro_zerglings(unit, target)
             action(attack_command(closest_target(unit_position)))
             return True
         action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
