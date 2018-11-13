@@ -81,9 +81,9 @@ class ArmyControl(HydraControl, Micro):
                 self.has_retreated(attacking_unit)
                 continue
             if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
-                if self.retreat_unit(attacking_unit, combined_enemies):
-                    continue
                 if self.micro_hydras(hydra_targets, attacking_unit, self.hydra_move_speed, self.hydra_atk_range):
+                    continue
+                if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
@@ -133,38 +133,46 @@ class ArmyControl(HydraControl, Micro):
         """Target low hp units smartly, and surrounds when attack cd is down"""
         local_controller = self.ai
         action = local_controller.add_action
-        threats = self.trigger_threats(targets, unit, 4)
-        banelings = []
-        # Check for banelings
-        for threat in threats:
-            if threat.type_id == BANELING:
-                banelings.append(threat)
-        # Adjust for dead units
-        for zergling in list(self.baneling_sacrifices):
-            if (
-                zergling not in local_controller.units()
-                or self.baneling_sacrifices[zergling] not in local_controller.known_enemy_units
-            ):
-                del self.baneling_sacrifices[zergling]
-        # React to banelings.
-        for baneling in banelings:
-            # Check for close banelings
-            if baneling.distance_to(unit) < 3:
-                # If we've triggered any banelings
-                if self.baneling_sacrifices:
-                    # If we've triggered this baneling, run from it.
-                    if baneling in self.baneling_sacrifices.values():
-                        retreat_point = self.find_retreat_point(baneling, unit)
-                        action(unit.move(retreat_point))
+        threats = self.trigger_threats(targets, unit, 5)
+        # If the enemy has banelings, run baneling dodging code.
+        if local_controller.known_enemy_units.of_type(BANELING):
+            banelings = []
+            # Check for banelings
+            for threat in threats:
+                if threat.type_id == BANELING:
+                    banelings.append(threat)
+            # Adjust for dead units
+            for zergling in list(self.baneling_sacrifices):
+                if (
+                    zergling not in local_controller.units()
+                    or self.baneling_sacrifices[zergling] not in local_controller.known_enemy_units
+                ):
+                    del self.baneling_sacrifices[zergling]
+            # React to banelings.
+            for baneling in banelings:
+                # Check for close banelings
+                if baneling.distance_to(unit) < 4:
+                    # If we've triggered any banelings
+                    if self.baneling_sacrifices:
+                        # If we've triggered this baneling
+                        if baneling in self.baneling_sacrifices.values():
+                            # And this zergling is triggering it, attack it
+                            if unit in self.baneling_sacrifices:
+                                if baneling == self.baneling_sacrifices[unit]:
+                                    action(unit.attack(baneling))
+                                    return True
+                            # Otherwise, run from it.
+                            retreat_point = self.find_retreat_point(baneling, unit)
+                            action(unit.move(retreat_point))
+                            return True
+                        # We haven't triggered this baneling, trigger it.
+                        self.baneling_sacrifices[unit] = baneling
+                        action(unit.attack(baneling))
                         return True
-                    # We haven't triggered this baneling, trigger it.
+                    # We haven't triggered any banelings, trigger it.
                     self.baneling_sacrifices[unit] = baneling
                     action(unit.attack(baneling))
                     return True
-                # We haven't triggered any banelings, trigger it.
-                self.baneling_sacrifices[unit] = baneling
-                action(unit.attack(baneling))
-                return True
         if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
             if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
                 return self.attack_close_target(unit, targets)
