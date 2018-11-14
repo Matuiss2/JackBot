@@ -1,16 +1,15 @@
-from s2clientprotocol import sc2api_pb2 as sc_pb, raw_pb2 as raw_pb
+from typing import List, Set, Optional, Union  # mypy type checking
+from s2clientprotocol import raw_pb2 as raw_pb
 from sc2.ids.buff_id import BuffId
-
 from .position import Point2, Point3
 from .data import Alliance, Attribute, DisplayType, warpgate_abilities, TargetType, Race, CloakState
 from .game_data import GameData
 from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
 from . import unit_command
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 
-class Unit(object):
+class Unit:
     def __init__(self, proto_data, game_data):
         assert isinstance(proto_data, raw_pb.Unit)
         assert isinstance(game_data, GameData)
@@ -557,7 +556,7 @@ class Unit(object):
         return f"Unit(name={self.name !r}, tag={self.tag})"
 
 
-class UnitOrder(object):
+class UnitOrder:
     @classmethod
     def from_proto(cls, proto, game_data):
         return cls(
@@ -575,7 +574,7 @@ class UnitOrder(object):
         return f"UnitOrder({self.ability}, {self.target}, {self.progress})"
 
 
-class PassengerUnit(object):
+class PassengerUnit:
     def __init__(self, proto_data, game_data):
         assert isinstance(game_data, GameData)
         self._proto = proto_data
