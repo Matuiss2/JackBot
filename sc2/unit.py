@@ -466,7 +466,7 @@ class Unit:
     @property
     def order_target(self) -> Optional[Union[int, Point2]]:
         """ Returns the target tag (if it is a Unit) or Point2 (if it is a Position) from the first order, reutrn None if the unit is idle """
-        if len(self.orders) > 0:
+        if self.orders:
             if isinstance(self.orders[0].target, int):
                 return self.orders[0].target
             else:
