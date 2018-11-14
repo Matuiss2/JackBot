@@ -121,7 +121,6 @@ class BotAI:
                     [
                         abs(p.distance_to(resource) - 7.162)
                         for resource in resources
-                        if resource in self.state.mineral_field
                     ]
                 )
             )

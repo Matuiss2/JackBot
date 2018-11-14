@@ -1,4 +1,5 @@
 from typing import List, Set, Optional, Union  # mypy type checking
+import logging
 from s2clientprotocol import (
     sc2api_pb2 as sc_pb,
     common_pb2 as common_pb,
@@ -6,8 +7,6 @@ from s2clientprotocol import (
     debug_pb2 as debug_pb,
     raw_pb2 as raw_pb,
 )
-
-import logging
 
 from sc2.ids.ability_id import AbilityId
 from sc2.ids.unit_typeid import UnitTypeId
@@ -122,18 +121,15 @@ class Client(Protocol):
             res = await self.actions([actions], game_data, return_successes)
             if res:
                 return res[0]
-            else:
-                return None
-        else:
-            actions = combine_actions(actions, game_data)
+            return None
+        actions = combine_actions(actions, game_data)
 
-            res = await self._execute(action=sc_pb.RequestAction(actions=[sc_pb.Action(action_raw=a) for a in actions]))
+        res = await self._execute(action=sc_pb.RequestAction(actions=[sc_pb.Action(action_raw=a) for a in actions]))
 
-            res = [ActionResult(r) for r in res.action.result]
-            if return_successes:
-                return res
-            else:
-                return [r for r in res if r != ActionResult.Success]
+        res = [ActionResult(r) for r in res.action.result]
+        if return_successes:
+            return res
+        return [r for r in res if r != ActionResult.Success]
 
     async def query_pathing(
         self, start: Union[Unit, Point2, Point3], end: Union[Point2, Point3]
@@ -412,16 +408,14 @@ class Client(Protocol):
         """ Helper function for color conversion """
         if color is None:
             return debug_pb.Color(r=255, g=255, b=255)
-        else:
-            r = getattr(color, "r", getattr(color, "x", 255))
-            g = getattr(color, "g", getattr(color, "y", 255))
-            b = getattr(color, "b", getattr(color, "z", 255))
-            if max(r, g, b) <= 1:
-                r *= 255
-                g *= 255
-                b *= 255
-
-            return debug_pb.Color(r=int(r), g=int(g), b=int(b))
+        r = getattr(color, "r", getattr(color, "x", 255))
+        g = getattr(color, "g", getattr(color, "y", 255))
+        b = getattr(color, "b", getattr(color, "z", 255))
+        if max(r, g, b) <= 1:
+            r *= 255
+            g *= 255
+            b *= 255
+        return debug_pb.Color(r=int(r), g=int(g), b=int(b))
 
     def to_debug_point(self, point: Union[Unit, Point2, Point3]) -> common_pb.Point:
         """ Helper function for point conversion """
