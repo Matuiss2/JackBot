@@ -21,7 +21,7 @@ from .unit import Unit
 from .units import Units
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class Client(Protocol):
@@ -56,9 +56,9 @@ class Client(Protocol):
             req.server_ports.base_port = portconfig.server[1]
 
             for ppc in portconfig.players:
-                p = req.client_ports.add()
-                p.game_port = ppc[0]
-                p.base_port = ppc[1]
+                port = req.client_ports.add()
+                port.game_port = ppc[0]
+                port.base_port = ppc[1]
 
         result = await self._execute(join_game=req)
         self._game_result = None
@@ -81,11 +81,11 @@ class Client(Protocol):
                 raise
 
     async def save_replay(self, path):
-        logger.debug(f"Requesting replay from server")
+        LOGGER.debug(f"Requesting replay from server")
         result = await self._execute(save_replay=sc_pb.RequestSaveReplay())
-        with open(path, "wb") as f:
-            f.write(result.save_replay.data)
-        logger.info(f"Saved replay to {path}")
+        with open(path, "wb") as file:
+            file.write(result.save_replay.data)
+        LOGGER.info(f"Saved replay to {path}")
 
     async def observation(self):
         result = await self._execute(observation=sc_pb.RequestObservation())
@@ -96,13 +96,14 @@ class Client(Protocol):
                 assert result.observation.player_result
 
             player_id_to_result = {}
-            for pr in result.observation.player_result:
-                player_id_to_result[pr.player_id] = Result(pr.result)
+            for player_result in result.observation.player_result:
+                player_id_to_result[player_result.player_id] = Result(player_result.result)
             self._game_result = player_id_to_result
         return result
 
     async def step(self):
-        """ EXPERIMENTAL: Change self._client.game_step during the step function to increase or decrease steps per second """
+        """ EXPERIMENTAL: Change self._client.game_step during the step function
+        to increase or decrease steps per second """
         result = await self._execute(step=sc_pb.RequestStep(count=self.game_step))
         return result
 
@@ -218,7 +219,7 @@ class Client(Protocol):
     ) -> List[List[AbilityId]]:
         """ Query abilities of multiple units """
         if not isinstance(units, list):
-            """ Deprecated, accepting a single unit may be removed in the future, query a list of units instead """
+            # Deprecated, accepting a single unit may be removed in the future, query a list of units instead
             assert isinstance(units, Unit)
             units = [units]
             input_was_a_list = False
@@ -231,17 +232,17 @@ class Client(Protocol):
                 ignore_resource_requirements=ignore_resource_requirements,
             )
         )
-        """ Fix for bots that only query a single unit """
+        # Fix for bots that only query a single unit
         if not input_was_a_list:
             return [[AbilityId(a.ability_id) for a in b.abilities] for b in result.query.abilities][0]
         return [[AbilityId(a.ability_id) for a in b.abilities] for b in result.query.abilities]
 
     async def chat_send(self, message: str, team_only: bool):
         """ Writes a message to the chat """
-        ch = ChatChannel.Team if team_only else ChatChannel.Broadcast
+        chat = ChatChannel.Team if team_only else ChatChannel.Broadcast
         await self._execute(
             action=sc_pb.RequestAction(
-                actions=[sc_pb.Action(action_chat=sc_pb.ActionChat(channel=ch.value, message=message))]
+                actions=[sc_pb.Action(action_chat=sc_pb.ActionChat(channel=chat.value, message=message))]
             )
         )
 
@@ -253,7 +254,7 @@ class Client(Protocol):
         assert isinstance(unit_spawn_commands[0], list)
         assert len(unit_spawn_commands[0]) == 4
         assert isinstance(unit_spawn_commands[0][0], UnitTypeId)
-        assert 0 < unit_spawn_commands[0][1]  # careful, in realtime=True this function may create more units
+        assert unit_spawn_commands[0][1]  # careful, in realtime=True this function may create more units
         assert isinstance(unit_spawn_commands[0][2], (Point2, Point3))
         assert 1 <= unit_spawn_commands[0][3] <= 2
 
@@ -334,11 +335,13 @@ class Client(Protocol):
             await self.debug_text([texts], [positions], color)
 
     def debug_text_simple(self, text: str):
-        """ Draws a text in the top left corner of the screen (up to a max of 6 messages it seems). Don't forget to add 'await self._client.send_debug'. """
+        """ Draws a text in the top left corner of the screen (up to a max of 6 messages it seems).
+        Don't forget to add 'await self._client.send_debug'. """
         self._debug_texts.append(self.to_debug_message(text))
 
     def debug_text_screen(self, text: str, pos: Union[Point2, Point3, tuple, list], color=None, size: int = 8):
-        """ Draws a text on the screen with coordinates 0 <= x, y <= 1. Don't forget to add 'await self._client.send_debug'. """
+        """ Draws a text on the screen with coordinates 0 <= x, y <= 1.
+         Don't forget to add 'await self._client.send_debug'. """
         assert len(pos) >= 2
         assert 0 <= pos[0] <= 1
         assert 0 <= pos[1] <= 1
@@ -360,11 +363,11 @@ class Client(Protocol):
     def debug_text_3d(self, text: str, pos: Union[Unit, Point2, Point3], color=None, size: int = 8):
         return self.debug_text_world(text, pos, color, size)
 
-    def debug_line_out(self, p0: Union[Unit, Point2, Point3], p1: Union[Unit, Point2, Point3], color=None):
+    def debug_line_out(self, pos0: Union[Unit, Point2, Point3], pos1: Union[Unit, Point2, Point3], color=None):
         """ Draws a line from p0 to p1. Don't forget to add 'await self._client.send_debug'. """
         self._debug_lines.append(
             debug_pb.DebugLine(
-                line=debug_pb.Line(p0=self.to_debug_point(p0), p1=self.to_debug_point(p1)),
+                line=debug_pb.Line(p0=self.to_debug_point(pos0), p1=self.to_debug_point(pos1)),
                 color=self.to_debug_color(color),
             )
         )
@@ -377,10 +380,10 @@ class Client(Protocol):
             )
         )
 
-    def debug_sphere_out(self, p: Union[Unit, Point2, Point3], r: Union[int, float], color=None):
+    def debug_sphere_out(self, pos: Union[Unit, Point2, Point3], radio: Union[int, float], color=None):
         """ Draws a sphere at point p with radius r. Don't forget to add 'await self._client.send_debug'. """
         self._debug_spheres.append(
-            debug_pb.DebugSphere(p=self.to_debug_point(p), r=r, color=self.to_debug_color(color))
+            debug_pb.DebugSphere(p=self.to_debug_point(pos), r=radio, color=self.to_debug_color(color))
         )
 
     async def send_debug(self):
@@ -404,20 +407,22 @@ class Client(Protocol):
         self._debug_boxes.clear()
         self._debug_spheres.clear()
 
-    def to_debug_color(self, color):
+    @staticmethod
+    def to_debug_color(color):
         """ Helper function for color conversion """
         if color is None:
             return debug_pb.Color(r=255, g=255, b=255)
-        r = getattr(color, "r", getattr(color, "x", 255))
-        g = getattr(color, "g", getattr(color, "y", 255))
-        b = getattr(color, "b", getattr(color, "z", 255))
-        if max(r, g, b) <= 1:
-            r *= 255
-            g *= 255
-            b *= 255
-        return debug_pb.Color(r=int(r), g=int(g), b=int(b))
+        red = getattr(color, "r", getattr(color, "x", 255))
+        green = getattr(color, "g", getattr(color, "y", 255))
+        blue = getattr(color, "b", getattr(color, "z", 255))
+        if max(red, green, blue) <= 1:
+            red *= 255
+            green *= 255
+            blue *= 255
+        return debug_pb.Color(r=int(red), g=int(green), b=int(blue))
 
-    def to_debug_point(self, point: Union[Unit, Point2, Point3]) -> common_pb.Point:
+    @staticmethod
+    def to_debug_point(point: Union[Unit, Point2, Point3]) -> common_pb.Point:
         """ Helper function for point conversion """
         if isinstance(point, Unit):
             point = point.position3d
