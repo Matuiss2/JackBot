@@ -1,29 +1,29 @@
 import math
 import random
 import statistics
-from functools import partial
 
 import logging
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
+from typing import List, Dict, Optional, Union  # mypy type checking
 
 # imports for mypy and pycharm autocomplete
 from .game_state import GameState
 from .game_data import GameData
-
-logger = logging.getLogger(__name__)
-
 from .position import Point2, Point3
-from .data import Race, ActionResult, Attribute, race_worker, race_townhalls, race_gas, Target, Result
+from .data import Race, ActionResult, race_worker, race_townhalls, race_gas, Target, Result
 from .unit import Unit
 from .cache import property_cache_forever
-from .game_data import AbilityData, Cost
+from .game_data import AbilityData
 from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
 from .ids.upgrade_id import UpgradeId
 from .units import Units
 
+logger = logging.getLogger(__name__)
 
-class BotAI(object):
+
+
+
+class BotAI:
     """Base class for bots."""
 
     EXPANSION_GAP_THRESHOLD = 15
@@ -119,7 +119,13 @@ class BotAI(object):
             ]
             # order by distance to resources, 7.162 magic distance number (avg resource distance of current ladder maps)
             possible_points.sort(
-                key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.162) for resource in resources])
+                key=lambda p: statistics.mean(
+                    [
+                        abs(p.distance_to(resource) - 7.162)
+                        for resource in resources
+                        if resource in self.state.mineral_field
+                    ]
+                )
             )
             # choose best fitting point
             centers[possible_points[0]] = resources
@@ -632,7 +638,7 @@ class BotAI(object):
         pass
 
 
-class CanAffordWrapper(object):
+class CanAffordWrapper:
     def __init__(self, can_afford_minerals, can_afford_vespene, have_enough_supply):
         self.can_afford_minerals = can_afford_minerals
         self.can_afford_vespene = can_afford_vespene
