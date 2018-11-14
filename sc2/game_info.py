@@ -124,8 +124,7 @@ class Ramp:
         if len(self.upper2_for_ramp_wall) == 2:
             if self.barracks_can_fit_addon:
                 return self.barracks_in_middle
-            else:
-                return self.barracks_in_middle.offset((-2, 0))
+            return self.barracks_in_middle.offset((-2, 0))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
 

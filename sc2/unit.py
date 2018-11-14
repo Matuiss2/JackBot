@@ -469,8 +469,7 @@ class Unit:
         if self.orders:
             if isinstance(self.orders[0].target, int):
                 return self.orders[0].target
-            else:
-                return Point2.from_proto(self.orders[0].target)
+            return Point2.from_proto(self.orders[0].target)
         return None
 
     @property
