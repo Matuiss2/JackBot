@@ -4,7 +4,6 @@ from .pixel_map import PixelMap
 from .player import Player
 
 
-
 class Ramp:
     def __init__(self, points: Set[Point2], game_info: "GameInfo"):
         self._points: Set[Point2] = points

@@ -4,7 +4,7 @@ from .protocol import Protocol
 from .player import Computer
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class Controller(Protocol):
@@ -21,14 +21,14 @@ class Controller(Protocol):
         req = sc_pb.RequestCreateGame(local_map=sc_pb.LocalMap(map_path=str(game_map.relative_path)), realtime=realtime)
 
         for player in players:
-            p = req.player_setup.add()
-            p.type = player.type.value
+            player_setup = req.player_setup.add()
+            player_setup.type = player.type.value
             if isinstance(player, Computer):
-                p.race = player.race.value
-                p.difficulty = player.difficulty.value
+                player_setup.race = player.race.value
+                player_setup.difficulty = player.difficulty.value
 
-        logger.info("Creating new game")
-        logger.info(f"Map:     {game_map.name}")
-        logger.info(f"Players: {', '.join(str(p) for p in players)}")
+        LOGGER.info("Creating new game")
+        LOGGER.info(f"Map:     {game_map.name}")
+        LOGGER.info(f"Players: {', '.join(str(p) for p in players)}")
         result = await self._execute(create_game=req)
         return result

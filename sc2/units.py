@@ -5,7 +5,6 @@ from .ids.unit_typeid import UnitTypeId
 from .position import Point2, Point3
 
 
-
 class Units(list):
     """A collection for units. Makes it easy to select units by selectors."""
 
