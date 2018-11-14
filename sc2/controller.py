@@ -1,8 +1,8 @@
+import logging
 from s2clientprotocol import sc2api_pb2 as sc_pb
 from .protocol import Protocol
 from .player import Computer
 
-import logging
 
 logger = logging.getLogger(__name__)
 
