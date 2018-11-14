@@ -1,7 +1,7 @@
 from .position import Point2
 
 
-class PowerSource(object):
+class PowerSource:
     @classmethod
     def from_proto(cls, proto):
         return cls(Point2.from_proto(proto.pos), proto.radius, proto.tag)
@@ -20,7 +20,7 @@ class PowerSource(object):
         return f"PowerSource({self.position}, {self.radius})"
 
 
-class PsionicMatrix(object):
+class PsionicMatrix:
     @classmethod
     def from_proto(cls, proto):
         return cls([PowerSource.from_proto(p) for p in proto])
