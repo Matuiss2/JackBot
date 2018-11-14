@@ -1,5 +1,5 @@
 from functools import lru_cache, reduce
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
+from typing import List, Optional  # mypy type checking
 
 from .data import Attribute, Race
 from .unit_command import UnitCommand
@@ -17,7 +17,7 @@ def split_camel_case(text) -> list:
     return list(reduce(lambda a, b: (a + [b] if b.isupper() else a[:-1] + [a[-1] + b]), text, []))
 
 
-class GameData(object):
+class GameData:
     def __init__(self, data):
         ids = tuple(a.value for a in AbilityId if a.value != 0)
         self.abilities = {a.ability_id: AbilityData(self, a) for a in data.abilities if a.ability_id in ids}
@@ -62,7 +62,7 @@ class GameData(object):
         return Cost(0, 0)
 
 
-class EffectRawData(object):
+class EffectRawData:
     def __init__(self, game_data, proto):
         self._game_data = game_data
         self._proto = proto
@@ -86,7 +86,7 @@ class EffectRawData(object):
         return self._proto.radius
 
 
-class AbilityData(object):
+class AbilityData:
     @staticmethod
     def id_exists(ability_id: int) -> bool:
         assert isinstance(ability_id, int), f"Wrong type: {ability_id} is not int"
@@ -136,7 +136,7 @@ class AbilityData(object):
         return self._game_data.calculate_ability_cost(self.id)
 
 
-class UnitTypeData(object):
+class UnitTypeData:
     def __init__(self, game_data, proto):
         self._game_data = game_data
         self._proto = proto
@@ -253,7 +253,7 @@ class UnitTypeData(object):
         )
 
 
-class UpgradeData(object):
+class UpgradeData:
     def __init__(self, game_data, proto):
         self._game_data = game_data
         self._proto = proto
@@ -278,7 +278,7 @@ class UpgradeData(object):
         return Cost(self._proto.mineral_cost, self._proto.vespene_cost, self._proto.research_time)
 
 
-class Cost(object):
+class Cost:
     def __init__(self, minerals, vespene, time=None):
         self.minerals = minerals
         self.vespene = vespene
