@@ -1,17 +1,15 @@
 import asyncio
-import async_timeout
-
 import logging
-
-logger = logging.getLogger(__name__)
-
+import async_timeout
 from .sc2process import SC2Process
 from .portconfig import Portconfig
 from .client import Client
 from .player import Human, Bot
-from .data import Race, Difficulty, Result, ActionResult, CreateGameError
+from .data import Result, CreateGameError
 from .game_state import GameState
 from .protocol import ConnectionAlreadyClosed
+
+logger = logging.getLogger(__name__)
 
 
 async def _play_game_human(client, player_id, realtime, game_time_limit):
