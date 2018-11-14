@@ -1,3 +1,4 @@
+from typing import List, Set  # mypy type checking
 from .units import Units
 from .power_source import PsionicMatrix
 from .pixel_map import PixelMap
@@ -6,10 +7,9 @@ from .ids.effect_id import EffectId
 from .position import Point2, Point3
 from .data import Alliance, DisplayType
 from .score import ScoreDetails
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 
-class Blip(object):
+class Blip:
     def __init__(self, proto):
         self._proto = proto
 
@@ -49,7 +49,7 @@ class Blip(object):
         return Point3.from_proto(self._proto.pos)
 
 
-class Common(object):
+class Common:
     ATTRIBUTES = [
         "player_id",
         "minerals",
@@ -72,7 +72,7 @@ class Common(object):
         return int(getattr(self._proto, attr))
 
 
-class EffectData(object):
+class EffectData:
     def __init__(self, proto):
         self._proto = proto
 
@@ -85,7 +85,7 @@ class EffectData(object):
         return [Point2.from_proto(p) for p in self._proto.pos]
 
 
-class GameState(object):
+class GameState:
     def __init__(self, response_observation, game_data):
         self.actions = response_observation.actions  # successful actions since last loop
         self.action_errors = response_observation.action_errors  # error actions since last loop
