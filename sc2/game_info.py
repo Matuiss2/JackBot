@@ -1,14 +1,8 @@
-from typing import Tuple, Set, FrozenSet, Sequence, Generator
-
-from copy import deepcopy
-import itertools
-
+from typing import List, Dict, Set
 from .position import Point2, Size, Rect
 from .pixel_map import PixelMap
 from .player import Player
-from .cache import property_cache_forever
 
-from typing import List, Dict, Set, Tuple, Any, Optional, Union
 
 
 class Ramp:
