@@ -1,3 +1,4 @@
+from typing import List, Set, Optional, Union  # mypy type checking
 from s2clientprotocol import (
     sc2api_pb2 as sc_pb,
     common_pb2 as common_pb,
@@ -10,11 +11,6 @@ import logging
 
 from sc2.ids.ability_id import AbilityId
 from sc2.ids.unit_typeid import UnitTypeId
-
-logger = logging.getLogger(__name__)
-
-from .cache import method_cache_forever
-
 from .protocol import Protocol, ProtocolError
 from .game_info import GameInfo
 from .game_data import GameData, AbilityData
@@ -24,7 +20,9 @@ from .action import combine_actions
 from .position import Point2, Point3
 from .unit import Unit
 from .units import Units
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
+
+
+logger = logging.getLogger(__name__)
 
 
 class Client(Protocol):
