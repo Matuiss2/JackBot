@@ -79,17 +79,15 @@ class Units(list):
     def random_or(self, other: any) -> Unit:
         if self.exists:
             return random.choice(self)
-        else:
-            return other
+        return other
 
     def random_group_of(self, n):
         assert 0 <= n <= self.amount
         if n == 0:
             return self.subgroup([])
-        elif self.amount == n:
+        if self.amount == n:
             return self
-        else:
-            return self.subgroup(random.sample(self, n))
+        return self.subgroup(random.sample(self, n))
 
     def in_attack_range_of(self, unit: Unit, bonus_distance: Union[int, float] = 0) -> "Units":
         """ Filters units that are in attack range of the unit in parameter """
@@ -325,7 +323,6 @@ class UnitSelection(Units):
         if self.unit_type_id is None:
             # empty selector matches everything
             return True
-        elif isinstance(self.unit_type_id, set):
+        if isinstance(self.unit_type_id, set):
             return unit.type_id in self.unit_type_id
-        else:
-            return self.unit_type_id == unit.type_id
+        return self.unit_type_id == unit.type_id
