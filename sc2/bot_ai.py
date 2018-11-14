@@ -321,14 +321,14 @@ class BotAI:
             ):  # cant replace 1 with "Target.None.value" because ".None" doesnt seem to be a valid enum name
                 return True
             # Check if able to use ability on a unit
-            elif (
+            if (
                 ability_target in {Target.Unit.value, Target.PointOrUnit.value}
                 and isinstance(target, Unit)
                 and unit.distance_to(target) <= cast_range
             ):
                 return True
             # Check if able to use ability on a position
-            elif (
+            if (
                 ability_target in {Target.Point.value, Target.PointOrUnit.value}
                 and isinstance(target, (Point2, Point3))
                 and unit.distance_to(target) <= cast_range
@@ -404,8 +404,7 @@ class BotAI:
 
             if random_alternative:
                 return random.choice(possible)
-            else:
-                return min(possible, key=lambda p: p.distance_to(near))
+            return min(possible, key=lambda p: p.distance_to(near))
         return None
 
     def already_pending_upgrade(self, upgrade_type: UpgradeId) -> Union[int, float]:
@@ -648,9 +647,8 @@ class CanAffordWrapper:
     def action_result(self):
         if not self.can_afford_vespene:
             return ActionResult.NotEnoughVespene
-        elif not self.can_afford_minerals:
+        if not self.can_afford_minerals:
             return ActionResult.NotEnoughMinerals
-        elif not self.have_enough_supply:
+        if not self.have_enough_supply:
             return ActionResult.NotEnoughFood
-        else:
-            return None
+        return None
