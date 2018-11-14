@@ -2,7 +2,7 @@ from .data import PlayerType, Race, Difficulty
 from .bot_ai import BotAI
 
 
-class AbstractPlayer(object):
+class AbstractPlayer:
     def __init__(self, type, race=None, difficulty=None):
         assert isinstance(type, PlayerType)
 
