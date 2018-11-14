@@ -46,7 +46,7 @@ class Pointlike(tuple):
 
     def closest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Point2"]:
         """ This function assumes the 2d distance is meant """
-        assert len(ps) > 0
+        assert ps
         closest_distance_squared = inf
         for p2 in ps:
             p2pos = p2
@@ -60,7 +60,7 @@ class Pointlike(tuple):
 
     def distance_to_closest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
-        assert len(ps) > 0
+        assert ps
         closest_distance_squared = inf
         for p2 in ps:
             if not isinstance(p2, Point2):
@@ -72,7 +72,7 @@ class Pointlike(tuple):
 
     def furthest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Pointlike"]:
         """ This function assumes the 2d distance is meant """
-        assert len(ps) > 0
+        assert ps
         furthest_distance_squared = -inf
         for p2 in ps:
             p2pos = p2
@@ -86,7 +86,7 @@ class Pointlike(tuple):
 
     def distance_to_furthest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
-        assert len(ps) > 0
+        assert ps
         furthest_distance_squared = -inf
         for p2 in ps:
             if not isinstance(p2, Point2):
