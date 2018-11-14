@@ -1,13 +1,8 @@
-import aiohttp
-
 import logging
+from s2clientprotocol import sc2api_pb2 as sc_pb
+from .data import Status
 
 logger = logging.getLogger(__name__)
-
-from s2clientprotocol import sc2api_pb2 as sc_pb
-
-from .data import Status
-from .player import Computer
 
 
 class ProtocolError(Exception):
@@ -18,7 +13,7 @@ class ConnectionAlreadyClosed(ProtocolError):
     pass
 
 
-class Protocol(object):
+class Protocol:
     def __init__(self, ws):
         assert ws
         self._ws = ws
