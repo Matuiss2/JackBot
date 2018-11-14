@@ -3,7 +3,7 @@ from typing import Callable, Set, FrozenSet, List
 from .position import Point2
 
 
-class PixelMap(object):
+class PixelMap:
     def __init__(self, proto):
         self._proto = proto
         assert self.bits_per_pixel % 8 == 0, "Unsupported pixel density"
