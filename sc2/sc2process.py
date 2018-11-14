@@ -14,22 +14,22 @@ from .paths import Paths
 from .controller import Controller
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-class kill_switch:
+class KillSwitch:
     _to_kill: List[Any] = []
 
     @classmethod
     def add(cls, value):
-        logger.debug("kill_switch: Add switch")
+        LOGGER.debug("kill_switch: Add switch")
         cls._to_kill.append(value)
 
     @classmethod
     def kill_all(cls):
-        logger.info("kill_switch: Process cleanup")
-        for p in cls._to_kill:
-            p._clean()
+        LOGGER.info("kill_switch: Process cleanup")
+        for process in cls._to_kill:
+            process.clean()
 
 
 class SC2Process:
@@ -49,10 +49,10 @@ class SC2Process:
         self._ws = None
 
     async def __aenter__(self):
-        kill_switch.add(self)
+        KillSwitch.add(self)
 
         def signal_handler(signal, frame):
-            kill_switch.kill_all()
+            KillSwitch.kill_all()
 
         signal.signal(signal.SIGINT, signal_handler)
 
@@ -61,13 +61,13 @@ class SC2Process:
             self._ws = await self._connect()
         except:
             await self._close_connection()
-            self._clean()
+            self.clean()
             raise
 
         return Controller(self._ws, self)
 
     async def __aexit__(self, *args):
-        kill_switch.kill_all()
+        KillSwitch.kill_all()
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     @property
@@ -89,7 +89,7 @@ class SC2Process:
             self._tmp_dir,
         ]
 
-        if logger.getEffectiveLevel() <= logging.DEBUG:
+        if LOGGER.getEffectiveLevel() <= logging.DEBUG:
             args.append("-verbose")
 
         return subprocess.Popen(
@@ -100,27 +100,27 @@ class SC2Process:
 
     async def _connect(self):
         for i in range(60):
-            if self._process == None:
+            if self._process is None:
                 # The ._clean() was called, clearing the process
-                logger.debug("Process cleanup complete, exit")
+                LOGGER.debug("Process cleanup complete, exit")
                 sys.exit()
 
             await asyncio.sleep(1)
             try:
                 self._session = aiohttp.ClientSession()
-                ws = await self._session.ws_connect(self.ws_url, timeout=120)
-                logger.debug("Websocket connection ready")
-                return ws
+                ws_connection = await self._session.ws_connect(self.ws_url, timeout=120)
+                LOGGER.debug("Websocket connection ready")
+                return ws_connection
             except aiohttp.client_exceptions.ClientConnectorError:
                 await self._session.close()
                 if i > 15:
-                    logger.debug("Connection refused (startup not complete (yet))")
+                    LOGGER.debug("Connection refused (startup not complete (yet))")
 
-        logger.debug("Websocket connection to SC2 process timed out")
+        LOGGER.debug("Websocket connection to SC2 process timed out")
         raise TimeoutError("Websocket")
 
     async def _close_connection(self):
-        logger.info("Closing connection...")
+        LOGGER.info("Closing connection...")
 
         if self._ws is not None:
             await self._ws.close()
@@ -128,8 +128,8 @@ class SC2Process:
         if self._session is not None:
             await self._session.close()
 
-    def _clean(self):
-        logger.info("Cleaning up...")
+    def clean(self):
+        LOGGER.info("Cleaning up...")
 
         if self._process is not None:
             if self._process.poll() is None:
@@ -141,11 +141,11 @@ class SC2Process:
                 else:
                     self._process.kill()
                     self._process.wait()
-                    logger.error("KILLED")
+                    LOGGER.error("KILLED")
 
         if os.path.exists(self._tmp_dir):
             shutil.rmtree(self._tmp_dir)
 
         self._process = None
         self._ws = None
-        logger.info("Cleanup complete")
+        LOGGER.info("Cleanup complete")

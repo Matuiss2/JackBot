@@ -98,9 +98,7 @@ class GameState:
         )  # what area pylon covers
         self.game_loop: int = self.observation.game_loop  # game loop, 22.4 per second on faster game speed
 
-        self.score: ScoreDetails = ScoreDetails(
-            self.observation.score
-        )
+        self.score: ScoreDetails = ScoreDetails(self.observation.score)
         self.abilities = self.observation.abilities  # abilities of selected units
         destructables = [
             x for x in self.observation.raw_data.units if x.alliance == 3 and x.radius > 1.5
