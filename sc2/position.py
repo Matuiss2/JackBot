@@ -22,96 +22,99 @@ class Pointlike(tuple):
     def position(self) -> "Pointlike":
         return self
 
-    def distance_to(self, p: Union["Unit", "Point2", "Point3"]) -> Union[int, float]:
-        p = p.position
-        assert isinstance(p, Pointlike)
-        if self == p:
+    def distance_to(self, unit_or_pos: Union["Unit", "Point2", "Point3"]) -> Union[int, float]:
+        pos = unit_or_pos.position
+        assert isinstance(pos, Pointlike)
+        if self == pos:
             return 0
-        return sqrt(sum(self.__class__((b - a) ** 2 for a, b in itertools.zip_longest(self, p, fillvalue=0))))
+        return sqrt(sum(self.__class__((b - a) ** 2 for a, b in itertools.zip_longest(self, pos, fillvalue=0))))
 
-    def distance_to_point2(self, p2: "Point2") -> Union[int, float]:
-        """ Same as the function above, but should be 3-4 times faster because of the dropped asserts and conversions and because it doesnt use a loop (itertools or zip). """
-        return ((self[0] - p2[0]) ** 2 + (self[1] - p2[1]) ** 2) ** 0.5
+    def distance_to_point2(self, po2: "Point2") -> Union[int, float]:
+        """ Same as the function above, but should be 3-4 times faster because of the dropped asserts
+         and conversions and because it doesnt use a loop (itertools or zip). """
+        return ((self[0] - po2[0]) ** 2 + (self[1] - po2[1]) ** 2) ** 0.5
 
-    def distance_squared(self, p2: "Point2") -> Union[int, float]:
-        """ Function used to not take the square root as the distances will stay proportionally the same. This is to speed up the sorting process. """
-        return (self[0] - p2[0]) ** 2 + (self[1] - p2[1]) ** 2
+    def distance_squared(self, po2: "Point2") -> Union[int, float]:
+        """ Function used to not take the square root as the distances will stay proportionally the same.
+        This is to speed up the sorting process. """
+        return (self[0] - po2[0]) ** 2 + (self[1] - po2[1]) ** 2
 
-    def sort_by_distance(self, ps: Union["Units", List["Point2"]]) -> List["Point2"]:
-        """ This returns the target points sorted as list. You should not pass a set or dict since those are not sortable.
+    def sort_by_distance(self, iterable: Union["Units", List["Point2"]]) -> List["Point2"]:
+        """ This returns the target points sorted as list.
+        You should not pass a set or dict since those are not sortable.
         If you want to sort your units towards a point, use 'units.sorted_by_distance_to(point)' instead. """
-        if ps and all(isinstance(p, Point2) for p in ps):
-            return sorted(ps, key=lambda p: self.distance_squared(p))
-        return sorted(ps, key=lambda p: self.distance_to(p))
+        if iterable and all(isinstance(p, Point2) for p in iterable):
+            return sorted(iterable, key=lambda p: self.distance_squared(p))
+        return sorted(iterable, key=lambda p: self.distance_to(p))
 
-    def closest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Point2"]:
+    def closest(self, iterable: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Point2"]:
         """ This function assumes the 2d distance is meant """
-        assert ps
+        assert iterable
         closest_distance_squared = inf
-        for p2 in ps:
-            p2pos = p2
+        for po2 in iterable:
+            p2pos = po2
             if not isinstance(p2pos, Point2):
-                p2pos = p2.position
+                p2pos = po2.position
             distance = (self[0] - p2pos[0]) ** 2 + (self[1] - p2pos[1]) ** 2
             if distance < closest_distance_squared:
                 closest_distance_squared = distance
-                closest_element = p2
+                closest_element = po2
         return closest_element
 
-    def distance_to_closest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
+    def distance_to_closest(self, iterable: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
-        assert ps
+        assert iterable
         closest_distance_squared = inf
-        for p2 in ps:
-            if not isinstance(p2, Point2):
-                p2 = p2.position
-            distance = (self[0] - p2[0]) ** 2 + (self[1] - p2[1]) ** 2
+        for po2 in iterable:
+            if not isinstance(po2, Point2):
+                po2 = po2.position
+            distance = (self[0] - po2[0]) ** 2 + (self[1] - po2[1]) ** 2
             if distance < closest_distance_squared:
                 closest_distance_squared = distance
         return closest_distance_squared ** 0.5
 
-    def furthest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Pointlike"]:
+    def furthest(self, iterable: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Pointlike"]:
         """ This function assumes the 2d distance is meant """
-        assert ps
+        assert iterable
         furthest_distance_squared = -inf
-        for p2 in ps:
-            p2pos = p2
+        for po2 in iterable:
+            p2pos = po2
             if not isinstance(p2pos, Point2):
-                p2pos = p2.position
+                p2pos = po2.position
             distance = (self[0] - p2pos[0]) ** 2 + (self[1] - p2pos[1]) ** 2
             if furthest_distance_squared < distance:
                 furthest_distance_squared = distance
-                furthest_element = p2
+                furthest_element = po2
         return furthest_element
 
-    def distance_to_furthest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
+    def distance_to_furthest(self, iterable: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
-        assert ps
+        assert iterable
         furthest_distance_squared = -inf
-        for p2 in ps:
-            if not isinstance(p2, Point2):
-                p2 = p2.position
-            distance = (self[0] - p2[0]) ** 2 + (self[1] - p2[1]) ** 2
+        for po2 in iterable:
+            if not isinstance(po2, Point2):
+                po2 = po2.position
+            distance = (self[0] - po2[0]) ** 2 + (self[1] - po2[1]) ** 2
             if furthest_distance_squared < distance:
                 furthest_distance_squared = distance
         return furthest_distance_squared ** 0.5
 
-    def offset(self, p) -> "Pointlike":
-        return self.__class__(a + b for a, b in itertools.zip_longest(self, p[: len(self)], fillvalue=0))
+    def offset(self, pos) -> "Pointlike":
+        return self.__class__(a + b for a, b in itertools.zip_longest(self, pos[: len(self)], fillvalue=0))
 
-    def unit_axes_towards(self, p):
-        return self.__class__(_sign(b - a) for a, b in itertools.zip_longest(self, p[: len(self)], fillvalue=0))
+    def unit_axes_towards(self, pos):
+        return self.__class__(_sign(b - a) for a, b in itertools.zip_longest(self, pos[: len(self)], fillvalue=0))
 
     def towards(
-        self, p: Union["Unit", "Pointlike"], distance: Union[int, float] = 1, limit: bool = False
+        self, pos_or_unit: Union["Unit", "Pointlike"], distance: Union[int, float] = 1, limit: bool = False
     ) -> "Pointlike":
-        p = p.position
-        assert self != p
-        d = self.distance_to(p)
+        pos = pos_or_unit.position
+        assert self != pos
+        dist = self.distance_to(pos)
         if limit:
-            distance = min(d, distance)
+            distance = min(dist, distance)
         return self.__class__(
-            a + (b - a) / d * distance for a, b in itertools.zip_longest(self, p[: len(self)], fillvalue=0)
+            a + (b - a) / dist * distance for a, b in itertools.zip_longest(self, pos[: len(self)], fillvalue=0)
         )
 
     def __eq__(self, other):
@@ -156,42 +159,42 @@ class Point2(Pointlike):
         assert distance > 0
         angle = random.random() * 2 * pi
 
-        dx, dy = cos(angle), sin(angle)
-        return Point2((self.x + dx * distance, self.y + dy * distance))
+        deltax, deltay = cos(angle), sin(angle)
+        return Point2((self.x + deltax * distance, self.y + deltay * distance))
 
     def towards_with_random_angle(
         self,
-        p: Union["Point2", "Point3"],
+        pos: Union["Point2", "Point3"],
         distance: Union[int, float] = 1,
         max_difference: Union[int, float] = (pi / 4),
     ) -> "Point2":
-        tx, ty = self.to2.towards(p.to2, 1)
-        angle = atan2(ty - self.y, tx - self.x)
+        tangx, tangy = self.to2.towards(pos.to2, 1)
+        angle = atan2(tangy - self.y, tangx - self.x)
         angle = (angle - max_difference) + max_difference * 2 * random.random()
         return Point2((self.x + cos(angle) * distance, self.y + sin(angle) * distance))
 
-    def circle_intersection(self, p: "Point2", r: Union[int, float]) -> Set["Point2"]:
+    def circle_intersection(self, po2: "Point2", radius: Union[int, float]) -> Set["Point2"]:
         """ self is point1, p is point2, r is the radius for circles originating in both points
         Used in ramp finding """
-        assert self != p
-        distanceBetweenPoints = self.distance_to(p)
-        assert r > distanceBetweenPoints / 2
+        assert self != po2
+        distance_between_points = self.distance_to(po2)
+        assert radius > distance_between_points / 2
         # remaining distance from center towards the intersection, using pythagoras
-        remainingDistanceFromCenter = (r ** 2 - (distanceBetweenPoints / 2) ** 2) ** 0.5
+        remaining_distance_from_center = (radius ** 2 - (distance_between_points / 2) ** 2) ** 0.5
         # center of both points
-        offsetToCenter = Point2(((p.x - self.x) / 2, (p.y - self.y) / 2))
-        center = self.offset(offsetToCenter)
+        offset_to_center = Point2(((po2.x - self.x) / 2, (po2.y - self.y) / 2))
+        center = self.offset(offset_to_center)
 
         # stretch offset vector in the ratio of remaining distance from center to intersection
-        vectorStretchFactor = remainingDistanceFromCenter / (distanceBetweenPoints / 2)
-        v = offsetToCenter
-        offsetToCenterStretched = Point2((v.x * vectorStretchFactor, v.y * vectorStretchFactor))
+        vector_stretch_factor = remaining_distance_from_center / (distance_between_points / 2)
+        vect = offset_to_center
+        offset_to_center_stretched = Point2((vect.x * vector_stretch_factor, vect.y * vector_stretch_factor))
 
         # rotate vector by 90° and -90°
-        vectorRotated1 = Point2((offsetToCenterStretched.y, -offsetToCenterStretched.x))
-        vectorRotated2 = Point2((-offsetToCenterStretched.y, offsetToCenterStretched.x))
-        intersect1 = center.offset(vectorRotated1)
-        intersect2 = center.offset(vectorRotated2)
+        vector_rotated1 = Point2((offset_to_center_stretched.y, -offset_to_center_stretched.x))
+        vector_rotated2 = Point2((-offset_to_center_stretched.y, offset_to_center_stretched.x))
+        intersect1 = center.offset(vector_rotated1)
+        intersect2 = center.offset(vector_rotated2)
         return {intersect1, intersect2}
 
     @property
@@ -247,19 +250,20 @@ class Point2(Pointlike):
         return self.distance_squared(other) <= dist ** 2
 
     def direction_vector(self, other: "Point2") -> "Point2":
-        """ Converts a vector to a direction that can face vertically, horizontally or diagonal or be zero, e.g. (0, 0), (1, -1), (1, 0) """
+        """ Converts a vector to a direction that can face vertically, horizontally or diagonal or be zero,
+         e.g. (0, 0), (1, -1), (1, 0) """
         return self.__class__((_sign(other.x - self.x), _sign(other.y - self.y)))
 
     def manhattan_distance(self, other: "Point2") -> Union[int, float]:
         return abs(other.x - self.x) + abs(other.y - self.y)
 
     @staticmethod
-    def center(a: Union[Set["Point2"], List["Point2"]]) -> "Point2":
+    def center(iterator: Union[Set["Point2"], List["Point2"]]) -> "Point2":
         """ Returns the central point for points in list """
-        s = Point2((0, 0))
-        for p in a:
-            s += p
-        return s / len(a)
+        total = Point2((0, 0))
+        for po2 in iterator:
+            total += po2
+        return total / len(iterator)
 
 
 class Point3(Point2):
@@ -316,5 +320,5 @@ class Rect(tuple):
     def center(self) -> Point2:
         return Point2((self.x + self.width / 2, self.y + self.height / 2))
 
-    def offset(self, p):
-        return self.__class__((self[0] + p[0], self[1] + p[1], self[2], self[3]))
+    def offset(self, point):
+        return self.__class__((self[0] + point[0], self[1] + point[1], self[2], self[3]))
