@@ -21,8 +21,6 @@ from .units import Units
 logger = logging.getLogger(__name__)
 
 
-
-
 class BotAI:
     """Base class for bots."""
 
@@ -195,7 +193,6 @@ class BotAI:
         # OPTIMIZE: Assign idle workers smarter
         # OPTIMIZE: Never use same worker mutltiple times
 
-        expansion_locations = self.expansion_locations
         owned_expansions = self.owned_expansions
         worker_pool = []
         actions = []
@@ -226,7 +223,7 @@ class BotAI:
             ideal = g.ideal_harvesters
             deficit = ideal - actual
 
-            for x in range(0, deficit):
+            for _ in range(0, deficit):
                 if worker_pool:
                     w = worker_pool.pop()
                     if len(w.orders) == 1 and w.orders[0].ability.id in [AbilityId.HARVEST_RETURN]:
@@ -240,7 +237,7 @@ class BotAI:
             ideal = townhall.ideal_harvesters
 
             deficit = ideal - actual
-            for x in range(0, deficit):
+            for _ in range(0, deficit):
                 if worker_pool:
                     w = worker_pool.pop()
                     mf = self.state.mineral_field.closest_to(townhall)

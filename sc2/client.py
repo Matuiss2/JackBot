@@ -243,7 +243,7 @@ class Client(Protocol):
     async def chat_send(self, message: str, team_only: bool):
         """ Writes a message to the chat """
         ch = ChatChannel.Team if team_only else ChatChannel.Broadcast
-        r = await self._execute(
+        await self._execute(
             action=sc_pb.RequestAction(
                 actions=[sc_pb.Action(action_chat=sc_pb.ActionChat(channel=ch.value, message=message))]
             )
