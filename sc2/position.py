@@ -1,8 +1,7 @@
-from math import sqrt, pi, sin, cos, atan2
+from math import sqrt, pi, sin, cos, atan2, hypot, inf
 import random
 import itertools
-import math
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # for mypy type checking
+from typing import List, Set, Union  # for mypy type checking
 
 FLOAT_DIGITS = 8
 EPSILON = 10 ** (-FLOAT_DIGITS)
@@ -48,7 +47,7 @@ class Pointlike(tuple):
     def closest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Point2"]:
         """ This function assumes the 2d distance is meant """
         assert len(ps) > 0
-        closest_distance_squared = math.inf
+        closest_distance_squared = inf
         for p2 in ps:
             p2pos = p2
             if not isinstance(p2pos, Point2):
@@ -62,7 +61,7 @@ class Pointlike(tuple):
     def distance_to_closest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
         assert len(ps) > 0
-        closest_distance_squared = math.inf
+        closest_distance_squared = inf
         for p2 in ps:
             if not isinstance(p2, Point2):
                 p2 = p2.position
@@ -74,7 +73,7 @@ class Pointlike(tuple):
     def furthest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Pointlike"]:
         """ This function assumes the 2d distance is meant """
         assert len(ps) > 0
-        furthest_distance_squared = -math.inf
+        furthest_distance_squared = -inf
         for p2 in ps:
             p2pos = p2
             if not isinstance(p2pos, Point2):
@@ -88,7 +87,7 @@ class Pointlike(tuple):
     def distance_to_furthest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
         assert len(ps) > 0
-        furthest_distance_squared = -math.inf
+        furthest_distance_squared = -inf
         for p2 in ps:
             if not isinstance(p2, Point2):
                 p2 = p2.position
@@ -226,7 +225,7 @@ class Point2(Pointlike):
         return self.__class__(-a for a in self)
 
     def __abs__(self) -> Union[int, float]:
-        return math.hypot(self.x, self.y)
+        return hypot(self.x, self.y)
 
     def __bool__(self) -> bool:
         return self.x != 0 or self.y != 0
