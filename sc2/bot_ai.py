@@ -39,6 +39,10 @@ class BotAI:
         return self.state.game_loop / 22.4  # / (1/1.4) * (1/16)
 
     @property
+    def prepare_start(self):
+        return self._prepare_start
+
+    @property
     def game_info(self) -> "GameInfo":
         return self._game_info
 

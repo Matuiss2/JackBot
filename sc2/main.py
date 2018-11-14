@@ -9,7 +9,7 @@ from .data import Result, CreateGameError
 from .game_state import GameState
 from .protocol import ConnectionAlreadyClosed
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 async def _play_game_human(client, player_id, realtime, game_time_limit):
@@ -30,7 +30,7 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
     game_data = await client.get_game_data()
     game_info = await client.get_game_info()
 
-    ai._prepare_start(client, player_id, game_info, game_data)
+    ai.prepare_start(client, player_id, game_info, game_data)
     ai.on_start()
 
     iteration = 0
@@ -40,38 +40,38 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
             ai.on_end(client._game_result[player_id])
             return client._game_result[player_id]
 
-        gs = GameState(state.observation, game_data)
+        gamestate = GameState(state.observation, game_data)
 
-        if game_time_limit and (gs.game_loop * 0.725 * (1 / 16)) > game_time_limit:
+        if game_time_limit and (gamestate.game_loop * 0.725 * (1 / 16)) > game_time_limit:
             ai.on_end(Result.Tie)
             return Result.Tie
 
-        ai._prepare_step(gs)
+        ai._prepare_step(gamestate)
 
         if iteration == 0:
             ai._prepare_first_step()
 
-        logger.debug(f"Running AI step, realtime={realtime}")
+        LOGGER.debug(f"Running AI step, realtime={realtime}")
 
         try:
             await ai.issue_events()
             if realtime:
                 await ai.on_step(iteration)
             else:
-                logger.debug(f"Running AI step, timeout={step_time_limit}")
+                LOGGER.debug(f"Running AI step, timeout={step_time_limit}")
                 try:
                     async with async_timeout.timeout(step_time_limit):
                         await ai.on_step(iteration)
                 except asyncio.TimeoutError:
-                    logger.warning(f"Running AI step: out of time")
+                    LOGGER.warning(f"Running AI step: out of time")
         except Exception:
             # NOTE: this message is caught by pytest suite
-            logger.exception(f"AI step threw an error")  # DO NOT EDIT!
-            logger.error(f"resigning due to previous error")
+            LOGGER.exception(f"AI step threw an error")  # DO NOT EDIT!
+            LOGGER.error(f"resigning due to previous error")
             ai.on_end(Result.Defeat)
             return Result.Defeat
 
-        logger.debug(f"Running AI step: done")
+        LOGGER.debug(f"Running AI step: done")
 
         if not realtime:
             if not client.in_game:  # Client left (resigned) the game
@@ -99,12 +99,12 @@ async def _play_game(player, client, realtime, portconfig, step_time_limit=None,
 
 
 async def _setup_host_game(server, map_settings, players, realtime):
-    r = await server.create_game(map_settings, players, realtime)
-    if r.create_game.HasField("error"):
-        err = f"Could not create game: {CreateGameError(r.create_game.error)}"
-        if r.create_game.HasField("error_details"):
-            err += f": {r.create_game.error_details}"
-        logger.critical(err)
+    connect_to_server = await server.create_game(map_settings, players, realtime)
+    if connect_to_server.create_game.HasField("error"):
+        err = f"Could not create game: {CreateGameError(connect_to_server.create_game.error)}"
+        if connect_to_server.create_game.HasField("error_details"):
+            err += f": {connect_to_server.create_game.error_details}"
+        LOGGER.critical(err)
         raise RuntimeError(err)
 
     return Client(server._ws)
