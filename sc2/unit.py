@@ -24,7 +24,7 @@ class Unit:
         return UnitTypeId(self._proto.unit_type)
 
     @property
-    def _type_data(self) -> "UnitTypeData":
+    def type_data(self) -> "UnitTypeData":
         return self._game_data.units[self._proto.unit_type]
 
     @property
@@ -118,61 +118,61 @@ class Unit:
 
     @property
     def is_structure(self) -> bool:
-        return Attribute.Structure.value in self._type_data.attributes
+        return Attribute.Structure.value in self.type_data.attributes
 
     @property
     def is_light(self) -> bool:
-        return Attribute.Light.value in self._type_data.attributes
+        return Attribute.Light.value in self.type_data.attributes
 
     @property
     def is_armored(self) -> bool:
-        return Attribute.Armored.value in self._type_data.attributes
+        return Attribute.Armored.value in self.type_data.attributes
 
     @property
     def is_biological(self) -> bool:
-        return Attribute.Biological.value in self._type_data.attributes
+        return Attribute.Biological.value in self.type_data.attributes
 
     @property
     def is_mechanical(self) -> bool:
-        return Attribute.Mechanical.value in self._type_data.attributes
+        return Attribute.Mechanical.value in self.type_data.attributes
 
     @property
     def is_robotic(self) -> bool:
-        return Attribute.Robotic.value in self._type_data.attributes
+        return Attribute.Robotic.value in self.type_data.attributes
 
     @property
     def is_massive(self) -> bool:
-        return Attribute.Massive.value in self._type_data.attributes
+        return Attribute.Massive.value in self.type_data.attributes
 
     @property
     def is_psionic(self) -> bool:
-        return Attribute.Psionic.value in self._type_data.attributes
+        return Attribute.Psionic.value in self.type_data.attributes
 
     @property
     def is_mineral_field(self) -> bool:
-        return self._type_data.has_minerals
+        return self.type_data.has_minerals
 
     @property
     def is_vespene_geyser(self) -> bool:
-        return self._type_data.has_vespene
+        return self.type_data.has_vespene
 
     @property
     def tech_alias(self) -> Optional[List[UnitTypeId]]:
         """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter
          For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair]
          For SCV, this returns None """
-        return self._type_data.tech_alias
+        return self.type_data.tech_alias
 
     @property
     def unit_alias(self) -> Optional[UnitTypeId]:
         """ Building type equality, e.g. FlyingOrbitalCommand is the same as OrbitalCommand
          For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand
          For SCV, this returns None """
-        return self._type_data.unit_alias
+        return self.type_data.unit_alias
 
     @property
     def race(self) -> Race:
-        return Race(self._type_data._proto.race)
+        return Race(self.type_data._proto.race)
 
     @property
     def health(self) -> Union[int, float]:
@@ -250,7 +250,7 @@ class Unit:
     @property
     def cargo_size(self) -> Union[float, int]:
         """ How much cargo this unit uses up in cargo_space """
-        return self._type_data.cargo_size
+        return self.type_data.cargo_size
 
     @property
     def has_cargo(self) -> bool:
@@ -283,8 +283,8 @@ class Unit:
         if self._weapons:
             return self._weapons
 
-        if hasattr(self._type_data._proto, "weapons"):
-            self._weapons = self._type_data._proto.weapons
+        if hasattr(self.type_data._proto, "weapons"):
+            self._weapons = self.type_data._proto.weapons
             return self._weapons
 
         return None
@@ -369,15 +369,15 @@ class Unit:
     @property
     def armor(self) -> Union[int, float]:
         """ Does not include upgrades """
-        return self._type_data._proto.armor
+        return self.type_data._proto.armor
 
     @property
     def sight_range(self) -> Union[int, float]:
-        return self._type_data._proto.sight_range
+        return self.type_data._proto.sight_range
 
     @property
     def movement_speed(self) -> Union[int, float]:
-        return self._type_data._proto.movement_speed
+        return self.type_data._proto.movement_speed
 
     @property
     def is_carrying_minerals(self) -> bool:
@@ -510,7 +510,7 @@ class Unit:
 
     @property
     def name(self) -> str:
-        return self._type_data.name
+        return self.type_data.name
 
     def train(self, unit, *args, **kwargs):
         return self(self._game_data.units[unit.value].creation_ability.id, *args, **kwargs)
@@ -593,16 +593,16 @@ class PassengerUnit:
         return UnitTypeId(self._proto.unit_type)
 
     @property
-    def _type_data(self) -> "UnitTypeData":
+    def type_data(self) -> "UnitTypeData":
         return self._game_data.units[self._proto.unit_type]
 
     @property
     def name(self) -> str:
-        return self._type_data.name
+        return self.type_data.name
 
     @property
     def race(self) -> Race:
-        return Race(self._type_data._proto.race)
+        return Race(self.type_data._proto.race)
 
     @property
     def tag(self) -> int:
@@ -610,41 +610,41 @@ class PassengerUnit:
 
     @property
     def is_structure(self) -> bool:
-        return Attribute.Structure.value in self._type_data.attributes
+        return Attribute.Structure.value in self.type_data.attributes
 
     @property
     def is_light(self) -> bool:
-        return Attribute.Light.value in self._type_data.attributes
+        return Attribute.Light.value in self.type_data.attributes
 
     @property
     def is_armored(self) -> bool:
-        return Attribute.Armored.value in self._type_data.attributes
+        return Attribute.Armored.value in self.type_data.attributes
 
     @property
     def is_biological(self) -> bool:
-        return Attribute.Biological.value in self._type_data.attributes
+        return Attribute.Biological.value in self.type_data.attributes
 
     @property
     def is_mechanical(self) -> bool:
-        return Attribute.Mechanical.value in self._type_data.attributes
+        return Attribute.Mechanical.value in self.type_data.attributes
 
     @property
     def is_robotic(self) -> bool:
-        return Attribute.Robotic.value in self._type_data.attributes
+        return Attribute.Robotic.value in self.type_data.attributes
 
     @property
     def is_massive(self) -> bool:
-        return Attribute.Massive.value in self._type_data.attributes
+        return Attribute.Massive.value in self.type_data.attributes
 
     @property
     def cargo_size(self) -> Union[float, int]:
         """ How much cargo this unit uses up in cargo_space """
-        return self._type_data.cargo_size
+        return self.type_data.cargo_size
 
     @property
     def can_attack_ground(self) -> bool:
-        if hasattr(self._type_data._proto, "weapons"):
-            weapons = self._type_data._proto.weapons
+        if hasattr(self.type_data._proto, "weapons"):
+            weapons = self.type_data._proto.weapons
             weapon = next(
                 (weapon for weapon in weapons if weapon.type in [TargetType.Ground.value, TargetType.Any.value]), None
             )
@@ -654,8 +654,8 @@ class PassengerUnit:
     @property
     def ground_dps(self) -> Union[int, float]:
         """ Does not include upgrades """
-        if hasattr(self._type_data._proto, "weapons"):
-            weapons = self._type_data._proto.weapons
+        if hasattr(self.type_data._proto, "weapons"):
+            weapons = self.type_data._proto.weapons
             weapon = next(
                 (weapon for weapon in weapons if weapon.type in [TargetType.Ground.value, TargetType.Any.value]), None
             )
@@ -666,8 +666,8 @@ class PassengerUnit:
     @property
     def ground_range(self) -> Union[int, float]:
         """ Does not include upgrades """
-        if hasattr(self._type_data._proto, "weapons"):
-            weapons = self._type_data._proto.weapons
+        if hasattr(self.type_data._proto, "weapons"):
+            weapons = self.type_data._proto.weapons
             weapon = next(
                 (weapon for weapon in weapons if weapon.type in [TargetType.Ground.value, TargetType.Any.value]), None
             )
@@ -678,8 +678,8 @@ class PassengerUnit:
     @property
     def can_attack_air(self) -> bool:
         """ Does not include upgrades """
-        if hasattr(self._type_data._proto, "weapons"):
-            weapons = self._type_data._proto.weapons
+        if hasattr(self.type_data._proto, "weapons"):
+            weapons = self.type_data._proto.weapons
             weapon = next(
                 (weapon for weapon in weapons if weapon.type in [TargetType.Air.value, TargetType.Any.value]), None
             )
@@ -689,8 +689,8 @@ class PassengerUnit:
     @property
     def air_dps(self) -> Union[int, float]:
         """ Does not include upgrades """
-        if hasattr(self._type_data._proto, "weapons"):
-            weapons = self._type_data._proto.weapons
+        if hasattr(self.type_data._proto, "weapons"):
+            weapons = self.type_data._proto.weapons
             weapon = next(
                 (weapon for weapon in weapons if weapon.type in [TargetType.Air.value, TargetType.Any.value]), None
             )
@@ -701,8 +701,8 @@ class PassengerUnit:
     @property
     def air_range(self) -> Union[int, float]:
         """ Does not include upgrades """
-        if hasattr(self._type_data._proto, "weapons"):
-            weapons = self._type_data._proto.weapons
+        if hasattr(self.type_data._proto, "weapons"):
+            weapons = self.type_data._proto.weapons
             weapon = next(
                 (weapon for weapon in weapons if weapon.type in [TargetType.Air.value, TargetType.Any.value]), None
             )
@@ -713,15 +713,15 @@ class PassengerUnit:
     @property
     def armor(self) -> Union[int, float]:
         """ Does not include upgrades """
-        return self._type_data._proto.armor
+        return self.type_data._proto.armor
 
     @property
     def sight_range(self) -> Union[int, float]:
-        return self._type_data._proto.sight_range
+        return self.type_data._proto.sight_range
 
     @property
     def movement_speed(self) -> Union[int, float]:
-        return self._type_data._proto.movement_speed
+        return self.type_data._proto.movement_speed
 
     @property
     def health(self) -> Union[int, float]:

@@ -66,9 +66,9 @@ class Units(list):
         assert self.exists
         return self[0]
 
-    def take(self, n: int, require_all: bool = True) -> "Units":
-        assert (not require_all) or len(self) >= n
-        return self[:n]
+    def take(self, quantity: int, require_all: bool = True) -> "Units":
+        assert (not require_all) or len(self) >= quantity
+        return self[:quantity]
 
     @property
     def random(self) -> Unit:
@@ -80,13 +80,13 @@ class Units(list):
             return random.choice(self)
         return other
 
-    def random_group_of(self, n):
-        assert 0 <= n <= self.amount
-        if n == 0:
+    def random_group_of(self, quantity):
+        assert 0 <= quantity <= self.amount
+        if quantity == 0:
             return self.subgroup([])
-        if self.amount == n:
+        if self.amount == quantity:
             return self
-        return self.subgroup(random.sample(self, n))
+        return self.subgroup(random.sample(self, quantity))
 
     def in_attack_range_of(self, unit: Unit, bonus_distance: Union[int, float] = 0) -> "Units":
         """ Filters units that are in attack range of the unit in parameter """
@@ -182,21 +182,21 @@ class Units(list):
         """ Usage:
         'self.units.same_tech(UnitTypeId.COMMANDCENTER)' or 'self.units.same_tech(UnitTypeId.ORBITALCOMMAND)'
         returns all CommandCenter, CommandCenterFlying, OrbitalCommand, OrbitalCommandFlying, PlanetaryFortress
-        This also works with a set/list/dict parameter, e.g. 'self.units.same_tech({UnitTypeId.COMMANDCENTER, UnitTypeId.SUPPLYDEPOT})'
+        This also works with a set/list/dict parameter, e.g. 'self.units.same_tech({COMMANDCENTER, SUPPLYDEPOT})'
         Untested: This should return the equivalents for Hatchery, WarpPrism, Observer, Overseer, SupplyDepot and others
         """
         if isinstance(other, UnitTypeId):
             other = {other}
         tech_alias_types = set(other)
-        for unitType in other:
-            tech_alias = self.game_data.units[unitType.value].tech_alias
+        for unit_type in other:
+            tech_alias = self.game_data.units[unit_type.value].tech_alias
             if tech_alias:
                 for same in tech_alias:
                     tech_alias_types.add(same)
         return self.filter(
             lambda unit: unit.type_id in tech_alias_types
-            or unit._type_data.tech_alias is not None
-            and any(same in tech_alias_types for same in unit._type_data.tech_alias)
+            or unit.type_data.tech_alias is not None
+            and any(same in tech_alias_types for same in unit.type_data.tech_alias)
         )
 
     def same_unit(self, other: Union[UnitTypeId, Set[UnitTypeId], List[UnitTypeId], Dict[UnitTypeId, Any]]) -> "Units":
@@ -205,20 +205,20 @@ class Units(list):
         returns CommandCenter and CommandCenterFlying,
         'self.units.same_tech(UnitTypeId.ORBITALCOMMAND)'
         returns OrbitalCommand and OrbitalCommandFlying
-        This also works with a set/list/dict parameter, e.g. 'self.units.same_tech({UnitTypeId.COMMANDCENTER, UnitTypeId.SUPPLYDEPOT})'
+        This also works with a set/list/dict parameter, e.g. 'self.units.same_tech({COMMANDCENTER, SUPPLYDEPOT})'
         Untested: This should return the equivalents for WarpPrism, Observer, Overseer, SupplyDepot and others
         """
         if isinstance(other, UnitTypeId):
             other = {other}
         unit_alias_types = set(other)
-        for unitType in other:
-            unit_alias = self.game_data.units[unitType.value].unit_alias
+        for unit_type in other:
+            unit_alias = self.game_data.units[unit_type.value].unit_alias
             if unit_alias:
                 unit_alias_types.add(unit_alias)
         return self.filter(
             lambda unit: unit.type_id in unit_alias_types
-            or unit._type_data.unit_alias is not None
-            and unit._type_data.unit_alias in unit_alias_types
+            or unit.type_data.unit_alias is not None
+            and unit.type_data.unit_alias in unit_alias_types
         )
 
     @property
@@ -305,8 +305,8 @@ class Units(list):
     def prefer_idle(self) -> "Units":
         return self.sorted(lambda unit: unit.is_idle, reverse=True)
 
-    def prefer_close_to(self, p: Union[Unit, Point2, Point3]) -> "Units":
-        return self.sorted(lambda unit: unit.distance_to(p))
+    def prefer_close_to(self, point: Union[Unit, Point2, Point3]) -> "Units":
+        return self.sorted(lambda unit: unit.distance_to(point))
 
 
 class UnitSelection(Units):
