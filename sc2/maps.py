@@ -2,9 +2,6 @@ import logging
 from .paths import Paths
 
 
-logger = logging.getLogger(__name__)
-
-
 def get(name=None):
     maps = []
     for mapdir in (p for p in Paths.MAPS.iterdir()):
@@ -45,8 +42,8 @@ class Map:
 
     @property
     def data(self):
-        with open(self.path, "rb") as f:
-            return f.read()
+        with open(self.path, "rb") as file:
+            return file.read()
 
     def matches(self, name):
         return self.name.lower().replace(" ", "") == name.lower().replace(" ", "")
