@@ -90,11 +90,11 @@ class Client(Protocol):
 
     async def observation(self):
         result = await self._execute(observation=sc_pb.RequestObservation())
-        if (not self.in_game) or len(result.observation.player_result) > 0:
+        if (not self.in_game) or result.observation.player_result:
             # Sometimes game ends one step before results are available
-            if len(result.observation.player_result) == 0:
+            if not result.observation.player_result:
                 result = await self._execute(observation=sc_pb.RequestObservation())
-                assert len(result.observation.player_result) > 0
+                assert result.observation.player_result
 
             player_id_to_result = {}
             for pr in result.observation.player_result:
@@ -172,7 +172,7 @@ class Client(Protocol):
         Might merge this function with the function above
         """
         assert isinstance(zipped_list, list)
-        assert len(zipped_list) > 0
+        assert zipped_list
         assert isinstance(zipped_list[0], list)
         assert len(zipped_list[0]) == 2
         assert isinstance(zipped_list[0][0], (Point2, Unit))
@@ -228,7 +228,7 @@ class Client(Protocol):
             input_was_a_list = False
         else:
             input_was_a_list = True
-        assert len(units) > 0
+        assert units
         result = await self._execute(
             query=query_pb.RequestQuery(
                 abilities=[query_pb.RequestQueryAvailableAbilities(unit_tag=unit.tag) for unit in units],
@@ -253,7 +253,7 @@ class Client(Protocol):
         """ Usage example (will spawn 1 marine in the center of the map for player ID 1):
         await self._client.debug_create_unit([[UnitTypeId.MARINE, 1, self._game_info.map_center, 1]]) """
         assert isinstance(unit_spawn_commands, list)
-        assert len(unit_spawn_commands) > 0
+        assert unit_spawn_commands
         assert isinstance(unit_spawn_commands[0], list)
         assert len(unit_spawn_commands[0]) == 4
         assert isinstance(unit_spawn_commands[0][0], UnitTypeId)
@@ -280,7 +280,7 @@ class Client(Protocol):
     async def debug_kill_unit(self, unit_tags: Union[Units, List[int], Set[int]]):
         if isinstance(unit_tags, Units):
             unit_tags = unit_tags.tags
-        assert len(unit_tags) > 0
+        assert unit_tags
 
         await self._execute(
             debug=sc_pb.RequestDebug(debug=[debug_pb.DebugCommand(kill_unit=debug_pb.DebugKillUnit(tag=unit_tags))])
@@ -394,10 +394,10 @@ class Client(Protocol):
                 debug=[
                     debug_pb.DebugCommand(
                         draw=debug_pb.DebugDraw(
-                            text=self._debug_texts if len(self._debug_texts) > 0 else None,
-                            lines=self._debug_lines if len(self._debug_lines) > 0 else None,
-                            boxes=self._debug_boxes if len(self._debug_boxes) > 0 else None,
-                            spheres=self._debug_spheres if len(self._debug_spheres) > 0 else None,
+                            text=self._debug_texts if self._debug_texts else None,
+                            lines=self._debug_lines if self._debug_lines else None,
+                            boxes=self._debug_boxes if self._debug_boxes else None,
+                            spheres=self._debug_spheres if self._debug_spheres else None,
                         )
                     )
                 ]
