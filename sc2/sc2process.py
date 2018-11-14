@@ -1,5 +1,5 @@
 from typing import Any, Optional, List
-
+import logging
 import sys
 import signal
 import time
@@ -10,16 +10,14 @@ import tempfile
 import subprocess
 import portpicker
 import aiohttp
-
-import logging
-
-logger = logging.getLogger(__name__)
-
 from .paths import Paths
 from .controller import Controller
 
 
-class kill_switch(object):
+logger = logging.getLogger(__name__)
+
+
+class kill_switch:
     _to_kill: List[Any] = []
 
     @classmethod
