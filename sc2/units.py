@@ -1,9 +1,9 @@
 import random
-
+from typing import List, Dict, Set, Any, Optional, Union  # mypy type checking
 from .unit import Unit
 from .ids.unit_typeid import UnitTypeId
 from .position import Point2, Point3
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
+
 
 
 class Units(list):
