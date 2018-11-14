@@ -110,7 +110,6 @@ class AbilityData:
     @property
     def link_name(self) -> str:
         """ For Stimpack this returns 'BarracksTechLabResearch' """
-        # TODO: this may be wrong as it returns the same as the property below, ".button_name"
         return self._proto.button_name
 
     @property
@@ -126,8 +125,8 @@ class AbilityData:
     @property
     def is_free_morph(self) -> bool:
         parts = split_camel_case(self._proto.link_name)
-        for p in parts:
-            if p in FREE_MORPH_ABILITY_CATEGORIES:
+        for part in parts:
+            if part in FREE_MORPH_ABILITY_CATEGORIES:
                 return True
         return False
 
@@ -192,14 +191,14 @@ class UnitTypeData:
 
     @property
     def tech_alias(self) -> Optional[List[UnitTypeId]]:
-        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter """
-        """ Building tech equality, e.g. Hive is the same as Lair and Hatchery """
+        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter
+         Building tech equality, e.g. Hive is the same as Lair and Hatchery """
         return_list = []
         for tech_alias in self._proto.tech_alias:
             if tech_alias in self._game_data.units:
                 return_list.append(UnitTypeId(tech_alias))
-        """ For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair] """
-        """ For SCV, this returns None """
+        # For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair] """
+        # For SCV, this returns None """
         if return_list:
             return return_list
         return None
@@ -211,7 +210,7 @@ class UnitTypeData:
             return None
         if self._proto.unit_alias not in self._game_data.units:
             return None
-        """ For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand """
+        # For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand
         return UnitTypeId(self._proto.unit_alias)
 
     @property
@@ -238,7 +237,6 @@ class UnitTypeData:
         # Fix for BARRACKSREACTOR which has tech alias [REACTOR] which has (0, 0) cost
         if self.tech_alias is None or self.tech_alias[0] in {UnitTypeId.TECHLAB, UnitTypeId.REACTOR}:
             return None
-        # Morphing a HIVE would have HATCHERY and LAIR in the tech alias - now subtract HIVE cost from LAIR cost instead of from HATCHERY cost
         tech_alias_cost_minerals = max(
             [self._game_data.units[tech_alias.value].cost.minerals for tech_alias in self.tech_alias]
         )
