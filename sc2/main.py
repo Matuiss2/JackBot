@@ -64,7 +64,7 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
                         await ai.on_step(iteration)
                 except asyncio.TimeoutError:
                     logger.warning(f"Running AI step: out of time")
-        except Exception as e:
+        except Exception:
             # NOTE: this message is caught by pytest suite
             logger.exception(f"AI step threw an error")  # DO NOT EDIT!
             logger.error(f"resigning due to previous error")
@@ -113,7 +113,7 @@ async def _setup_host_game(server, map_settings, players, realtime):
 async def _host_game(
     map_settings, players, realtime, portconfig=None, save_replay_as=None, step_time_limit=None, game_time_limit=None
 ):
-    assert len(players) > 0, "Can't create a game without players"
+    assert players, "Can't create a game without players"
 
     assert any(isinstance(p, (Human, Bot)) for p in players)
 
@@ -138,7 +138,7 @@ async def _host_game(
 async def _host_game_aiter(
     map_settings, players, realtime, portconfig=None, save_replay_as=None, step_time_limit=None, game_time_limit=None
 ):
-    assert len(players) > 0, "Can't create a game without players"
+    assert players, "Can't create a game without players"
 
     assert any(isinstance(p, (Human, Bot)) for p in players)
 

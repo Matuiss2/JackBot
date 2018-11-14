@@ -129,7 +129,7 @@ class Ramp:
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
 
-class GameInfo(object):
+class GameInfo:
     def __init__(self, proto):
         # TODO: this might require an update during the game because placement grid and playable grid are greyed out on minerals, start locations and ramps (debris)
         self._proto = proto
