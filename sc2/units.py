@@ -143,7 +143,7 @@ class Units(list):
     def sorted_by_distance_to(self, position: Union[Unit, Point2], reverse: bool = False) -> "Units":
         """ This function should be a bit faster than using units.sorted(keyfn=lambda u: u.distance_to(position)) """
         position = position.position
-        return self.sorted(keyfn=lambda unit: unit.position._distance_squared(position), reverse=reverse)
+        return self.sorted(keyfn=lambda unit: unit.position.distance_squared(position), reverse=reverse)
 
     def tags_in(self, other: Union[Set[int], List[int], Dict[int, Any]]) -> "Units":
         """ Filters all units that have their tags in the 'other' set/list/dict """

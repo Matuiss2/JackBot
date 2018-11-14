@@ -33,7 +33,7 @@ class Pointlike(tuple):
         """ Same as the function above, but should be 3-4 times faster because of the dropped asserts and conversions and because it doesnt use a loop (itertools or zip). """
         return ((self[0] - p2[0]) ** 2 + (self[1] - p2[1]) ** 2) ** 0.5
 
-    def _distance_squared(self, p2: "Point2") -> Union[int, float]:
+    def distance_squared(self, p2: "Point2") -> Union[int, float]:
         """ Function used to not take the square root as the distances will stay proportionally the same. This is to speed up the sorting process. """
         return (self[0] - p2[0]) ** 2 + (self[1] - p2[1]) ** 2
 
@@ -41,7 +41,7 @@ class Pointlike(tuple):
         """ This returns the target points sorted as list. You should not pass a set or dict since those are not sortable.
         If you want to sort your units towards a point, use 'units.sorted_by_distance_to(point)' instead. """
         if ps and all(isinstance(p, Point2) for p in ps):
-            return sorted(ps, key=lambda p: self._distance_squared(p))
+            return sorted(ps, key=lambda p: self.distance_squared(p))
         return sorted(ps, key=lambda p: self.distance_to(p))
 
     def closest(self, ps: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Point2"]:
@@ -244,7 +244,7 @@ class Point2(Pointlike):
         return self.__class__((self.x / other, self.y / other))
 
     def is_same_as(self, other: "Point2", dist=0.1) -> bool:
-        return self._distance_squared(other) <= dist ** 2
+        return self.distance_squared(other) <= dist ** 2
 
     def direction_vector(self, other: "Point2") -> "Point2":
         """ Converts a vector to a direction that can face vertically, horizontally or diagonal or be zero, e.g. (0, 0), (1, -1), (1, 0) """

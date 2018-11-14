@@ -1,11 +1,8 @@
 import math
 import random
 import statistics
-
 import logging
-from typing import List, Dict, Optional, Union  # mypy type checking
-
-# imports for mypy and pycharm autocomplete
+from typing import List, Dict, Optional, Union
 from .game_state import GameState
 from .game_data import GameData
 from .position import Point2, Point3
@@ -18,7 +15,7 @@ from .ids.ability_id import AbilityId
 from .ids.upgrade_id import UpgradeId
 from .units import Units
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class BotAI:
@@ -74,7 +71,8 @@ class BotAI:
 
     @property
     def main_base_ramp(self) -> "Ramp":
-        """ Returns the Ramp instance of the closest main-ramp to start location. Look in game_info.py for more information """
+        """ Returns the Ramp instance of the closest main-ramp to start location.
+         Look in game_info.py for more information """
         if hasattr(self, "cached_main_base_ramp"):
             return self.cached_main_base_ramp
         self.cached_main_base_ramp = min(
@@ -87,22 +85,22 @@ class BotAI:
     def expansion_locations(self) -> Dict[Point2, Units]:
         """List of possible expansion locations."""
 
-        RESOURCE_SPREAD_THRESHOLD = 100  # Tried with Abyssal Reef LE, this was fine
+        resources_spread_threshold = 100  # Tried with Abyssal Reef LE, this was fine
         resources = self.state.mineral_field | self.state.vespene_geyser
 
         # Group nearby minerals together to form expansion locations
         r_groups = []
-        for mf in resources:
-            for g in r_groups:
+        for mineral_field in resources:
+            for group in r_groups:
                 if any(
-                    self.get_terrain_height(mf.position) == self.get_terrain_height(p.position)
-                    and mf.position._distance_squared(p.position) < RESOURCE_SPREAD_THRESHOLD
-                    for p in g
+                    self.get_terrain_height(mineral_field.position) == self.get_terrain_height(p.position)
+                    and mineral_field.position.distance_squared(p.position) < resources_spread_threshold
+                    for p in group
                 ):
-                    g.append(mf)
+                    group.append(mineral_field)
                     break
             else:  # not found
-                r_groups.append([mf])
+                r_groups.append([mineral_field])
         # Filter out bases with only one mineral field
         r_groups = [g for g in r_groups if len(g) > 1]
         # distance offsets from a gas geysir
@@ -117,16 +115,11 @@ class BotAI:
             ]
             # order by distance to resources, 7.162 magic distance number (avg resource distance of current ladder maps)
             possible_points.sort(
-                key=lambda p: statistics.mean(
-                    [
-                        abs(p.distance_to(resource) - 7.162)
-                        for resource in resources
-                    ]
-                )
+                key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.162) for resource in resources])
             )
             # choose best fitting point
             centers[possible_points[0]] = resources
-        """ Returns dict with center of resources as key, resources (mineral field, vespene geyser) as value """
+        # Returns dict with center of resources as key, resources (mineral field, vespene geyser) as value
         return centers
 
     async def get_available_abilities(
@@ -162,23 +155,23 @@ class BotAI:
 
         closest = None
         distance = math.inf
-        for el in self.expansion_locations:
+        for exp_loc in self.expansion_locations:
 
-            def is_near_to_expansion(t):
-                return t.position.distance_to(el) < self.EXPANSION_GAP_THRESHOLD
+            def is_near_to_expansion(unit_or_pos):
+                return unit_or_pos.position.distance_to(exp_loc) < self.EXPANSION_GAP_THRESHOLD
 
             if any(map(is_near_to_expansion, self.townhalls)):
                 # already taken
                 continue
 
             startp = self._game_info.player_start_location
-            d = await self._client.query_pathing(startp, el)
-            if d is None:
+            pathing_distance = await self._client.query_pathing(startp, exp_loc)
+            if pathing_distance is None:
                 continue
 
-            if d < distance:
-                distance = d
-                closest = el
+            if pathing_distance < distance:
+                distance = pathing_distance
+                closest = exp_loc
 
         return closest
 
@@ -188,17 +181,13 @@ class BotAI:
         WARNING: This is quite slow when there are lots of workers or multiple bases.
         """
 
-        # TODO:
-        # OPTIMIZE: Assign idle workers smarter
-        # OPTIMIZE: Never use same worker mutltiple times
-
         owned_expansions = self.owned_expansions
         worker_pool = []
         actions = []
 
         for idle_worker in self.workers.idle:
-            mf = self.state.mineral_field.closest_to(idle_worker)
-            actions.append(idle_worker.gather(mf))
+            mineral_field = self.state.mineral_field.closest_to(idle_worker)
+            actions.append(idle_worker.gather(mineral_field))
 
         for location, townhall in owned_expansions.items():
             workers = self.workers.closer_than(20, location)
@@ -208,28 +197,30 @@ class BotAI:
             if actual > ideal:
                 worker_pool.extend(workers.random_group_of(min(excess, len(workers))))
                 continue
-        for g in self.geysers:
-            workers = self.workers.closer_than(5, g)
-            actual = g.assigned_harvesters
-            ideal = g.ideal_harvesters
+        for geyser in self.geysers:
+            workers = self.workers.closer_than(5, geyser)
+            actual = geyser.assigned_harvesters
+            ideal = geyser.ideal_harvesters
             excess = actual - ideal
             if actual > ideal:
                 worker_pool.extend(workers.random_group_of(min(excess, len(workers))))
                 continue
 
-        for g in self.geysers:
-            actual = g.assigned_harvesters
-            ideal = g.ideal_harvesters
+        for geyser in self.geysers:
+            actual = geyser.assigned_harvesters
+            ideal = geyser.ideal_harvesters
             deficit = ideal - actual
 
             for _ in range(0, deficit):
                 if worker_pool:
-                    w = worker_pool.pop()
-                    if len(w.orders) == 1 and w.orders[0].ability.id in [AbilityId.HARVEST_RETURN]:
-                        actions.append(w.move(g))
-                        actions.append(w.return_resource(queue=True))
+                    selected_worker = worker_pool.pop()
+                    if len(selected_worker.orders) == 1 and selected_worker.orders[0].ability.id in [
+                        AbilityId.HARVEST_RETURN
+                    ]:
+                        actions.append(selected_worker.move(geyser))
+                        actions.append(selected_worker.return_resource(queue=True))
                     else:
-                        actions.append(w.gather(g))
+                        actions.append(selected_worker.gather(geyser))
 
         for location, townhall in owned_expansions.items():
             actual = townhall.assigned_harvesters
@@ -238,14 +229,16 @@ class BotAI:
             deficit = ideal - actual
             for _ in range(0, deficit):
                 if worker_pool:
-                    w = worker_pool.pop()
-                    mf = self.state.mineral_field.closest_to(townhall)
-                    if len(w.orders) == 1 and w.orders[0].ability.id in [AbilityId.HARVEST_RETURN]:
-                        actions.append(w.move(townhall))
-                        actions.append(w.return_resource(queue=True))
-                        actions.append(w.gather(mf, queue=True))
+                    selected_worker = worker_pool.pop()
+                    mineral_field = self.state.mineral_field.closest_to(townhall)
+                    if len(selected_worker.orders) == 1 and selected_worker.orders[0].ability.id in [
+                        AbilityId.HARVEST_RETURN
+                    ]:
+                        actions.append(selected_worker.move(townhall))
+                        actions.append(selected_worker.return_resource(queue=True))
+                        actions.append(selected_worker.gather(mineral_field, queue=True))
                     else:
-                        actions.append(w.gather(mf))
+                        actions.append(selected_worker.gather(mineral_field))
 
         await self.do_actions(actions)
 
@@ -254,20 +247,20 @@ class BotAI:
         """List of expansions owned by the player."""
 
         owned = {}
-        for el in self.expansion_locations:
+        for exp_loc in self.expansion_locations:
 
-            def is_near_to_expansion(t):
-                return t.position.distance_to(el) < self.EXPANSION_GAP_THRESHOLD
+            def is_near_to_expansion(unit_or_pos):
+                return unit_or_pos.position.distance_to(exp_loc) < self.EXPANSION_GAP_THRESHOLD
 
-            th = next((x for x in self.townhalls if is_near_to_expansion(x)), None)
-            if th:
-                owned[el] = th
+            selected_townhall = next((x for x in self.townhalls if is_near_to_expansion(x)), None)
+            if selected_townhall:
+                owned[exp_loc] = selected_townhall
 
         return owned
 
     def can_feed(self, unit_type: UnitTypeId) -> bool:
         """ Checks if you have enough free supply to build the unit """
-        required = self._game_data.units[unit_type.value]._proto.food_required
+        required = self.game_data.units[unit_type.value]._proto.food_required
         return required == 0 or self.supply_left >= required
 
     def can_afford(
@@ -276,14 +269,14 @@ class BotAI:
         """Tests if the player has enough resources to build a unit or cast an ability."""
         enough_supply = True
         if isinstance(item_id, UnitTypeId):
-            unit = self._game_data.units[item_id.value]
-            cost = self._game_data.calculate_ability_cost(unit.creation_ability)
+            unit = self.game_data.units[item_id.value]
+            cost = self.game_data.calculate_ability_cost(unit.creation_ability)
             if check_supply_cost:
                 enough_supply = self.can_feed(item_id)
         elif isinstance(item_id, UpgradeId):
-            cost = self._game_data.upgrades[item_id.value].cost
+            cost = self.game_data.upgrades[item_id.value].cost
         else:
-            cost = self._game_data.calculate_ability_cost(item_id)
+            cost = self.game_data.calculate_ability_cost(item_id)
 
         return CanAffordWrapper(cost.minerals <= self.minerals, cost.vespene <= self.vespene, enough_supply)
 
@@ -309,8 +302,8 @@ class BotAI:
         if ability_id in abilities:
             if only_check_energy_and_cooldown:
                 return True
-            cast_range = self._game_data.abilities[ability_id.value]._proto.cast_range
-            ability_target = self._game_data.abilities[ability_id.value]._proto.target
+            cast_range = self.game_data.abilities[ability_id.value]._proto.cast_range
+            ability_target = self.game_data.abilities[ability_id.value]._proto.target
             # Check if target is in range (or is a self cast like stimpack)
             if (
                 ability_target == 1
@@ -355,12 +348,12 @@ class BotAI:
         assert isinstance(building, (AbilityData, AbilityId, UnitTypeId))
 
         if isinstance(building, UnitTypeId):
-            building = self._game_data.units[building.value].creation_ability
+            building = self.game_data.units[building.value].creation_ability
         elif isinstance(building, AbilityId):
-            building = self._game_data.abilities[building.value]
+            building = self.game_data.abilities[building.value]
 
-        r = await self._client.query_building_placement(building, [position])
-        return r[0] == ActionResult.Success
+        placement_location = await self._client.query_building_placement(building, [position])
+        return placement_location[0] == ActionResult.Success
 
     async def find_placement(
         self,
@@ -376,9 +369,9 @@ class BotAI:
         assert isinstance(near, Point2)
 
         if isinstance(building, UnitTypeId):
-            building = self._game_data.units[building.value].creation_ability
+            building = self.game_data.units[building.value].creation_ability
         else:  # AbilityId
-            building = self._game_data.abilities[building.value]
+            building = self.game_data.abilities[building.value]
 
         if await self.can_place(building, near):
             return near
@@ -416,11 +409,11 @@ class BotAI:
         assert isinstance(upgrade_type, UpgradeId)
         if upgrade_type in self.state.upgrades:
             return 1
-        creationAbilityID = self._game_data.upgrades[upgrade_type.value].research_ability.id
-        for s in self.units.structure.ready:
-            for o in s.orders:
-                if o.ability.id == creationAbilityID:
-                    return o.progress
+        creation_ability_id = self.game_data.upgrades[upgrade_type.value].research_ability.id
+        for structure in self.units.structure.ready:
+            for order in structure.orders:
+                if order.ability.id == creation_ability_id:
+                    return order.progress
         return 0
 
     def already_pending(self, unit_type: Union[UpgradeId, UnitTypeId], all_units: bool = False) -> int:
@@ -433,12 +426,10 @@ class BotAI:
         (Interceptors) or Oracles (Stasis Ward)) are also included.
         """
 
-        # TODO / FIXME: SCV building a structure might be counted as two units
-
         if isinstance(unit_type, UpgradeId):
             return self.already_pending_upgrade(unit_type)
 
-        ability = self._game_data.units[unit_type.value].creation_ability
+        ability = self.game_data.units[unit_type.value].creation_ability
 
         amount = len(self.units(unit_type).not_ready)
 
@@ -466,42 +457,42 @@ class BotAI:
         elif near is not None:
             near = near.to2
 
-        p = await self.find_placement(building, near.rounded, max_distance, random_alternative, placement_step)
-        if p is None:
+        placement = await self.find_placement(building, near.rounded, max_distance, random_alternative, placement_step)
+        if placement is None:
             return ActionResult.CantFindPlacementLocation
 
-        unit = unit or self.select_build_worker(p)
+        unit = unit or self.select_build_worker(placement)
         if unit is None or not self.can_afford(building):
             return ActionResult.Error
-        return await self.do(unit.build(building, p))
+        return await self.do(unit.build(building, placement))
 
     async def do(self, action):
         if not self.can_afford(action):
-            logger.warning(f"Cannot afford action {action}")
+            LOGGER.warning(f"Cannot afford action {action}")
             return ActionResult.Error
 
-        r = await self._client.actions(action, game_data=self._game_data)
+        possible_action = await self._client.actions(action, game_data=self.game_data)
 
-        if not r:  # success
-            cost = self._game_data.calculate_ability_cost(action.ability)
+        if not possible_action:  # success
+            cost = self.game_data.calculate_ability_cost(action.ability)
             self.minerals -= cost.minerals
             self.vespene -= cost.vespene
 
         else:
-            logger.error(f"Error: {r} (action: {action})")
+            LOGGER.error(f"Error: {possible_action} (action: {action})")
 
-        return r
+        return possible_action
 
     async def do_actions(self, actions: List["UnitCommand"]):
         if not actions:
             return None
         for action in actions:
-            cost = self._game_data.calculate_ability_cost(action.ability)
+            cost = self.game_data.calculate_ability_cost(action.ability)
             self.minerals -= cost.minerals
             self.vespene -= cost.vespene
 
-        r = await self._client.actions(actions, game_data=self._game_data)
-        return r
+        actions_queue = await self._client.actions(actions, game_data=self.game_data)
+        return actions_queue
 
     async def chat_send(self, message: str):
         """Send a chat message."""
@@ -510,13 +501,15 @@ class BotAI:
 
     # For the functions below, make sure you are inside the boundries of the map size.
     def get_terrain_height(self, pos: Union[Point2, Point3, Unit]) -> int:
-        """ Returns terrain height at a position. Caution: terrain height is not anywhere near a unit's z-coordinate. """
+        """ Returns terrain height at a position.
+        Caution: terrain height is not anywhere near a unit's z-coordinate. """
         assert isinstance(pos, (Point2, Point3, Unit))
         pos = pos.position.to2.rounded
         return self._game_info.terrain_height[pos]  # returns int
 
     def in_placement_grid(self, pos: Union[Point2, Point3, Unit]) -> bool:
-        """ Returns True if you can place something at a position. Remember, buildings usually use 2x2, 3x3 or 5x5 of these grid points.
+        """ Returns True if you can place something at a position.
+         Remember, buildings usually use 2x2, 3x3 or 5x5 of these grid points.
         Caution: some x and y offset might be required, see ramp code:
         https://github.com/Dentosal/python-sc2/blob/master/sc2/game_info.py#L17-L18 """
         assert isinstance(pos, (Point2, Point3, Unit))
@@ -531,7 +524,6 @@ class BotAI:
 
     def is_visible(self, pos: Union[Point2, Point3, Unit]) -> bool:
         """ Returns True if you have vision on a grid point. """
-        # more info: https://github.com/Blizzard/s2client-proto/blob/9906df71d6909511907d8419b33acc1a3bd51ec0/s2clientprotocol/spatial.proto#L19
         assert isinstance(pos, (Point2, Point3, Unit))
         pos = pos.position.to2.rounded
         return self.state.visibility[pos] == 2
