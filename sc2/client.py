@@ -1,5 +1,3 @@
-from typing import List, Set, Optional, Union  # mypy type checking
-import logging
 from s2clientprotocol import (
     sc2api_pb2 as sc_pb,
     common_pb2 as common_pb,
@@ -8,8 +6,15 @@ from s2clientprotocol import (
     raw_pb2 as raw_pb,
 )
 
+import logging
+
 from sc2.ids.ability_id import AbilityId
 from sc2.ids.unit_typeid import UnitTypeId
+
+logger = logging.getLogger(__name__)
+
+from .cache import method_cache_forever
+
 from .protocol import Protocol, ProtocolError
 from .game_info import GameInfo
 from .game_data import GameData, AbilityData
@@ -19,9 +24,7 @@ from .action import combine_actions
 from .position import Point2, Point3
 from .unit import Unit
 from .units import Units
-
-
-LOGGER = logging.getLogger(__name__)
+from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 
 class Client(Protocol):
@@ -56,9 +59,9 @@ class Client(Protocol):
             req.server_ports.base_port = portconfig.server[1]
 
             for ppc in portconfig.players:
-                port = req.client_ports.add()
-                port.game_port = ppc[0]
-                port.base_port = ppc[1]
+                p = req.client_ports.add()
+                p.game_port = ppc[0]
+                p.base_port = ppc[1]
 
         result = await self._execute(join_game=req)
         self._game_result = None
@@ -81,36 +84,33 @@ class Client(Protocol):
                 raise
 
     async def save_replay(self, path):
-        LOGGER.debug(f"Requesting replay from server")
+        logger.debug(f"Requesting replay from server")
         result = await self._execute(save_replay=sc_pb.RequestSaveReplay())
-        with open(path, "wb") as file:
-            file.write(result.save_replay.data)
-        LOGGER.info(f"Saved replay to {path}")
+        with open(path, "wb") as f:
+            f.write(result.save_replay.data)
+        logger.info(f"Saved replay to {path}")
 
     async def observation(self):
         result = await self._execute(observation=sc_pb.RequestObservation())
-        if (not self.in_game) or result.observation.player_result:
+        if (not self.in_game) or len(result.observation.player_result) > 0:
             # Sometimes game ends one step before results are available
-            if not result.observation.player_result:
+            if len(result.observation.player_result) == 0:
                 result = await self._execute(observation=sc_pb.RequestObservation())
-                assert result.observation.player_result
+                assert len(result.observation.player_result) > 0
 
             player_id_to_result = {}
-            for player_result in result.observation.player_result:
-                player_id_to_result[player_result.player_id] = Result(player_result.result)
+            for pr in result.observation.player_result:
+                player_id_to_result[pr.player_id] = Result(pr.result)
             self._game_result = player_id_to_result
         return result
 
     async def step(self):
-        """ EXPERIMENTAL: Change self._client.game_step during the step function
-        to increase or decrease steps per second """
+        """ EXPERIMENTAL: Change self._client.game_step during the step function to increase or decrease steps per second """
         result = await self._execute(step=sc_pb.RequestStep(count=self.game_step))
         return result
 
     async def get_game_data(self) -> GameData:
-        result = await self._execute(
-            data=sc_pb.RequestData(ability_id=True, unit_type_id=True, upgrade_id=True, effect_id=True)
-        )
+        result = await self._execute(data=sc_pb.RequestData(ability_id=True, unit_type_id=True, upgrade_id=True))
         return GameData(result.data)
 
     async def get_game_info(self) -> GameInfo:
@@ -122,15 +122,18 @@ class Client(Protocol):
             res = await self.actions([actions], game_data, return_successes)
             if res:
                 return res[0]
-            return None
-        actions = combine_actions(actions, game_data)
+            else:
+                return None
+        else:
+            actions = combine_actions(actions, game_data)
 
-        res = await self._execute(action=sc_pb.RequestAction(actions=[sc_pb.Action(action_raw=a) for a in actions]))
+            res = await self._execute(action=sc_pb.RequestAction(actions=[sc_pb.Action(action_raw=a) for a in actions]))
 
-        res = [ActionResult(r) for r in res.action.result]
-        if return_successes:
-            return res
-        return [r for r in res if r != ActionResult.Success]
+            res = [ActionResult(r) for r in res.action.result]
+            if return_successes:
+                return res
+            else:
+                return [r for r in res if r != ActionResult.Success]
 
     async def query_pathing(
         self, start: Union[Unit, Point2, Point3], end: Union[Point2, Point3]
@@ -169,7 +172,7 @@ class Client(Protocol):
         Might merge this function with the function above
         """
         assert isinstance(zipped_list, list)
-        assert zipped_list
+        assert len(zipped_list) > 0
         assert isinstance(zipped_list[0], list)
         assert len(zipped_list[0]) == 2
         assert isinstance(zipped_list[0][0], (Point2, Unit))
@@ -219,30 +222,30 @@ class Client(Protocol):
     ) -> List[List[AbilityId]]:
         """ Query abilities of multiple units """
         if not isinstance(units, list):
-            # Deprecated, accepting a single unit may be removed in the future, query a list of units instead
+            """ Deprecated, accepting a single unit may be removed in the future, query a list of units instead """
             assert isinstance(units, Unit)
             units = [units]
             input_was_a_list = False
         else:
             input_was_a_list = True
-        assert units
+        assert len(units) > 0
         result = await self._execute(
             query=query_pb.RequestQuery(
                 abilities=[query_pb.RequestQueryAvailableAbilities(unit_tag=unit.tag) for unit in units],
                 ignore_resource_requirements=ignore_resource_requirements,
             )
         )
-        # Fix for bots that only query a single unit
+        """ Fix for bots that only query a single unit """
         if not input_was_a_list:
             return [[AbilityId(a.ability_id) for a in b.abilities] for b in result.query.abilities][0]
         return [[AbilityId(a.ability_id) for a in b.abilities] for b in result.query.abilities]
 
     async def chat_send(self, message: str, team_only: bool):
         """ Writes a message to the chat """
-        chat = ChatChannel.Team if team_only else ChatChannel.Broadcast
-        await self._execute(
+        ch = ChatChannel.Team if team_only else ChatChannel.Broadcast
+        r = await self._execute(
             action=sc_pb.RequestAction(
-                actions=[sc_pb.Action(action_chat=sc_pb.ActionChat(channel=chat.value, message=message))]
+                actions=[sc_pb.Action(action_chat=sc_pb.ActionChat(channel=ch.value, message=message))]
             )
         )
 
@@ -250,11 +253,11 @@ class Client(Protocol):
         """ Usage example (will spawn 1 marine in the center of the map for player ID 1):
         await self._client.debug_create_unit([[UnitTypeId.MARINE, 1, self._game_info.map_center, 1]]) """
         assert isinstance(unit_spawn_commands, list)
-        assert unit_spawn_commands
+        assert len(unit_spawn_commands) > 0
         assert isinstance(unit_spawn_commands[0], list)
         assert len(unit_spawn_commands[0]) == 4
         assert isinstance(unit_spawn_commands[0][0], UnitTypeId)
-        assert unit_spawn_commands[0][1]  # careful, in realtime=True this function may create more units
+        assert 0 < unit_spawn_commands[0][1]  # careful, in realtime=True this function may create more units
         assert isinstance(unit_spawn_commands[0][2], (Point2, Point3))
         assert 1 <= unit_spawn_commands[0][3] <= 2
 
@@ -277,7 +280,7 @@ class Client(Protocol):
     async def debug_kill_unit(self, unit_tags: Union[Units, List[int], Set[int]]):
         if isinstance(unit_tags, Units):
             unit_tags = unit_tags.tags
-        assert unit_tags
+        assert len(unit_tags) > 0
 
         await self._execute(
             debug=sc_pb.RequestDebug(debug=[debug_pb.DebugCommand(kill_unit=debug_pb.DebugKillUnit(tag=unit_tags))])
@@ -335,13 +338,11 @@ class Client(Protocol):
             await self.debug_text([texts], [positions], color)
 
     def debug_text_simple(self, text: str):
-        """ Draws a text in the top left corner of the screen (up to a max of 6 messages it seems).
-        Don't forget to add 'await self._client.send_debug'. """
+        """ Draws a text in the top left corner of the screen (up to a max of 6 messages it seems). Don't forget to add 'await self._client.send_debug'. """
         self._debug_texts.append(self.to_debug_message(text))
 
     def debug_text_screen(self, text: str, pos: Union[Point2, Point3, tuple, list], color=None, size: int = 8):
-        """ Draws a text on the screen with coordinates 0 <= x, y <= 1.
-         Don't forget to add 'await self._client.send_debug'. """
+        """ Draws a text on the screen with coordinates 0 <= x, y <= 1. Don't forget to add 'await self._client.send_debug'. """
         assert len(pos) >= 2
         assert 0 <= pos[0] <= 1
         assert 0 <= pos[1] <= 1
@@ -363,11 +364,11 @@ class Client(Protocol):
     def debug_text_3d(self, text: str, pos: Union[Unit, Point2, Point3], color=None, size: int = 8):
         return self.debug_text_world(text, pos, color, size)
 
-    def debug_line_out(self, pos0: Union[Unit, Point2, Point3], pos1: Union[Unit, Point2, Point3], color=None):
+    def debug_line_out(self, p0: Union[Unit, Point2, Point3], p1: Union[Unit, Point2, Point3], color=None):
         """ Draws a line from p0 to p1. Don't forget to add 'await self._client.send_debug'. """
         self._debug_lines.append(
             debug_pb.DebugLine(
-                line=debug_pb.Line(p0=self.to_debug_point(pos0), p1=self.to_debug_point(pos1)),
+                line=debug_pb.Line(p0=self.to_debug_point(p0), p1=self.to_debug_point(p1)),
                 color=self.to_debug_color(color),
             )
         )
@@ -380,10 +381,10 @@ class Client(Protocol):
             )
         )
 
-    def debug_sphere_out(self, pos: Union[Unit, Point2, Point3], radio: Union[int, float], color=None):
+    def debug_sphere_out(self, p: Union[Unit, Point2, Point3], r: Union[int, float], color=None):
         """ Draws a sphere at point p with radius r. Don't forget to add 'await self._client.send_debug'. """
         self._debug_spheres.append(
-            debug_pb.DebugSphere(p=self.to_debug_point(pos), r=radio, color=self.to_debug_color(color))
+            debug_pb.DebugSphere(p=self.to_debug_point(p), r=r, color=self.to_debug_color(color))
         )
 
     async def send_debug(self):
@@ -393,10 +394,10 @@ class Client(Protocol):
                 debug=[
                     debug_pb.DebugCommand(
                         draw=debug_pb.DebugDraw(
-                            text=self._debug_texts if self._debug_texts else None,
-                            lines=self._debug_lines if self._debug_lines else None,
-                            boxes=self._debug_boxes if self._debug_boxes else None,
-                            spheres=self._debug_spheres if self._debug_spheres else None,
+                            text=self._debug_texts if len(self._debug_texts) > 0 else None,
+                            lines=self._debug_lines if len(self._debug_lines) > 0 else None,
+                            boxes=self._debug_boxes if len(self._debug_boxes) > 0 else None,
+                            spheres=self._debug_spheres if len(self._debug_spheres) > 0 else None,
                         )
                     )
                 ]
@@ -407,22 +408,22 @@ class Client(Protocol):
         self._debug_boxes.clear()
         self._debug_spheres.clear()
 
-    @staticmethod
-    def to_debug_color(color):
+    def to_debug_color(self, color):
         """ Helper function for color conversion """
         if color is None:
             return debug_pb.Color(r=255, g=255, b=255)
-        red = getattr(color, "r", getattr(color, "x", 255))
-        green = getattr(color, "g", getattr(color, "y", 255))
-        blue = getattr(color, "b", getattr(color, "z", 255))
-        if max(red, green, blue) <= 1:
-            red *= 255
-            green *= 255
-            blue *= 255
-        return debug_pb.Color(r=int(red), g=int(green), b=int(blue))
+        else:
+            r = getattr(color, "r", getattr(color, "x", 255))
+            g = getattr(color, "g", getattr(color, "y", 255))
+            b = getattr(color, "b", getattr(color, "z", 255))
+            if max(r, g, b) <= 1:
+                r *= 255
+                g *= 255
+                b *= 255
 
-    @staticmethod
-    def to_debug_point(point: Union[Unit, Point2, Point3]) -> common_pb.Point:
+            return debug_pb.Color(r=int(r), g=int(g), b=int(b))
+
+    def to_debug_point(self, point: Union[Unit, Point2, Point3]) -> common_pb.Point:
         """ Helper function for point conversion """
         if isinstance(point, Unit):
             point = point.position3d

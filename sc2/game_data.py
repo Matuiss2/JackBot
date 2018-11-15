@@ -1,5 +1,6 @@
+from bisect import bisect_left
 from functools import lru_cache, reduce
-from typing import List, Optional  # mypy type checking
+from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 from .data import Attribute, Race
 from .unit_command import UnitCommand
@@ -17,13 +18,12 @@ def split_camel_case(text) -> list:
     return list(reduce(lambda a, b: (a + [b] if b.isupper() else a[:-1] + [a[-1] + b]), text, []))
 
 
-class GameData:
+class GameData(object):
     def __init__(self, data):
         ids = tuple(a.value for a in AbilityId if a.value != 0)
         self.abilities = {a.ability_id: AbilityData(self, a) for a in data.abilities if a.ability_id in ids}
         self.units = {u.unit_id: UnitTypeData(self, u) for u in data.units if u.available}
         self.upgrades = {u.upgrade_id: UpgradeData(self, u) for u in data.upgrades}
-        self.effects = {e.effect_id: EffectRawData(self, e) for e in data.effects}
 
     @lru_cache(maxsize=256)
     def calculate_ability_cost(self, ability) -> "Cost":
@@ -62,35 +62,20 @@ class GameData:
         return Cost(0, 0)
 
 
-class EffectRawData:
-    def __init__(self, game_data, proto):
-        self._game_data = game_data
-        self._proto = proto
+class AbilityData(object):
+    ability_ids: List[int] = []  # sorted list
+    for ability_id in AbilityId:  # 1000 items Enum is slow
+        ability_ids.append(ability_id.value)
+    ability_ids.remove(0)
+    ability_ids.sort()
 
-        # assert self.id != 0
-
-    @property
-    def id(self) -> int:
-        return self._proto.effect_id
-
-    @property
-    def name(self) -> str:
-        return self._proto.name
-
-    @property
-    def friendly_name(self) -> str:
-        return self._proto.friendly_name
-
-    @property
-    def radius(self) -> float:
-        return self._proto.radius
-
-
-class AbilityData:
-    @staticmethod
-    def id_exists(ability_id: int) -> bool:
+    @classmethod
+    def id_exists(cls, ability_id):
         assert isinstance(ability_id, int), f"Wrong type: {ability_id} is not int"
-        return ability_id != 0 and ability_id in (a.value for a in AbilityId)
+        if ability_id == 0:
+            return False
+        i = bisect_left(cls.ability_ids, ability_id)  # quick binary search
+        return i != len(cls.ability_ids) and cls.ability_ids[i] == ability_id
 
     def __init__(self, game_data, proto):
         self._game_data = game_data
@@ -110,6 +95,7 @@ class AbilityData:
     @property
     def link_name(self) -> str:
         """ For Stimpack this returns 'BarracksTechLabResearch' """
+        # TODO: this may be wrong as it returns the same as the property below, ".button_name"
         return self._proto.button_name
 
     @property
@@ -125,8 +111,8 @@ class AbilityData:
     @property
     def is_free_morph(self) -> bool:
         parts = split_camel_case(self._proto.link_name)
-        for part in parts:
-            if part in FREE_MORPH_ABILITY_CATEGORIES:
+        for p in parts:
+            if p in FREE_MORPH_ABILITY_CATEGORIES:
                 return True
         return False
 
@@ -135,7 +121,7 @@ class AbilityData:
         return self._game_data.calculate_ability_cost(self.id)
 
 
-class UnitTypeData:
+class UnitTypeData(object):
     def __init__(self, game_data, proto):
         self._game_data = game_data
         self._proto = proto
@@ -191,14 +177,14 @@ class UnitTypeData:
 
     @property
     def tech_alias(self) -> Optional[List[UnitTypeId]]:
-        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter
-         Building tech equality, e.g. Hive is the same as Lair and Hatchery """
+        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter """
+        """ Building tech equality, e.g. Hive is the same as Lair and Hatchery """
         return_list = []
         for tech_alias in self._proto.tech_alias:
             if tech_alias in self._game_data.units:
                 return_list.append(UnitTypeId(tech_alias))
-        # For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair] """
-        # For SCV, this returns None """
+        """ For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair] """
+        """ For SCV, this returns None """
         if return_list:
             return return_list
         return None
@@ -210,7 +196,7 @@ class UnitTypeData:
             return None
         if self._proto.unit_alias not in self._game_data.units:
             return None
-        # For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand
+        """ For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand """
         return UnitTypeId(self._proto.unit_alias)
 
     @property
@@ -229,7 +215,8 @@ class UnitTypeData:
             # print(a)
             # print(vars(a))
             return Cost(self._proto.mineral_cost - 50, self._proto.vespene_cost, self._proto.build_time)
-        return self.cost
+        else:
+            return self.cost
 
     @property
     def morph_cost(self) -> Optional["Cost"]:
@@ -237,6 +224,7 @@ class UnitTypeData:
         # Fix for BARRACKSREACTOR which has tech alias [REACTOR] which has (0, 0) cost
         if self.tech_alias is None or self.tech_alias[0] in {UnitTypeId.TECHLAB, UnitTypeId.REACTOR}:
             return None
+        # Morphing a HIVE would have HATCHERY and LAIR in the tech alias - now subtract HIVE cost from LAIR cost instead of from HATCHERY cost
         tech_alias_cost_minerals = max(
             [self._game_data.units[tech_alias.value].cost.minerals for tech_alias in self.tech_alias]
         )
@@ -250,7 +238,7 @@ class UnitTypeData:
         )
 
 
-class UpgradeData:
+class UpgradeData(object):
     def __init__(self, game_data, proto):
         self._game_data = game_data
         self._proto = proto
@@ -275,7 +263,7 @@ class UpgradeData:
         return Cost(self._proto.mineral_cost, self._proto.vespene_cost, self._proto.research_time)
 
 
-class Cost:
+class Cost(object):
     def __init__(self, minerals, vespene, time=None):
         self.minerals = minerals
         self.vespene = vespene

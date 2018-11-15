@@ -2,7 +2,7 @@ import json
 import portpicker
 
 
-class Portconfig:
+class Portconfig(object):
     def __init__(self):
         self.shared = portpicker.pick_unused_port()
         self.server = [portpicker.pick_unused_port() for _ in range(2)]

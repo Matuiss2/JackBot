@@ -1,7 +1,15 @@
-from typing import List, Dict, Set
+from typing import Tuple, Set, FrozenSet, Sequence, Generator
+
+from collections import deque
+from copy import deepcopy
+import itertools
+
 from .position import Point2, Size, Rect
 from .pixel_map import PixelMap
 from .player import Player
+from .cache import property_cache_forever
+
+from typing import List, Dict, Set, Tuple, Any, Optional, Union
 
 
 class Ramp:
@@ -123,12 +131,14 @@ class Ramp:
         if len(self.upper2_for_ramp_wall) == 2:
             if self.barracks_can_fit_addon:
                 return self.barracks_in_middle
-            return self.barracks_in_middle.offset((-2, 0))
+            else:
+                return self.barracks_in_middle.offset((-2, 0))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
 
-class GameInfo:
+class GameInfo(object):
     def __init__(self, proto):
+        # TODO: this might require an update during the game because placement grid and playable grid are greyed out on minerals, start locations and ramps (debris)
         self._proto = proto
         self.players: List[Player] = [Player.from_proto(p) for p in proto.player_info]
         self.map_size: Size = Size.from_proto(proto.start_raw.map_size)
@@ -136,7 +146,7 @@ class GameInfo:
         self.terrain_height: PixelMap = PixelMap(proto.start_raw.terrain_height)
         self.placement_grid: PixelMap = PixelMap(proto.start_raw.placement_grid)
         self.playable_area = Rect.from_proto(proto.start_raw.playable_area)
-        self.map_ramps: List[Ramp] = self._find_ramps()
+        self.map_ramps: List[Ramp] = None  # Filled later by BotAI._prepare_first_step
         self.player_races: Dict[int, "Race"] = {
             p.player_id: p.race_actual or p.race_requested for p in proto.player_info
         }
@@ -163,33 +173,53 @@ class GameInfo:
         self, points: Set[Point2], minimum_points_per_group: int = 8, max_distance_between_points: int = 2
     ) -> List[Set[Point2]]:
         """ From a set/list of points, this function will try to group points together """
-        foundGroups = []
-        currentGroup = set()
-        newlyAdded = set()
-        pointsPool = set(points)
+        """ Paint clusters of points in rectangular map using flood fill algorithm. """
+        NOT_INTERESTED = -2
+        NOT_COLORED_YET = -1
+        currentColor: int = NOT_COLORED_YET
+        picture: List[List[int]] = [
+            [NOT_INTERESTED for j in range(self.pathing_grid.width)] for i in range(self.pathing_grid.height)
+        ]
 
-        while pointsPool or currentGroup:
-            if not currentGroup:
-                randomPoint = pointsPool.pop()
-                currentGroup.add(randomPoint)
-                newlyAdded.add(randomPoint)
+        def paint(pt: Point2) -> None:
+            picture[pt.y][pt.x] = currentColor
 
-            newlyAddedOld = newlyAdded
-            newlyAdded = set()
-            for p1 in newlyAddedOld:
-                # create copy as we change set size during iteration
-                for p2 in pointsPool.copy():
-                    if abs(p1.x - p2.x) + abs(p1.y - p2.y) <= max_distance_between_points:
-                        currentGroup.add(p2)
-                        newlyAdded.add(p2)
-                        pointsPool.discard(p2)
+        nearby: Set[Point2] = set()
+        for dx in range(-max_distance_between_points, max_distance_between_points + 1):
+            for dy in range(-max_distance_between_points, max_distance_between_points + 1):
+                if abs(dx) + abs(dy) <= max_distance_between_points:
+                    nearby.add(Point2((dx, dy)))
 
-            # Check if all connected points were found
-            if not newlyAdded:
-                # Add to group if number of points reached threshold - discard group if not enough points
-                if len(currentGroup) >= minimum_points_per_group:
-                    foundGroups.append(currentGroup)
-                currentGroup = set()
+        for point in points:
+            paint(point)
+
+        remaining: Set[Point2] = set(points)
+        queue: Deque[Point2] = deque()
+        foundGroups: List[Set[Point2]] = []
+        while remaining:
+            currentGroup: Set[Point2] = set()
+            if not queue:
+                currentColor += 1
+                start = remaining.pop()
+                paint(start)
+                queue.append(start)
+                currentGroup.add(start)
+            while queue:
+                base: Point2 = queue.popleft()
+                for offset in nearby:
+                    px, py = base.x + offset.x, base.y + offset.y
+                    if px < 0 or py < 0 or px >= self.pathing_grid.width or py >= self.pathing_grid.height:
+                        continue
+                    if picture[py][px] != NOT_COLORED_YET:
+                        continue
+                    point: Point2 = Point2((px, py))
+                    remaining.remove(point)
+                    paint(point)
+                    queue.append(point)
+                    currentGroup.add(point)
+            if len(currentGroup) >= minimum_points_per_group:
+                foundGroups.append(currentGroup)
+
         """ Returns groups of points as list
         [{p1, p2, p3}, {p4, p5, p6, p7, p8}]
         """

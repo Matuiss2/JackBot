@@ -1,4 +1,3 @@
-from typing import List, Set  # mypy type checking
 from .units import Units
 from .power_source import PsionicMatrix
 from .pixel_map import PixelMap
@@ -7,9 +6,10 @@ from .ids.effect_id import EffectId
 from .position import Point2, Point3
 from .data import Alliance, DisplayType
 from .score import ScoreDetails
+from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 
-class Blip:
+class Blip(object):
     def __init__(self, proto):
         self._proto = proto
 
@@ -49,7 +49,7 @@ class Blip:
         return Point3.from_proto(self._proto.pos)
 
 
-class Common:
+class Common(object):
     ATTRIBUTES = [
         "player_id",
         "minerals",
@@ -72,7 +72,7 @@ class Common:
         return int(getattr(self._proto, attr))
 
 
-class EffectData:
+class EffectData(object):
     def __init__(self, proto):
         self._proto = proto
 
@@ -85,10 +85,12 @@ class EffectData:
         return [Point2.from_proto(p) for p in self._proto.pos]
 
 
-class GameState:
+class GameState(object):
     def __init__(self, response_observation, game_data):
         self.actions = response_observation.actions  # successful actions since last loop
         self.action_errors = response_observation.action_errors  # error actions since last loop
+        # https://github.com/Blizzard/s2client-proto/blob/51662231c0965eba47d5183ed0a6336d5ae6b640/s2clientprotocol/sc2api.proto#L575
+        # TODO: implement alerts https://github.com/Blizzard/s2client-proto/blob/51662231c0965eba47d5183ed0a6336d5ae6b640/s2clientprotocol/sc2api.proto#L640
         self.observation = response_observation.observation
         self.player_result = response_observation.player_result
         self.chat = response_observation.chat
@@ -98,7 +100,9 @@ class GameState:
         )  # what area pylon covers
         self.game_loop: int = self.observation.game_loop  # game loop, 22.4 per second on faster game speed
 
-        self.score: ScoreDetails = ScoreDetails(self.observation.score)
+        self.score: ScoreDetails = ScoreDetails(
+            self.observation.score
+        )  # https://github.com/Blizzard/s2client-proto/blob/33f0ecf615aa06ca845ffe4739ef3133f37265a9/s2clientprotocol/score.proto#L31
         self.abilities = self.observation.abilities  # abilities of selected units
         destructables = [
             x for x in self.observation.raw_data.units if x.alliance == 3 and x.radius > 1.5
@@ -106,11 +110,11 @@ class GameState:
         self.destructables: Units = Units.from_proto(destructables, game_data)
 
         # Fix for enemy units detected by my sensor tower, as blips have less unit information than normal visible units
-        visible_units, hidden_units = [], []
-        for unit in self.observation.raw_data.units:
-            hidden_units.append(unit) if unit.is_blip else visible_units.append(unit)
-        self.units: Units = Units.from_proto(visible_units, game_data)
-        self.blips: Set[Blip] = {Blip(unit) for unit in hidden_units}
+        visibleUnits, hiddenUnits = [], []
+        for u in self.observation.raw_data.units:
+            hiddenUnits.append(u) if u.is_blip else visibleUnits.append(u)
+        self.units: Units = Units.from_proto(visibleUnits, game_data)
+        self.blips: Set[Blip] = {Blip(unit) for unit in hiddenUnits}
 
         self.visibility: PixelMap = PixelMap(self.observation.raw_data.map_state.visibility)
         self.creep: PixelMap = PixelMap(self.observation.raw_data.map_state.creep)

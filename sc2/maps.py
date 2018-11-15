@@ -1,5 +1,8 @@
-import logging
 from .paths import Paths
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get(name=None):
@@ -23,7 +26,7 @@ def get(name=None):
     raise KeyError(f"Map '{name}' was not found. Please put the map file in \"/StarCraft II/Maps/\".")
 
 
-class Map:
+class Map(object):
     def __init__(self, path):
         self.path = path
 
@@ -42,8 +45,8 @@ class Map:
 
     @property
     def data(self):
-        with open(self.path, "rb") as file:
-            return file.read()
+        with open(self.path, "rb") as f:
+            return f.read()
 
     def matches(self, name):
         return self.name.lower().replace(" ", "") == name.lower().replace(" ", "")

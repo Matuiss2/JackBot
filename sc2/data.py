@@ -1,5 +1,4 @@
 import enum
-from typing import Dict, Set  # mypy type checking
 from s2clientprotocol import (
     sc2api_pb2 as sc_pb,
     raw_pb2 as raw_pb,
@@ -7,9 +6,18 @@ from s2clientprotocol import (
     common_pb2 as common_pb,
     error_pb2 as error_pb,
 )
+from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
+
+""" For the list of enums, see here
+
+https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_gametypes.h
+https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_action.h
+https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_unit.h
+https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_data.h
+"""
 
 CreateGameError = enum.Enum("CreateGameError", sc_pb.ResponseCreateGame.Error.items())
 

@@ -1,5 +1,6 @@
 from itertools import groupby
 from s2clientprotocol import raw_pb2 as raw_pb, common_pb2 as common_pb
+
 from .position import Point2
 from .unit import Unit
 

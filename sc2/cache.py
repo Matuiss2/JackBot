@@ -1,37 +1,37 @@
 from functools import wraps
 
 
-def cache_forever(file):
-    file.cache = {}
+def cache_forever(f):
+    f.cache = {}
 
-    @wraps(file)
+    @wraps(f)
     def inner(*args):
-        if args not in file.cache:
-            file.cache[args] = file(*args)
-        return file.cache[args]
+        if args not in f.cache:
+            f.cache[args] = f(*args)
+        return f.cache[args]
 
     return inner
 
 
-def method_cache_forever(file):
-    file.cache = {}
+def method_cache_forever(f):
+    f.cache = {}
 
-    @wraps(file)
+    @wraps(f)
     def inner(self, *args):
-        if args not in file.cache:
-            file.cache[args] = file(self, *args)
-        return file.cache[args]
+        if args not in f.cache:
+            f.cache[args] = f(self, *args)
+        return f.cache[args]
 
     return inner
 
 
-def property_cache_forever(file):
-    file.cached = None
+def property_cache_forever(f):
+    f.cached = None
 
-    @wraps(file)
+    @wraps(f)
     def inner(self):
-        if file.cached is None:
-            file.cached = file(self)
-        return file.cached
+        if f.cached is None:
+            f.cached = f(self)
+        return f.cached
 
     return property(inner)

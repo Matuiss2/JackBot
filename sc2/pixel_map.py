@@ -3,7 +3,7 @@ from typing import Callable, Set, FrozenSet, List
 from .position import Point2
 
 
-class PixelMap:
+class PixelMap(object):
     def __init__(self, proto):
         self._proto = proto
         assert self.bits_per_pixel % 8 == 0, "Unsupported pixel density"
@@ -48,11 +48,11 @@ class PixelMap:
         start = index * self.bytes_per_pixel
         self.data[start : start + self.bytes_per_pixel] = val
 
-    def is_set(self, pixel):
-        return self[pixel]
+    def is_set(self, p):
+        return self[p] != 0
 
-    def is_empty(self, pixel):
-        return not self.is_set(pixel)
+    def is_empty(self, p):
+        return not self.is_set(p)
 
     def invert(self):
         raise NotImplementedError
@@ -103,6 +103,6 @@ class PixelMap:
         data = [(0, 0, self[x, y]) for y in range(self.height) for x in range(self.width)]
         from PIL import Image
 
-        img = Image.new("RGB", (self.width, self.height))
-        img.putdata(data)
-        img.save(filename)
+        im = Image.new("RGB", (self.width, self.height))
+        im.putdata(data)
+        im.save(filename)
