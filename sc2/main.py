@@ -13,7 +13,7 @@ from .protocol import ConnectionAlreadyClosed
 LOGGER = logging.getLogger(__name__)
 
 
-async def _play_game_human(client, player_id, realtime, game_time_limit):
+async def play_game_human(client, player_id, realtime, game_time_limit):
     """Allow humans to play"""
     while True:
         state = await client.observation()
@@ -26,7 +26,7 @@ async def _play_game_human(client, player_id, realtime, game_time_limit):
             await client.step()
 
 
-async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_time_limit):
+async def play_game_ai(client, player_id, ai, realtime, step_time_limit, game_time_limit):
     """Allow bots to play"""
     game_data = await client.get_game_data()
     game_info = await client.get_game_info()
@@ -71,14 +71,14 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
         iteration += 1
 
 
-async def _play_game(player, client, realtime, portconfig, step_time_limit=None, game_time_limit=None):
+async def play_game(player, client, realtime, portconfig, step_time_limit=None, game_time_limit=None):
     """Put the players on the game and prints the result of it"""
     assert isinstance(realtime, bool), repr(realtime)
     player_id = await client.join_game(player.race, portconfig=portconfig)
     if isinstance(player, Human):
-        result = await _play_game_human(client, player_id, realtime, game_time_limit)
+        result = await play_game_human(client, player_id, realtime, game_time_limit)
     else:
-        result = await _play_game_ai(client, player_id, player.ai, realtime, step_time_limit, game_time_limit)
+        result = await play_game_ai(client, player_id, player.ai, realtime, step_time_limit, game_time_limit)
     logging.info(f"Result for player id: {player_id}: {result}")
     return result
 
@@ -105,7 +105,7 @@ async def _host_game(
         await server.ping()
         client = await _setup_host_game(server, map_settings, players, realtime)
         try:
-            result = await _play_game(players[0], client, realtime, portconfig, step_time_limit, game_time_limit)
+            result = await play_game(players[0], client, realtime, portconfig, step_time_limit, game_time_limit)
             if save_replay_as:
                 await client.save_replay(save_replay_as)
             await client.leave()
@@ -127,7 +127,7 @@ async def _host_game_aiter(
             await server.ping()
             client = await _setup_host_game(server, map_settings, players, realtime)
             try:
-                result = await _play_game(players[0], client, realtime, portconfig, step_time_limit, game_time_limit)
+                result = await play_game(players[0], client, realtime, portconfig, step_time_limit, game_time_limit)
                 if save_replay_as:
                     await client.save_replay(save_replay_as)
                 await client.leave()
@@ -153,7 +153,7 @@ async def _join_game(players, realtime, portconfig, save_replay_as=None, step_ti
         await server.ping()
         client = Client(server._ws)
         try:
-            result = await _play_game(players[1], client, realtime, portconfig, step_time_limit, game_time_limit)
+            result = await play_game(players[1], client, realtime, portconfig, step_time_limit, game_time_limit)
             if save_replay_as:
                 await client.save_replay(save_replay_as)
             await client.leave()

@@ -121,7 +121,7 @@ class DistributeWorkers(Micro):
         if self.require_gas:
             for extractor in local_controller.extractors:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
-                if 0 < required_drones < local_controller.drones.amount:
+                if 0 < required_drones < len(local_controller.drones):
                     for drone in local_controller.drones.random_group_of(required_drones):
                         local_controller.add_action(drone.gather(extractor))
 

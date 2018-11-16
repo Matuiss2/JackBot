@@ -252,7 +252,7 @@ class BotAI:
 
     def can_feed(self, unit_type: UnitTypeId) -> bool:
         """ Checks if you have enough free supply to build the unit """
-        required = self._game_data.units[unit_type.value]._proto.food_required
+        required = self._game_data.units[unit_type.value].proto.food_required
         return required == 0 or self.supply_left >= required
 
     def can_afford(
@@ -293,8 +293,8 @@ class BotAI:
         if ability_id in abilities:
             if only_check_energy_and_cooldown:
                 return True
-            cast_range = self._game_data.abilities[ability_id.value]._proto.cast_range
-            ability_target = self._game_data.abilities[ability_id.value]._proto.target
+            cast_range = self._game_data.abilities[ability_id.value].proto.cast_range
+            ability_target = self._game_data.abilities[ability_id.value].proto.target
             if (
                 ability_target == 1
                 or ability_target == Target.PointOrNone.value

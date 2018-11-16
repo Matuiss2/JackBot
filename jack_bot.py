@@ -110,11 +110,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
-        if self.ground_enemies:
-            if len(self.ground_enemies) > 5:
-                self.client.game_step = 2
-            else:
-                self.client.game_step = 4
+        if self.ground_enemies and len(self.ground_enemies) > 5:
+            self.client.game_step = 4
         else:
             self.client.game_step = 8
 

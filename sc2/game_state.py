@@ -14,37 +14,37 @@ class Blip:
     """Identifies and categorize the visible units"""
 
     def __init__(self, proto):
-        self._proto = proto
+        self.proto = proto
 
     @property
     def is_blip(self) -> bool:
         """Detected by sensor tower."""
-        return self._proto.is_blip
+        return self.proto.is_blip
 
     @property
     def is_snapshot(self) -> bool:
         """Detected for just a small moment(f.e tanks that shoot you on the high ground)"""
-        return self._proto.display_type == DisplayType.Snapshot.value
+        return self.proto.display_type == DisplayType.Snapshot.value
 
     @property
     def is_visible(self) -> bool:
         """Detected- its outside the fog of war"""
-        return self._proto.display_type == DisplayType.Visible.value
+        return self.proto.display_type == DisplayType.Visible.value
 
     @property
     def alliance(self) -> Alliance:
         """Its an ally's unit"""
-        return self._proto.alliance
+        return self.proto.alliance
 
     @property
     def is_mine(self) -> bool:
         """Its a bot's unit"""
-        return self._proto.alliance == Alliance.Self.value
+        return self.proto.alliance == Alliance.Self.value
 
     @property
     def is_enemy(self) -> bool:
         """Its an enemy unit"""
-        return self._proto.alliance == Alliance.Enemy.value
+        return self.proto.alliance == Alliance.Enemy.value
 
     @property
     def position(self) -> Point2:
@@ -54,7 +54,7 @@ class Blip:
     @property
     def position3d(self) -> Point3:
         """3d position of the blip."""
-        return Point3.from_proto(self._proto.pos)
+        return Point3.from_proto(self.proto.pos)
 
 
 class Common:
@@ -75,28 +75,28 @@ class Common:
     ]
 
     def __init__(self, proto):
-        self._proto = proto
+        self.proto = proto
 
     def __getattr__(self, attr):
         assert attr in self.ATTRIBUTES, f"'{attr}' is not a valid attribute"
-        return int(getattr(self._proto, attr))
+        return int(getattr(self.proto, attr))
 
 
 class EffectData:
     """Group all effects and its position"""
 
     def __init__(self, proto):
-        self._proto = proto
+        self.proto = proto
 
     @property
     def id(self) -> EffectId:
         """Get the id of the effect"""
-        return EffectId(self._proto.effect_id)
+        return EffectId(self.proto.effect_id)
 
     @property
     def positions(self) -> List[Point2]:
         """List all positions that are targets by the effect"""
-        return [Point2.from_proto(p) for p in self._proto.pos]
+        return [Point2.from_proto(p) for p in self.proto.pos]
 
 
 class GameState:

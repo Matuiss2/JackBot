@@ -6,6 +6,7 @@ from . import unit as unit_module
 
 class UnitCommand:
     """Get the ability, target, queue and unit performing it"""
+
     def __init__(self, ability, unit, target=None, queue=False):
         assert ability in AbilityId
         assert isinstance(unit, unit_module.Unit)

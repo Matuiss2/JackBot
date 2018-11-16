@@ -135,7 +135,7 @@ class GameInfo:
     """It groups some info about the map and units, like ramps, map center and paint groups"""
 
     def __init__(self, proto):
-        self._proto = proto
+        self.proto = proto
         self.players: List[Player] = [Player.from_proto(p) for p in proto.player_info]
         self.map_size: Size = Size.from_proto(proto.start_raw.map_size)
         self.pathing_grid: PixelMap = PixelMap(proto.start_raw.pathing_grid)

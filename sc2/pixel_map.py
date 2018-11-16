@@ -7,30 +7,30 @@ class PixelMap:
     """Makes a pixelmap and returns is specifications"""
 
     def __init__(self, proto):
-        self._proto = proto
+        self.proto = proto
         assert self.bits_per_pixel % 8 == 0, "Unsupported pixel density"
-        assert self.width * self.height * self.bits_per_pixel / 8 == len(self._proto.data)
-        self.data = bytearray(self._proto.data)
+        assert self.width * self.height * self.bits_per_pixel / 8 == len(self.proto.data)
+        self.data = bytearray(self.proto.data)
 
     @property
     def width(self):
         """Returns the width of the pixel map"""
-        return self._proto.size.x
+        return self.proto.size.x
 
     @property
     def height(self):
         """Returns the height of the pixel map"""
-        return self._proto.size.y
+        return self.proto.size.y
 
     @property
     def bits_per_pixel(self):
         """Returns the memory size per pixel in bits"""
-        return self._proto.bits_per_pixel
+        return self.proto.bits_per_pixel
 
     @property
     def bytes_per_pixel(self):
         """Returns the memory size per pixel in bytes"""
-        return self._proto.bits_per_pixel // 8
+        return self.proto.bits_per_pixel // 8
 
     def __getitem__(self, pos):
         x, y = pos
