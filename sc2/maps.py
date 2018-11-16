@@ -1,11 +1,12 @@
+"""Open maps and show its info"""
+import logging
 from .paths import Paths
 
-import logging
-
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def get(name=None):
+    """Returns a map"""
     maps = []
     for mapdir in (p for p in Paths.MAPS.iterdir()):
         if mapdir.is_dir():
@@ -15,21 +16,19 @@ def get(name=None):
         elif mapdir.is_file():
             if mapdir.suffix == ".SC2Map":
                 maps.append(Map(mapdir))
-
-    if name is None:
+    if not name:
         return maps
-
-    for m in maps:
-        if m.matches(name):
-            return m
-
+    for selected_map in maps:
+        if selected_map.matches(name):
+            return selected_map
     raise KeyError(f"Map '{name}' was not found. Please put the map file in \"/StarCraft II/Maps/\".")
 
 
-class Map(object):
+class Map:
+    """Show map info(path, data, name) and ease its use"""
+
     def __init__(self, path):
         self.path = path
-
         if self.path.is_absolute():
             try:
                 self.relative_path = self.path.relative_to(Paths.MAPS)
@@ -41,14 +40,17 @@ class Map(object):
 
     @property
     def name(self):
+        """Return map name"""
         return self.path.stem
 
     @property
     def data(self):
-        with open(self.path, "rb") as f:
-            return f.read()
+        """Show map data"""
+        with open(self.path, "rb") as file:
+            return file.read()
 
     def matches(self, name):
+        """Standardize the map names"""
         return self.name.lower().replace(" ", "") == name.lower().replace(" ", "")
 
     def __repr__(self):

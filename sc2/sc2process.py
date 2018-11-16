@@ -13,7 +13,7 @@ import aiohttp
 
 import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 from .paths import Paths
 from .controller import Controller
@@ -24,12 +24,12 @@ class kill_switch(object):
 
     @classmethod
     def add(cls, value):
-        logger.debug("kill_switch: Add switch")
+        LOGGER.debug("kill_switch: Add switch")
         cls._to_kill.append(value)
 
     @classmethod
     def kill_all(cls):
-        logger.info("kill_switch: Process cleanup")
+        LOGGER.info("kill_switch: Process cleanup")
         for p in cls._to_kill:
             p._clean()
 
@@ -46,7 +46,7 @@ class SC2Process:
         else:
             self._port = port
         self._tmp_dir = tempfile.mkdtemp(prefix="SC2_")
-        self._process = None
+        self.process = None
         self._session = None
         self._ws = None
 
@@ -59,7 +59,7 @@ class SC2Process:
         signal.signal(signal.SIGINT, signal_handler)
 
         try:
-            self._process = self._launch()
+            self.process = self._launch()
             self._ws = await self._connect()
         except:
             await self._close_connection()
@@ -91,7 +91,7 @@ class SC2Process:
             self._tmp_dir,
         ]
 
-        if logger.getEffectiveLevel() <= logging.DEBUG:
+        if LOGGER.getEffectiveLevel() <= logging.DEBUG:
             args.append("-verbose")
 
         return subprocess.Popen(
@@ -102,27 +102,27 @@ class SC2Process:
 
     async def _connect(self):
         for i in range(60):
-            if self._process == None:
+            if self.process == None:
                 # The ._clean() was called, clearing the process
-                logger.debug("Process cleanup complete, exit")
+                LOGGER.debug("Process cleanup complete, exit")
                 sys.exit()
 
             await asyncio.sleep(1)
             try:
                 self._session = aiohttp.ClientSession()
                 ws = await self._session.ws_connect(self.ws_url, timeout=120)
-                logger.debug("Websocket connection ready")
+                LOGGER.debug("Websocket connection ready")
                 return ws
             except aiohttp.client_exceptions.ClientConnectorError:
                 await self._session.close()
                 if i > 15:
-                    logger.debug("Connection refused (startup not complete (yet))")
+                    LOGGER.debug("Connection refused (startup not complete (yet))")
 
-        logger.debug("Websocket connection to SC2 process timed out")
+        LOGGER.debug("Websocket connection to SC2 process timed out")
         raise TimeoutError("Websocket")
 
     async def _close_connection(self):
-        logger.info("Closing connection...")
+        LOGGER.info("Closing connection...")
 
         if self._ws is not None:
             await self._ws.close()
@@ -131,23 +131,23 @@ class SC2Process:
             await self._session.close()
 
     def _clean(self):
-        logger.info("Cleaning up...")
+        LOGGER.info("Cleaning up...")
 
-        if self._process is not None:
-            if self._process.poll() is None:
+        if self.process is not None:
+            if self.process.poll() is None:
                 for _ in range(3):
-                    self._process.terminate()
+                    self.process.terminate()
                     time.sleep(0.5)
-                    if self._process.poll() is not None:
+                    if self.process.poll() is not None:
                         break
                 else:
-                    self._process.kill()
-                    self._process.wait()
-                    logger.error("KILLED")
+                    self.process.kill()
+                    self.process.wait()
+                    LOGGER.error("KILLED")
 
         if os.path.exists(self._tmp_dir):
             shutil.rmtree(self._tmp_dir)
 
-        self._process = None
+        self.process = None
         self._ws = None
-        logger.info("Cleanup complete")
+        LOGGER.info("Cleanup complete")
