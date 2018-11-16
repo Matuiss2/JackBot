@@ -16,7 +16,7 @@ class BuildHydraden:
             and local_controller.lairs
             and not local_controller.close_enemy_production
             and not local_controller.floating_buildings_bm
-            and len(local_controller.bases) >= 3
+            and len(local_controller.townhalls) >= 3
         )
 
     async def handle(self, iteration):

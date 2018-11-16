@@ -24,7 +24,7 @@ class ZerglingControl(Micro):
         action = local_controller.add_action
         banelings = self.baneling_group(unit, targets)
         self.handling_anti_banelings_group()
-        if local_controller.known_enemy_units.of_type(BANELING):
+        if local_controller.enemies.of_type(BANELING):
             for baneling in banelings:
                 # Check for close banelings
                 if baneling.distance_to(unit) < 4:
@@ -69,7 +69,7 @@ class ZerglingControl(Micro):
         for zergling in list(self.baneling_sacrifices):
             if (
                 zergling not in local_controller.units()
-                or self.baneling_sacrifices[zergling] not in local_controller.known_enemy_units
+                or self.baneling_sacrifices[zergling] not in local_controller.enemies
             ):
                 del self.baneling_sacrifices[zergling]
 

@@ -52,7 +52,6 @@ class DataContainer:
         self.lairs = None
         self.hives = None
         self.hydras = None
-        self.bases = None
         self.overlords = None
         self.drones = None
         self.queens = None
@@ -70,7 +69,6 @@ class DataContainer:
         self.larvae = None
         self.extractors = None
         self.mutalisks = None
-        self.pit = None
         self.spores = None
         self.spires = None
         self.structures = None
@@ -134,7 +132,7 @@ class DataContainer:
                 CORRUPTOR,
             }
             excluded_from_ground = {DRONE, SCV, PROBE}
-            for hatch in self.bases:
+            for hatch in self.townhalls:
                 close_enemy = self.ground_enemies.exclude_type(excluded_from_ground).closer_than(20, hatch.position)
                 close_enemy_flying = self.flying_enemies.exclude_type(excluded_from_flying).closer_than(
                     30, hatch.position
@@ -149,7 +147,6 @@ class DataContainer:
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
-        self.bases = self.townhalls
         self.prepare_bases_data()
 
     def initialize_units(self):
@@ -176,7 +173,6 @@ class DataContainer:
         self.spines = self.units(SPINECRAWLER)
         self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
         self.extractors = self.units(EXTRACTOR)
-        self.pit = self.units(INFESTATIONPIT)
         self.spores = self.units(SPORECRAWLER)
         self.spires = self.units(SPIRE)
 
@@ -190,5 +186,5 @@ class DataContainer:
 
     def prepare_bases_data(self):
         """Prepare data related to our bases"""
-        if self.bases:
-            self.furthest_townhall_to_map_center = self.bases.furthest_to(self.game_info.map_center)
+        if self.townhalls:
+            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)

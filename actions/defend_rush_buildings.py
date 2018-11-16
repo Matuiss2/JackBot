@@ -23,10 +23,10 @@ class DefendRushBuildings:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        if local_controller.bases:
+        if local_controller.townhalls:
             self.rush_buildings = local_controller.enemy_structures.exclude_type(
                 {AUTOTURRET, BARRACKS, GATEWAY}
-            ).closer_than(50, local_controller.bases.furthest_to(local_controller.game_info.map_center))
+            ).closer_than(50, local_controller.townhalls.furthest_to(local_controller.game_info.map_center))
         return (
             self.rush_buildings
             and local_controller.time <= 270
@@ -48,9 +48,9 @@ class DefendRushBuildings:
          surface area possible when attacking the buildings"""
         local_controller = self.ai
         action = local_controller.add_action
-        # self.rush_buildings = local_controller.known_enemy_structures.closer_than(20, self.bases.first)
-        enemy_worker = local_controller.known_enemy_units.of_type({PROBE, DRONE, SCV}).filter(
-            lambda unit: any([unit.distance_to(our_building) <= 50 for our_building in local_controller.structures])
+        # self.rush_buildings = local_controller.enemy_structures.closer_than(20, self.townhalls.first)
+        enemy_worker = local_controller.enemies.of_type({PROBE, DRONE, SCV}).filter(
+            lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in local_controller.structures)
         )
         for target in enemy_worker:
             available = local_controller.drones.filter(lambda x: x.is_collecting and not x.is_attacking)

@@ -15,7 +15,7 @@ class BuildHive:
         self.lairs = local_controller.lairs.ready
         return (
             not local_controller.hives
-            and local_controller.pit.ready
+            and local_controller.pits.ready
             and self.lairs.idle
             and local_controller.can_afford(HIVE)
             and not await self.morphing_lairs()

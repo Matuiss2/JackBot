@@ -16,7 +16,7 @@ class QueensAbilities:
         local_controller = self.ai
         self.queens = local_controller.queens
         self.hatchery = local_controller.townhalls
-        self.enemies = local_controller.known_enemy_units.not_structure
+        self.enemies = local_controller.enemies.not_structure
         return self.queens and self.hatchery
 
     async def handle(self, iteration):

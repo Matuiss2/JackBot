@@ -143,4 +143,4 @@ class DistributeWorkers(Micro):
 
     def mineral_fields_of(self, bases):
         """See how many mineral patches are left on each base"""
-        return self.ai.state.mineral_field.filter(lambda field: any([field.distance_to(base) <= 8 for base in bases]))
+        return self.ai.state.mineral_field.filter(lambda field: any(field.distance_to(base) <= 8 for base in bases))

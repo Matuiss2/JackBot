@@ -6,7 +6,7 @@ from sc2.constants import GUARDIANSHIELDPERSISTENT, SCANNERSWEEP
 
 def filter_in_attack_range_of(unit, targets):
     """filter targets who are in attack range of the unit"""
-    return targets.subgroup([target for target in targets if unit.target_in_range(target)])
+    return targets.subgroup(target for target in targets if unit.target_in_range(target))
 
 
 class Micro:

@@ -57,7 +57,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         self.debug = debug
         self.actions = []
         self.add_action = None
-        self.unit_commands = [
+        self.unit_commands = (
             BlockExpansions(self),
             DefendWorkerRush(self),
             DefendRushBuildings(self),
@@ -69,8 +69,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             Overseer(self),
             Overlord(self),
             Buildings(self),
-        ]
-        self.train_commands = [
+        )
+        self.train_commands = (
             TrainOverlord(self),
             TrainWorker(self),
             TrainQueen(self),
@@ -79,8 +79,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             TrainOverseer(self),
             TrainMutalisk(self),
             TrainHydralisk(self),
-        ]
-        self.build_commands = [
+        )
+        self.build_commands = (
             BuildPool(self),
             BuildExpansion(self),
             BuildExtractor(self),
@@ -93,8 +93,8 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             BuildSpores(self),
             BuildSpire(self),
             BuildHydraden(self),
-        ]
-        self.upgrade_commands = [
+        )
+        self.upgrade_commands = (
             UpgradeChitinousPlating(self),
             UpgradeMetabolicBoost(self),
             UpgradeAdrenalGlands(self),
@@ -103,7 +103,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             UpgradeBurrow(self),
             UpgradeGroovedSpines(self),
             UpgradeMuscularAugments(self),
-        ]
+        )
         self.locations = []
         self.ordered_expansions = []
         self.building_positions = []

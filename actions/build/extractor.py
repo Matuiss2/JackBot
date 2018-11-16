@@ -26,7 +26,7 @@ class BuildExtractor:
             self.drone = local_controller.select_build_worker(geyser.position)
             if not self.drone or local_controller.already_pending(EXTRACTOR):
                 return False
-            if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.bases)) or ():
+            if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.townhalls)) or ():
                 self.geyser = geyser
                 return True
             if (

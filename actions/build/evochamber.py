@@ -27,7 +27,7 @@ class BuildEvochamber:
         """Build it behind the mineral line if there is space, if not uses later placement"""
         local_controller = self.ai
         position = await local_controller.get_production_position()
-        base = local_controller.bases
+        base = local_controller.townhalls
         map_center = local_controller.game_info.map_center
         if position:
             await local_controller.build(EVOLUTIONCHAMBER, position)
