@@ -4,6 +4,7 @@ from .position import Point2
 
 class PowerSource:
     """Returns the powered areas from pylons, prisms and nexus"""
+
     @classmethod
     def from_proto(cls, proto):
         """Gets data from the protocol"""
@@ -26,6 +27,7 @@ class PowerSource:
 
 class PsionicMatrix:
     """Returns the units that are a power source"""
+
     @classmethod
     def from_proto(cls, proto):
         """Gets data from the protocol"""

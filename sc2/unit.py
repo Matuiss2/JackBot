@@ -1,16 +1,15 @@
-from s2clientprotocol import sc2api_pb2 as sc_pb, raw_pb2 as raw_pb
+from typing import List, Set, Optional, Union
+from s2clientprotocol import raw_pb2 as raw_pb
 from sc2.ids.buff_id import BuffId
-
 from .position import Point2, Point3
 from .data import Alliance, Attribute, DisplayType, warpgate_abilities, TargetType, Race, CloakState
 from .game_data import GameData
 from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
 from . import unit_command
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
 
 
-class Unit(object):
+class Unit:
     def __init__(self, proto_data, game_data):
         assert isinstance(proto_data, raw_pb.Unit)
         assert isinstance(game_data, GameData)
@@ -67,7 +66,8 @@ class Unit(object):
         return Point3.from_proto(self._proto.pos)
 
     def distance_to(self, p: Union["Unit", Point2, Point3]) -> Union[int, float]:
-        """ Using the 2d distance between self and p. To calculate the 3d distance, use unit.position3d.distance_to(p) """
+        """ Using the 2d distance between self and p. To calculate the 3d distance,
+         use unit.position3d.distance_to(p) """
         return self.position.distance_to_point2(p.position)
 
     @property
@@ -158,16 +158,16 @@ class Unit(object):
 
     @property
     def tech_alias(self) -> Optional[List[UnitTypeId]]:
-        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter """
-        """ For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair] """
-        """ For SCV, this returns None """
+        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter
+        For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair]
+        For SCV, this returns None """
         return self._type_data.tech_alias
 
     @property
     def unit_alias(self) -> Optional[UnitTypeId]:
-        """ Building type equality, e.g. FlyingOrbitalCommand is the same as OrbitalCommand """
-        """ For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand """
-        """ For SCV, this returns None """
+        """ Building type equality, e.g. FlyingOrbitalCommand is the same as OrbitalCommand
+        For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand
+        For SCV, this returns None """
         return self._type_data.unit_alias
 
     @property
@@ -243,8 +243,9 @@ class Unit(object):
 
     @property
     def weapon_cooldown(self) -> Union[int, float]:
-        """ Returns some time (more than game loops) until the unit can fire again, returns -1 for units that can't attack
-        Usage: 
+        """ Returns some time (more than game loops) until the unit can fire again,
+        returns -1 for units that can't attack
+         Usage:
         if unit.weapon_cooldown == 0:
             await self.do(unit.attack(target))
         elif unit.weapon_cooldown < 0:
@@ -273,7 +274,8 @@ class Unit(object):
 
     @property
     def cargo_max(self) -> Union[float, int]:
-        """ How much cargo space is totally available - CC: 5, Bunker: 4, Medivac: 8 and Bunker can only load infantry, CC only SCVs """
+        """ How much cargo space is totally available
+        - CC: 5, Bunker: 4, Medivac: 8 and Bunker can only load infantry, CC only SCVs """
         return self._proto.cargo_space_max
 
     @property
@@ -335,25 +337,22 @@ class Unit(object):
     @property
     def ground_range(self) -> Union[int, float]:
         """ Does not include upgrades """
-        if self.ground_weapon:
-            return self.ground_weapon.range
+        return self.ground_weapon and self.ground_weapon.range
 
     @property
     def can_attack_air(self) -> bool:
         """ Does not include upgrades """
-        return self.air_weapon is not None
+        return self.air_weapon
 
     @property
     def air_dps(self) -> Union[int, float]:
         """ Does not include upgrades """
-        if self.air_weapon:
-            return (self.air_weapon.damage * self.air_weapon.attacks) / self.air_weapon.speed
+        return self.air_weapon and (self.air_weapon.damage * self.air_weapon.attacks) / self.air_weapon.speed
 
     @property
     def air_range(self) -> Union[int, float]:
         """ Does not include upgrades """
-        if self.air_weapon:
-            return self.air_weapon.range
+        return self.air_weapon and self.air_weapon.range
 
     def target_in_range(self, target: "Unit", bonus_distance: Union[int, float] = 0) -> bool:
         """ Includes the target's radius when calculating distance to target """
@@ -467,12 +466,12 @@ class Unit(object):
 
     @property
     def order_target(self) -> Optional[Union[int, Point2]]:
-        """ Returns the target tag (if it is a Unit) or Point2 (if it is a Position) from the first order, reutrn None if the unit is idle """
-        if len(self.orders) > 0:
+        """ Returns the target tag (if it is a Unit) or Point2 (if it is a Position) from the first order,
+         return None if the unit is idle """
+        if self.orders:
             if isinstance(self.orders[0].target, int):
                 return self.orders[0].target
-            else:
-                return Point2.from_proto(self.orders[0].target)
+            return Point2.from_proto(self.orders[0].target)
         return None
 
     @property
@@ -485,7 +484,8 @@ class Unit(object):
 
     @property
     def add_on_land_position(self) -> Point2:
-        """ If unit is addon (techlab or reactor), returns the position where a terran building has to land to connect to addon """
+        """ If unit is addon (techlab or reactor),
+         returns the position where a terran building has to land to connect to addon """
         return self.position.offset(Point2((-2.5, 0.5)))
 
     @property
@@ -502,7 +502,8 @@ class Unit(object):
 
     @property
     def surplus_harvesters(self) -> int:
-        """ Returns a positive number if it has too many harvesters mining, a negative number if it has too few mining """
+        """ Returns a positive number if it has too many harvesters mining,
+         a negative number if it has too few mining """
         return -(self._proto.ideal_harvesters - self._proto.assigned_harvesters)
 
     @property
@@ -558,7 +559,7 @@ class Unit(object):
         return f"Unit(name={self.name !r}, tag={self.tag})"
 
 
-class UnitOrder(object):
+class UnitOrder:
     @classmethod
     def from_proto(cls, proto, game_data):
         return cls(
@@ -576,7 +577,7 @@ class UnitOrder(object):
         return f"UnitOrder({self.ability}, {self.target}, {self.progress})"
 
 
-class PassengerUnit(object):
+class PassengerUnit:
     def __init__(self, proto_data, game_data):
         assert isinstance(game_data, GameData)
         self._proto = proto_data
@@ -758,6 +759,6 @@ class PassengerUnit(object):
 
     @property
     def energy_percentage(self) -> Union[int, float]:
-        if self._proto.energy_max == 0:
+        if not self._proto.energy_max:
             return 0
         return self._proto.energy / self._proto.energy_max
