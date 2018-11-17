@@ -16,13 +16,20 @@ class TrainOverseer:
             and local_controller.overlords
             and not await self.morphing_overlords()
             and local_controller.can_afford(OVERSEER)
-            and not local_controller.overseers
+            and len(local_controller.overseers) < len(local_controller.townhalls.ready)
         )
 
     async def handle(self, iteration):
         """Morph the overseer"""
         local_controller = self.ai
-        local_controller.actions.append(local_controller.overlords.random(MORPH_OVERSEER))
+        selected_ov = local_controller.overlords.random
+        overseers = local_controller.overseers | local_controller.units(OVERLORDCOCOON)
+        if overseers:
+            if selected_ov.distance_to(overseers.closest_to(selected_ov)) > 10:
+                local_controller.actions.append(local_controller.overlords.random(MORPH_OVERSEER))
+        else:
+            local_controller.actions.append(local_controller.overlords.random(MORPH_OVERSEER))
+
 
     async def morphing_overlords(self):
         """Check if there is a overlord morphing looping through all cocoons"""
