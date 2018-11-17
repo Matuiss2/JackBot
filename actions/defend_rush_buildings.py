@@ -31,14 +31,13 @@ class DefendRushBuildings:
             self.rush_buildings
             and local_controller.time <= 270
             and len(local_controller.drones) >= 15
-            and not local_controller.ground_enemies.exclude_type(PROBE)
+            and not local_controller.ground_enemies
         )
 
     def is_being_attacked(self, unit):
         """Only for enemy units, returns how often they are attacked"""
         attackers = 0
-        near_units = self.ai.units.filter(lambda x: x.is_attacking)
-        for attacker in near_units:
+        for attacker in self.ai.units.filter(lambda x: x.is_attacking):
             if attacker.order_target == unit.tag:
                 attackers += 1
         return attackers
@@ -59,9 +58,9 @@ class DefendRushBuildings:
                 action(attacker.attack(target))
         attacking_buildings = self.rush_buildings.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         not_attacking_buildings = self.rush_buildings - attacking_buildings
+        attackers_needed = 3
         if attacking_buildings:
             for target in attacking_buildings:
-                attackers_needed = 3
                 available = local_controller.drones.filter(
                     lambda x: x.order_target not in [y.tag for y in attacking_buildings]
                 )  # filter x with not target order in attacking buildings
@@ -70,7 +69,6 @@ class DefendRushBuildings:
                     action(attacker.attack(target))
         if not_attacking_buildings:
             for target in not_attacking_buildings:
-                attackers_needed = 3
                 available = local_controller.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
                 if attackers_needed > self.is_being_attacked(target) and available:
                     attacker = available.closest_to(target)

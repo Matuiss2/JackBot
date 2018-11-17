@@ -12,23 +12,24 @@ class BuildHive:
     async def should_handle(self, iteration):
         """Builds the hive"""
         local_controller = self.ai
-        self.lairs = local_controller.lairs.ready
         return (
             not local_controller.hives
             and local_controller.pits.ready
-            and self.lairs.idle
+            and local_controller.lairs.ready.idle
             and local_controller.can_afford(HIVE)
             and not await self.morphing_lairs()
         )
 
     async def handle(self, iteration):
         """Finishes the action of making the hive"""
-        self.ai.add_action(self.lairs.ready.first(UPGRADETOHIVE_HIVE))
+        local_controller = self.ai
+        local_controller.add_action(local_controller.lairs.ready.first(UPGRADETOHIVE_HIVE))
         return True
 
     async def morphing_lairs(self):
         """Check if there is a lair morphing looping all hatcheries"""
-        for hatch in self.lairs:
-            if await self.ai.is_morphing(hatch, CANCEL_MORPHHIVE):
+        local_controller = self.ai
+        for hatch in local_controller.lairs:
+            if await local_controller.is_morphing(hatch, CANCEL_MORPHHIVE):
                 return True
         return False

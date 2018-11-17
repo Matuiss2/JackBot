@@ -12,7 +12,6 @@ class TrainZergling:
         """good enough for now, maybe ratio values can be improved"""
         local_controller = self.ai
         zerglings = local_controller.zerglings
-        game_time = local_controller.time
         if (
             not local_controller.pools.ready
             or (not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150)
@@ -20,7 +19,7 @@ class TrainZergling:
             return False
         if not local_controller.can_train(ZERGLING):
             return False
-        if game_time < 1380:
+        if local_controller.time < 1380:
             if local_controller.caverns.ready and len(local_controller.ultralisks) * 8.5 <= len(zerglings):
                 return False
             if local_controller.hydradens.ready and len(local_controller.hydras) * 3 <= len(zerglings):

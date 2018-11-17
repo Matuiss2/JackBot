@@ -131,9 +131,8 @@ class DataContainer:
                 VIPER,
                 CORRUPTOR,
             }
-            excluded_from_ground = {DRONE, SCV, PROBE}
             for hatch in self.townhalls:
-                close_enemy = self.ground_enemies.exclude_type(excluded_from_ground).closer_than(20, hatch.position)
+                close_enemy = self.ground_enemies.closer_than(20, hatch.position)
                 close_enemy_flying = self.flying_enemies.exclude_type(excluded_from_flying).closer_than(
                     30, hatch.position
                 )
@@ -178,9 +177,10 @@ class DataContainer:
 
     def initialize_enemies(self):
         """Initialize everything related to enemies"""
+        excluded_from_ground = {DRONE, SCV, PROBE}
         self.enemies = self.known_enemy_units
         self.flying_enemies = self.enemies.flying
-        self.ground_enemies = self.enemies.not_flying.not_structure
+        self.ground_enemies = self.enemies.not_flying.not_structure.exclude_type(excluded_from_ground)
         self.enemy_structures = self.known_enemy_structures
         self.prepare_enemy_data_points()
 

@@ -55,8 +55,9 @@ class DefendWorkerRush(Micro):
         local_controller = self.ai
         if drone.health <= 6:
             if not drone.is_collecting:
-                mineral_field = local_controller.state.mineral_field.closest_to(base.first.position)
-                local_controller.add_action(drone.gather(mineral_field))
+                local_controller.add_action(
+                    drone.gather(local_controller.state.mineral_field.closest_to(base.first.position))
+                )
             else:
                 self.defender_tags.remove(drone.tag)
             return True
@@ -85,8 +86,7 @@ class DefendWorkerRush(Micro):
 
     def defense_force(self, count):
         """Put all drones needed on the defenders force - order based on health"""
-        highest_hp_drones = self.highest_hp_drones(count)
-        return [unit.tag for unit in highest_hp_drones]
+        return [unit.tag for unit in self.highest_hp_drones(count)]
 
     def highest_hp_drones(self, count):
         """Order the drones based on health(highest first)"""

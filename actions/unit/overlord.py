@@ -21,12 +21,12 @@ class Overlord:
         action = local_controller.add_action
         map_center = local_controller.game_info.map_center
         if not self.first_ov_scout:
-            first_ov = local_controller.overlords.first
             self.first_ov_scout = True
+            first_ov = local_controller.overlords.first
             action(first_ov.move(local_controller.ordered_expansions[1]))
         elif not self.second_ov_scout and len(local_controller.overlords.ready) == 2:
-            second_ov = local_controller.overlords.ready.closest_to(local_controller.townhalls.furthest_to(map_center))
             self.second_ov_scout = True
+            second_ov = local_controller.overlords.ready.closest_to(local_controller.townhalls.furthest_to(map_center))
             action(second_ov.move(local_controller.ordered_expansions[1].towards(map_center, 18)))
         elif self.second_ov_scout and not self.third_ov_scout and len(local_controller.overlords.ready) == 3:
             self.third_ov_scout = True

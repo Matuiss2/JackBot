@@ -15,19 +15,17 @@ class BuildSpores:
         local_controller = self.ai
         base = local_controller.townhalls.ready
         spores = local_controller.spores
-        if (
+        self.enemy_flying_dmg_units = (
             local_controller.pools.ready
             and local_controller.flying_enemies
             and (not (len(spores) > len(base) or local_controller.close_enemies_to_base))
-        ):
-            if (au for au in local_controller.flying_enemies if au.can_attack_ground):
-                self.enemy_flying_dmg_units = True
+            and (au for au in local_controller.flying_enemies if au.can_attack_ground)
+        )
         if base:
-            self.selected_base = base.random
             return (
                 (self.enemy_flying_dmg_units or local_controller.time >= 420)
                 and not local_controller.already_pending(SPORECRAWLER)
-                and not spores.closer_than(15, self.selected_base.position)
+                and not spores.closer_than(15, base.random.position)
                 and local_controller.can_afford(SPORECRAWLER)
             )
 

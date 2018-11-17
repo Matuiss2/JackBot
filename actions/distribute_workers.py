@@ -21,8 +21,9 @@ class DistributeWorkers(Micro):
             lambda base: base.ideal_harvesters > 0
         )
         self.mineral_fields = self.mineral_fields_of(self.mining_bases)
-        mining_places = self.mining_bases | local_controller.extractors.ready
-        self.deficit_bases, self.workers_to_distribute = self.calculate_distribution(mining_places)
+        self.deficit_bases, self.workers_to_distribute = self.calculate_distribution(
+            self.mining_bases | local_controller.extractors.ready
+        )
         return (local_controller.drones.idle or self.workers_to_distribute) and (self.require_gas or self.deficit_bases)
 
     async def handle(self, iteration):
@@ -39,28 +40,26 @@ class DistributeWorkers(Micro):
         local_controller = self.ai
         for drone in local_controller.drones.idle:
             if self.mineral_fields:
-                mineral_field = self.mineral_fields.closest_to(drone)
-                local_controller.add_action(drone.gather(mineral_field))
+                local_controller.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
 
     def calculate_distribution(self, mining_bases):
         """Calculate the ideal distribution for workers"""
         local_controller = self.ai
         workers_to_distribute = [drone for drone in local_controller.drones.idle]
-        mineral_tags = {mf.tag for mf in local_controller.state.mineral_field}
-        mining_places = mining_bases | local_controller.extractors.ready
-        extractor_tags = {ref.tag for ref in local_controller.extractors}
         deficit_bases = []
-        for mining_place in mining_places:
+        for mining_place in mining_bases | local_controller.extractors.ready:
             difference = mining_place.surplus_harvesters
             if difference > 0:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
                         moving_drone = local_controller.drones.filter(
-                            lambda x: x.order_target in extractor_tags and x not in workers_to_distribute
+                            lambda x: x.order_target in (ref.tag for ref in local_controller.extractors)
+                            and x not in workers_to_distribute
                         )
                     else:
                         moving_drone = local_controller.drones.filter(
-                            lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
+                            lambda x: x.order_target in (mf.tag for mf in local_controller.state.mineral_field)
+                            and x not in workers_to_distribute
                         )
                     if moving_drone:
                         workers_to_distribute.append(moving_drone.closest_to(mining_place))
@@ -70,17 +69,17 @@ class DistributeWorkers(Micro):
 
     def mineral_fields_deficit(self, mineral_fields, deficit_bases):
         """Calculate how many workers are left to saturate the base"""
-        if deficit_bases:
-            worker_order_targets = {worker.order_target for worker in self.ai.drones.collecting}
-            mineral_fields_deficit = [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])]
-            return sorted(
-                mineral_fields_deficit,
+        return (
+            sorted(
+                [mf for mf in mineral_fields.closer_than(8, deficit_bases[0][0])],
                 key=lambda mineral_field: (
-                    mineral_field.tag not in worker_order_targets,
+                    mineral_field.tag not in (worker.order_target for worker in self.ai.drones.collecting),
                     mineral_field.mineral_contents,
                 ),
             )
-        return []
+            if deficit_bases
+            else []
+        )
 
     def distribute_to_deficits(self, mining_bases, workers_to_distribute, mineral_fields, deficit_bases):
         """Distribute workers so it saturates the bases"""

@@ -11,12 +11,11 @@ class BuildPit:
     async def should_handle(self, iteration):
         """Builds the infestation pit, placement fails on very limited situations"""
         local_controller = self.ai
-        base = local_controller.townhalls
         return (
-            len(base) > 4
+            len(local_controller.townhalls) > 4
             and local_controller.evochambers
             and local_controller.lairs.ready
-            and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
+            and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2)
             and local_controller.can_build_unique(INFESTATIONPIT, local_controller.pits)
             and local_controller.hydradens.ready
         )

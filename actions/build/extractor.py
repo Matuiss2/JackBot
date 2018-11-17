@@ -26,17 +26,14 @@ class BuildExtractor:
             self.drone = local_controller.select_build_worker(geyser.position)
             if not self.drone or local_controller.already_pending(EXTRACTOR):
                 return False
-            if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.townhalls)) or ():
-                self.geyser = geyser
+            self.geyser = geyser
+            if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.townhalls)):
                 return True
-            if (
+            return (
                 (local_controller.time > 900 or local_controller.spires)
                 and gas_amount < 11
                 or (local_controller.hydradens and gas_amount < 9)
-            ):
-                self.geyser = geyser
-                return True
-        return False
+            )
 
     async def handle(self, iteration):
         """Just finish the action of building the extractor"""
