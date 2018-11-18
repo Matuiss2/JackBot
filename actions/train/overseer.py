@@ -26,9 +26,9 @@ class TrainOverseer:
         overseers = local_controller.overseers | local_controller.units(OVERLORDCOCOON)
         if overseers:
             if selected_ov.distance_to(overseers.closest_to(selected_ov)) > 10:
-                local_controller.actions.append(local_controller.overlords.random(MORPH_OVERSEER))
+                local_controller.actions.append(selected_ov(MORPH_OVERSEER))
         else:
-            local_controller.actions.append(local_controller.overlords.random(MORPH_OVERSEER))
+            local_controller.actions.append(selected_ov(MORPH_OVERSEER))
 
 
     async def morphing_overlords(self):
