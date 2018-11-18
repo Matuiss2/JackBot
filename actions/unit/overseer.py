@@ -19,9 +19,10 @@ class Overseer:
         local_controller = self.ai
         bases = local_controller.townhalls.ready
         overseers = local_controller.overseers
-        for overseer in (
-            ovs for ovs in overseers if ovs.distance_to(bases.closest_to(ovs)) > 5
-        ):
-            for base in (th for th in bases if th.distance_to(overseers.closest_to(th)) > 5):
-                if not overseers.closer_than(5, base):
-                    local_controller.add_action(overseer.move(base))
+        if bases:
+            for overseer in (
+                ovs for ovs in overseers if ovs.distance_to(bases.closest_to(ovs)) > 5
+            ):
+                for base in (th for th in bases if th.distance_to(overseers.closest_to(th)) > 5):
+                    if not overseers.closer_than(5, base):
+                        local_controller.add_action(overseer.move(base))
