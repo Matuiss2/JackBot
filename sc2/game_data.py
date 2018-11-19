@@ -1,5 +1,7 @@
+"""Groups all data from sc2 ->  ability, unit, upgrades, cost"""
+from bisect import bisect_left
 from functools import lru_cache, reduce
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
+from typing import List, Optional
 
 from .data import Attribute, Race
 from .unit_command import UnitCommand
@@ -9,7 +11,7 @@ from .ids.ability_id import AbilityId
 
 from .constants import ZERGLING
 
-FREE_MORPH_ABILITY_CATEGORIES = ["Lower", "Raise", "Land", "Lift"]  # SUPPLYDEPOT  # Flying buildings
+FREE_MORPH_ABILITY_CATEGORIES = ["Lower", "Raise", "Land", "Lift"]
 
 
 def split_camel_case(text) -> list:
@@ -17,7 +19,9 @@ def split_camel_case(text) -> list:
     return list(reduce(lambda a, b: (a + [b] if b.isupper() else a[:-1] + [a[-1] + b]), text, []))
 
 
-class GameData(object):
+class GameData:
+    """Its the main class from this files, it groups and organizes all the others"""
+
     def __init__(self, data):
         ids = tuple(a.value for a in AbilityId if a.value != 0)
         self.abilities = {a.ability_id: AbilityData(self, a) for a in data.abilities if a.ability_id in ids}
@@ -27,179 +31,192 @@ class GameData(object):
 
     @lru_cache(maxsize=256)
     def calculate_ability_cost(self, ability) -> "Cost":
+        """Returns the resources cost for the abilities, units, upgrades"""
         if isinstance(ability, AbilityId):
             ability = self.abilities[ability.value]
         elif isinstance(ability, UnitCommand):
             ability = self.abilities[ability.ability.value]
-
         assert isinstance(ability, AbilityData), f"C: {ability}"
-
         for unit in self.units.values():
             if unit.creation_ability is None:
                 continue
-
             if not AbilityData.id_exists(unit.creation_ability.id.value):
                 continue
-
             if unit.creation_ability.is_free_morph:
                 continue
-
             if unit.creation_ability == ability:
                 if unit.id == ZERGLING:
-                    # HARD CODED: zerglings are generated in pairs
                     return Cost(unit.cost.minerals * 2, unit.cost.vespene * 2, unit.cost.time)
-                # Correction for morphing units, e.g. orbital would return 550/0 instead of actual 150/0
                 morph_cost = unit.morph_cost
                 if morph_cost:  # can be None
                     return morph_cost
-                # Correction for zerg structures without morph: Extractor would return 75 instead of actual 25
                 return unit.cost_zerg_corrected
-
         for upgrade in self.upgrades.values():
             if upgrade.research_ability == ability:
                 return upgrade.cost
-
         return Cost(0, 0)
 
 
-class EffectRawData(object):
+class EffectRawData:
+    """Group and work with all data related to effects"""
+
     def __init__(self, game_data, proto):
         self._game_data = game_data
-        self._proto = proto
-
-        # assert self.id != 0
+        self.proto = proto
 
     @property
     def id(self) -> int:
-        return self._proto.effect_id
+        """Return the effect id"""
+        return self.proto.effect_id
 
     @property
     def name(self) -> str:
-        return self._proto.name
+        """Return the effect name"""
+        return self.proto.name
 
     @property
     def friendly_name(self) -> str:
-        return self._proto.friendly_name
+        """Check if the effect is friendly(from the player or an ally)"""
+        return self.proto.friendly_name
 
     @property
     def radius(self) -> float:
-        return self._proto.radius
+        """Check the area of the effect"""
+        return self.proto.radius
 
 
-class AbilityData(object):
-    @staticmethod
-    def id_exists(ability_id: int) -> bool:
+class AbilityData:
+    """Group and work with all data related to abilities"""
+
+    ability_ids: List[int] = []
+    for ability_id in AbilityId:
+        ability_ids.append(ability_id.value)
+    ability_ids.remove(0)
+    ability_ids.sort()
+
+    @classmethod
+    def id_exists(cls, ability_id):
+        """Check if the ability id exists"""
         assert isinstance(ability_id, int), f"Wrong type: {ability_id} is not int"
-        return ability_id != 0 and ability_id in (a.value for a in AbilityId)
+        if ability_id == 0:
+            return False
+        i = bisect_left(cls.ability_ids, ability_id)  # quick binary search
+        return i != len(cls.ability_ids) and cls.ability_ids[i] == ability_id
 
     def __init__(self, game_data, proto):
         self._game_data = game_data
-        self._proto = proto
-
+        self.proto = proto
         assert self.id != 0
 
     def __repr__(self) -> str:
-        return f"AbilityData(name={self._proto.button_name})"
+        return f"AbilityData(name={self.proto.button_name})"
 
     @property
     def id(self) -> AbilityId:
-        if self._proto.remaps_to_ability_id:
-            return AbilityId(self._proto.remaps_to_ability_id)
-        return AbilityId(self._proto.ability_id)
+        """Returns the id numbers of the abilities"""
+        if self.proto.remaps_to_ability_id:
+            return AbilityId(self.proto.remaps_to_ability_id)
+        return AbilityId(self.proto.ability_id)
 
     @property
     def link_name(self) -> str:
         """ For Stimpack this returns 'BarracksTechLabResearch' """
-        # TODO: this may be wrong as it returns the same as the property below, ".button_name"
-        return self._proto.button_name
+        return self.proto.button_name
 
     @property
     def button_name(self) -> str:
         """ For Stimpack this returns 'Stimpack' """
-        return self._proto.button_name
+        return self.proto.button_name
 
     @property
     def friendly_name(self) -> str:
         """ For Stimpack this returns 'Research Stimpack' """
-        return self._proto.friendly_name
+        return self.proto.friendly_name
 
     @property
     def is_free_morph(self) -> bool:
-        parts = split_camel_case(self._proto.link_name)
-        for p in parts:
-            if p in FREE_MORPH_ABILITY_CATEGORIES:
+        """If morphing the unit is free it returns True"""
+        parts = split_camel_case(self.proto.link_name)
+        for part in parts:
+            if part in FREE_MORPH_ABILITY_CATEGORIES:
                 return True
         return False
 
     @property
     def cost(self) -> "Cost":
+        """Returns the ability cost"""
         return self._game_data.calculate_ability_cost(self.id)
 
 
-class UnitTypeData(object):
+class UnitTypeData:
+    """Group and work with all data related to units"""
+
     def __init__(self, game_data, proto):
         self._game_data = game_data
-        self._proto = proto
+        self.proto = proto
 
     def __repr__(self) -> str:
         return "UnitTypeData(name={})".format(self.name)
 
     @property
     def id(self) -> UnitTypeId:
-        return UnitTypeId(self._proto.unit_id)
+        """Returns the id numbers of the units"""
+        return UnitTypeId(self.proto.unit_id)
 
     @property
     def name(self) -> str:
-        return self._proto.name
+        """Returns the names of the units"""
+        return self.proto.name
 
     @property
-    def creation_ability(self) -> AbilityData:
-        if self._proto.ability_id == 0:
-            return None
-        if self._proto.ability_id not in self._game_data.abilities:
-            return None
-        return self._game_data.abilities[self._proto.ability_id]
+    def creation_ability(self) -> Optional[AbilityData]:
+        """Check if the unit has a creation ability"""
+        if self.proto.ability_id and self.proto.ability_id in self._game_data.abilities:
+            return self._game_data.abilities[self.proto.ability_id]
+        return None
 
     @property
     def attributes(self) -> List[Attribute]:
-        return self._proto.attributes
+        """Return a list of attributes of the unit"""
+        return self.proto.attributes
 
     def has_attribute(self, attr) -> bool:
+        """Return True if the unit has specified attribute"""
         assert isinstance(attr, Attribute)
         return attr in self.attributes
 
     @property
     def has_minerals(self) -> bool:
-        return self._proto.has_minerals
+        """Return True if the unit has minerals(only useful for mineral patches)"""
+        return self.proto.has_minerals
 
     @property
     def has_vespene(self) -> bool:
-        return self._proto.has_vespene
+        """Return True if the unit has vespene(only useful for geysers)"""
+        return self.proto.has_vespene
 
     @property
     def cargo_size(self) -> int:
         """ How much cargo this unit uses up in cargo_space """
-        return self._proto.cargo_size
+        return self.proto.cargo_size
 
     @property
     def tech_requirement(self) -> Optional[UnitTypeId]:
         """ Tech-building requirement of buildings - may work for units but unreliably """
-        if self._proto.tech_requirement == 0:
+        if not self.proto.tech_requirement:
             return None
-        if self._proto.tech_requirement not in self._game_data.units:
+        if self.proto.tech_requirement not in self._game_data.units:
             return None
-        return UnitTypeId(self._proto.tech_requirement)
+        return UnitTypeId(self.proto.tech_requirement)
 
     @property
     def tech_alias(self) -> Optional[List[UnitTypeId]]:
-        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter """
-        """ Building tech equality, e.g. Hive is the same as Lair and Hatchery """
+        """ Building tech equality, e.g. OrbitalCommand is the same as CommandCenter
+        Building tech equality, e.g. Hive is the same as Lair and Hatchery """
         return_list = []
-        for tech_alias in self._proto.tech_alias:
+        for tech_alias in self.proto.tech_alias:
             if tech_alias in self._game_data.units:
                 return_list.append(UnitTypeId(tech_alias))
-        """ For Hive, this returns [UnitTypeId.Hatchery, UnitTypeId.Lair] """
-        """ For SCV, this returns None """
         if return_list:
             return return_list
         return None
@@ -207,39 +224,34 @@ class UnitTypeData(object):
     @property
     def unit_alias(self) -> Optional[UnitTypeId]:
         """ Building type equality, e.g. FlyingOrbitalCommand is the same as OrbitalCommand """
-        if self._proto.unit_alias == 0:
+        if not self.proto.unit_alias:
             return None
-        if self._proto.unit_alias not in self._game_data.units:
+        if self.proto.unit_alias not in self._game_data.units:
             return None
-        """ For flying OrbitalCommand, this returns UnitTypeId.OrbitalCommand """
-        return UnitTypeId(self._proto.unit_alias)
+        return UnitTypeId(self.proto.unit_alias)
 
     @property
     def race(self) -> Race:
-        return Race(self._proto.race)
+        """Returns the race which the unit belongs"""
+        return Race(self.proto.race)
 
     @property
     def cost(self) -> "Cost":
-        return Cost(self._proto.mineral_cost, self._proto.vespene_cost, self._proto.build_time)
+        """Returns the unit cost"""
+        return Cost(self.proto.mineral_cost, self.proto.vespene_cost, self.proto.build_time)
 
     @property
     def cost_zerg_corrected(self) -> "Cost":
         """ This returns 25 for extractor and 200 for spawning pool instead of 75 and 250 respectively """
         if self.race == Race.Zerg and Attribute.Structure.value in self.attributes:
-            # a = self._game_data.units(UnitTypeId.ZERGLING)
-            # print(a)
-            # print(vars(a))
-            return Cost(self._proto.mineral_cost - 50, self._proto.vespene_cost, self._proto.build_time)
-        else:
-            return self.cost
+            return Cost(self.proto.mineral_cost - 50, self.proto.vespene_cost, self.proto.build_time)
+        return self.cost
 
     @property
     def morph_cost(self) -> Optional["Cost"]:
         """ This returns 150 minerals for OrbitalCommand instead of 550 """
-        # Fix for BARRACKSREACTOR which has tech alias [REACTOR] which has (0, 0) cost
         if self.tech_alias is None or self.tech_alias[0] in {UnitTypeId.TECHLAB, UnitTypeId.REACTOR}:
             return None
-        # Morphing a HIVE would have HATCHERY and LAIR in the tech alias - now subtract HIVE cost from LAIR cost instead of from HATCHERY cost
         tech_alias_cost_minerals = max(
             [self._game_data.units[tech_alias.value].cost.minerals for tech_alias in self.tech_alias]
         )
@@ -247,38 +259,43 @@ class UnitTypeData(object):
             [self._game_data.units[tech_alias.value].cost.vespene for tech_alias in self.tech_alias]
         )
         return Cost(
-            self._proto.mineral_cost - tech_alias_cost_minerals,
-            self._proto.vespene_cost - tech_alias_cost_vespene,
-            self._proto.build_time,
+            self.proto.mineral_cost - tech_alias_cost_minerals,
+            self.proto.vespene_cost - tech_alias_cost_vespene,
+            self.proto.build_time,
         )
 
 
-class UpgradeData(object):
+class UpgradeData:
+    """Group and work with all data related to upgrades"""
+
     def __init__(self, game_data, proto):
         self._game_data = game_data
-        self._proto = proto
+        self.proto = proto
 
     def __repr__(self):
         return "UpgradeData({} - research ability: {}, {})".format(self.name, self.research_ability, self.cost)
 
     @property
     def name(self) -> str:
-        return self._proto.name
+        """Returns the names of the units"""
+        return self.proto.name
 
     @property
     def research_ability(self) -> Optional[AbilityData]:
-        if self._proto.ability_id == 0:
-            return None
-        if self._proto.ability_id not in self._game_data.abilities:
-            return None
-        return self._game_data.abilities[self._proto.ability_id]
+        """Research the ability if its available"""
+        if self.proto.ability_id and self.proto.ability_id in self._game_data.abilities:
+            return self._game_data.abilities[self.proto.ability_id]
+        return None
 
     @property
     def cost(self) -> "Cost":
-        return Cost(self._proto.mineral_cost, self._proto.vespene_cost, self._proto.research_time)
+        """Return the cost of the upgrade"""
+        return Cost(self.proto.mineral_cost, self.proto.vespene_cost, self.proto.research_time)
 
 
-class Cost(object):
+class Cost:
+    """Initialize resources and time cost for cost functions"""
+
     def __init__(self, minerals, vespene, time=None):
         self.minerals = minerals
         self.vespene = vespene

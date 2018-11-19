@@ -25,14 +25,16 @@ from sc2.constants import (
 
 from .micro import Micro
 from .hydras_control import HydraControl
+from .zergling_control import ZerglingControl
 
 
-class ArmyControl(HydraControl, Micro):
+class ArmyControl(ZerglingControl, HydraControl, Micro):
     """Can be improved"""
 
     def __init__(self, ai):
         self.ai = ai
         self.retreat_units = set()
+        self.baneling_sacrifices = {}
         self.rally_point = None
         self.zergling_atk_speed = False
         self.hydra_move_speed = False
@@ -81,7 +83,7 @@ class ArmyControl(HydraControl, Micro):
             if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
-                if self.micro_hydras(hydra_targets, attacking_unit, self.hydra_move_speed, self.hydra_atk_range):
+                if self.micro_hydras(hydra_targets, attacking_unit):
                     continue
             if targets and targets.closer_than(17, unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
@@ -126,19 +128,6 @@ class ArmyControl(HydraControl, Micro):
             self.retreat_units.add(unit.tag)
             return True
         return False
-
-    def micro_zerglings(self, targets, unit):
-        """Target low hp units smartly, and surrounds when attack cd is down"""
-        if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
-            if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
-                return self.attack_close_target(unit, targets)
-            return self.move_to_next_target(unit, targets)
-        if unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
-            return self.attack_close_target(unit, targets)
-        if self.move_to_next_target(unit, targets):
-            return True
-        self.ai.add_action(unit.attack(targets.closest_to(unit.position)))
-        return True
 
     def idle_unit(self, unit):
         """Control the idle units, by gathering then or telling then to attack"""
@@ -193,7 +182,7 @@ class ArmyControl(HydraControl, Micro):
             targets
             and targets.closer_than(5, unit)
             and unit.type_id == ZERGLING
-            and self.micro_zerglings(targets, unit)
+            and self.micro_zerglings(unit, targets)
         )
 
     def set_unit_groups(self):
@@ -248,7 +237,7 @@ class ArmyControl(HydraControl, Micro):
         action = local_controller.add_action
         if await local_controller.client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
-                return self.micro_zerglings(target, unit)
+                return self.micro_zerglings(unit, target)
             action(attack_command(closest_target(unit_position)))
             return True
         action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))

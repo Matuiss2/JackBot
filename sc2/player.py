@@ -1,30 +1,31 @@
+"""Group everything that defines a player"""
 from .data import PlayerType, Race, Difficulty
 from .bot_ai import BotAI
 
 
-class AbstractPlayer(object):
+class AbstractPlayer:
+    """Define what the all player types have in common"""
+
     def __init__(self, type, race=None, difficulty=None):
         assert isinstance(type, PlayerType)
-
         if type == PlayerType.Computer:
             assert isinstance(difficulty, Difficulty)
-
         elif type == PlayerType.Observer:
             assert race is None
             assert difficulty is None
-
         else:
             assert isinstance(race, Race)
             assert difficulty is None
-
         self.type = type
-        if race is not None:
+        if race:
             self.race = race
         if type == PlayerType.Computer:
             self.difficulty = difficulty
 
 
 class Human(AbstractPlayer):
+    """Set the player type(human) and its race"""
+
     def __init__(self, race):
         super().__init__(PlayerType.Participant, race)
 
@@ -33,11 +34,9 @@ class Human(AbstractPlayer):
 
 
 class Bot(AbstractPlayer):
+    """Set the player type(bot) and its race"""
+
     def __init__(self, race, ai):
-        """
-        AI can be None if this player object is just used to inform the
-        server about player types.
-        """
         assert isinstance(ai, BotAI) or ai is None
         super().__init__(PlayerType.Participant, race)
         self.ai = ai
@@ -47,6 +46,8 @@ class Bot(AbstractPlayer):
 
 
 class Computer(AbstractPlayer):
+    """Set the player type(built-in ai), its race and difficulty"""
+
     def __init__(self, race, difficulty=Difficulty.Easy):
         super().__init__(PlayerType.Computer, race, difficulty)
 
@@ -55,6 +56,8 @@ class Computer(AbstractPlayer):
 
 
 class Observer(AbstractPlayer):
+    """Creates the observer"""
+
     def __init__(self):
         super().__init__(PlayerType.Observer)
 
@@ -63,8 +66,11 @@ class Observer(AbstractPlayer):
 
 
 class Player(AbstractPlayer):
+    """creates player of all 3 types"""
+
     @classmethod
     def from_proto(cls, proto):
+        """Take necessary info from the protocol and creates player of all 3 types"""
         if PlayerType(proto.type) == PlayerType.Observer:
             return cls(proto.player_id, PlayerType(proto.type), None, None, None)
         return cls(

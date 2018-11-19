@@ -21,6 +21,5 @@ class UpgradeMuscularAugments:
     async def handle(self, iteration):
         """Execute the action of upgrading hydras speed"""
         local_controller = self.ai
-        den = local_controller.hydradens.noqueue
-        local_controller.add_action(den.first(RESEARCH_MUSCULARAUGMENTS))
+        local_controller.add_action(local_controller.hydradens.noqueue.first(RESEARCH_MUSCULARAUGMENTS))
         return True

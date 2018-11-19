@@ -18,6 +18,5 @@ class UpgradeMetabolicBoost:
     async def handle(self, iteration):
         """Execute the action of upgrading zergling speed"""
         local_controller = self.ai
-        pool = local_controller.pools.ready
-        local_controller.add_action(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
+        local_controller.add_action(local_controller.pools.ready.first(RESEARCH_ZERGLINGMETABOLICBOOST))
         return True

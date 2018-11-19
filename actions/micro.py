@@ -1,12 +1,12 @@
 """Every helper for controlling units go here"""
 from sc2.position import Point2
 from sc2.unit import Unit
-from sc2.constants import GUARDIANSHIELDPERSISTENT
+from sc2.constants import GUARDIANSHIELDPERSISTENT, SCANNERSWEEP
 
 
 def filter_in_attack_range_of(unit, targets):
     """filter targets who are in attack range of the unit"""
-    return targets.subgroup([target for target in targets if unit.target_in_range(target)])
+    return targets.subgroup(target for target in targets if unit.target_in_range(target))
 
 
 class Micro:
@@ -17,7 +17,7 @@ class Micro:
         if not self.ai.state.effects:
             return False
         for effect in self.ai.state.effects:
-            if effect.id == GUARDIANSHIELDPERSISTENT:
+            if effect.id in (SCANNERSWEEP, GUARDIANSHIELDPERSISTENT):
                 continue
             effect_data = self.ai.game_data.effects[effect.id]
             danger_zone = effect_data.radius + unit.radius + .1
