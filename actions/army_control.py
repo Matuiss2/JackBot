@@ -1,4 +1,5 @@
 """Everything related to controlling army units goes here"""
+import numpy as np
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -120,9 +121,16 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
             and not local_controller.close_enemies_to_base
             and not local_controller.structures.closer_than(7, unit.position)
             and len(combined_enemies.closer_than(20, unit.position))
-            >= len(local_controller.zerglings.closer_than(13, unit.position))
-            + len(local_controller.ultralisks.closer_than(13, unit.position)) * 8
-            + len(local_controller.hydras.closer_than(13, unit.position)) * 3
+            >= np.sum(
+                np.array(
+                    [
+                        len(local_controller.zerglings.closer_than(13, unit.position)),
+                        len(local_controller.ultralisks.closer_than(13, unit.position)),
+                        len(local_controller.hydras.closer_than(13, unit.position)),
+                    ]
+                )
+                * np.array([1, 3, 8])
+            )
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
