@@ -1,4 +1,5 @@
 """Everything related to training drones goes here"""
+import numpy as np
 from sc2.constants import DRONE, OVERLORD
 
 
@@ -31,7 +32,11 @@ class TrainWorker:
             )
             return (
                 workers_total + drones_in_queue < optimal_workers
-                and len(local_controller.zerglings) + len(local_controller.hydras) > 15
+                and np.sum(np.array(
+                    [len(local_controller.zerglings), len(local_controller.hydras), len(local_controller.ultralisks)]
+                )
+                * np.array([1, 2, 3]))
+                > 15
             )
         return False
 
