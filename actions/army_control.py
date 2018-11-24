@@ -141,15 +141,24 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         """Control the idle units, by gathering then or telling then to attack"""
         local_controller = self.ai
         if (
-            len(local_controller.ultralisks.ready) < 4
-            and local_controller.supply_used not in range(198, 201)
-            and len(local_controller.zerglings.ready) + len(local_controller.hydras) * 2 < 41
+            local_controller.supply_used not in range(198, 201)
+            and np.sum(
+                np.array(
+                    [
+                        len(local_controller.zerglings.ready),
+                        len(local_controller.hydras.ready),
+                        len(local_controller.ultralisks.ready),
+                    ]
+                )
+                * np.array([1, 2, 4])
+            )
+            < 41
             and local_controller.townhalls
             and self.retreat_units
+            and not local_controller.counter_attack_vs_flying
         ):
-            if not local_controller.counter_attack_vs_flying:
-                self.move_to_rallying_point(unit)
-                return True
+            self.move_to_rallying_point(unit)
+            return True
         if not local_controller.close_enemy_production or local_controller.time >= 480:
             enemy_building = local_controller.enemy_structures
             if enemy_building and local_controller.townhalls:
