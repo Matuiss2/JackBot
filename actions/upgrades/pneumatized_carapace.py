@@ -20,6 +20,7 @@ class UpgradePneumatizedCarapace:
     async def handle(self, iteration):
         """Execute the action of upgrading overlord speed"""
         local_controller = self.ai
-        chosen_base = local_controller.hatcheries.closest_to(local_controller.game_info.map_center)
-        local_controller.add_action(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
+        local_controller.add_action(
+            local_controller.hatcheries.closest_to(local_controller.game_info.map_center)(RESEARCH_PNEUMATIZEDCARAPACE)
+        )
         return True

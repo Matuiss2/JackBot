@@ -23,9 +23,7 @@ class DefendWorkerRush(Micro):
         if not self.base:
             return False
 
-        self.enemy_units_close = local_controller.known_enemy_units.closer_than(8, self.base.first).of_type(
-            {PROBE, DRONE, SCV}
-        )
+        self.enemy_units_close = local_controller.enemies.closer_than(8, self.base.first).of_type({PROBE, DRONE, SCV})
         return (
             self.enemy_units_close
             and not self.defender_tags
@@ -47,7 +45,7 @@ class DefendWorkerRush(Micro):
             for drone in self.defenders:
                 # 6 hp is the lowest you can take a hit and still survive
                 if not self.save_lowhp_drone(drone, self.base):
-                    if drone.weapon_cooldown <= 0.60:
+                    if drone.weapon_cooldown <= 0.60 * 22.4:
                         self.attack_close_target(drone, self.enemy_units_close)
                     elif not self.move_to_next_target(drone, self.enemy_units_close):
                         self.move_lowhp(drone, self.enemy_units_close)
@@ -57,8 +55,9 @@ class DefendWorkerRush(Micro):
         local_controller = self.ai
         if drone.health <= 6:
             if not drone.is_collecting:
-                mineral_field = local_controller.state.mineral_field.closest_to(base.first.position)
-                local_controller.add_action(drone.gather(mineral_field))
+                local_controller.add_action(
+                    drone.gather(local_controller.state.mineral_field.closest_to(base.first.position))
+                )
             else:
                 self.defender_tags.remove(drone.tag)
             return True
@@ -82,14 +81,12 @@ class DefendWorkerRush(Micro):
         if self.defenders:
             for drone in self.defenders:
                 local_controller.add_action(drone.gather(local_controller.state.mineral_field.closest_to(base.first)))
-                continue
         self.defender_tags = []
         self.defenders = None
 
     def defense_force(self, count):
         """Put all drones needed on the defenders force - order based on health"""
-        highest_hp_drones = self.highest_hp_drones(count)
-        return [unit.tag for unit in highest_hp_drones]
+        return [unit.tag for unit in self.highest_hp_drones(count)]
 
     def highest_hp_drones(self, count):
         """Order the drones based on health(highest first)"""

@@ -13,8 +13,7 @@ class TrainHydralisk:
          needs more limitations so the transition to hive is smoother"""
         local_controller = self.ai
         if local_controller.caverns.ready:
-            if len(local_controller.ultralisks) * 2.75 <= len(local_controller.hydras):
-                return False
+            return len(local_controller.ultralisks) * 2.75 > len(local_controller.hydras)
         return (
             local_controller.hydradens.ready
             and not local_controller.floating_buildings_bm

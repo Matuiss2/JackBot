@@ -17,7 +17,7 @@ class BuildExpansion:
          for when extra mining patches or production are needed """
         local_controller = self.ai
         base = local_controller.townhalls
-        base_amount = len(base)  # so it just calculate once per loop
+        base_amount = len(base)
         game_time = local_controller.time
         if not self.worker_to_first_base and base_amount < 2 and local_controller.minerals > 225:
             self.worker_to_first_base = self.send_worker
@@ -28,19 +28,17 @@ class BuildExpansion:
             and local_controller.can_afford(HATCHERY)
             and not local_controller.close_enemies_to_base
             and (not local_controller.close_enemy_production or game_time > 690)
-            and not local_controller.already_pending(HATCHERY)
-        ):  # Too many booleans on 1 if statement (separating don't work because it cause another pylint error)
-            if not (
-                local_controller.enemy_structures.closer_than(50, local_controller.start_location) and game_time < 300
-            ):
-                if base_amount <= 5:
-                    if base_amount == 2:
-                        if len(local_controller.zerglings) > 19 or game_time >= 285:
-                            return True
-                    else:
-                        return True
-                elif local_controller.caverns:
-                    return True
+        ):
+            if not local_controller.already_pending(HATCHERY):
+                if not (
+                    local_controller.enemy_structures.closer_than(50, local_controller.start_location)
+                    and game_time < 300
+                ):
+                    if base_amount <= 5:
+                        return len(local_controller.zerglings) > 19 or game_time >= 285 if base_amount == 2 else True
+                    return local_controller.caverns
+                return False
+            return False
         return False
 
     async def handle(self, iteration):

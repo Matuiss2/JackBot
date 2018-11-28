@@ -13,19 +13,18 @@ class TrainWorker:
         local_controller = self.ai
         workers_total = len(local_controller.workers)
         geysirs = local_controller.extractors
-        in_queue = local_controller.already_pending
-        drones_in_queue = in_queue(DRONE)
-        game_time = local_controller.time
+        drones_in_queue = local_controller.already_pending(DRONE)
         if (
             not local_controller.close_enemies_to_base
             and local_controller.can_train(DRONE)
             and not local_controller.counter_attack_vs_flying
         ):
-            if workers_total == 12 and not drones_in_queue and game_time < 200:
+            if workers_total == 12 and not drones_in_queue and local_controller.time < 200:
                 return True
-            if workers_total in (13, 14, 15) and len(local_controller.overlords) + in_queue(OVERLORD) > 1:
-                if workers_total == 15 and geysirs and local_controller.pools and game_time < 250:
-                    return True
+            if (
+                workers_total in (13, 14, 15)
+                and len(local_controller.overlords) + local_controller.already_pending(OVERLORD) > 1
+            ):
                 return True
             optimal_workers = min(
                 sum(x.ideal_harvesters for x in local_controller.townhalls | geysirs), 90 - len(geysirs)

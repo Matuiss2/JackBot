@@ -20,7 +20,7 @@ class BlockExpansions:
         )
 
     async def handle(self, iteration):
-        """Take the 6 'safest' zerglings and send them to the furthest enemy expansion locations to burrow
+        """Take the 5 'safest' zerglings and send them to the furthest enemy expansion locations to burrow
         needs improvements refill the force in case of failing until it succeeds(for a while at least),
          sometimes it just get stuck, also no need to send it to the enemy main"""
         local_controller = self.ai
@@ -30,13 +30,5 @@ class BlockExpansions:
         ]
         for list_index, zergling in enumerate(zerglings.tags_in(local_controller.burrowed_lings)):
             location = local_controller.ordered_expansions[:-1][-list_index - 1]
-
-            # are we allowed to query into the dark?
-            # if await local_controller.can_place(HATCHERY, location):
-
             local_controller.add_action(zergling.move(location))
             local_controller.add_action(zergling(BURROWDOWN_ZERGLING, queue=True))
-            # print("burrowed", zergling.tag, location)
-
-            # else:
-            #     local_controller.burrowed_lings.remove(zergling.tag)

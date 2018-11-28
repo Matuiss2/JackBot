@@ -52,7 +52,6 @@ class DataContainer:
         self.lairs = None
         self.hives = None
         self.hydras = None
-        self.bases = None
         self.overlords = None
         self.drones = None
         self.queens = None
@@ -70,7 +69,6 @@ class DataContainer:
         self.larvae = None
         self.extractors = None
         self.mutalisks = None
-        self.pit = None
         self.spores = None
         self.spires = None
         self.structures = None
@@ -133,18 +131,13 @@ class DataContainer:
                 VIPER,
                 CORRUPTOR,
             }
-            excluded_from_ground = {DRONE, SCV, PROBE}
-            for hatch in self.bases:
-
-                close_enemy = self.ground_enemies.exclude_type(excluded_from_ground).closer_than(20, hatch.position)
-
+            for hatch in self.townhalls:
+                close_enemy = self.ground_enemies.closer_than(20, hatch.position)
                 close_enemy_flying = self.flying_enemies.exclude_type(excluded_from_flying).closer_than(
                     30, hatch.position
                 )
-
                 if close_enemy and not self.close_enemies_to_base:
                     self.close_enemies_to_base = True
-
                 if close_enemy_flying and not self.counter_attack_vs_flying:
                     self.counter_attack_vs_flying = True
 
@@ -153,7 +146,6 @@ class DataContainer:
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
-        self.bases = self.townhalls
         self.prepare_bases_data()
 
     def initialize_units(self):
@@ -180,19 +172,19 @@ class DataContainer:
         self.spines = self.units(SPINECRAWLER)
         self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
         self.extractors = self.units(EXTRACTOR)
-        self.pit = self.units(INFESTATIONPIT)
         self.spores = self.units(SPORECRAWLER)
         self.spires = self.units(SPIRE)
 
     def initialize_enemies(self):
         """Initialize everything related to enemies"""
+        excluded_from_ground = {DRONE, SCV, PROBE}
         self.enemies = self.known_enemy_units
         self.flying_enemies = self.enemies.flying
-        self.ground_enemies = self.enemies.not_flying.not_structure
+        self.ground_enemies = self.enemies.not_flying.not_structure.exclude_type(excluded_from_ground)
         self.enemy_structures = self.known_enemy_structures
         self.prepare_enemy_data_points()
 
     def prepare_bases_data(self):
         """Prepare data related to our bases"""
-        if self.bases:
-            self.furthest_townhall_to_map_center = self.bases.furthest_to(self.game_info.map_center)
+        if self.townhalls:
+            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
