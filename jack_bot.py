@@ -118,7 +118,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             else:
                 self.client.game_step = 6
         else:
-            self.client.game_step = 7
+            self.client.game_step = 8
 
     async def on_unit_created(self, unit):
         """Prepares all the building locations near a new expansion"""

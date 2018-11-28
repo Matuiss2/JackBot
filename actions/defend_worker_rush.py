@@ -45,7 +45,7 @@ class DefendWorkerRush(Micro):
             for drone in self.defenders:
                 # 6 hp is the lowest you can take a hit and still survive
                 if not self.save_lowhp_drone(drone, self.base):
-                    if drone.weapon_cooldown <= 0.60:
+                    if drone.weapon_cooldown <= 0.60 * 22.4:
                         self.attack_close_target(drone, self.enemy_units_close)
                     elif not self.move_to_next_target(drone, self.enemy_units_close):
                         self.move_lowhp(drone, self.enemy_units_close)
