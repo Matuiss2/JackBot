@@ -30,7 +30,6 @@ class TrainOverseer:
         else:
             local_controller.actions.append(selected_ov(MORPH_OVERSEER))
 
-
     async def morphing_overlords(self):
         """Check if there is a overlord morphing looping through all cocoons"""
         local_controller = self.ai
