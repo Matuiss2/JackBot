@@ -11,7 +11,9 @@ class TrainOverlord:
     async def should_handle(self, iteration):
         """We still get supply blocked sometimes, can be improved a lot still"""
         local_controller = self.ai
-        if local_controller.supply_cap <= 200 and local_controller.supply_left < (7 + local_controller.supply_used // 7):
+        if local_controller.supply_cap <= 200 and local_controller.supply_left < (
+            7 + local_controller.supply_used // 7
+        ):
             overlords_in_queue = local_controller.already_pending(OVERLORD)
             if local_controller.can_train(OVERLORD):
                 base_amount = len(local_controller.townhalls)
