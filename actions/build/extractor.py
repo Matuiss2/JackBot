@@ -32,7 +32,7 @@ class BuildExtractor:
             return (
                 (local_controller.time > 900 or local_controller.spires)
                 and gas_amount < 11
-                or (local_controller.hydradens and gas_amount < 9)
+                or (local_controller.hydradens and gas_amount < 7)
             )
 
     async def handle(self, iteration):

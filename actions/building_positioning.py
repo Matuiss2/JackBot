@@ -16,7 +16,7 @@ class BuildingPositioning:
                 if 144 >= x * x + y * y >= 64
             )
             resources = self.state.mineral_field.closer_than(10, start)
-            behind_resources = (point for point in all_points if 2 < point.distance_to(resources.closest_to(point)) < 4)
+            behind_resources = (point for point in all_points if point.distance_to(resources.closest_to(point)) == 3)
             for point in behind_resources:
                 # also check engineering bay placement for hatcheries that just spawned but have no creep around
                 if await self.can_place(ENGINEERINGBAY, point) or await self.can_place(EVOLUTIONCHAMBER, point):
