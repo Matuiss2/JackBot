@@ -16,6 +16,6 @@ class Drone:
     async def handle(self, iteration):
         """It sends a drone to scout the map, starting with the closest place then going base by base to the furthest"""
         local_controller = self.ai
-        scout = local_controller.drones.closest_to(local_controller.start_location)
+        scout = local_controller.drones.random
         for point in local_controller.ordered_expansions:
             local_controller.add_action(scout.move(point, queue=True))

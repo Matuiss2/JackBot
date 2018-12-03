@@ -21,12 +21,10 @@ class Buildings:
     async def handle(self, iteration):
         """Make the cancelling general"""
         local_controller = self.ai
-        for building in local_controller.structures.not_ready.filter(
-            lambda x: x.type_id not in local_controller.tumors
-        ):
-            if (
-                building.health_percentage < building.build_progress - 0.5
-                or building.health_percentage < 0.05
-                and building.build_progress > 0.1
-            ) or (building.type_id == HATCHERY and local_controller.close_enemy_production):
+        for building in local_controller.structures.not_ready.exclude_type(local_controller.tumors):
+            build_progress = building.build_progress
+            relative_health = building.health_percentage
+            if (relative_health < build_progress - 0.5 or relative_health < 0.05 and build_progress > 0.1) or (
+                building.type_id == HATCHERY and local_controller.close_enemy_production
+            ):
                 local_controller.add_action((building(CANCEL)))

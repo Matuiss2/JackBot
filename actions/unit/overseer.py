@@ -6,21 +6,19 @@ class Overseer:
 
     def __init__(self, ai):
         self.ai = ai
+        self.bases = None
+        self.overseers = None
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        return local_controller.overseers and (
-            local_controller.zerglings | local_controller.ultralisks or local_controller.townhalls
-        )
+        self.bases = local_controller.townhalls.ready
+        self.overseers = local_controller.overseers
+        return self.overseers and self.bases
 
     async def handle(self, iteration):
         """It sends the overseer at the closest ally, can be improved a lot"""
-        local_controller = self.ai
-        bases = local_controller.townhalls.ready
-        overseers = local_controller.overseers
-        if bases:
-            for overseer in (ovs for ovs in overseers if ovs.distance_to(bases.closest_to(ovs)) > 5):
-                for base in (th for th in bases if th.distance_to(overseers.closest_to(th)) > 5):
-                    if not overseers.closer_than(5, base):
-                        local_controller.add_action(overseer.move(base))
+        for overseer in (ovs for ovs in self.overseers if ovs.distance_to(self.bases.closest_to(ovs)) > 5):
+            for base in (th for th in self.bases if th.distance_to(self.overseers.closest_to(th)) > 5):
+                if not self.overseers.closer_than(5, base):
+                    self.ai.add_action(overseer.move(base))
