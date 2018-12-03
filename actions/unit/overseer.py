@@ -18,8 +18,7 @@ class Overseer:
 
     async def handle(self, iteration):
         """It sends the overseer at the closest ally, can be improved a lot"""
-        local_controller = self.ai
         for overseer in (ovs for ovs in self.overseers if ovs.distance_to(self.bases.closest_to(ovs)) > 5):
             for base in (th for th in self.bases if th.distance_to(self.overseers.closest_to(th)) > 5):
                 if not self.overseers.closer_than(5, base):
-                    local_controller.add_action(overseer.move(base))
+                    self.ai.add_action(overseer.move(base))
