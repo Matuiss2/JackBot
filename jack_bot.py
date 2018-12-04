@@ -38,7 +38,7 @@ from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
-from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
+# from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
 from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
 from actions.upgrades.hydra_speed import UpgradeMuscularAugments
 from actions.building_positioning import BuildingPositioning
@@ -99,7 +99,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             UpgradeMetabolicBoost(self),
             UpgradeAdrenalGlands(self),
             UpgradeEvochamber(self),
-            UpgradePneumatizedCarapace(self),
+            # UpgradePneumatizedCarapace(self),
             UpgradeBurrow(self),
             UpgradeGroovedSpines(self),
             UpgradeMuscularAugments(self),
