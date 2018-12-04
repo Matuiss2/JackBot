@@ -13,7 +13,7 @@ class UpgradeChitinousPlating:
         """Requirements to run handle"""
         local_controller = self.ai
         self.selected_caverns = local_controller.caverns
-        return local_controller.can_upgrade(CHITINOUSPLATING, CHITINOUSPLATING, self.selected_caverns)
+        return local_controller.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.selected_caverns)
 
     async def handle(self, iteration):
         """Execute the action of upgrading ultra armor"""

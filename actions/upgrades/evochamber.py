@@ -38,6 +38,7 @@ class UpgradeEvochamber:
     async def handle(self, iteration):
         """Execute the action of upgrading armor, melee and ranged attacks"""
         local_controller = self.ai
+        action = local_controller.add_action
         for evo in self.selected_evos:
             upgrades = await local_controller.get_available_abilities(evo)
             for upgrade in upgrades:
@@ -48,9 +49,9 @@ class UpgradeEvochamber:
                         RESEARCH_ZERGMISSILEWEAPONSLEVEL3,
                     ):
                         if local_controller.hydradens:
-                            local_controller.add_action(evo(upgrade))
+                            action(evo(upgrade))
                             return True
                     else:
-                        local_controller.add_action(evo(upgrade))
+                        action(evo(upgrade))
                         return True
         return True
