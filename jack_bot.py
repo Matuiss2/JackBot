@@ -38,7 +38,7 @@ from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
-from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
+# from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
 from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
 from actions.upgrades.hydra_speed import UpgradeMuscularAugments
 from actions.building_positioning import BuildingPositioning
@@ -99,7 +99,7 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
             UpgradeMetabolicBoost(self),
             UpgradeAdrenalGlands(self),
             UpgradeEvochamber(self),
-            UpgradePneumatizedCarapace(self),
+            # UpgradePneumatizedCarapace(self),
             UpgradeBurrow(self),
             UpgradeGroovedSpines(self),
             UpgradeMuscularAugments(self),
@@ -160,9 +160,9 @@ class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Bl
         """Global requirements for building unique buildings"""
         return not self.already_pending(unit_type) and self.can_afford(unit_type) and not building
 
-    def can_upgrade(self, upgrade, research):
+    def can_upgrade(self, upgrade, research, host_building):
         """Global requirements for upgrades"""
-        return not self.already_pending_upgrade(upgrade) and self.can_afford(research)
+        return not self.already_pending_upgrade(upgrade) and self.can_afford(research) and host_building
 
     def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on distance"""

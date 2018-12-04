@@ -7,20 +7,20 @@ class UpgradePneumatizedCarapace:
 
     def __init__(self, ai):
         self.ai = ai
+        self.selected_bases = None
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        return (
-            local_controller.caverns
-            and local_controller.hatcheries
-            and local_controller.can_upgrade(OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE)
+        self.selected_bases = local_controller.hatcheries.idle
+        return local_controller.caverns and local_controller.can_upgrade(
+            OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE, self.selected_bases
         )
 
     async def handle(self, iteration):
         """Execute the action of upgrading overlord speed"""
         local_controller = self.ai
         local_controller.add_action(
-            local_controller.hatcheries.closest_to(local_controller.game_info.map_center)(RESEARCH_PNEUMATIZEDCARAPACE)
+            self.selected_bases.closest_to(local_controller.game_info.map_center)(RESEARCH_PNEUMATIZEDCARAPACE)
         )
         return True
