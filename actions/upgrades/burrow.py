@@ -16,7 +16,10 @@ class UpgradeBurrow:
         return (
             len(local_controller.zerglings) >= 19
             and (
-                all(False for _ in (local_controller.close_enemies_to_base, local_controller.close_enemy_production))
+                all(
+                    not flag
+                    for flag in (local_controller.close_enemies_to_base, local_controller.close_enemy_production)
+                )
                 or local_controller.time >= 300
             )
             and local_controller.can_upgrade(BURROW, RESEARCH_BURROW, self.selected_bases)
