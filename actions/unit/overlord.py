@@ -22,7 +22,7 @@ class Overlord:
         return (
             self.overlords
             and self.locations
-            and any(not flag for flag in (self.first_ov_scout, self.second_ov_scout, self.third_ov_scout))
+            and any(False for _ in (self.first_ov_scout, self.second_ov_scout, self.third_ov_scout))
         )
 
     async def handle(self, iteration):

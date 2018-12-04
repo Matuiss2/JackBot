@@ -12,12 +12,13 @@ class UpgradeBurrow:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        five_minutes_trigger = local_controller.time >= 300
         self.selected_bases = local_controller.hatcheries.idle
         return (
             len(local_controller.zerglings) >= 19
-            and (not local_controller.close_enemies_to_base or five_minutes_trigger)
-            and (not local_controller.close_enemy_production or five_minutes_trigger)
+            and (
+                all(False for _ in (local_controller.close_enemies_to_base, local_controller.close_enemy_production))
+                or local_controller.time >= 300
+            )
             and local_controller.can_upgrade(BURROW, RESEARCH_BURROW, self.selected_bases)
         )
 
