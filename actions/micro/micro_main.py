@@ -24,9 +24,9 @@ from sc2.constants import (
     ZERGLINGATTACKSPEED,
 )
 
-from .micro import Micro
-from .hydras_control import HydraControl
-from .zergling_control import ZerglingControl
+from actions.micro.micro_helpers import Micro
+from actions.micro.unit.hydralisks import HydraControl
+from actions.micro.unit.zerglings import ZerglingControl
 
 
 class ArmyControl(ZerglingControl, HydraControl, Micro):

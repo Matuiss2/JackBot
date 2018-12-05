@@ -3,7 +3,7 @@ import sc2
 from sc2.constants import HATCHERY
 from sc2.position import Point2
 from data_container import DataContainer
-from actions.army_control import ArmyControl
+from actions.micro.micro_main import ArmyControl
 from actions.build.cavern import BuildCavern
 from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
@@ -16,10 +16,10 @@ from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
 from actions.build.spire import BuildSpire
 from actions.build.spores import BuildSpores
-from actions.defend_worker_rush import DefendWorkerRush
-from actions.defend_rush_buildings import DefendRushBuildings
-from actions.distribute_workers import DistributeWorkers
-from actions.queens_abilities import QueensAbilities
+from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
+from actions.anti_cheese.defend_rush_buildings import DefendRushBuildings
+from actions.macro.distribute_workers import DistributeWorkers
+from actions.micro.unit.queen import QueensAbilities
 from actions.train.hydras import TrainHydralisk
 from actions.train.mutalisk import TrainMutalisk
 from actions.train.overlord import TrainOverlord
@@ -28,11 +28,11 @@ from actions.train.queen import TrainQueen
 from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
 from actions.train.zergling import TrainZergling
-from actions.unit.creep_tumor import CreepTumor
-from actions.unit.drone import Drone
-from actions.unit.buildings import Buildings
-from actions.unit.overlord import Overlord
-from actions.unit.overseer import Overseer
+from actions.build.creep_tumor import CreepTumor
+from actions.micro.unit.drone import Drone
+from actions.macro.cancel_building import Buildings
+from actions.micro.unit.overlord import Overlord
+from actions.micro.unit.overseer import Overseer
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
@@ -41,13 +41,13 @@ from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 # from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
 from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
 from actions.upgrades.hydra_speed import UpgradeMuscularAugments
-from actions.building_positioning import BuildingPositioning
-from actions.block_expansions import BlockExpansions
-from creep_spread import CreepControl
+from actions.macro.building_positioning import BuildingPositioning
+from actions.micro.block_expansions import BlockExpansions
+from actions.build.creep_spread import CreepControl
 
 
 # noinspection PyMissingConstructor
-class EarlyAggro(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, BlockExpansions):
+class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, BlockExpansions):
     """It makes periodic attacks with good surrounding and targeting micro, it goes hydras mid-game
      and ultras end-game"""
 

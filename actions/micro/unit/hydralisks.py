@@ -2,7 +2,7 @@
 import math
 from sc2.constants import DUTCHMARAUDERSLOW
 
-from .micro import Micro
+from actions.micro.micro_helpers import Micro
 
 
 class HydraControl(Micro):

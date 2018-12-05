@@ -5,9 +5,9 @@ import sc2
 from sc2 import Difficulty, Race
 from sc2.player import Bot, Computer
 from __init__ import run_ladder_game
-from jack_bot import EarlyAggro
+from main import JackBot
 
-BOT = Bot(Race.Zerg, EarlyAggro())
+BOT = Bot(Race.Zerg, JackBot())
 if __name__ == "__main__":
     if "--LadderServer" in sys.argv:
         # Ladder game started by LadderManager
