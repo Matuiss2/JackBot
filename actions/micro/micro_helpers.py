@@ -20,7 +20,7 @@ class Micro:
             if effect.id in (SCANNERSWEEP, GUARDIANSHIELDPERSISTENT):
                 continue
             effect_data = self.ai.game_data.effects[effect.id]
-            danger_zone = effect_data.radius + unit.radius + .1
+            danger_zone = effect_data.radius + unit.radius + 0.1
             closest_effect_position_to_unit = unit.position.closest(effect.positions)
             if not unit.position.distance_to_point2(closest_effect_position_to_unit) < danger_zone:
                 continue

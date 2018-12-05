@@ -38,6 +38,7 @@ from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
+
 # from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
 from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
 from actions.upgrades.hydra_speed import UpgradeMuscularAugments
