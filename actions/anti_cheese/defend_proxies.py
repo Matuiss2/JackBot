@@ -13,7 +13,7 @@ from sc2.constants import (
 )
 
 
-class DefendRushBuildings:
+class DefendProxies:
     """Needs improvements on the quantity"""
 
     def __init__(self, ai):

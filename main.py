@@ -17,7 +17,7 @@ from actions.build.spines import BuildSpines
 from actions.build.spire import BuildSpire
 from actions.build.spores import BuildSpores
 from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
-from actions.anti_cheese.defend_rush_buildings import DefendRushBuildings
+from actions.anti_cheese.defend_proxies import DefendProxies
 from actions.macro.distribute_workers import DistributeWorkers
 from actions.micro.unit.queen import QueensAbilities
 from actions.train.hydras import TrainHydralisk
@@ -61,7 +61,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         self.unit_commands = (
             BlockExpansions(self),
             DefendWorkerRush(self),
-            DefendRushBuildings(self),
+            DefendProxies(self),
             DistributeWorkers(self),
             ArmyControl(self),
             QueensAbilities(self),
