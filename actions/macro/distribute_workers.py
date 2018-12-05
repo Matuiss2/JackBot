@@ -1,10 +1,8 @@
 """Everything related to distributing drones to the right resource goes here"""
 from sc2.constants import EXTRACTOR, HATCHERY, HIVE, LAIR, ZERGLINGMOVEMENTSPEED
 
-from .micro import Micro
 
-
-class DistributeWorkers(Micro):
+class DistributeWorkers:
     """Some things can be improved(mostly about the ratio mineral-vespene)"""
 
     def __init__(self, ai):

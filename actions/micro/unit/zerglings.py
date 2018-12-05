@@ -1,7 +1,7 @@
 """Everything related to controlling hydralisks"""
 from sc2.constants import BANELING
 
-from .micro import Micro
+from actions.micro.micro_helpers import Micro
 
 
 class ZerglingControl(Micro):

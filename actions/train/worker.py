@@ -32,10 +32,16 @@ class TrainWorker:
             )
             return (
                 workers_total + drones_in_queue < optimal_workers
-                and np.sum(np.array(
-                    [len(local_controller.zerglings), len(local_controller.hydras), len(local_controller.ultralisks)]
+                and np.sum(
+                    np.array(
+                        [
+                            len(local_controller.zerglings),
+                            len(local_controller.hydras),
+                            len(local_controller.ultralisks),
+                        ]
+                    )
+                    * np.array([1, 2, 3])
                 )
-                * np.array([1, 2, 3]))
                 > 15
             )
         return False

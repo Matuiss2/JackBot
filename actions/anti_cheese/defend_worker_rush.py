@@ -3,7 +3,7 @@ import heapq
 
 from sc2.constants import DRONE, PROBE, SCV
 
-from .micro import Micro
+from actions.micro.micro_helpers import Micro
 
 
 class DefendWorkerRush(Micro):
