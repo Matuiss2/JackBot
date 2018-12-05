@@ -30,5 +30,7 @@ class BuildPool:
     def find_position(self):
         """Previous placement"""
         local_controller = self.ai
-        map_center = local_controller.game_info.map_center
-        return local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -10)
+        base = local_controller.townhalls
+        if base:
+            map_center = local_controller.game_info.map_center
+            return base.furthest_to(map_center).position.towards_with_random_angle(map_center, -10)
