@@ -27,7 +27,7 @@ class BotAI:
     EXPANSION_GAP_THRESHOLD = 15
 
     def __init__(self):
-        self.enemy_id = 3 - self.player_id
+        self.enemy_id = None
         self.units = None
         self.workers = None
         self.townhalls = None
@@ -49,6 +49,7 @@ class BotAI:
     @property
     def enemy_race(self) -> Race:
         """Returns the enemy race"""
+        self.enemy_id = 3 - self.player_id
         return Race(self._game_info.player_races[self.enemy_id])
 
     @property

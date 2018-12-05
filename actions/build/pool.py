@@ -14,7 +14,7 @@ class BuildPool:
         return local_controller.can_build_unique(SPAWNINGPOOL, local_controller.pools) and (
             len(local_controller.townhalls) >= 2
             or local_controller.close_enemy_production
-            or local_controller.time > 165
+            or local_controller.time > 145
         )
 
     async def handle(self, iteration):
