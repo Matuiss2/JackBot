@@ -31,7 +31,6 @@ class CreepControl:
         else:
             return None
         # defining vars
-        ability = self.game_data.abilities[ZERGBUILD_CREEPTUMOR.value]
         location_attempts = 30
         spread_distance = 8
         location = unit.position
@@ -46,34 +45,38 @@ class CreepControl:
             for alpha in range(location_attempts)
         ]
         # check if any of the positions are valid
-        valid_placements = await self.client.query_building_placement(ability, positions)
+        valid_placements = await self.client.query_building_placement(
+            self.game_data.abilities[ZERGBUILD_CREEPTUMOR.value], positions
+        )
         # filter valid results
         valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ActionResult.Success]
+        creep_destination = self.enemy_start_locations[0]
         if valid_placements:
             tumors = self.tumors
             if tumors:
                 valid_placements = sorted(
                     valid_placements,
                     key=lambda pos: pos.distance_to_closest(tumors)
-                    - pos.distance_to_point2(self.enemy_start_locations[0]),
+                    - pos.distance_to_point2(creep_destination),
                     reverse=True,
                 )
             else:
                 valid_placements = sorted(
-                    valid_placements, key=lambda pos: pos.distance_to_point2(self.enemy_start_locations[0])
+                    valid_placements, key=lambda pos: pos.distance_to_point2(creep_destination)
                 )
             # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
+            action = self.add_action
             for c_location in valid_placements:
                 # 8.5 it doesnt get in the way of the injection
                 if all(c_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
                     if not tumors:
-                        self.add_action(unit(unit_ability, c_location))
+                        action(unit(unit_ability, c_location))
                         break
                     if unit_ability == BUILD_CREEPTUMOR_QUEEN:
-                        self.add_action(unit(unit_ability, c_location))
+                        action(unit(unit_ability, c_location))
                         break
                     if c_location.distance_to_closest(tumors) >= 4:
-                        self.add_action(unit(unit_ability, c_location))
+                        action(unit(unit_ability, c_location))
                         break
             if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
                 self.used_tumors.append(unit.tag)
