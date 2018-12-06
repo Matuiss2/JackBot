@@ -28,10 +28,13 @@ class BuildEvochamber:
         if position:
             await local_controller.build(EVOLUTIONCHAMBER, position)
             return True
-        await local_controller.build(
-            EVOLUTIONCHAMBER,
-            local_controller.townhalls.random.position.towards_with_random_angle(
-                local_controller.game_info.map_center, -14
-            ),
+        if local_controller.townhalls:
+            await local_controller.build(EVOLUTIONCHAMBER, self.hardcoded_position())
+            return True
+
+    def hardcoded_position(self):
+        """Previous placement"""
+        local_controller = self.ai
+        return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
+            local_controller.game_info.map_center, -14
         )
-        return True

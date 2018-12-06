@@ -13,23 +13,23 @@ class BuildPit:
         local_controller = self.ai
         return (
             len(local_controller.townhalls) > 4
-            and local_controller.evochambers
-            and local_controller.lairs.ready
             and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2)
             and local_controller.can_build_unique(INFESTATIONPIT, local_controller.pits)
-            and local_controller.hydradens.ready
         )
 
     async def handle(self, iteration):
         """Build it behind the mineral line if there is space, if not uses later placement"""
         local_controller = self.ai
-        map_center = local_controller.game_info.map_center
         position = await local_controller.get_production_position()
         if position:
             await local_controller.build(INFESTATIONPIT, position)
             return True
-        await local_controller.build(
-            INFESTATIONPIT,
-            near=local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -14),
-        )
+        await local_controller.build(INFESTATIONPIT, near=self.hardcoded_position())
         return True
+
+    def hardcoded_position(self):
+        """Previous placement"""
+        local_controller = self.ai
+        return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
+            local_controller.game_info.map_center, -14
+        )

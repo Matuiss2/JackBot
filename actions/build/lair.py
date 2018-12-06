@@ -12,7 +12,7 @@ class BuildLair:
         """Builds the lair"""
         local_controller = self.ai
         return (
-            (not (local_controller.lairs or local_controller.hives))
+            not (local_controller.lairs or local_controller.hives)
             and local_controller.hatcheries.ready.idle
             and (
                 len(local_controller.townhalls) >= 3
