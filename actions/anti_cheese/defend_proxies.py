@@ -45,8 +45,9 @@ class DefendProxies:
         )
 
     def pull_drones(self, mode, available):
+        """Pull 3 drones to destroy the proxy building"""
         for target in mode:
-            if 3 > self.is_being_attacked(target) and available:
+            if self.is_being_attacked(target) < 3 and available:
                 self.ai.add_action(available.closest_to(target).attack(target))
 
     async def handle(self, iteration):
