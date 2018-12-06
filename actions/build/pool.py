@@ -14,7 +14,7 @@ class BuildPool:
         return local_controller.can_build_unique(SPAWNINGPOOL, local_controller.pools) and (
             len(local_controller.townhalls) >= 2
             or local_controller.close_enemy_production
-            or local_controller.time > 165
+            or local_controller.time > 145
         )
 
     async def handle(self, iteration):
@@ -30,5 +30,7 @@ class BuildPool:
     def find_position(self):
         """Previous placement"""
         local_controller = self.ai
-        map_center = local_controller.game_info.map_center
-        return local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -10)
+        base = local_controller.townhalls
+        if base:
+            map_center = local_controller.game_info.map_center
+            return base.furthest_to(map_center).position.towards_with_random_angle(map_center, -10)
