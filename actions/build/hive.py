@@ -7,23 +7,22 @@ class BuildHive:
 
     def __init__(self, ai):
         self.ai = ai
-        self.lairs = None
+        self.selected_lairs = None
 
     async def should_handle(self, iteration):
         """Builds the hive"""
         local_controller = self.ai
+        self.selected_lairs = local_controller.lairs.ready.idle
         return (
-            not local_controller.hives
-            and local_controller.pits.ready
-            and local_controller.lairs.ready.idle
-            and local_controller.can_afford(HIVE)
+            self.selected_lairs
+            and local_controller.can_build_unique(HIVE, local_controller.caverns, local_controller.pits.ready)
             and not await self.morphing_lairs()
         )
 
     async def handle(self, iteration):
         """Finishes the action of making the hive"""
         local_controller = self.ai
-        local_controller.add_action(local_controller.lairs.ready.first(UPGRADETOHIVE_HIVE))
+        local_controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
         return True
 
     async def morphing_lairs(self):

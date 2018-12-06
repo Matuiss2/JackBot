@@ -11,7 +11,7 @@ class BuildCavern:
     async def should_handle(self, iteration):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
         local_controller = self.ai
-        return local_controller.hives and local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns)
+        return local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns, local_controller.hives)
 
     async def handle(self, iteration):
         """Build it behind the mineral line if there is space, if not build between the main and natural"""

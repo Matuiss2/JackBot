@@ -26,7 +26,7 @@ class BuildSpores:
                 (self.enemy_flying_dmg_units or local_controller.time >= 420)
                 and not local_controller.already_pending(SPORECRAWLER)
                 and not spores.closer_than(15, base.random)
-                and local_controller.can_afford(SPORECRAWLER)
+                and local_controller.building_requirement(SPORECRAWLER, local_controller.pools.ready)
             )
 
     async def handle(self, iteration):

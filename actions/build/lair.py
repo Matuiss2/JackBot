@@ -1,5 +1,5 @@
 """Everything related to building logic for the lairs goes here"""
-from sc2.constants import CANCEL_MORPHLAIR, UPGRADETOLAIR_LAIR
+from sc2.constants import CANCEL_MORPHLAIR, LAIR, UPGRADETOLAIR_LAIR
 
 
 class BuildLair:
@@ -7,18 +7,19 @@ class BuildLair:
 
     def __init__(self, ai):
         self.ai = ai
+        self.selected_bases = None
 
     async def should_handle(self, iteration):
         """Builds the lair"""
         local_controller = self.ai
+        self.selected_bases = local_controller.hatcheries.ready.idle
         return (
             not (local_controller.lairs or local_controller.hives)
-            and local_controller.hatcheries.ready.idle
             and (
                 len(local_controller.townhalls) >= 3
                 or (local_controller.close_enemy_production and len(local_controller.evochambers.ready) >= 2)
             )
-            and local_controller.can_afford(UPGRADETOLAIR_LAIR)
+            and local_controller.can_build_unique(LAIR, local_controller.caverns, self.selected_bases)
             and not await self.morphing_hatcheries()
         )
 
@@ -26,7 +27,7 @@ class BuildLair:
         """Finishes the action of making the lair choosing the safest base"""
         local_controller = self.ai
         local_controller.add_action(
-            local_controller.hatcheries.ready.furthest_to(local_controller.game_info.map_center)(UPGRADETOLAIR_LAIR)
+            self.selected_bases.furthest_to(local_controller.game_info.map_center)(UPGRADETOLAIR_LAIR)
         )
         return True
 

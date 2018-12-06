@@ -12,7 +12,7 @@ class BuildSpines:
         """Requirements to run handle"""
         local_controller = self.ai
         return (
-            local_controller.pools.ready
+            local_controller.building_requirement(SPINECRAWLER, local_controller.pools.ready)
             and local_controller.townhalls
             and local_controller.close_enemy_production
             and len(local_controller.spines) < 4
@@ -24,7 +24,7 @@ class BuildSpines:
         local_controller = self.ai
         await local_controller.build(
             SPINECRAWLER,
-            near=local_controller.townhalls.furthest_to(local_controller.game_info.map_center).position.towards(
+            near=local_controller.furthest_townhall_to_map_center.towards(
                 local_controller.main_base_ramp.depot_in_middle, 14
             ),
         )
