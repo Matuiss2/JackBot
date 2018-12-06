@@ -10,7 +10,6 @@ class BuildExpansion:
         self.send_worker = 1
         self.did_send_worker = 2
         self.worker_to_first_base = False
-        self.expand_now = False
 
     async def should_handle(self, iteration):
         """Good for now, maybe the 7th or more hatchery can be postponed
@@ -22,7 +21,6 @@ class BuildExpansion:
         if not self.worker_to_first_base and base_amount < 2 and local_controller.minerals > 225:
             self.worker_to_first_base = self.send_worker
             return True
-        self.expand_now = False
         if (
             base
             and local_controller.can_afford(HATCHERY)
@@ -48,9 +46,6 @@ class BuildExpansion:
         if self.worker_to_first_base == self.send_worker:
             action(await self.send_worker_to_next_expansion())
             self.worker_to_first_base = self.did_send_worker
-            return True
-        if self.expand_now:
-            await local_controller.expand_now()
             return True
         for expansion in local_controller.ordered_expansions:
             if await local_controller.can_place(HATCHERY, expansion):

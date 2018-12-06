@@ -16,7 +16,7 @@ class BuildExtractor:
         local_controller = self.ai
         finished_bases = local_controller.townhalls.ready
         if (local_controller.vespene * 1.25 > local_controller.minerals) or (
-            not (finished_bases and local_controller.can_afford(EXTRACTOR))
+            not local_controller.building_requirement(EXTRACTOR, finished_bases)
         ):
             return False
         gas = local_controller.extractors

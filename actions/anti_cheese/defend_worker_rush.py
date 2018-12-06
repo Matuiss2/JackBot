@@ -69,10 +69,11 @@ class DefendWorkerRush(Micro):
     def clear_defense_force(self, base):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
         local_controller = self.ai
-        for drone in self.defenders:
-            local_controller.add_action(drone.gather(local_controller.state.mineral_field.closest_to(base.first)))
-        self.defender_tags = []
-        self.defenders = None
+        if self.defenders:
+            for drone in self.defenders:
+                local_controller.add_action(drone.gather(local_controller.state.mineral_field.closest_to(base.first)))
+            self.defender_tags = []
+            self.defenders = None
 
     def defense_force(self, count):
         """Put all drones needed on the defenders force - Order the drones based on health(highest first)"""
