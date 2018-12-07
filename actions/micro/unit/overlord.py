@@ -29,14 +29,15 @@ class Overlord:
         """Send the ovs to the opponents natural, our natural and near it"""
         local_controller = self.ai
         map_center = local_controller.game_info.map_center
+        natural = self.locations[1]
         if not self.first_ov_scout:
             self.first_ov_scout = True
             self.selected_ov = self.overlords.first
-            self.scout_position = self.locations[1]
+            self.scout_position = natural
         elif not self.second_ov_scout and len(local_controller.overlords.ready) == 2:
             self.second_ov_scout = True
             self.selected_ov = self.overlords.closest_to(local_controller.townhalls.furthest_to(map_center))
-            self.scout_position = self.locations[1].towards(map_center, 18)
+            self.scout_position = natural.towards(map_center, 18)
         elif self.second_ov_scout and not self.third_ov_scout and len(local_controller.overlords.ready) == 3:
             self.third_ov_scout = True
             self.selected_ov = self.overlords.closest_to(local_controller.townhalls.first)
