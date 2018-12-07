@@ -8,8 +8,6 @@ class BuildExpansion:
     def __init__(self, ai):
         self.ai = ai
         self.worker_to_first_base = False
-        self.selected_drone = False
-        self.base_amount = None
 
     async def should_handle(self, iteration):
         """Good for now, maybe the 7th or more hatchery can be postponed
