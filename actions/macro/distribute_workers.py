@@ -18,7 +18,9 @@ class DistributeWorkers:
         self.mining_bases = local_controller.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(
             lambda base: base.ideal_harvesters > 0
         )
-        self.mineral_fields = self.mineral_fields_of(self.mining_bases)
+        self.mineral_fields = self.ai.state.mineral_field.filter(
+            lambda field: any(field.distance_to(base) <= 8 for base in self.mining_bases)
+        )
         mining_places = self.mining_bases | local_controller.extractors.ready
         self.deficit_bases, self.workers_to_distribute = self.calculate_distribution(mining_places)
         return (local_controller.drones.idle or self.workers_to_distribute) and (self.require_gas or self.deficit_bases)
@@ -35,8 +37,8 @@ class DistributeWorkers:
     def distribute_idle_workers(self):
         """If the worker is idle send to the closest mineral"""
         local_controller = self.ai
-        for drone in local_controller.drones.idle:
-            if self.mineral_fields:
+        if self.mineral_fields:
+            for drone in local_controller.drones.idle:
                 mineral_field = self.mineral_fields.closest_to(drone)
                 local_controller.add_action(drone.gather(mineral_field))
 
@@ -89,12 +91,8 @@ class DistributeWorkers:
             for worker in workers_to_distribute:
                 if mining_bases and deficit_bases and mineral_fields_deficit:
                     self.distribute_to_mineral_field(mineral_fields_deficit, worker, deficit_bases)
-                if self.distribute_to_extractors(deficit_extractors):
+                if self.ai.extractors.ready and deficit_extractors and self.require_gas:
                     self.distribute_to_extractor(deficit_extractors, worker)
-
-    def distribute_to_extractors(self, deficit_extractors):
-        """Requirements to be filled to send workers to gas"""
-        return self.ai.extractors.ready and deficit_extractors and self.require_gas
 
     def distribute_to_extractor(self, deficit_extractors, worker):
         """Check vespene actual saturation and when the requirement are filled saturate the geyser"""
@@ -127,7 +125,7 @@ class DistributeWorkers:
     def require_gas(self):
         """One of the requirements for gas collecting"""
         local_controller = self.ai
-        return self.require_gas_for_speedlings or (local_controller.vespene * 1.5 < local_controller.minerals)
+        return self.require_gas_for_speedlings or local_controller.vespene * 1.5 < local_controller.minerals
 
     @property
     def require_gas_for_speedlings(self):
@@ -138,7 +136,3 @@ class DistributeWorkers:
             and not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
             and local_controller.vespene < 100
         )
-
-    def mineral_fields_of(self, bases):
-        """See how many mineral patches are left on each base"""
-        return self.ai.state.mineral_field.filter(lambda field: any(field.distance_to(base) <= 8 for base in bases))

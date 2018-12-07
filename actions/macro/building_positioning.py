@@ -6,18 +6,23 @@ from sc2.position import Point2
 class BuildingPositioning:
     """Ok for now"""
 
-    async def prepare_building_positions(self, start):
+    async def prepare_building_positions(self, center):
         """Check all possible positions behind the mineral line when a hatchery is built"""
         if self.state.mineral_field:
-            all_points = (
-                Point2((x + start.position.x, y + start.position.y))
-                for x in range(-12, 13)
-                for y in range(-12, 13)
-                if 144 >= x * x + y * y >= 64
-            )
-            resources = self.state.mineral_field.closer_than(10, start)
-            behind_resources = (point for point in all_points if point.distance_to(resources.closest_to(point)) == 3)
-            for point in behind_resources:
+            close_points = range(-12, 13)
+            center_position = center.position
+            add_positions = self.building_positions.append
+            # No point in separating it on variables, I united everything, it gets points that are behind minerals
+            for point in (
+                point
+                for point in (
+                    Point2((x + center_position.x, y + center_position.y))
+                    for x in close_points
+                    for y in close_points
+                    if 144 >= x * x + y * y >= 64
+                )
+                if point.distance_to(self.state.mineral_field.closer_than(10, center).closest_to(point)) == 3
+            ):
                 # also check engineering bay placement for hatcheries that just spawned but have no creep around
                 if await self.can_place(ENGINEERINGBAY, point) or await self.can_place(EVOLUTIONCHAMBER, point):
                     if self.building_positions:
@@ -25,9 +30,9 @@ class BuildingPositioning:
                             abs(already_found.x - point.x) >= 3 or abs(already_found.y - point.y) >= 3
                             for already_found in self.building_positions
                         ):
-                            self.building_positions.append(point)
+                            add_positions(point)
                     else:
-                        self.building_positions.append(point)
+                        add_positions(point)
 
     async def get_production_position(self):
         """Find the safest position looping through all possible ones"""
