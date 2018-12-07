@@ -8,22 +8,21 @@ class BuildSpores:
     def __init__(self, ai):
         self.ai = ai
         self.selected_base = None
-        self.enemy_flying_dmg_units = False
+        self.spore_building_trigger = False
 
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
         base = local_controller.townhalls.ready
         spores = local_controller.spores
-        self.enemy_flying_dmg_units = (
-            local_controller.pools.ready
-            and local_controller.flying_enemies
+        self.spore_building_trigger = (
+            local_controller.flying_enemies
             and not (len(spores) > len(base) or local_controller.close_enemies_to_base)
             and (au for au in local_controller.flying_enemies if au.can_attack_ground)
         )
         if base:
             return (
-                (self.enemy_flying_dmg_units or local_controller.time >= 420)
+                (self.spore_building_trigger or local_controller.time >= 420)
                 and not local_controller.already_pending(SPORECRAWLER)
                 and not spores.closer_than(15, base.random)
                 and local_controller.building_requirement(SPORECRAWLER, local_controller.pools.ready)

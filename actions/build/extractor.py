@@ -21,18 +21,15 @@ class BuildExtractor:
             return False
         gas = local_controller.extractors
         gas_amount = len(gas)
-        vgs = local_controller.state.vespene_geyser.closer_than(10, finished_bases.random)
-        for geyser in vgs:
+        for geyser in local_controller.state.vespene_geyser.closer_than(10, finished_bases.random):
             self.drone = local_controller.select_build_worker(geyser.position)
-            if not self.drone or local_controller.already_pending(EXTRACTOR):
+            if not self.drone or local_controller.already_pending(EXTRACTOR) or gas_amount > 10:
                 return False
             self.geyser = geyser
-            if (not gas and local_controller.pools) or (gas_amount < 3 <= len(local_controller.townhalls)):
+            if (not gas and local_controller.pools) or gas_amount < 3 <= len(local_controller.townhalls):
                 return True
-            return (
-                (local_controller.time > 900 or local_controller.spires)
-                and gas_amount < 11
-                or (local_controller.hydradens and gas_amount < 7)
+            return (local_controller.time > 900 or local_controller.spires) or (
+                local_controller.hydradens and gas_amount < 7
             )
 
     async def handle(self, iteration):

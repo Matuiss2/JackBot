@@ -28,7 +28,7 @@ class BuildHive:
     async def morphing_lairs(self):
         """Check if there is a lair morphing looping all hatcheries"""
         local_controller = self.ai
-        for hatch in local_controller.lairs:
+        for hatch in self.selected_lairs:
             if await local_controller.is_morphing(hatch, CANCEL_MORPHHIVE):
                 return True
         return False
