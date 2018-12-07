@@ -34,7 +34,7 @@ class BuildLair:
     async def morphing_hatcheries(self):
         """Check if there is a hatchery morphing looping all hatcheries"""
         local_controller = self.ai
-        for hatch in self.selected_bases:
+        for hatch in local_controller.hatcheries:
             if await local_controller.is_morphing(hatch, CANCEL_MORPHLAIR):
                 return True
         return False
