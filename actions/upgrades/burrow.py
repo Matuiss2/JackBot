@@ -27,8 +27,5 @@ class UpgradeBurrow:
 
     async def handle(self, iteration):
         """Execute the action of upgrading burrow"""
-        local_controller = self.ai
-        local_controller.add_action(
-            self.selected_bases.closest_to(local_controller.game_info.map_center)(RESEARCH_BURROW)
-        )
+        self.ai.add_action(self.selected_bases.random(RESEARCH_BURROW))
         return True
