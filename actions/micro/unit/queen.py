@@ -11,7 +11,7 @@ class QueensAbilities:
         self.bases = None
         self.enemies = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Injection and creep spread, can be expanded so it accepts transfusion"""
         local_controller = self.ai
         self.queens = local_controller.queens
@@ -19,7 +19,7 @@ class QueensAbilities:
         self.enemies = local_controller.enemies.not_structure
         return self.queens and self.bases
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
         local_controller = self.ai
         if not (local_controller.floating_buildings_bm and local_controller.supply_used >= 199):

@@ -8,7 +8,7 @@ class BuildSpines:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         return (
@@ -19,7 +19,7 @@ class BuildSpines:
             and local_controller.already_pending(SPINECRAWLER) < 2
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build the spines on the first base near the ramp in case there is a proxy"""
         local_controller = self.ai
         await local_controller.build(

@@ -56,14 +56,11 @@ class CreepControl:
             if tumors:
                 valid_placements = sorted(
                     valid_placements,
-                    key=lambda pos: pos.distance_to_closest(tumors)
-                    - pos.distance_to_point2(creep_destination),
+                    key=lambda pos: pos.distance_to_closest(tumors) - pos.distance_to_point2(creep_destination),
                     reverse=True,
                 )
             else:
-                valid_placements = sorted(
-                    valid_placements, key=lambda pos: pos.distance_to_point2(creep_destination)
-                )
+                valid_placements = sorted(valid_placements, key=lambda pos: pos.distance_to_point2(creep_destination))
             # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
             action = self.add_action
             for c_location in valid_placements:

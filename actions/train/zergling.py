@@ -8,7 +8,7 @@ class TrainZergling:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """good enough for now, maybe ratio values can be improved"""
         local_controller = self.ai
         zerglings = local_controller.zerglings
@@ -28,7 +28,7 @@ class TrainZergling:
                 return False
         return True
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of training zerglings"""
         local_controller = self.ai
         local_controller.add_action(local_controller.larvae.random.train(ZERGLING))

@@ -41,7 +41,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         self.hydra_move_speed = False
         self.hydra_atk_range = False
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         return (
@@ -51,7 +51,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
             | local_controller.hydras
         )
 
-    async def handle(self, iteration):  # needs further refactoring(too-many-branches)
+    async def handle(self):  # needs further refactoring(too-many-branches)
         """It surrounds and target low hp units, also retreats when overwhelmed,
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""

@@ -9,7 +9,7 @@ class BuildHive:
         self.ai = ai
         self.selected_lairs = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Builds the hive"""
         local_controller = self.ai
         self.selected_lairs = local_controller.lairs.ready.idle
@@ -19,7 +19,7 @@ class BuildHive:
             and not await self.morphing_lairs()
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Finishes the action of making the hive"""
         local_controller = self.ai
         local_controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))

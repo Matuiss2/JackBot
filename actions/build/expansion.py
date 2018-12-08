@@ -9,7 +9,7 @@ class BuildExpansion:
         self.ai = ai
         self.worker_to_first_base = False
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Good for now, maybe the 7th or more hatchery can be postponed
          for when extra mining patches or production are needed """
         local_controller = self.ai
@@ -34,7 +34,7 @@ class BuildExpansion:
             return False
         return False
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Expands to the nearest expansion location using the nearest drone to it"""
         local_controller = self.ai
         action = local_controller.add_action

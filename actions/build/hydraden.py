@@ -8,7 +8,7 @@ class BuildHydraden:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Build the hydraden"""
         local_controller = self.ai
         return (
@@ -18,7 +18,7 @@ class BuildHydraden:
             and len(local_controller.townhalls) >= 3
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not places it near a pool"""
         local_controller = self.ai
         position = await local_controller.get_production_position()

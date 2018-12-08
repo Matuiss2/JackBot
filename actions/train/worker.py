@@ -9,7 +9,7 @@ class TrainWorker:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Should this action be handled, needs more smart limitations, its very greedy sometimes"""
         local_controller = self.ai
         workers_total = len(local_controller.workers)
@@ -46,7 +46,7 @@ class TrainWorker:
             )
         return False
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of training drones"""
         local_controller = self.ai
         local_controller.add_action(local_controller.larvae.random.train(DRONE))

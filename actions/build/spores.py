@@ -10,7 +10,7 @@ class BuildSpores:
         self.selected_base = None
         self.spore_building_trigger = False
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         base = local_controller.townhalls.ready
@@ -28,7 +28,7 @@ class BuildSpores:
                 and local_controller.building_requirement(SPORECRAWLER, local_controller.pools.ready)
             )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build the spore right on the middle of the base, sometimes it fails"""
         local_controller = self.ai
         state = local_controller.state

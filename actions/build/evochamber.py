@@ -8,7 +8,7 @@ class BuildEvochamber:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Builds the evolution chambers"""
         local_controller = self.ai
         return (
@@ -20,7 +20,7 @@ class BuildEvochamber:
             and len(local_controller.evochambers) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
         local_controller = self.ai
         position = await local_controller.get_production_position()

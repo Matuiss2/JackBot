@@ -8,7 +8,7 @@ class TrainHydralisk:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle, it limits the training a little so it keeps building ultralisks,
          needs more limitations so the transition to hive is smoother"""
         local_controller = self.ai
@@ -18,7 +18,7 @@ class TrainHydralisk:
             HYDRALISK, local_controller.hydradens.ready
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of training hydras"""
         local_controller = self.ai
         local_controller.add_action(local_controller.larvae.random.train(HYDRALISK))

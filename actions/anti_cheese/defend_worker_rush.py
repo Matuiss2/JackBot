@@ -16,7 +16,7 @@ class DefendWorkerRush(Micro):
         self.defenders = None
         self.defender_tags = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         self.base = local_controller.hatcheries.ready
@@ -25,7 +25,7 @@ class DefendWorkerRush(Micro):
         self.enemy_units_close = local_controller.enemies.closer_than(8, self.base.first).of_type({PROBE, DRONE, SCV})
         return self.enemy_units_close or self.defender_tags
 
-    async def handle(self, iteration):
+    async def handle(self):
         """It destroys every worker rush without losing more than 2 workers,
          it counter scouting worker rightfully now, its too big and can be split"""
         close_workers = self.enemy_units_close

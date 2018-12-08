@@ -9,7 +9,7 @@ class BlockExpansions:
         self.ai = ai
         self.zerglings = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements for handle"""
         local_controller = self.ai
         self.zerglings = local_controller.zerglings.idle
@@ -20,7 +20,7 @@ class BlockExpansions:
             and local_controller.already_pending_upgrade(BURROW) == 1
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Take the 5 'safest' zerglings and send them to the furthest enemy expansion locations to burrow
         needs improvements refill the force in case of failing until it succeeds(for a while at least),
          sometimes it just get stuck, also no need to send it to the enemy main"""

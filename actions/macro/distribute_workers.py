@@ -12,7 +12,7 @@ class DistributeWorkers:
         self.deficit_bases = None
         self.workers_to_distribute = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         self.mining_bases = local_controller.units.of_type({HATCHERY, LAIR, HIVE}).ready.filter(
@@ -25,7 +25,7 @@ class DistributeWorkers:
         self.deficit_bases, self.workers_to_distribute = self.calculate_distribution(mining_places)
         return (local_controller.drones.idle or self.workers_to_distribute) and (self.require_gas or self.deficit_bases)
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Groups the resulting actions from all functions below"""
         self.gather_gas()
         self.distribute_to_deficits(

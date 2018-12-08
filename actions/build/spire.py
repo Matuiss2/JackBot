@@ -8,7 +8,7 @@ class BuildSpire:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Build the spire if only floating buildings left"""
         local_controller = self.ai
         return (
@@ -17,7 +17,7 @@ class BuildSpire:
             and (local_controller.lairs or local_controller.hives)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """ Put the spire near the pool"""
         local_controller = self.ai
         await local_controller.build(SPIRE, near=local_controller.pools.first)

@@ -9,7 +9,7 @@ class BuildLair:
         self.ai = ai
         self.selected_bases = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Builds the lair"""
         local_controller = self.ai
         self.selected_bases = local_controller.hatcheries.ready.idle
@@ -23,7 +23,7 @@ class BuildLair:
             and not await self.morphing_hatcheries()
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Finishes the action of making the lair choosing the safest base"""
         local_controller = self.ai
         local_controller.add_action(

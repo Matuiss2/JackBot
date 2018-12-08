@@ -20,7 +20,7 @@ class DefendProxies:
         self.ai = ai
         self.rush_buildings = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         if local_controller.townhalls:
@@ -50,7 +50,7 @@ class DefendProxies:
             if self.is_being_attacked(target) < 3 and available:
                 self.ai.add_action(available.closest_to(target).attack(target))
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
          surface area possible when attacking the buildings"""
         local_controller = self.ai

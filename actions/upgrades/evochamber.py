@@ -33,12 +33,12 @@ class UpgradeEvochamber:
             RESEARCH_ZERGMISSILEWEAPONSLEVEL3,
         }
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         self.selected_evos = self.ai.evochambers.ready.idle
         return self.selected_evos
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading armor, melee and ranged attacks"""
         local_controller = self.ai
         action = local_controller.add_action

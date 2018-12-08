@@ -8,7 +8,7 @@ class TrainOverlord:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """We still get supply blocked sometimes, can be improved a lot still"""
         local_controller = self.ai
         if local_controller.supply_cap <= 200 and local_controller.supply_left < (
@@ -29,7 +29,7 @@ class TrainOverlord:
             return False
         return False
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of training overlords"""
         local_controller = self.ai
         local_controller.add_action(local_controller.larvae.random.train(OVERLORD))

@@ -9,7 +9,7 @@ class Buildings:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         return (
@@ -18,7 +18,7 @@ class Buildings:
             else local_controller.structures.not_ready
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Make the cancelling general"""
         local_controller = self.ai
         for building in local_controller.structures.not_ready.exclude_type(local_controller.tumors):

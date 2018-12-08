@@ -8,7 +8,7 @@ class BuildPool:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Should this action be handled"""
         local_controller = self.ai
         return local_controller.can_build_unique(SPAWNINGPOOL, local_controller.pools) and (
@@ -17,7 +17,7 @@ class BuildPool:
             or local_controller.time > 145
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
         local_controller = self.ai
         position = await local_controller.get_production_position()

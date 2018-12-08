@@ -10,7 +10,7 @@ class BuildExtractor:
         self.drone = None
         self.geyser = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Couldn't find another way to build the geysers its way to inefficient,
          still trying to find the optimal number"""
         local_controller = self.ai
@@ -32,7 +32,7 @@ class BuildExtractor:
                 local_controller.hydradens and gas_amount < 7
             )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Just finish the action of building the extractor"""
         self.ai.add_action(self.drone.build(EXTRACTOR, self.geyser))
         return True

@@ -9,7 +9,7 @@ class UpgradeAdrenalGlands:
         self.ai = ai
         self.selected_pools = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         self.selected_pools = local_controller.pools.ready.idle
@@ -18,7 +18,7 @@ class UpgradeAdrenalGlands:
             and local_controller.hives
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading zergling atk speed"""
         self.ai.add_action(self.selected_pools.first(RESEARCH_ZERGLINGADRENALGLANDS))
         return True

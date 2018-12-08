@@ -14,7 +14,7 @@ class Overlord:
         self.selected_ov = None
         self.scout_position = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         self.overlords = local_controller.overlords.ready
@@ -25,7 +25,7 @@ class Overlord:
             and any(not flag for flag in (self.first_ov_scout, self.second_ov_scout, self.third_ov_scout))
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Send the ovs to the opponents natural, our natural and near it"""
         local_controller = self.ai
         map_center = local_controller.game_info.map_center

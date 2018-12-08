@@ -8,13 +8,13 @@ class CreepTumor:
         self.ai = ai
         self.tumors = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.ai
         self.tumors = local_controller.tumors.tags_not_in(local_controller.used_tumors)
         return self.tumors
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Place the tumor"""
         for tumor in self.tumors:
             await self.ai.place_tumor(tumor)

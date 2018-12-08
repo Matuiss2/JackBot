@@ -8,7 +8,7 @@ class BuildPit:
     def __init__(self, ai):
         self.ai = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Builds the infestation pit, placement fails on very limited situations"""
         local_controller = self.ai
         return (
@@ -17,7 +17,7 @@ class BuildPit:
             and local_controller.can_build_unique(INFESTATIONPIT, local_controller.pits)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
         local_controller = self.ai
         position = await local_controller.get_production_position()
