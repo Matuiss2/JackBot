@@ -6,11 +6,8 @@ class Overlord:
 
     def __init__(self, ai):
         self.controller = ai
-        self.first_ov_scout = False
-        self.second_ov_scout = False
-        self.third_ov_scout = False
-        self.overlords = None
-        self.locations = None
+        self.first_ov_scout = self.second_ov_scout = self.third_ov_scout = False
+        self.locations = self.selected_ov = self.scout_position = self.overlords = None
 
     async def should_handle(self):
         """Requirements to run handle"""
@@ -28,18 +25,16 @@ class Overlord:
         local_controller = self.controller
         map_center = local_controller.game_info.map_center
         natural = self.locations[1]
-        selected_ov = None
-        scout_position = None
         if not self.first_ov_scout:
             self.first_ov_scout = True
-            selected_ov = self.overlords.first
-            scout_position = natural
+            self.selected_ov = self.overlords.first
+            self.scout_position = natural
         elif not self.second_ov_scout and len(local_controller.overlords.ready) == 2:
             self.second_ov_scout = True
-            selected_ov = self.overlords.closest_to(local_controller.townhalls.furthest_to(map_center))
-            scout_position = natural.towards(map_center, 18)
+            self.selected_ov = self.overlords.closest_to(local_controller.townhalls.furthest_to(map_center))
+            self.scout_position = natural.towards(map_center, 18)
         elif self.second_ov_scout and not self.third_ov_scout and len(local_controller.overlords.ready) == 3:
             self.third_ov_scout = True
-            selected_ov = self.overlords.closest_to(local_controller.townhalls.first)
-            scout_position = self.locations[-2].towards(map_center, -15)
-        local_controller.add_action(selected_ov.move(scout_position))
+            self.selected_ov = self.overlords.closest_to(local_controller.townhalls.first)
+            self.scout_position = self.locations[-2].towards(map_center, -15)
+        local_controller.add_action(self.selected_ov.move(self.scout_position))

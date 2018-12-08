@@ -9,13 +9,9 @@ LOGGER = logging.getLogger(__name__)
 class ProtocolError(Exception):
     """Error warning raised locally"""
 
-    pass
-
 
 class ConnectionAlreadyClosed(ProtocolError):
     """Error warning raised locally"""
-
-    pass
 
 
 class Protocol:

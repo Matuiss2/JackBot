@@ -11,10 +11,7 @@ class DefendWorkerRush(Micro):
 
     def __init__(self, ai):
         self.controller = ai
-        self.base = None
-        self.enemy_units_close = None
-        self.defenders = None
-        self.defender_tags = None
+        self.base = self.enemy_units_close = self.defenders = self.defender_tags = None
 
     async def should_handle(self):
         """Requirements to run handle"""

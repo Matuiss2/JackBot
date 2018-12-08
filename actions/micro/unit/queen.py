@@ -7,9 +7,7 @@ class QueensAbilities:
 
     def __init__(self, ai):
         self.controller = ai
-        self.queens = None
-        self.bases = None
-        self.enemies = None
+        self.queens = self.bases = self.enemies = None
 
     async def should_handle(self):
         """Injection and creep spread, can be expanded so it accepts transfusion"""

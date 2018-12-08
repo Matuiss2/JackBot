@@ -37,9 +37,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         self.retreat_units = set()
         self.baneling_sacrifices = {}
         self.rally_point = None
-        self.zergling_atk_speed = False
-        self.hydra_move_speed = False
-        self.hydra_atk_range = False
+        self.zergling_atk_speed = self.hydra_move_speed = self.hydra_atk_range = False
 
     async def should_handle(self):
         """Requirements to run handle"""

@@ -7,10 +7,7 @@ class DistributeWorkers:
 
     def __init__(self, ai):
         self.controller = ai
-        self.mining_bases = None
-        self.mineral_fields = None
-        self.deficit_bases = None
-        self.workers_to_distribute = None
+        self.mining_bases = self.mineral_fields = self.deficit_bases = self.workers_to_distribute = None
 
     async def should_handle(self):
         """Requirements to run handle"""

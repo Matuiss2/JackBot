@@ -571,19 +571,15 @@ class BotAI:
 
     async def on_unit_destroyed(self, unit_tag):
         """ Override this in your bot class. """
-        pass
 
     async def on_unit_created(self, unit: Unit):
         """ Override this in your bot class. """
-        pass
 
     async def on_building_construction_complete(self, unit: Unit):
         """ Override this in your bot class. """
-        pass
 
     def on_start(self):
         """Allows initializing the bot when the game data is available."""
-        pass
 
     async def on_step(self, iteration: int):
         """Ran on every game step (looped in realtime mode)."""
@@ -591,7 +587,6 @@ class BotAI:
 
     def on_end(self, game_result: Result):
         """Ran at the end of a game."""
-        pass
 
 
 class CanAffordWrapper:

@@ -6,8 +6,7 @@ class Overseer:
 
     def __init__(self, ai):
         self.controller = ai
-        self.bases = None
-        self.overseers = None
+        self.bases = self.overseers = None
 
     async def should_handle(self):
         """Requirements to run handle"""

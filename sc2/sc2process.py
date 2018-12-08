@@ -57,7 +57,7 @@ class SC2Process:
     async def __aenter__(self):
         KillSwitch.add(self)
 
-        def signal_handler(signal, frame):
+        def signal_handler():
             KillSwitch.kill_all()
 
         signal.signal(signal.SIGINT, signal_handler)

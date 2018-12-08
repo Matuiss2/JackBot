@@ -121,7 +121,7 @@ class Client(Protocol):
             if res:
                 return res[0]
             return None
-        actions = combine_actions(actions, game_data)
+        actions = combine_actions(actions)
         res = await self._execute(action=sc_pb.RequestAction(actions=[sc_pb.Action(action_raw=a) for a in actions]))
         res = [ActionResult(r) for r in res.action.result]
         if return_successes:

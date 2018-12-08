@@ -7,8 +7,7 @@ class BuildExtractor:
 
     def __init__(self, ai):
         self.controller = ai
-        self.drone = None
-        self.geyser = None
+        self.drone = self.geyser = None
 
     async def should_handle(self):
         """Couldn't find another way to build the geysers its way to inefficient,
