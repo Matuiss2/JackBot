@@ -386,10 +386,15 @@ class BotAI:
         assert isinstance(upgrade_type, UpgradeId)
         if upgrade_type in self.state.upgrades:
             return 1
+        level = None
+        if "LEVEL" in upgrade_type.name:
+            level = upgrade_type.name[-1]
         creation_ability_id = self._game_data.upgrades[upgrade_type.value].research_ability.id
         for structure in self.units.structure.ready:
             for order in structure.orders:
                 if order.ability.id == creation_ability_id:
+                    if level and order.ability.button_name[-1] != level:
+                        return 0
                     return order.progress
         return 0
 
