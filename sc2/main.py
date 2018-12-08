@@ -92,7 +92,7 @@ async def _setup_host_game(server, map_settings, players, realtime):
             err += f": {connect_to_server.create_game.error_details}"
         LOGGER.critical(err)
         raise RuntimeError(err)
-    return Client(server.ws)
+    return Client(server.web_service)
 
 
 async def _host_game(
@@ -151,7 +151,7 @@ async def _join_game(players, realtime, portconfig, save_replay_as=None, step_ti
     """Group requirements to host the game and create a replay for it"""
     async with SC2Process() as server:
         await server.ping()
-        client = Client(server.ws)
+        client = Client(server.web_service)
         try:
             result = await play_game(players[1], client, realtime, portconfig, step_time_limit, game_time_limit)
             if save_replay_as:

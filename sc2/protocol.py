@@ -17,9 +17,9 @@ class ConnectionAlreadyClosed(ProtocolError):
 class Protocol:
     """Sc2 API protocol"""
 
-    def __init__(self, ws):
-        assert ws
-        self.web_service = ws
+    def __init__(self, web_service):
+        assert web_service
+        self.web_service = web_service
         self._status = None
 
     async def __request(self, request):

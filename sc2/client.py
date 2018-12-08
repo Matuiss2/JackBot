@@ -27,8 +27,8 @@ LOGGER = logging.getLogger(__name__)
 class Client(Protocol):
     """Interact with the client and map"""
 
-    def __init__(self, ws):
-        super().__init__(ws)
+    def __init__(self, web_service):
+        super().__init__(web_service)
         self.game_step = 8
         self._player_id = None
         self.game_result = None

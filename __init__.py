@@ -41,7 +41,7 @@ async def join_ladder_game(
     """Run the requirements for joining the ladder and save the replay if requested"""
     async with SC2Process(host=host, port=port) as server:
         await server.ping()
-        client = Client(server.ws)
+        client = Client(server.web_service)
         try:
             result = await sc2.main.play_game(
                 players[0], client, realtime, portconfig, step_time_limit, game_time_limit
