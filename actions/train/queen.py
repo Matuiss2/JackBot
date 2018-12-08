@@ -15,10 +15,9 @@ class TrainQueen:
         self.hatchery = local_controller.townhalls.exclude_type(LAIR).noqueue.ready
         return (
             self.hatchery
-            and local_controller.pools.ready
             and len(local_controller.queens) < len(self.hatchery) + 1
             and not local_controller.already_pending(QUEEN)
-            and local_controller.can_train(QUEEN, larva=False)
+            and local_controller.can_train(QUEEN, local_controller.pools.ready, False)
         )
 
     async def handle(self, iteration):

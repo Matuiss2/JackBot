@@ -11,7 +11,7 @@ class TrainMutalisk:
     async def should_handle(self, iteration):
         """Requirements to run handle"""
         local_controller = self.ai
-        return local_controller.spires.ready and local_controller.can_train(MUTALISK)
+        return local_controller.can_train(MUTALISK, local_controller.spires.ready)
 
     async def handle(self, iteration):
         """Execute the action of training mutas"""

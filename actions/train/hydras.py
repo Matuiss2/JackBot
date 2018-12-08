@@ -14,10 +14,8 @@ class TrainHydralisk:
         local_controller = self.ai
         if local_controller.caverns.ready:
             return len(local_controller.ultralisks) * 2.75 > len(local_controller.hydras)
-        return (
-            local_controller.hydradens.ready
-            and not local_controller.floating_buildings_bm
-            and local_controller.can_train(HYDRALISK)
+        return not local_controller.floating_buildings_bm and local_controller.can_train(
+            HYDRALISK, local_controller.hydradens.ready
         )
 
     async def handle(self, iteration):

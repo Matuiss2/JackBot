@@ -153,9 +153,9 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
                     print(f"Handling: {command.__class__}")
                 await command.handle(iteration)
 
-    def can_train(self, unit_type, larva=True):
+    def can_train(self, unit_type, requirement=True, larva=True):
         """Global requirements for creating an unit"""
-        return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type)
+        return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type) and requirement
 
     def building_requirement(self, unit_type, requirement=True):
         return requirement and self.can_afford(unit_type)
@@ -166,8 +166,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             not self.already_pending(unit_type)
             and self.can_afford(unit_type)
             and not building
-            and requirement
-            and self.can_afford(unit_type)
+            and self.building_requirement(unit_type, requirement)
         )
 
     def can_upgrade(self, upgrade, research, host_building):

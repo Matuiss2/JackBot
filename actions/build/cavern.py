@@ -27,6 +27,6 @@ class BuildCavern:
     def hardcoded_position(self):
         """Previous placement"""
         local_controller = self.ai
-        return local_controller.furthest_townhall_to_map_center.towards(
+        return local_controller.furthest_townhall_to_map_center.position.towards(
             local_controller.main_base_ramp.depot_in_middle, 6
         )
