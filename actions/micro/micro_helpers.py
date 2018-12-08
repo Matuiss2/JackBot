@@ -14,21 +14,17 @@ class Micro:
 
     def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
-        if not self.ai.state.effects:
+        local_controller = self.ai
+        if not local_controller.state.effects:
             return False
-        for effect in self.ai.state.effects:
+        for effect in local_controller.state.effects:
             if effect.id in (SCANNERSWEEP, GUARDIANSHIELDPERSISTENT):
                 continue
-            effect_data = self.ai.game_data.effects[effect.id]
-            danger_zone = effect_data.radius + unit.radius + 0.1
-            closest_effect_position_to_unit = unit.position.closest(effect.positions)
-            if not unit.position.distance_to_point2(closest_effect_position_to_unit) < danger_zone:
+            danger_zone = local_controller.game_data.effects[effect.id].radius + unit.radius + 0.1
+            if not unit.position.distance_to_point2(unit.position.closest(effect.positions)) < danger_zone:
                 continue
-            neighbors8_of_unit = list(unit.position.neighbors8)
-            center_of_effect = Point2.center(effect.positions)
-            furthest_neighbor_to_effect = center_of_effect.furthest(neighbors8_of_unit)
-            move_away = -1 * danger_zone
-            self.ai.add_action(unit.move(furthest_neighbor_to_effect.towards(unit.position, move_away)))
+            perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
+            local_controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -1 * danger_zone)))
             return True
         return False
 
@@ -64,30 +60,24 @@ class Micro:
 
     def move_lowhp(self, unit, enemies):
         """Move to enemy with lowest HP"""
-        target = self.closest_lowest_hp(unit, enemies)
-        self.ai.add_action(unit.move(target))
+        self.ai.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
 
     def attack_lowhp(self, unit, enemies):
         """Attack enemy with lowest HP"""
-        target = self.closest_lowest_hp(unit, enemies)
-        self.ai.add_action(unit.attack(target))
+        self.ai.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
 
     def closest_lowest_hp(self, unit, enemies):
         """Find the closest of the lowest hp enemies"""
-        lowest_unit = self.lowest_hp(enemies)
-        return lowest_unit.closest_to(unit)
+        return self.lowest_hp(enemies).closest_to(unit)
 
     @staticmethod
     def lowest_hp(enemies):
         """returns all of the units who share the lowest hp """
-        lowesthp = min(unit.health for unit in enemies)
-        low_enemies = enemies.filter(lambda x: x.health == lowesthp)
-        return low_enemies
+        return enemies.filter(lambda x: x.health == min(unit.health for unit in enemies))
 
     def stutter_step(self, target, unit):
         """Attack when the unit can, run while it can't. We don't outrun the enemy."""
-        local_controller = self.ai
-        action = local_controller.add_action
+        action = self.ai.add_action
         if not unit.weapon_cooldown:
             action(unit.attack(target))
             return True
@@ -98,20 +88,20 @@ class Micro:
     def hit_and_run(self, target, unit, range_upgrade=None):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
         # Only do this when our range > enemy range, our movespeed > enemy movespeed, and enemy is targeting us.
-        local_controller = self.ai
-        action = local_controller.add_action
-        our_range = unit.ground_range + unit.radius
+        action = self.ai.add_action
+        unit_radius = unit.radius
+        our_range = unit.ground_range + unit_radius
         enemy_range = target.ground_range + target.radius
         if range_upgrade:
             our_range += 1
         # Our unit should stay just outside enemy range, and inside our range.
         if enemy_range:
-            minimum_distance = enemy_range + unit.radius + 0.1
+            minimum_distance = enemy_range + unit_radius + 0.1
         else:
-            minimum_distance = our_range - unit.radius
+            minimum_distance = our_range - unit_radius
         # Check to make sure this range isn't negative.
         if minimum_distance > our_range:
-            minimum_distance = our_range - unit.radius
+            minimum_distance = our_range - unit_radius
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
         if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 0.13 * 22.4:
             action(unit.attack(target))
@@ -129,8 +119,9 @@ class Micro:
     @staticmethod
     def find_pursuit_point(target, unit) -> Point2:
         """Find a point towards the enemy unit"""
-        difference = unit.position - target.position
-        return Point2((unit.position.x + (difference.x / 2) * -1, unit.position.y + (difference.y / 2) * -1))
+        unit_position = unit.position
+        difference = unit_position - target.position
+        return Point2((unit_position.x + (difference.x / 2) * -1, unit_position.y + (difference.y / 2) * -1))
 
     @staticmethod
     def find_retreat_point(target, unit) -> Point2:
