@@ -14,7 +14,7 @@ class Micro:
 
     def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
-        local_controller = self.ai
+        local_controller = self.controller
         if not local_controller.state.effects:
             return False
         for effect in local_controller.state.effects:
@@ -38,13 +38,13 @@ class Micro:
             return True
         target = enemies.closest_to(unit)
         if target:
-            self.ai.add_action(unit.attack(target))
+            self.controller.add_action(unit.attack(target))
             return True
         return None
 
     def attack_in_range(self, unit):
         """Attacks the lowest hp enemy in range of the unit"""
-        target_in_range = filter_in_attack_range_of(unit, self.ai.enemies)
+        target_in_range = filter_in_attack_range_of(unit, self.controller.enemies)
         if target_in_range:
             self.attack_lowhp(unit, target_in_range)
             return True
@@ -60,11 +60,11 @@ class Micro:
 
     def move_lowhp(self, unit, enemies):
         """Move to enemy with lowest HP"""
-        self.ai.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
+        self.controller.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
 
     def attack_lowhp(self, unit, enemies):
         """Attack enemy with lowest HP"""
-        self.ai.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
+        self.controller.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
 
     def closest_lowest_hp(self, unit, enemies):
         """Find the closest of the lowest hp enemies"""
@@ -77,7 +77,7 @@ class Micro:
 
     def stutter_step(self, target, unit):
         """Attack when the unit can, run while it can't. We don't outrun the enemy."""
-        action = self.ai.add_action
+        action = self.controller.add_action
         if not unit.weapon_cooldown:
             action(unit.attack(target))
             return True
@@ -88,7 +88,7 @@ class Micro:
     def hit_and_run(self, target, unit, range_upgrade=None):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
         # Only do this when our range > enemy range, our movespeed > enemy movespeed, and enemy is targeting us.
-        action = self.ai.add_action
+        action = self.controller.add_action
         unit_radius = unit.radius
         our_range = unit.ground_range + unit_radius
         enemy_range = target.ground_range + target.radius

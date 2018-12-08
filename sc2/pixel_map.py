@@ -92,12 +92,3 @@ class PixelMap:
             for x in range(self.width):
                 print("#" if self.is_set((x, y)) else " ", end=(" " if wide else ""))
             print("")
-
-    def save_image(self, filename):
-        """Save a colored image of the map"""
-        data = [(0, 0, self[x, y]) for y in range(self.height) for x in range(self.width)]
-        from PIL import Image
-
-        img = Image.new("RGB", (self.width, self.height))
-        img.putdata(data)
-        img.save(filename)

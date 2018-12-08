@@ -6,12 +6,12 @@ class UpgradeMuscularAugments:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
         self.selected_dens = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         self.selected_dens = local_controller.hydradens.ready.noqueue.idle
         return (
             local_controller.can_upgrade(EVOLVEMUSCULARAUGMENTS, RESEARCH_MUSCULARAUGMENTS, self.selected_dens)
@@ -19,7 +19,7 @@ class UpgradeMuscularAugments:
             and local_controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading hydras speed"""
-        self.ai.add_action(self.selected_dens.first(RESEARCH_MUSCULARAUGMENTS))
+        self.controller.add_action(self.selected_dens.first(RESEARCH_MUSCULARAUGMENTS))
         return True

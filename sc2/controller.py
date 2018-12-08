@@ -7,8 +7,8 @@ from .player import Computer
 class Controller(Protocol):
     """It creates the game and checks processes"""
 
-    def __init__(self, ws, process):
-        super().__init__(ws)
+    def __init__(self, web_service, process):
+        super().__init__(web_service)
         self._process = process
 
     @property

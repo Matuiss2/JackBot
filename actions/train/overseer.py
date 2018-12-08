@@ -6,11 +6,11 @@ class TrainOverseer:
     """Should be expanded"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle, limits it to one it need to be expanded"""
-        local_controller = self.ai
+        local_controller = self.controller
         return (
             (local_controller.lairs or local_controller.hives)
             and local_controller.overlords
@@ -19,9 +19,9 @@ class TrainOverseer:
             and len(local_controller.overseers) < len(local_controller.townhalls.ready)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Morph the overseer"""
-        local_controller = self.ai
+        local_controller = self.controller
         selected_ov = local_controller.overlords.random
         overseers = local_controller.overseers | local_controller.units(OVERLORDCOCOON)
         if overseers:
@@ -32,7 +32,7 @@ class TrainOverseer:
 
     async def morphing_overlords(self):
         """Check if there is a overlord morphing looping through all cocoons"""
-        local_controller = self.ai
+        local_controller = self.controller
         for hatch in local_controller.units(OVERLORDCOCOON):
             if await local_controller.is_morphing(hatch, CANCEL_MORPHOVERSEER):
                 return True

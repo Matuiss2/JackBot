@@ -6,7 +6,7 @@ from .sc2process import SC2Process
 from .portconfig import Portconfig
 from .client import Client
 from .player import Human, Bot
-from .data import Result, CreateGameError
+from .data import RESULT, CREATE_GAME_ERROR
 from .game_state import GameState
 from .protocol import ConnectionAlreadyClosed
 
@@ -21,7 +21,7 @@ async def play_game_human(client, player_id, realtime, game_time_limit):
             return client.game_result[player_id]
         if game_time_limit and (state.observation.observation.game_loop * 0.725 * (1 / 16)) > game_time_limit:
             print(state.observation.game_loop, state.observation.game_loop * 0.14)
-            return Result.Tie
+            return RESULT.Tie
         if not realtime:
             await client.step()
 
@@ -40,8 +40,8 @@ async def play_game_ai(client, player_id, ai, realtime, step_time_limit, game_ti
             return client.game_result[player_id]
         game_state = GameState(state.observation, game_data)
         if game_time_limit and (game_state.game_loop * 0.725 * (1 / 16)) > game_time_limit:
-            ai.on_end(Result.Tie)
-            return Result.Tie
+            ai.on_end(RESULT.Tie)
+            return RESULT.Tie
         ai.prepare_step(game_state)
         if not iteration:
             ai.prepare_first_step()
@@ -56,13 +56,13 @@ async def play_game_ai(client, player_id, ai, realtime, step_time_limit, game_ti
                     async with async_timeout.timeout(step_time_limit):
                         await ai.on_step(iteration)
                 except asyncio.TimeoutError:
-                    LOGGER.warning(f"Running AI step: out of time")
+                    LOGGER.warning("Running AI step: out of time")
         except Exception:
-            LOGGER.exception(f"AI step threw an error")
-            LOGGER.error(f"resigning due to previous error")
-            ai.on_end(Result.Defeat)
-            return Result.Defeat
-        LOGGER.debug(f"Running AI step: done")
+            LOGGER.exception("AI step threw an error")
+            LOGGER.error("resigning due to previous error")
+            ai.on_end(RESULT.Defeat)
+            return RESULT.Defeat
+        LOGGER.debug("Running AI step: done")
         if not realtime:
             if not client.in_game:  # Client left (resigned) the game
                 ai.on_end(client.game_result[player_id])
@@ -87,12 +87,12 @@ async def _setup_host_game(server, map_settings, players, realtime):
     """Connect to battlenet and create this game"""
     connect_to_server = await server.create_game(map_settings, players, realtime)
     if connect_to_server.create_game.HasField("error"):
-        err = f"Could not create game: {CreateGameError(connect_to_server.create_game.error)}"
+        err = f"Could not create game: {CREATE_GAME_ERROR(connect_to_server.create_game.error)}"
         if connect_to_server.create_game.HasField("error_details"):
             err += f": {connect_to_server.create_game.error_details}"
         LOGGER.critical(err)
         raise RuntimeError(err)
-    return Client(server._ws)
+    return Client(server.web_service)
 
 
 async def _host_game(
@@ -151,7 +151,7 @@ async def _join_game(players, realtime, portconfig, save_replay_as=None, step_ti
     """Group requirements to host the game and create a replay for it"""
     async with SC2Process() as server:
         await server.ping()
-        client = Client(server._ws)
+        client = Client(server.web_service)
         try:
             result = await play_game(players[1], client, realtime, portconfig, step_time_limit, game_time_limit)
             if save_replay_as:

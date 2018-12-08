@@ -6,12 +6,12 @@ class BuildLair:
     """Maybe can be improved, probably its a bit greedy"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
         self.selected_bases = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Builds the lair"""
-        local_controller = self.ai
+        local_controller = self.controller
         self.selected_bases = local_controller.hatcheries.ready.idle
         return (
             not (local_controller.lairs or local_controller.hives)
@@ -23,9 +23,9 @@ class BuildLair:
             and not await self.morphing_hatcheries()
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Finishes the action of making the lair choosing the safest base"""
-        local_controller = self.ai
+        local_controller = self.controller
         local_controller.add_action(
             self.selected_bases.furthest_to(local_controller.game_info.map_center)(UPGRADETOLAIR_LAIR)
         )
@@ -33,7 +33,7 @@ class BuildLair:
 
     async def morphing_hatcheries(self):
         """Check if there is a hatchery morphing looping all hatcheries"""
-        local_controller = self.ai
+        local_controller = self.controller
         for hatch in local_controller.hatcheries:
             if await local_controller.is_morphing(hatch, CANCEL_MORPHLAIR):
                 return True

@@ -6,14 +6,13 @@ class BuildExtractor:
     """Can be improved, the ratio mineral-vespene still sightly off"""
 
     def __init__(self, ai):
-        self.ai = ai
-        self.drone = None
-        self.geyser = None
+        self.controller = ai
+        self.drone = self.geyser = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Couldn't find another way to build the geysers its way to inefficient,
          still trying to find the optimal number"""
-        local_controller = self.ai
+        local_controller = self.controller
         finished_bases = local_controller.townhalls.ready
         if (local_controller.vespene * 1.25 > local_controller.minerals) or (
             not local_controller.building_requirement(EXTRACTOR, finished_bases)
@@ -32,7 +31,7 @@ class BuildExtractor:
                 local_controller.hydradens and gas_amount < 7
             )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Just finish the action of building the extractor"""
-        self.ai.add_action(self.drone.build(EXTRACTOR, self.geyser))
+        self.controller.add_action(self.drone.build(EXTRACTOR, self.geyser))
         return True

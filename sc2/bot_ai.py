@@ -5,7 +5,7 @@ import logging
 from typing import List, Dict, Optional, Union
 import statistics
 from .position import Point2, Point3
-from .data import Race, ActionResult, race_worker, race_townhalls, race_gas, Target, Result
+from .data import RACE, ACTION_RESULT, race_worker, race_townhalls, race_gas, TARGET, RESULT
 from .unit import Unit
 from .cache import property_cache_forever
 from .game_data import AbilityData
@@ -47,10 +47,10 @@ class BotAI:
         self.state = None
 
     @property
-    def enemy_race(self) -> Race:
+    def enemy_race(self) -> RACE:
         """Returns the enemy race"""
         self.enemy_id = 3 - self.player_id
-        return Race(self._game_info.player_races[self.enemy_id])
+        return RACE(self._game_info.player_races[self.enemy_id])
 
     @property
     def time(self) -> Union[int, float]:
@@ -146,9 +146,9 @@ class BotAI:
         """Takes new expansion."""
         if not building:
             start_townhall_type = {
-                Race.Protoss: UnitTypeId.NEXUS,
-                Race.Terran: UnitTypeId.COMMANDCENTER,
-                Race.Zerg: UnitTypeId.HATCHERY,
+                RACE.Protoss: UnitTypeId.NEXUS,
+                RACE.Terran: UnitTypeId.COMMANDCENTER,
+                RACE.Zerg: UnitTypeId.HATCHERY,
             }
             building = start_townhall_type[self.race]
         assert isinstance(building, UnitTypeId)
@@ -298,19 +298,19 @@ class BotAI:
             ability_target = self._game_data.abilities[ability_id.value].proto.target
             if (
                 ability_target == 1
-                or ability_target == Target.PointOrNone.value
+                or ability_target == TARGET.PointOrNone.value
                 and isinstance(target, (Point2, Point3))
                 and unit.distance_to(target) <= cast_range
             ):
                 return True
             if (
-                ability_target in {Target.Unit.value, Target.PointOrUnit.value}
+                ability_target in {TARGET.Unit.value, TARGET.PointOrUnit.value}
                 and isinstance(target, Unit)
                 and unit.distance_to(target) <= cast_range
             ):
                 return True
             return (
-                ability_target in {Target.Point.value, Target.PointOrUnit.value}
+                ability_target in {TARGET.Point.value, TARGET.PointOrUnit.value}
                 and isinstance(target, (Point2, Point3))
                 and unit.distance_to(target) <= cast_range
             )
@@ -336,7 +336,7 @@ class BotAI:
         elif isinstance(building, AbilityId):
             building = self._game_data.abilities[building.value]
         placements = await self._client.query_building_placement(building, [position])
-        return placements[0] == ActionResult.Success
+        return placements[0] == ACTION_RESULT.Success
 
     async def find_placement(
         self,
@@ -368,7 +368,7 @@ class BotAI:
                 )
             ]
             res = await self._client.query_building_placement(building, possible_positions)
-            possible = [p for r, p in zip(res, possible_positions) if r == ActionResult.Success]
+            possible = [p for r, p in zip(res, possible_positions) if r == ACTION_RESULT.Success]
             if not possible:
                 continue
             if random_alternative:
@@ -386,10 +386,15 @@ class BotAI:
         assert isinstance(upgrade_type, UpgradeId)
         if upgrade_type in self.state.upgrades:
             return 1
+        level = None
+        if "LEVEL" in upgrade_type.name:
+            level = upgrade_type.name[-1]
         creation_ability_id = self._game_data.upgrades[upgrade_type.value].research_ability.id
         for structure in self.units.structure.ready:
             for order in structure.orders:
                 if order.ability.id == creation_ability_id:
+                    if level and order.ability.button_name[-1] != level:
+                        return 0
                     return order.progress
         return 0
 
@@ -432,17 +437,17 @@ class BotAI:
             building, near.rounded, max_distance, random_alternative, placement_step
         )
         if possible_placements is None:
-            return ActionResult.CantFindPlacementLocation
+            return ACTION_RESULT.CantFindPlacementLocation
         unit = unit or self.select_build_worker(possible_placements)
         if unit is None or not self.can_afford(building):
-            return ActionResult.Error
+            return ACTION_RESULT.Error
         return await self.do(unit.build(building, possible_placements))
 
     async def do(self, action):
         """Execute the action"""
         if not self.can_afford(action):
             LOGGER.warning(f"Cannot afford action {action}")
-            return ActionResult.Error
+            return ACTION_RESULT.Error
         possible_action = await self._client.actions(action, game_data=self._game_data)
         if not possible_action:
             cost = self._game_data.calculate_ability_cost(action.ability)
@@ -507,7 +512,7 @@ class BotAI:
         self._game_info: "GameInfo" = game_info
         self._game_data: GameData = game_data
         self.player_id: int = player_id
-        self.race: Race = Race(self._game_info.player_races[self.player_id])
+        self.race: RACE = RACE(self._game_info.player_races[self.player_id])
         self._units_previous_map: dict = dict()
         self.units: Units = Units([], game_data)
 
@@ -566,27 +571,22 @@ class BotAI:
 
     async def on_unit_destroyed(self, unit_tag):
         """ Override this in your bot class. """
-        pass
 
     async def on_unit_created(self, unit: Unit):
         """ Override this in your bot class. """
-        pass
 
     async def on_building_construction_complete(self, unit: Unit):
         """ Override this in your bot class. """
-        pass
 
     def on_start(self):
         """Allows initializing the bot when the game data is available."""
-        pass
 
     async def on_step(self, iteration: int):
         """Ran on every game step (looped in realtime mode)."""
         raise NotImplementedError
 
-    def on_end(self, game_result: Result):
+    def on_end(self, game_result: RESULT):
         """Ran at the end of a game."""
-        pass
 
 
 class CanAffordWrapper:

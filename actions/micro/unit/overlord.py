@@ -5,18 +5,13 @@ class Overlord:
     """Can be expanded further to spread vision better on the map"""
 
     def __init__(self, ai):
-        self.ai = ai
-        self.first_ov_scout = False
-        self.second_ov_scout = False
-        self.third_ov_scout = False
-        self.overlords = None
-        self.locations = None
-        self.selected_ov = None
-        self.scout_position = None
+        self.controller = ai
+        self.first_ov_scout = self.second_ov_scout = self.third_ov_scout = False
+        self.locations = self.selected_ov = self.scout_position = self.overlords = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         self.overlords = local_controller.overlords.ready
         self.locations = local_controller.ordered_expansions
         return (
@@ -25,9 +20,9 @@ class Overlord:
             and any(not flag for flag in (self.first_ov_scout, self.second_ov_scout, self.third_ov_scout))
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Send the ovs to the opponents natural, our natural and near it"""
-        local_controller = self.ai
+        local_controller = self.controller
         map_center = local_controller.game_info.map_center
         natural = self.locations[1]
         if not self.first_ov_scout:

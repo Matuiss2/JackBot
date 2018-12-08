@@ -2,12 +2,12 @@
 import random
 import sys
 import sc2
-from sc2 import Difficulty, Race
+from sc2 import DIFFICULTY, RACE
 from sc2.player import Bot, Computer
 from __init__ import run_ladder_game
 from main import JackBot
 
-BOT = Bot(Race.Zerg, JackBot())
+BOT = Bot(RACE.Zerg, JackBot())
 if __name__ == "__main__":
     if "--LadderServer" in sys.argv:
         # Ladder game started by LadderManager
@@ -20,7 +20,7 @@ if __name__ == "__main__":
             ["AcidPlantLE", "BlueshiftLE", "CeruleanFallLE", "DreamcatcherLE", "FractureLE", "LostAndFoundLE"]
         )
 
-        sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Random, Difficulty.CheatMoney)], realtime=False)
+        sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(RACE.Random, DIFFICULTY.CheatMoney)], realtime=False)
         # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)
         # sc2.run_game(sc2.maps.get("drone_scout_defense"), [bot], realtime=True)
         # sc2.run_game(sc2.maps.get("test_anti_colossus"),[bot, Computer(Race.Protoss,

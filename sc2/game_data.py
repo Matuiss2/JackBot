@@ -3,7 +3,7 @@ from bisect import bisect_left
 from functools import lru_cache, reduce
 from typing import List, Optional
 
-from .data import Attribute, Race
+from .data import ATTRIBUTE, RACE
 from .unit_command import UnitCommand
 
 from .ids.unit_typeid import UnitTypeId
@@ -176,13 +176,13 @@ class UnitTypeData:
         return None
 
     @property
-    def attributes(self) -> List[Attribute]:
+    def attributes(self) -> List[ATTRIBUTE]:
         """Return a list of attributes of the unit"""
         return self.proto.attributes
 
     def has_attribute(self, attr) -> bool:
         """Return True if the unit has specified attribute"""
-        assert isinstance(attr, Attribute)
+        assert isinstance(attr, ATTRIBUTE)
         return attr in self.attributes
 
     @property
@@ -231,9 +231,9 @@ class UnitTypeData:
         return UnitTypeId(self.proto.unit_alias)
 
     @property
-    def race(self) -> Race:
+    def race(self) -> RACE:
         """Returns the race which the unit belongs"""
-        return Race(self.proto.race)
+        return RACE(self.proto.race)
 
     @property
     def cost(self) -> "Cost":
@@ -243,7 +243,7 @@ class UnitTypeData:
     @property
     def cost_zerg_corrected(self) -> "Cost":
         """ This returns 25 for extractor and 200 for spawning pool instead of 75 and 250 respectively """
-        if self.race == Race.Zerg and Attribute.Structure.value in self.attributes:
+        if self.race == RACE.Zerg and ATTRIBUTE.Structure.value in self.attributes:
             return Cost(self.proto.mineral_cost - 50, self.proto.vespene_cost, self.proto.build_time)
         return self.cost
 

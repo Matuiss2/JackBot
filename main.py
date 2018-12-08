@@ -56,8 +56,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         CreepControl.__init__(self)
         DataContainer.__init__(self)
         self.debug = debug
-        self.actions = []
-        self.add_action = None
+        self.iteration = self.add_action = None
         self.unit_commands = (
             BlockExpansions(self),
             DefendWorkerRush(self),
@@ -105,9 +104,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             UpgradeGroovedSpines(self),
             UpgradeMuscularAugments(self),
         )
-        self.locations = []
-        self.ordered_expansions = []
-        self.building_positions = []
+        self.ordered_expansions = self.building_positions = self.locations = self.actions = []
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
@@ -128,6 +125,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
 
     async def on_step(self, iteration):
         """Calls used units here, so it just calls it once per loop"""
+        self.iteration = iteration
         self.prepare_data()
         self.set_game_step()
         self.actions = []
@@ -136,28 +134,29 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             self.locations = list(self.expansion_locations.keys())
             self.prepare_expansions()
             self.split_workers()
-        await self.run_commands(self.unit_commands, iteration)
-        await self.run_commands(self.train_commands, iteration)
-        await self.run_commands(self.build_commands, iteration)
-        await self.run_commands(self.upgrade_commands, iteration)
+        await self.run_commands(self.unit_commands)
+        await self.run_commands(self.train_commands)
+        await self.run_commands(self.build_commands)
+        await self.run_commands(self.upgrade_commands)
         if self.actions:
             if self.debug:
                 print(self.actions)
             await self.do_actions(self.actions)
 
-    async def run_commands(self, commands, iteration):
+    async def run_commands(self, commands):
         """Group all requirements and execution for a class logic"""
         for command in commands:
-            if await command.should_handle(iteration):
+            if await command.should_handle():
                 if self.debug:
                     print(f"Handling: {command.__class__}")
-                await command.handle(iteration)
+                await command.handle()
 
     def can_train(self, unit_type, requirement=True, larva=True):
         """Global requirements for creating an unit"""
         return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type) and requirement
 
     def building_requirement(self, unit_type, requirement=True):
+        """Global requirements for building every structure"""
         return requirement and self.can_afford(unit_type)
 
     def can_build_unique(self, unit_type, building, requirement=True):

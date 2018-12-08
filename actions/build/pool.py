@@ -6,20 +6,20 @@ class BuildPool:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Should this action be handled"""
-        local_controller = self.ai
+        local_controller = self.controller
         return local_controller.can_build_unique(SPAWNINGPOOL, local_controller.pools) and (
             len(local_controller.townhalls) >= 2
             or local_controller.close_enemy_production
             or local_controller.time > 145
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
-        local_controller = self.ai
+        local_controller = self.controller
         position = await local_controller.get_production_position()
         if position:
             await local_controller.build(SPAWNINGPOOL, position)
@@ -29,8 +29,9 @@ class BuildPool:
 
     def hardcoded_position(self):
         """Previous placement"""
-        local_controller = self.ai
+        local_controller = self.controller
         if local_controller.townhalls:
             return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
                 local_controller.game_info.map_center, -10
             )
+        return False

@@ -6,16 +6,16 @@ class UpgradeChitinousPlating:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
         self.selected_caverns = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         self.selected_caverns = local_controller.caverns.idle
         return local_controller.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.selected_caverns)
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading ultra armor"""
-        self.ai.add_action(self.selected_caverns.first(RESEARCH_CHITINOUSPLATING))
+        self.controller.add_action(self.selected_caverns.first(RESEARCH_CHITINOUSPLATING))
         return True

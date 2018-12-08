@@ -6,12 +6,12 @@ class UpgradeBurrow:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
         self.selected_bases = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         self.selected_bases = local_controller.hatcheries.idle
         return (
             len(local_controller.zerglings) >= 19
@@ -25,7 +25,7 @@ class UpgradeBurrow:
             and local_controller.can_upgrade(BURROW, RESEARCH_BURROW, self.selected_bases)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading burrow"""
-        self.ai.add_action(self.selected_bases.random(RESEARCH_BURROW))
+        self.controller.add_action(self.selected_bases.random(RESEARCH_BURROW))
         return True

@@ -6,11 +6,11 @@ class BuildEvochamber:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Builds the evolution chambers"""
-        local_controller = self.ai
+        local_controller = self.controller
         return (
             local_controller.building_requirement(EVOLUTIONCHAMBER, local_controller.pools.ready)
             and (
@@ -20,9 +20,9 @@ class BuildEvochamber:
             and len(local_controller.evochambers) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
-        local_controller = self.ai
+        local_controller = self.controller
         position = await local_controller.get_production_position()
         if position:
             await local_controller.build(EVOLUTIONCHAMBER, position)
@@ -33,7 +33,7 @@ class BuildEvochamber:
 
     def hardcoded_position(self):
         """Previous placement"""
-        local_controller = self.ai
+        local_controller = self.controller
         return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
             local_controller.game_info.map_center, -14
         )

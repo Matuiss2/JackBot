@@ -3,7 +3,7 @@ from typing import List, Set, Optional, Union
 from s2clientprotocol import raw_pb2 as raw_pb
 from sc2.ids.buff_id import BuffId
 from .position import Point2, Point3
-from .data import Alliance, Attribute, DisplayType, warpgate_abilities, TargetType, Race, CloakState
+from .data import ALLIANCE, ATTRIBUTE, DISPLAY_TYPE, warpgate_abilities, TARGET_TYPE, RACE, CLOAK_STATE
 from .game_data import GameData, UnitTypeData
 from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
@@ -35,27 +35,27 @@ class Unit:
     @property
     def is_snapshot(self) -> bool:
         """Checks if the unit was visible on a snapshot"""
-        return self.proto.display_type == DisplayType.Snapshot.value
+        return self.proto.display_type == DISPLAY_TYPE.Snapshot.value
 
     @property
     def is_visible(self) -> bool:
         """Checks if the unit is outside the FOW"""
-        return self.proto.display_type == DisplayType.Visible.value
+        return self.proto.display_type == DISPLAY_TYPE.Visible.value
 
     @property
-    def alliance(self) -> Alliance:
+    def alliance(self) -> ALLIANCE:
         """Returns the unit alliance"""
         return self.proto.alliance
 
     @property
     def is_mine(self) -> bool:
         """Checks if the unit is mine"""
-        return self.proto.alliance == Alliance.Self.value
+        return self.proto.alliance == ALLIANCE.Self.value
 
     @property
     def is_enemy(self) -> bool:
         """Checks if the unit is from the enemy"""
-        return self.proto.alliance == Alliance.Enemy.value
+        return self.proto.alliance == ALLIANCE.Enemy.value
 
     @property
     def tag(self) -> int:
@@ -113,7 +113,7 @@ class Unit:
         return self.build_progress == 1.0
 
     @property
-    def cloak(self) -> CloakState:
+    def cloak(self) -> CLOAK_STATE:
         """Returns if the unit is cloaked(not sure)"""
         return self.proto.cloak
 
@@ -140,42 +140,42 @@ class Unit:
     @property
     def is_structure(self) -> bool:
         """Checks if the unit is a structure"""
-        return Attribute.Structure.value in self.type_data.attributes
+        return ATTRIBUTE.Structure.value in self.type_data.attributes
 
     @property
     def is_light(self) -> bool:
         """Checks if the unit is from the light class"""
-        return Attribute.Light.value in self.type_data.attributes
+        return ATTRIBUTE.Light.value in self.type_data.attributes
 
     @property
     def is_armored(self) -> bool:
         """Checks if the unit is from the armored class"""
-        return Attribute.Armored.value in self.type_data.attributes
+        return ATTRIBUTE.Armored.value in self.type_data.attributes
 
     @property
     def is_biological(self) -> bool:
         """Checks if the unit is from the biological class"""
-        return Attribute.Biological.value in self.type_data.attributes
+        return ATTRIBUTE.Biological.value in self.type_data.attributes
 
     @property
     def is_mechanical(self) -> bool:
         """Checks if the unit is from the mechanical class"""
-        return Attribute.Mechanical.value in self.type_data.attributes
+        return ATTRIBUTE.Mechanical.value in self.type_data.attributes
 
     @property
     def is_robotic(self) -> bool:
         """Checks if the unit is from the robotic class"""
-        return Attribute.Robotic.value in self.type_data.attributes
+        return ATTRIBUTE.Robotic.value in self.type_data.attributes
 
     @property
     def is_massive(self) -> bool:
         """Checks if the unit is from the massive class"""
-        return Attribute.Massive.value in self.type_data.attributes
+        return ATTRIBUTE.Massive.value in self.type_data.attributes
 
     @property
     def is_psionic(self) -> bool:
         """Checks if the unit is from the psionic class"""
-        return Attribute.Psionic.value in self.type_data.attributes
+        return ATTRIBUTE.Psionic.value in self.type_data.attributes
 
     @property
     def is_mineral_field(self) -> bool:
@@ -202,9 +202,9 @@ class Unit:
         return self.type_data.unit_alias
 
     @property
-    def race(self) -> Race:
+    def race(self) -> RACE:
         """Returns the unit race"""
-        return Race(self.type_data.proto.race)
+        return RACE(self.type_data.proto.race)
 
     @property
     def health(self) -> Union[int, float]:
@@ -336,7 +336,7 @@ class Unit:
             return self._ground_weapon
         if self.weapons:
             self._ground_weapon = next(
-                (weapon for weapon in self.weapons if weapon.type in {TargetType.Ground.value, TargetType.Any.value}),
+                (weapon for weapon in self.weapons if weapon.type in {TARGET_TYPE.Ground.value, TARGET_TYPE.Any.value}),
                 None,
             )
             return self._ground_weapon
@@ -349,7 +349,8 @@ class Unit:
             return self._air_weapon
         if self.weapons:
             self._air_weapon = next(
-                (weapon for weapon in self.weapons if weapon.type in {TargetType.Air.value, TargetType.Any.value}), None
+                (weapon for weapon in self.weapons if weapon.type in {TARGET_TYPE.Air.value, TARGET_TYPE.Any.value}),
+                None,
             )
             return self._air_weapon
         return None
@@ -360,7 +361,7 @@ class Unit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in {TargetType.Ground.value, TargetType.Any.value}), None
+                (weapon for weapon in weapons if weapon.type in {TARGET_TYPE.Ground.value, TARGET_TYPE.Any.value}), None
             )
             return weapon is not None
         return False
@@ -371,7 +372,7 @@ class Unit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in {TargetType.Ground.value, TargetType.Any.value}), None
+                (weapon for weapon in weapons if weapon.type in {TARGET_TYPE.Ground.value, TARGET_TYPE.Any.value}), None
             )
             if weapon:
                 return (weapon.damage * weapon.attacks) / weapon.speed
@@ -672,9 +673,9 @@ class PassengerUnit:
         return self.type_data.name
 
     @property
-    def race(self) -> Race:
+    def race(self) -> RACE:
         """Returns unit race"""
-        return Race(self.type_data.proto.race)
+        return RACE(self.type_data.proto.race)
 
     @property
     def tag(self) -> int:
@@ -684,37 +685,37 @@ class PassengerUnit:
     @property
     def is_structure(self) -> bool:
         """Checks if the unit is a structure"""
-        return Attribute.Structure.value in self.type_data.attributes
+        return ATTRIBUTE.Structure.value in self.type_data.attributes
 
     @property
     def is_light(self) -> bool:
         """Checks if the unit is from the light class"""
-        return Attribute.Light.value in self.type_data.attributes
+        return ATTRIBUTE.Light.value in self.type_data.attributes
 
     @property
     def is_armored(self) -> bool:
         """Checks if the unit is from the armored class"""
-        return Attribute.Armored.value in self.type_data.attributes
+        return ATTRIBUTE.Armored.value in self.type_data.attributes
 
     @property
     def is_biological(self) -> bool:
         """Checks if the unit is from the biological class"""
-        return Attribute.Biological.value in self.type_data.attributes
+        return ATTRIBUTE.Biological.value in self.type_data.attributes
 
     @property
     def is_mechanical(self) -> bool:
         """Checks if the unit is from the mechanical class"""
-        return Attribute.Mechanical.value in self.type_data.attributes
+        return ATTRIBUTE.Mechanical.value in self.type_data.attributes
 
     @property
     def is_robotic(self) -> bool:
         """Checks if the unit is from the robotic class"""
-        return Attribute.Robotic.value in self.type_data.attributes
+        return ATTRIBUTE.Robotic.value in self.type_data.attributes
 
     @property
     def is_massive(self) -> bool:
         """Checks if the unit is from the massive class"""
-        return Attribute.Massive.value in self.type_data.attributes
+        return ATTRIBUTE.Massive.value in self.type_data.attributes
 
     @property
     def cargo_size(self) -> Union[float, int]:
@@ -727,7 +728,7 @@ class PassengerUnit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in [TargetType.Ground.value, TargetType.Any.value]), None
+                (weapon for weapon in weapons if weapon.type in [TARGET_TYPE.Ground.value, TARGET_TYPE.Any.value]), None
             )
             return weapon is not None
         return False
@@ -738,7 +739,7 @@ class PassengerUnit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in [TargetType.Ground.value, TargetType.Any.value]), None
+                (weapon for weapon in weapons if weapon.type in [TARGET_TYPE.Ground.value, TARGET_TYPE.Any.value]), None
             )
             if weapon:
                 return (weapon.damage * weapon.attacks) / weapon.speed
@@ -750,7 +751,7 @@ class PassengerUnit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in [TargetType.Ground.value, TargetType.Any.value]), None
+                (weapon for weapon in weapons if weapon.type in [TARGET_TYPE.Ground.value, TARGET_TYPE.Any.value]), None
             )
             if weapon:
                 return weapon.range
@@ -762,7 +763,7 @@ class PassengerUnit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in [TargetType.Air.value, TargetType.Any.value]), None
+                (weapon for weapon in weapons if weapon.type in [TARGET_TYPE.Air.value, TARGET_TYPE.Any.value]), None
             )
             return weapon is not None
         return False
@@ -773,7 +774,7 @@ class PassengerUnit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in [TargetType.Air.value, TargetType.Any.value]), None
+                (weapon for weapon in weapons if weapon.type in [TARGET_TYPE.Air.value, TARGET_TYPE.Any.value]), None
             )
             if weapon:
                 return (weapon.damage * weapon.attacks) / weapon.speed
@@ -785,7 +786,7 @@ class PassengerUnit:
         if hasattr(self.type_data.proto, "weapons"):
             weapons = self.type_data.proto.weapons
             weapon = next(
-                (weapon for weapon in weapons if weapon.type in [TargetType.Air.value, TargetType.Any.value]), None
+                (weapon for weapon in weapons if weapon.type in [TARGET_TYPE.Air.value, TARGET_TYPE.Any.value]), None
             )
             if weapon:
                 return weapon.range

@@ -6,22 +6,20 @@ class QueensAbilities:
     """Can be improved(Defense not utility)"""
 
     def __init__(self, ai):
-        self.ai = ai
-        self.queens = None
-        self.bases = None
-        self.enemies = None
+        self.controller = ai
+        self.queens = self.bases = self.enemies = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Injection and creep spread, can be expanded so it accepts transfusion"""
-        local_controller = self.ai
+        local_controller = self.controller
         self.queens = local_controller.queens
         self.bases = local_controller.townhalls
         self.enemies = local_controller.enemies.not_structure
         return self.queens and self.bases
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
-        local_controller = self.ai
+        local_controller = self.controller
         if not (local_controller.floating_buildings_bm and local_controller.supply_used >= 199):
             action = local_controller.add_action
             for queen in self.queens.idle:

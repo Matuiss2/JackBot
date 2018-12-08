@@ -5,7 +5,7 @@ from .position import Point2
 from .unit import Unit
 
 
-def combine_actions(action_iter, game_data):
+def combine_actions(action_iter):
     """Initialize the actions requirements"""
     for key, items in groupby(action_iter, key=lambda a: a.combining_tuple):
         ability, target, queue = key

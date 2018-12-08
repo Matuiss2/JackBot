@@ -41,7 +41,7 @@ async def join_ladder_game(
     """Run the requirements for joining the ladder and save the replay if requested"""
     async with SC2Process(host=host, port=port) as server:
         await server.ping()
-        client = Client(server._ws)
+        client = Client(server.web_service)
         try:
             result = await sc2.main.play_game(
                 players[0], client, realtime, portconfig, step_time_limit, game_time_limit
@@ -51,6 +51,6 @@ async def join_ladder_game(
             await client.leave()
             await client.quit()
         except ConnectionAlreadyClosed:
-            logging.error(f"Connection was closed before the game ended")
+            logging.error("Connection was closed before the game ended")
             return None
         return result

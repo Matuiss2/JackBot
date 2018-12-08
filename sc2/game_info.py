@@ -187,7 +187,7 @@ class GameInfo:
         for point in points:
             paint(point)
         remaining: Set[Point2] = set(points)
-        queue: Deque[Point2] = deque()
+        queue: [Point2] = deque()
         found_groups: List[Set[Point2]] = []
         while remaining:
             current_group: Set[Point2] = set()
