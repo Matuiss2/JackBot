@@ -34,3 +34,4 @@ class BuildPool:
             return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
                 local_controller.game_info.map_center, -10
             )
+        return False

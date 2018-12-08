@@ -60,10 +60,11 @@ class DefendWorkerRush(Micro):
 
     def refill_defense_force(self, enemy_count):
         """If there is less workers on the defenders force than the ideal refill it"""
-        self.defenders = self.controller.drones.filter(
+        local_controller = self.controller
+        self.defenders = local_controller.drones.filter(
             lambda worker: worker.tag in self.defender_tags and worker.health > 0
         )
-        defender_deficit = min(len(self.controller.drones) - 1, enemy_count + enemy_count) - len(self.defenders)
+        defender_deficit = min(len(local_controller.drones) - 1, enemy_count + enemy_count) - len(self.defenders)
         if defender_deficit > 0:
             additional_drones = self.defense_force(defender_deficit)
             self.defender_tags = self.defender_tags + additional_drones

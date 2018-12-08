@@ -160,6 +160,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type) and requirement
 
     def building_requirement(self, unit_type, requirement=True):
+        """Global requirements for building every structure"""
         return requirement and self.can_afford(unit_type)
 
     def can_build_unique(self, unit_type, building, requirement=True):
