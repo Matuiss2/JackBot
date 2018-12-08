@@ -6,11 +6,11 @@ class TrainZergling:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
     async def should_handle(self):
         """good enough for now, maybe ratio values can be improved"""
-        local_controller = self.ai
+        local_controller = self.controller
         zerglings = local_controller.zerglings
         if (
             not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150
@@ -30,6 +30,6 @@ class TrainZergling:
 
     async def handle(self):
         """Execute the action of training zerglings"""
-        local_controller = self.ai
+        local_controller = self.controller
         local_controller.add_action(local_controller.larvae.random.train(ZERGLING))
         return True

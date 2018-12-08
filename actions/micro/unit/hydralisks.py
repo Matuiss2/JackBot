@@ -41,7 +41,7 @@ class HydraControl(Micro):
         if self.hydra_move_speed:
             our_movespeed *= 1.25
         # If we're on creep, it's 30% more.
-        if self.ai.has_creep(unit):
+        if self.controller.has_creep(unit):
             our_movespeed *= 1.30
         # If we've been hit with Marauder's Concussive Shells, our movespeed is half.
         if unit.has_buff(DUTCHMARAUDERSLOW):

@@ -6,13 +6,13 @@ class BuildSpores:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
         self.selected_base = None
         self.spore_building_trigger = False
 
     async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         base = local_controller.townhalls.ready
         spores = local_controller.spores
         self.spore_building_trigger = (
@@ -30,7 +30,7 @@ class BuildSpores:
 
     async def handle(self):
         """Build the spore right on the middle of the base, sometimes it fails"""
-        local_controller = self.ai
+        local_controller = self.controller
         state = local_controller.state
         for base in local_controller.townhalls.ready:
             spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)

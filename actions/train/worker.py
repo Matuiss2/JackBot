@@ -7,11 +7,11 @@ class TrainWorker:
     """Needs improvements, its very greedy sometimes"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
     async def should_handle(self):
         """Should this action be handled, needs more smart limitations, its very greedy sometimes"""
-        local_controller = self.ai
+        local_controller = self.controller
         workers_total = len(local_controller.workers)
         geysers = local_controller.extractors
         drones_in_queue = local_controller.already_pending(DRONE)
@@ -48,6 +48,6 @@ class TrainWorker:
 
     async def handle(self):
         """Execute the action of training drones"""
-        local_controller = self.ai
+        local_controller = self.controller
         local_controller.add_action(local_controller.larvae.random.train(DRONE))
         return True

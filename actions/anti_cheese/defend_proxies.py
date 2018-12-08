@@ -17,12 +17,12 @@ class DefendProxies:
     """Needs improvements on the quantity"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
         self.rush_buildings = None
 
     async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         if local_controller.townhalls:
             self.rush_buildings = local_controller.enemy_structures.exclude_type(
                 {AUTOTURRET, BARRACKS, GATEWAY}
@@ -39,7 +39,7 @@ class DefendProxies:
         return len(
             [
                 "attacker"
-                for attacker in self.ai.units.filter(lambda x: x.is_attacking)
+                for attacker in self.controller.units.filter(lambda x: x.is_attacking)
                 if attacker.order_target == unit.tag
             ]
         )
@@ -48,12 +48,12 @@ class DefendProxies:
         """Pull 3 drones to destroy the proxy building"""
         for target in mode:
             if self.is_being_attacked(target) < 3 and available:
-                self.ai.add_action(available.closest_to(target).attack(target))
+                self.controller.add_action(available.closest_to(target).attack(target))
 
     async def handle(self):
         """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
          surface area possible when attacking the buildings"""
-        local_controller = self.ai
+        local_controller = self.controller
         drones = local_controller.drones
         available = drones.filter(lambda x: x.is_collecting and not x.is_attacking)
         # self.rush_buildings = local_controller.enemy_structures.closer_than(20, self.townhalls.first)

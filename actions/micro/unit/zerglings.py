@@ -15,12 +15,12 @@ class ZerglingControl(Micro):
             return True
         if self.move_to_next_target(unit, targets):
             return True
-        self.ai.add_action(unit.attack(targets.closest_to(unit.position)))
+        self.controller.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
     def baneling_dodge(self, unit, targets):
         """If the enemy has banelings, run baneling dodging code."""
-        local_controller = self.ai
+        local_controller = self.controller
         action = local_controller.add_action
         banelings = self.baneling_group(unit, targets)
         self.handling_anti_banelings_group()
@@ -65,7 +65,7 @@ class ZerglingControl(Micro):
 
     def handling_anti_banelings_group(self):
         """If the sacrificial zergling dies before the missions is over remove him from the group"""
-        local_controller = self.ai
+        local_controller = self.controller
         for zergling in list(self.baneling_sacrifices):
             if (
                 zergling not in local_controller.units()
@@ -76,5 +76,5 @@ class ZerglingControl(Micro):
     def baneling_trigger(self, unit, baneling):
         """If we haven't triggered any banelings, trigger it."""
         self.baneling_sacrifices[unit] = baneling
-        self.ai.add_action(unit.attack(baneling))
+        self.controller.add_action(unit.attack(baneling))
         return True

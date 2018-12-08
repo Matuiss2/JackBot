@@ -6,11 +6,11 @@ class BuildPit:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
     async def should_handle(self):
         """Builds the infestation pit, placement fails on very limited situations"""
-        local_controller = self.ai
+        local_controller = self.controller
         return (
             len(local_controller.townhalls) > 4
             and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2)
@@ -19,7 +19,7 @@ class BuildPit:
 
     async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
-        local_controller = self.ai
+        local_controller = self.controller
         position = await local_controller.get_production_position()
         if position:
             await local_controller.build(INFESTATIONPIT, position)
@@ -29,7 +29,7 @@ class BuildPit:
 
     def hardcoded_position(self):
         """Previous placement"""
-        local_controller = self.ai
+        local_controller = self.controller
         return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
             local_controller.game_info.map_center, -14
         )

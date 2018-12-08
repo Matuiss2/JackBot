@@ -33,7 +33,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
     """Can be improved"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
         self.retreat_units = set()
         self.baneling_sacrifices = {}
         self.rally_point = None
@@ -43,7 +43,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         return (
             local_controller.zerglings
             | local_controller.ultralisks
@@ -55,7 +55,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         """It surrounds and target low hp units, also retreats when overwhelmed,
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""
-        local_controller = self.ai
+        local_controller = self.controller
         action = local_controller.add_action
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
@@ -106,16 +106,16 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
         if unit.position.distance_to_point2(self.rally_point) > 5:
-            self.ai.add_action(unit.move(self.rally_point))
+            self.controller.add_action(unit.move(self.rally_point))
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated"""
-        if self.ai.townhalls.closer_than(15, unit.position):
+        if self.controller.townhalls.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
     def retreat_unit(self, unit, combined_enemies):
         """Tell the unit to retreat when overwhelmed"""
-        local_controller = self.ai
+        local_controller = self.controller
         if (
             local_controller.townhalls
             and not local_controller.close_enemies_to_base
@@ -139,7 +139,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     def idle_unit(self, unit):
         """Control the idle units, by gathering then or telling then to attack"""
-        local_controller = self.ai
+        local_controller = self.controller
         if (
             local_controller.supply_used not in range(198, 201)
             and np.sum(
@@ -169,7 +169,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     def attack_closest_building(self, unit):
         """Attack the starting location"""
-        local_controller = self.ai
+        local_controller = self.controller
         enemy_building = local_controller.enemy_structures.not_flying
         if enemy_building:
             local_controller.add_action(
@@ -178,13 +178,13 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     def attack_startlocation(self, unit):
         """It tell to attack the starting location"""
-        local_controller = self.ai
+        local_controller = self.controller
         if local_controller.enemy_start_locations:
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
 
     def anti_proxy_trigger(self, unit):
         """It triggers the anti-proxy logic"""
-        local_controller = self.ai
+        local_controller = self.controller
         spines = local_controller.spines
         return (
             local_controller.close_enemy_production
@@ -207,7 +207,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         targets = None
         hydra_targets = None
         combined_enemies = None
-        local_controller = self.ai
+        local_controller = self.controller
         enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
         if enemy_units:
@@ -237,7 +237,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
-        local_controller = self.ai
+        local_controller = self.controller
         enemy_building = local_controller.enemy_structures
         flying_buildings = enemy_building.flying
         if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and flying_buildings:
@@ -247,7 +247,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     async def handling_walls_and_attacking(self, unit, target):
         """It micros normally if no wall, if there is one attack it"""
-        local_controller = self.ai
+        local_controller = self.controller
         unit_position = unit.position
         closest_target = target.closest_to
         attack_command = unit.attack
@@ -262,7 +262,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     def keep_attacking(self, unit, target):
         """It keeps the attack going if it meets the requirements no matter what"""
-        local_controller = self.ai
+        local_controller = self.controller
         unit_position = unit.position
         attack_command = unit.attack
         action = local_controller.add_action
@@ -280,7 +280,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     def behavior_changing_upgrades_check(self):
         """Check for upgrades the will change how the units behavior are calculated"""
-        local_controller = self.ai
+        local_controller = self.controller
         if not self.zergling_atk_speed and local_controller.hives:
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
         if not self.hydra_move_speed and local_controller.hydradens:

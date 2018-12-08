@@ -7,11 +7,11 @@ class Buildings:
      but it should prevent cancelled buildings to be replaced right after"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
     async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
         return (
             local_controller.time < 300
             if local_controller.close_enemy_production
@@ -20,7 +20,7 @@ class Buildings:
 
     async def handle(self):
         """Make the cancelling general"""
-        local_controller = self.ai
+        local_controller = self.controller
         for building in local_controller.structures.not_ready.exclude_type(local_controller.tumors):
             build_progress = building.build_progress
             relative_health = building.health_percentage
