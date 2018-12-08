@@ -20,6 +20,5 @@ class UpgradeAdrenalGlands:
 
     async def handle(self, iteration):
         """Execute the action of upgrading zergling atk speed"""
-        local_controller = self.ai
-        local_controller.add_action(self.selected_pools.first(RESEARCH_ZERGLINGADRENALGLANDS))
+        self.ai.add_action(self.selected_pools.first(RESEARCH_ZERGLINGADRENALGLANDS))
         return True

@@ -21,6 +21,5 @@ class UpgradeMuscularAugments:
 
     async def handle(self, iteration):
         """Execute the action of upgrading hydras speed"""
-        local_controller = self.ai
-        local_controller.add_action(self.selected_dens.first(RESEARCH_MUSCULARAUGMENTS))
+        self.ai.add_action(self.selected_dens.first(RESEARCH_MUSCULARAUGMENTS))
         return True

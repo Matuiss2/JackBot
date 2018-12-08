@@ -20,6 +20,5 @@ class UpgradeGroovedSpines:
 
     async def handle(self, iteration):
         """Execute the action of upgrading hydras atk speed"""
-        local_controller = self.ai
-        local_controller.add_action(self.selected_dens.first(RESEARCH_GROOVEDSPINES))
+        self.ai.add_action(self.selected_dens.first(RESEARCH_GROOVEDSPINES))
         return True
