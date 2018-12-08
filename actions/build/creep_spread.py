@@ -2,7 +2,7 @@
 import math
 
 from sc2.constants import BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, ZERGBUILD_CREEPTUMOR
-from sc2.data import ActionResult
+from sc2.data import ACTION_RESULT
 from sc2.position import Point2
 
 
@@ -49,7 +49,7 @@ class CreepControl:
             self.game_data.abilities[ZERGBUILD_CREEPTUMOR.value], positions
         )
         # filter valid results
-        valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ActionResult.Success]
+        valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ACTION_RESULT.Success]
         creep_destination = self.enemy_start_locations[0]
         if valid_placements:
             tumors = self.tumors

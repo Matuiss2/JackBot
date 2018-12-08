@@ -56,9 +56,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         CreepControl.__init__(self)
         DataContainer.__init__(self)
         self.debug = debug
-        self.iteration = None
-        self.actions = []
-        self.add_action = None
+        self.iteration = self.add_action = None
         self.unit_commands = (
             BlockExpansions(self),
             DefendWorkerRush(self),
@@ -106,9 +104,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             UpgradeGroovedSpines(self),
             UpgradeMuscularAugments(self),
         )
-        self.locations = []
-        self.ordered_expansions = []
-        self.building_positions = []
+        self.ordered_expansions = self.building_positions = self.locations = self.actions = []
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""

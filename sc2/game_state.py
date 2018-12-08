@@ -6,7 +6,7 @@ from .pixel_map import PixelMap
 from .ids.upgrade_id import UpgradeId
 from .ids.effect_id import EffectId
 from .position import Point2, Point3
-from .data import Alliance, DisplayType
+from .data import ALLIANCE, DISPLAY_TYPE
 from .score import ScoreDetails
 
 
@@ -24,27 +24,27 @@ class Blip:
     @property
     def is_snapshot(self) -> bool:
         """Detected for just a small moment(f.e tanks that shoot you on the high ground)"""
-        return self.proto.display_type == DisplayType.Snapshot.value
+        return self.proto.display_type == DISPLAY_TYPE.Snapshot.value
 
     @property
     def is_visible(self) -> bool:
         """Detected- its outside the fog of war"""
-        return self.proto.display_type == DisplayType.Visible.value
+        return self.proto.display_type == DISPLAY_TYPE.Visible.value
 
     @property
-    def alliance(self) -> Alliance:
+    def alliance(self) -> ALLIANCE:
         """Its an ally's unit"""
         return self.proto.alliance
 
     @property
     def is_mine(self) -> bool:
         """Its a bot's unit"""
-        return self.proto.alliance == Alliance.Self.value
+        return self.proto.alliance == ALLIANCE.Self.value
 
     @property
     def is_enemy(self) -> bool:
         """Its an enemy unit"""
-        return self.proto.alliance == Alliance.Enemy.value
+        return self.proto.alliance == ALLIANCE.Enemy.value
 
     @property
     def position(self) -> Point2:

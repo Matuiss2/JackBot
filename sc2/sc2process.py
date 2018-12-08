@@ -5,7 +5,7 @@ import sys
 import signal
 import time
 import asyncio
-import os.path
+import os
 import shutil
 import tempfile
 import subprocess
@@ -52,7 +52,7 @@ class SC2Process:
         self._tmp_dir = tempfile.mkdtemp(prefix="SC2_")
         self.process = None
         self._session = None
-        self._ws = None
+        self.web_service = None
 
     async def __aenter__(self):
         KillSwitch.add(self)
@@ -64,13 +64,13 @@ class SC2Process:
 
         try:
             self.process = self._launch()
-            self._ws = await self._connect()
+            self.web_service = await self._connect()
         except:
             await self._close_connection()
             self.clean()
             raise
 
-        return Controller(self._ws, self)
+        return Controller(self.web_service, self)
 
     async def __aexit__(self, *args):
         KillSwitch.kill_all()
@@ -108,8 +108,8 @@ class SC2Process:
             await asyncio.sleep(1)
             try:
                 self._session = aiohttp.ClientSession()
-                ws = await self._session.ws_connect(self.ws_url, timeout=60)
-                return ws
+                web_service = await self._session.ws_connect(self.ws_url, timeout=60)
+                return web_service
             except aiohttp.client_exceptions.ClientConnectorError:
                 await self._session.close()
                 if i > 15:
@@ -120,8 +120,8 @@ class SC2Process:
 
     async def _close_connection(self):
         """Closes the connection to the server"""
-        if self._ws is not None:
-            await self._ws.close()
+        if self.web_service is not None:
+            await self.web_service.close()
         if self._session is not None:
             await self._session.close()
 
@@ -140,5 +140,4 @@ class SC2Process:
                     LOGGER.error("KILLED")
         if os.path.exists(self._tmp_dir):
             shutil.rmtree(self._tmp_dir)
-        self.process = None
-        self._ws = None
+        self.process = self.web_service = None

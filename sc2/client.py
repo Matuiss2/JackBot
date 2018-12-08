@@ -13,8 +13,8 @@ from sc2.ids.unit_typeid import UnitTypeId
 from .protocol import Protocol, ProtocolError
 from .game_info import GameInfo
 from .game_data import GameData, AbilityData
-from .data import Status, Result
-from .data import Race, ActionResult, ChatChannel
+from .data import STATUS, RESULT
+from .data import RACE, ACTION_RESULT, CHAT_CHANNEL
 from .action import combine_actions
 from .position import Point2, Point3
 from .unit import Unit
@@ -40,7 +40,7 @@ class Client(Protocol):
     @property
     def in_game(self):
         """Returns True if in game"""
-        return self._status == Status.in_game
+        return self._status == STATUS.in_game
 
     async def join_game(self, race=None, observed_player_id=None, portconfig=None):
         """Returns True if it succeeded in joining the game"""
@@ -50,7 +50,7 @@ class Client(Protocol):
             # join as observer
             req = sc_pb.RequestJoinGame(observed_player_id=observed_player_id, options=ifopts)
         else:
-            assert isinstance(race, Race)
+            assert isinstance(race, RACE)
             req = sc_pb.RequestJoinGame(race=race.value, options=ifopts)
         if portconfig:
             req.shared_port = portconfig.shared
@@ -69,7 +69,7 @@ class Client(Protocol):
         """ You can use 'await self._client.leave()' to surrender midst game. """
         is_resign = self.game_result is None
         if is_resign:
-            self.game_result = {self._player_id: Result.Defeat}
+            self.game_result = {self._player_id: RESULT.Defeat}
         try:
             await self._execute(leave_game=sc_pb.RequestLeaveGame())
         except ProtocolError:
@@ -93,7 +93,7 @@ class Client(Protocol):
                 assert result.observation.player_result
             player_id_to_result = {}
             for player_result in result.observation.player_result:
-                player_id_to_result[player_result.player_id] = Result(player_result.result)
+                player_id_to_result[player_result.player_id] = RESULT(player_result.result)
             self.game_result = player_id_to_result
         return result
 
@@ -123,10 +123,10 @@ class Client(Protocol):
             return None
         actions = combine_actions(actions)
         res = await self._execute(action=sc_pb.RequestAction(actions=[sc_pb.Action(action_raw=a) for a in actions]))
-        res = [ActionResult(r) for r in res.action.result]
+        res = [ACTION_RESULT(r) for r in res.action.result]
         if return_successes:
             return res
-        return [r for r in res if r != ActionResult.Success]
+        return [r for r in res if r != ACTION_RESULT.Success]
 
     async def query_pathing(
         self, start: Union[Unit, Point2, Point3], end: Union[Point2, Point3]
@@ -195,7 +195,7 @@ class Client(Protocol):
 
     async def query_building_placement(
         self, ability: AbilityId, positions: List[Union[Unit, Point2, Point3]], ignore_resources: bool = True
-    ) -> List[ActionResult]:
+    ) -> List[ACTION_RESULT]:
         """Query available building placements"""
         assert isinstance(ability, AbilityData)
         result = await self._execute(
@@ -209,7 +209,7 @@ class Client(Protocol):
                 ignore_resource_requirements=ignore_resources,
             )
         )
-        return [ActionResult(p.result) for p in result.query.placements]
+        return [ACTION_RESULT(p.result) for p in result.query.placements]
 
     async def query_available_abilities(
         self, units: Union[List[Unit], "Units"], ignore_resource_requirements: bool = False
@@ -234,7 +234,7 @@ class Client(Protocol):
 
     async def chat_send(self, message: str, team_only: bool):
         """ Writes a message to the chat """
-        chat = ChatChannel.Team if team_only else ChatChannel.Broadcast
+        chat = CHAT_CHANNEL.Team if team_only else CHAT_CHANNEL.Broadcast
         await self._execute(
             action=sc_pb.RequestAction(
                 actions=[sc_pb.Action(action_chat=sc_pb.ActionChat(channel=chat.value, message=message))]
