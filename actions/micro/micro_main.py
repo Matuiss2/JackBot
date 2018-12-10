@@ -36,7 +36,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         self.controller = ai
         self.retreat_units = set()
         self.baneling_sacrifices = {}
-        self.rally_point = None
+        self.rally_point = self.action = self.unit_position = self.attack_command = None
         self.zergling_atk_speed = self.hydra_move_speed = self.hydra_atk_range = False
 
     async def should_handle(self):
@@ -54,7 +54,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
          it can be improved a lot but is already much better than a-move
         Name army_micro because it is in army.py."""
         local_controller = self.controller
-        action = local_controller.add_action
+        self.action = local_controller.add_action
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
@@ -66,31 +66,35 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
                 continue
-            unit_position = attacking_unit.position
-            attack_command = attacking_unit.attack
+            self.unit_position = attacking_unit.position
+            self.attack_command = attacking_unit.attack
             if self.anti_proxy_trigger(attacking_unit):
                 if self.attack_enemy_proxy_units(targets, attacking_unit):
                     continue
                 else:
-                    action(attacking_unit.move(local_controller.spines.closest_to(attacking_unit)))
+                    self.action(attacking_unit.move(local_controller.spines.closest_to(attacking_unit)))
                     continue
             if self.anti_terran_bm(attacking_unit):
                 continue
             if attacking_unit.tag in self.retreat_units and bases:
                 self.has_retreated(attacking_unit)
                 continue
-            if attacking_unit.type_id == HYDRALISK and hydra_targets and hydra_targets.closer_than(17, unit_position):
+            if (
+                attacking_unit.type_id == HYDRALISK
+                and hydra_targets
+                and hydra_targets.closer_than(17, self.unit_position)
+            ):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
                 if self.micro_hydras(hydra_targets, attacking_unit):
                     continue
-            if targets and targets.closer_than(17, unit_position):
+            if targets and targets.closer_than(17, self.unit_position):
                 if self.retreat_unit(attacking_unit, combined_enemies):
                     continue
                 if await self.handling_walls_and_attacking(attacking_unit, targets):
                     continue
-            elif enemy_building.closer_than(30, unit_position):
-                action(attack_command(enemy_building.closest_to(unit_position)))
+            elif enemy_building.closer_than(30, self.unit_position):
+                self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 continue
             elif local_controller.time < 1000 and not local_controller.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
@@ -202,9 +206,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
 
     def set_unit_groups(self):
         """Set the targets, combined_enemies and atk_force"""
-        targets = None
-        hydra_targets = None
-        combined_enemies = None
+        targets = hydra_targets = combined_enemies = None
         local_controller = self.controller
         enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
@@ -236,8 +238,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
         local_controller = self.controller
-        enemy_building = local_controller.enemy_structures
-        flying_buildings = enemy_building.flying
+        flying_buildings = local_controller.enemy_structures.flying
         if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and flying_buildings:
             local_controller.add_action(unit.attack(flying_buildings.closest_to(unit.position)))
             return True
@@ -246,31 +247,25 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
     async def handling_walls_and_attacking(self, unit, target):
         """It micros normally if no wall, if there is one attack it"""
         local_controller = self.controller
-        unit_position = unit.position
         closest_target = target.closest_to
-        attack_command = unit.attack
-        action = local_controller.add_action
         if await local_controller.client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(unit, target)
-            action(attack_command(closest_target(unit_position)))
+            self.action(self.attack_command(closest_target(self.unit_position)))
             return True
-        action(attack_command(local_controller.enemies.not_flying.closest_to(unit_position)))
+        self.action(self.attack_command(local_controller.enemies.not_flying.closest_to(self.unit_position)))
         return True
 
     def keep_attacking(self, unit, target):
         """It keeps the attack going if it meets the requirements no matter what"""
         local_controller = self.controller
-        unit_position = unit.position
-        attack_command = unit.attack
-        action = local_controller.add_action
         enemy_building = local_controller.enemy_structures
         if not self.retreat_units or local_controller.close_enemies_to_base or local_controller.time >= 1000:
             if enemy_building:
-                action(attack_command(enemy_building.closest_to(unit_position)))
+                self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 return True
             if target:
-                action(attack_command(target.closest_to(unit_position)))
+                self.action(self.attack_command(target.closest_to(self.unit_position)))
                 return True
             self.attack_startlocation(unit)
             return True
