@@ -2,7 +2,7 @@
 import math
 import random
 import logging
-from typing import List, Dict, Optional, Union
+from typing import List, Optional, Union
 import statistics
 from .position import Point2, Point3
 from .data import RACE, ACTION_RESULT, race_worker, race_townhalls, race_gas, TARGET, RESULT
@@ -13,8 +13,6 @@ from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
 from .ids.upgrade_id import UpgradeId
 from .units import Units
-
-
 from .game_state import GameState
 from .game_data import GameData
 
@@ -27,24 +25,9 @@ class BotAI:
     EXPANSION_GAP_THRESHOLD = 15
 
     def __init__(self):
-        self.enemy_id = None
-        self.units = None
-        self.workers = None
-        self.townhalls = None
-        self.geysers = None
-        self.minerals = None
-        self.vespene = None
-        self.supply_used = None
-        self.supply_cap = None
-        self.supply_left = None
-        self._client = None
-        self._game_info = None
-        self._game_data = None
-        self.player_id = None
-        self.race = None
-        self._units_previous_map = None
-        self.units = None
-        self.state = None
+        self.enemy_id = self.units = self.workers = self.townhalls = self.geysers = self.minerals = self.vespene = None
+        self.supply_used = self.supply_cap = self.supply_left = self._client = self._game_info = self._game_data = None
+        self.player_id = self.race = self._units_previous_map = self.units = self.state = None
 
     @property
     def enemy_race(self) -> RACE:
@@ -58,7 +41,7 @@ class BotAI:
         return self.state.game_loop / 22.4  # / (1/1.4) * (1/16)
 
     @property
-    def game_info(self) -> "GameInfo":
+    def game_info(self):
         """Getter for _game_info"""
         return self._game_info
 
@@ -68,7 +51,7 @@ class BotAI:
         return self._game_data
 
     @property
-    def client(self) -> "Client":
+    def client(self):
         """Getter for _client"""
         return self._client
 
@@ -93,7 +76,7 @@ class BotAI:
         return self.state.units.enemy.structure
 
     @property
-    def main_base_ramp(self) -> "Ramp":
+    def main_base_ramp(self):
         """ Returns the Ramp instance of the closest main-ramp to start location.
          Look in game_info.py for more information """
         if hasattr(self, "cached_main_base_ramp"):
@@ -104,16 +87,16 @@ class BotAI:
         )
 
     @property_cache_forever
-    def expansion_locations(self) -> Dict[Point2, Units]:
+    def expansion_locations(self):
         """List of possible expansion locations."""
-        resource_spread_threshhold = 100
+        resource_spread_threshold = 100
         resources = self.state.mineral_field | self.state.vespene_geyser
         r_groups = []
         for mineral_field in resources:
             for group in r_groups:
                 if any(
                     self.get_terrain_height(mineral_field.position) == self.get_terrain_height(p.position)
-                    and mineral_field.position.distance_squared(p.position) < resource_spread_threshhold
+                    and mineral_field.position.distance_squared(p.position) < resource_spread_threshold
                     for p in group
                 ):
                     group.append(mineral_field)
@@ -121,12 +104,11 @@ class BotAI:
             else:
                 r_groups.append([mineral_field])
         r_groups = [g for g in r_groups if len(g) > 1]
-        offsets = [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
         centers = {}
         for resources in r_groups:
             possible_points = [
                 Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
-                for offset in offsets
+                for offset in [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
             ]
             possible_points.sort(
                 key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.162) for resource in resources])
@@ -167,14 +149,21 @@ class BotAI:
         for exp_loc in self.expansion_locations:
             if any(self.is_near_to_expansion(th, exp_loc) for th in self.townhalls):
                 continue
-            startp = self._game_info.player_start_location
-            pathing_distance = await self._client.query_pathing(startp, exp_loc)
-            if pathing_distance is None:
+            path_distance = await self._client.query_pathing(self._game_info.player_start_location, exp_loc)
+            if path_distance is None:
                 continue
-            if pathing_distance < distance:
-                distance = pathing_distance
+            if path_distance < distance:
+                distance = path_distance
                 closest = exp_loc
         return closest
+
+    def close_workers_assignment(self, distance, facility, workers_list, location):
+        """Calculate assignment and deficit for close workers"""
+        workers = self.workers.closer_than(distance, location)
+        actual = facility.assigned_harvesters
+        ideal = facility.ideal_harvesters
+        if actual > ideal:
+            workers_list.extend(workers.random_group_of(min(actual - ideal, len(workers))))
 
     async def distribute_workers(self):
         """
@@ -182,33 +171,17 @@ class BotAI:
         WARNING: This is quite slow when there are lots of workers or multiple bases.
         """
         owned_expansions = self.owned_expansions
-        worker_pool = []
-        actions = []
+        worker_pool = actions = []
         for idle_worker in self.workers.idle:
-            mineral_field = self.state.mineral_field.closest_to(idle_worker)
-            actions.append(idle_worker.gather(mineral_field))
+            actions.append(idle_worker.gather(self.state.mineral_field.closest_to(idle_worker)))
         for location, townhall in owned_expansions.items():
-            workers = self.workers.closer_than(20, location)
-            actual = townhall.assigned_harvesters
-            ideal = townhall.ideal_harvesters
-            excess = actual - ideal
-            if actual > ideal:
-                worker_pool.extend(workers.random_group_of(min(excess, len(workers))))
-                continue
+            self.close_workers_assignment(20, townhall, worker_pool, location)
+            continue
         for geyser in self.geysers:
-            workers = self.workers.closer_than(5, geyser)
-            actual = geyser.assigned_harvesters
-            ideal = geyser.ideal_harvesters
-            excess = actual - ideal
-            if actual > ideal:
-                worker_pool.extend(workers.random_group_of(min(excess, len(workers))))
-                continue
+            self.close_workers_assignment(5, geyser, worker_pool, geyser)
+            continue
         for geyser in self.geysers:
-            actual = geyser.assigned_harvesters
-            ideal = geyser.ideal_harvesters
-            deficit = ideal - actual
-
-            for _ in range(0, deficit):
+            for _ in range(0, geyser.ideal_harvesters - geyser.assigned_harvesters):
                 if worker_pool:
                     selected_worker = worker_pool.pop()
                     if len(selected_worker.orders) == 1 and selected_worker.orders[0].ability.id in [
@@ -218,13 +191,8 @@ class BotAI:
                         actions.append(selected_worker.return_resource(queue=True))
                     else:
                         actions.append(selected_worker.gather(geyser))
-
         for location, townhall in owned_expansions.items():
-            actual = townhall.assigned_harvesters
-            ideal = townhall.ideal_harvesters
-
-            deficit = ideal - actual
-            for _ in range(0, deficit):
+            for _ in range(0, townhall.ideal_harvesters - townhall.assigned_harvesters):
                 if worker_pool:
                     selected_worker = worker_pool.pop()
                     mineral_field = self.state.mineral_field.closest_to(townhall)
@@ -236,19 +204,16 @@ class BotAI:
                         actions.append(selected_worker.gather(mineral_field, queue=True))
                     else:
                         actions.append(selected_worker.gather(mineral_field))
-
         await self.do_actions(actions)
 
     @property
     def owned_expansions(self):
         """List of expansions owned by the player."""
-
         owned = {}
         for exp_loc in self.expansion_locations:
             townhall = next((x for x in self.townhalls if self.is_near_to_expansion(x, exp_loc)), None)
             if townhall:
                 owned[exp_loc] = townhall
-
         return owned
 
     def can_feed(self, unit_type: UnitTypeId) -> bool:
@@ -262,8 +227,7 @@ class BotAI:
         """Tests if the player has enough resources to build a unit or cast an ability."""
         enough_supply = True
         if isinstance(item_id, UnitTypeId):
-            unit = self._game_data.units[item_id.value]
-            cost = self._game_data.calculate_ability_cost(unit.creation_ability)
+            cost = self._game_data.calculate_ability_cost(self._game_data.units[item_id.value].creation_ability)
             if check_supply_cost:
                 enough_supply = self.can_feed(item_id)
         elif isinstance(item_id, UpgradeId):
@@ -476,8 +440,7 @@ class BotAI:
     def get_terrain_height(self, pos: Union[Point2, Point3, Unit]) -> int:
         """ Returns terrain height at a position. Caution: terrain height is not anywhere near a unit's z-coordinate."""
         assert isinstance(pos, (Point2, Point3, Unit))
-        pos = pos.position.to2.rounded
-        return self._game_info.terrain_height[pos]
+        return self._game_info.terrain_height[pos.position.to2.rounded]
 
     def in_placement_grid(self, pos: Union[Point2, Point3, Unit]) -> bool:
         """ Returns True if you can place something at a position.
@@ -485,26 +448,22 @@ class BotAI:
         Caution: some x and y offset might be required, see ramp code:
         https://github.com/Dentosal/python-sc2/blob/master/sc2/game_info.py#L17-L18 """
         assert isinstance(pos, (Point2, Point3, Unit))
-        pos = pos.position.to2.rounded
-        return self._game_info.placement_grid[pos] != 0
+        return self._game_info.placement_grid[pos.position.to2.rounded] != 0
 
     def in_pathing_grid(self, pos: Union[Point2, Point3, Unit]) -> bool:
         """ Returns True if a unit can pass through a grid point. """
         assert isinstance(pos, (Point2, Point3, Unit))
-        pos = pos.position.to2.rounded
-        return self._game_info.pathing_grid[pos] == 0
+        return self._game_info.pathing_grid[pos.position.to2.rounded] == 0
 
     def is_visible(self, pos: Union[Point2, Point3, Unit]) -> bool:
         """ Returns True if you have vision on a grid point. """
         assert isinstance(pos, (Point2, Point3, Unit))
-        pos = pos.position.to2.rounded
-        return self.state.visibility[pos] == 2
+        return self.state.visibility[pos.position.to2.rounded] == 2
 
     def has_creep(self, pos: Union[Point2, Point3, Unit]) -> bool:
         """ Returns True if there is creep on the grid point. """
         assert isinstance(pos, (Point2, Point3, Unit))
-        pos = pos.position.to2.rounded
-        return self.state.creep[pos]
+        return self.state.creep[pos.position.to2.rounded]
 
     def prepare_start(self, client, player_id, game_info, game_data):
         """Ran until game start to set game and player data."""
@@ -559,8 +518,7 @@ class BotAI:
             return
         if unit.tag not in self._units_previous_map:
             return
-        unit_prev = self._units_previous_map[unit.tag]
-        if unit_prev.build_progress < 1:
+        if self._units_previous_map[unit.tag].build_progress < 1:
             await self.on_building_construction_complete(unit)
 
     async def _issue_unit_dead_events(self):
