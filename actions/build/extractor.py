@@ -5,8 +5,8 @@ from sc2.constants import EXTRACTOR
 class BuildExtractor:
     """Can be improved, the ratio mineral-vespene still sightly off"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.drone = self.geyser = None
 
     async def should_handle(self):

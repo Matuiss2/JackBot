@@ -5,8 +5,8 @@ from sc2.constants import OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE
 class UpgradePneumatizedCarapace:
     """Ok for now, maybe use overlord speed more and upgrade it earlier once our bots gets even more reactive"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.selected_bases = None
 
     async def should_handle(self):

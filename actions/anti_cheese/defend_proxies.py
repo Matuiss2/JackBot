@@ -16,8 +16,8 @@ from sc2.constants import (
 class DefendProxies:
     """Needs improvements on the quantity"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.rush_buildings = None
 
     async def should_handle(self):

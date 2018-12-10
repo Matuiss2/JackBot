@@ -5,7 +5,7 @@ from sc2.constants import LAIR, QUEEN
 class TrainQueen:
     """Ok for now"""
 
-    def __init__(self, ai):
+    def __init__(self, main):
         self.controller = ai
         self.hatchery = None
 

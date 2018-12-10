@@ -5,7 +5,7 @@ from sc2.constants import ULTRALISK
 class TrainUltralisk:
     """Ok for now"""
 
-    def __init__(self, ai):
+    def __init__(self, main):
         self.controller = ai
 
     async def should_handle(self):

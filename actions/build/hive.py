@@ -5,8 +5,8 @@ from sc2.constants import CANCEL_MORPHHIVE, HIVE, UPGRADETOHIVE_HIVE
 class BuildHive:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.selected_lairs = None
 
     async def should_handle(self):

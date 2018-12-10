@@ -5,8 +5,8 @@ from sc2.constants import CANCEL_MORPHLAIR, LAIR, UPGRADETOLAIR_LAIR
 class BuildLair:
     """Maybe can be improved, probably its a bit greedy"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.selected_bases = None
 
     async def should_handle(self):

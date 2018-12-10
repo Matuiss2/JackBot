@@ -5,8 +5,8 @@ from sc2.constants import RESEARCH_GROOVEDSPINES, EVOLVEGROOVEDSPINES
 class UpgradeGroovedSpines:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.selected_dens = None
 
     async def should_handle(self):

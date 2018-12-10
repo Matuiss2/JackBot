@@ -32,8 +32,8 @@ from actions.micro.unit.zerglings import ZerglingControl
 class ArmyControl(ZerglingControl, HydraControl, Micro):
     """Can be improved"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.retreat_units = set()
         self.baneling_sacrifices = {}
         self.rally_point = self.action = self.unit_position = self.attack_command = None

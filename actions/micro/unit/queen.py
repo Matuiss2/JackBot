@@ -5,8 +5,8 @@ from sc2.constants import EFFECT_INJECTLARVA, QUEENSPAWNLARVATIMER
 class QueensAbilities:
     """Can be improved(Defense not utility)"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.queens = self.bases = self.enemies = None
 
     async def should_handle(self):

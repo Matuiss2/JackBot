@@ -5,8 +5,8 @@ from sc2.constants import SPORECRAWLER
 class BuildSpores:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.selected_base = None
         self.spore_building_trigger = False
 
