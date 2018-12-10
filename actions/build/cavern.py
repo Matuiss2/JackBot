@@ -5,8 +5,8 @@ from sc2.constants import ULTRALISKCAVERN
 class BuildCavern:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""

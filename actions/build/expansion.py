@@ -5,8 +5,8 @@ from sc2.constants import HATCHERY
 class BuildExpansion:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.worker_to_first_base = False
 
     async def should_handle(self):

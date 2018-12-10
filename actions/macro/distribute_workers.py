@@ -5,8 +5,8 @@ from sc2.constants import EXTRACTOR, HATCHERY, HIVE, LAIR, ZERGLINGMOVEMENTSPEED
 class DistributeWorkers:
     """Some things can be improved(mostly about the ratio mineral-vespene)"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.mining_bases = self.mineral_fields = self.deficit_bases = self.workers_to_distribute = None
 
     async def should_handle(self):

@@ -15,8 +15,8 @@ from sc2.constants import (
 class UpgradeEvochamber:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.selected_evos = None
         self.upgrades_added = False
         self.upgrade_list = [

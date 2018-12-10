@@ -5,8 +5,8 @@ from sc2.constants import LAIR, QUEEN
 class TrainQueen:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.hatchery = None
 
     async def should_handle(self):

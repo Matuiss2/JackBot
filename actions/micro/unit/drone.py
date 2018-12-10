@@ -4,8 +4,8 @@
 class Drone:
     """Ok for now, maybe can be replaced later for zerglings"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.drones = None
 
     async def should_handle(self):
