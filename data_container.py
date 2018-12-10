@@ -43,46 +43,18 @@ class DataContainer:
     """This is the main data container for all data the bot requires"""
 
     def __init__(self):
-        self.close_enemies_to_base = False
-        self.close_enemy_production = False
-        self.counter_attack_vs_flying = False
-        self.floating_buildings_bm = False
-        self.one_base_play = False
-        self.hatcheries = None
-        self.lairs = None
-        self.hives = None
-        self.hydras = None
-        self.overlords = None
-        self.drones = None
-        self.queens = None
-        self.zerglings = None
+        self.close_enemies_to_base = self.close_enemy_production = self.counter_attack_vs_flying = False
+        self.floating_buildings_bm = self.one_base_play = False
+        self.hatcheries = self.lairs = self.hives = self.hydras = self.overlords = self.drones = self.queens = None
+        self.zerglings = self.ultralisks = self.overseers = self.evochambers = self.caverns = self.hydradens = None
+        self.pools = self.pits = self.spines = self.tumors = self.larvae = self.extractors = self.mutalisks = None
+        self.spores = self.spires = self.structures = self.enemies = self.enemy_structures = self.flying_enemies = None
+        self.ground_enemies = self.furthest_townhall_to_map_center = None
         self.burrowed_lings = []
-        self.ultralisks = None
-        self.overseers = None
-        self.evochambers = None
-        self.caverns = None
-        self.hydradens = None
-        self.pools = None
-        self.pits = None
-        self.spines = None
-        self.tumors = None
-        self.larvae = None
-        self.extractors = None
-        self.mutalisks = None
-        self.spores = None
-        self.spires = None
-        self.structures = None
-        self.enemies = None
-        self.enemy_structures = None
-        self.flying_enemies = None
-        self.ground_enemies = None
-        self.furthest_townhall_to_map_center = None
 
     def prepare_data(self):
         """Prepares the data"""
-        self.counter_attack_vs_flying = False
-        self.close_enemies_to_base = False
-        # prepare units
+        self.counter_attack_vs_flying = self.close_enemies_to_base = False
         self.structures = self.units.structure
         self.initialize_bases()
         self.initialize_units()
