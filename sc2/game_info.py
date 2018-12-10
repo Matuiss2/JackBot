@@ -1,41 +1,42 @@
-from typing import Tuple, Set, FrozenSet, Sequence, Generator
-
-from copy import deepcopy
-import itertools
-
+"""Groups some info about the map so it can be used in an easy way"""
+from typing import List, Dict, Set
+from collections import deque
 from .position import Point2, Size, Rect
 from .pixel_map import PixelMap
 from .player import Player
-from .cache import property_cache_forever
-
-from typing import List, Dict, Set, Tuple, Any, Optional, Union
 
 
 class Ramp:
+    """Groups everything related to ramps and all the things to do near it"""
+
     def __init__(self, points: Set[Point2], game_info: "GameInfo"):
         self._points: Set[Point2] = points
         self.__game_info = game_info
-        # tested by printing actual building locations vs calculated depot positions
-        self.x_offset = 0.5  # might be errors with the pixelmap?
+        self.x_offset = 0.5
         self.y_offset = -0.5
 
     @property
     def _height_map(self):
+        """Returns the height map"""
         return self.__game_info.terrain_height
 
     @property
     def _placement_grid(self):
+        """Returns the position of the ramp"""
         return self.__game_info.placement_grid
 
     @property
     def size(self) -> int:
+        """Returns the area of the ramp"""
         return len(self._points)
 
-    def height_at(self, p: Point2) -> int:
-        return self._height_map[p]
+    def height_at(self, po2: Point2) -> int:
+        """Returns the height of the ramp"""
+        return self._height_map[po2]
 
     @property
     def points(self) -> Set[Point2]:
+        """Not sure what this do"""
         return self._points.copy()
 
     @property
@@ -46,12 +47,10 @@ class Ramp:
 
     @property
     def upper2_for_ramp_wall(self) -> Set[Point2]:
-        """ Returns the 2 upper ramp points of the main base ramp required for the supply depot and barracks placement properties used in this file. """
+        """ Returns the 2 upper ramp points of the main base ramp required for the supply depot
+         and barracks placement properties used in this file. """
         if len(self.upper) > 5:
-            # NOTE: this was way too slow on large ramps
-            return set()  # HACK: makes this work for now
-            # FIXME: please do
-
+            return set()
         upper2 = sorted(list(self.upper), key=lambda x: x.distance_to(self.bottom_center), reverse=True)
         while len(upper2) > 2:
             upper2.pop()
@@ -59,34 +58,34 @@ class Ramp:
 
     @property
     def top_center(self) -> Point2:
-        pos = Point2(
+        """Returns the center point right at the top of the ramp"""
+        return Point2(
             (sum([p.x for p in self.upper]) / len(self.upper), sum([p.y for p in self.upper]) / len(self.upper))
         )
-        return pos
 
     @property
     def lower(self) -> Set[Point2]:
+        """ Returns the lower points of a ramp. """
         min_height = min([self.height_at(p) for p in self._points])
         return {p for p in self._points if self.height_at(p) == min_height}
 
     @property
     def bottom_center(self) -> Point2:
-        pos = Point2(
+        """Returns the center point right at the bottom of the ramp"""
+        return Point2(
             (sum([p.x for p in self.lower]) / len(self.lower), sum([p.y for p in self.lower]) / len(self.lower))
         )
-        return pos
 
     @property
     def barracks_in_middle(self) -> Point2:
         """ Barracks position in the middle of the 2 depots """
         if len(self.upper2_for_ramp_wall) == 2:
             points = self.upper2_for_ramp_wall
-            p1 = points.pop().offset((self.x_offset, self.y_offset))
-            p2 = points.pop().offset((self.x_offset, self.y_offset))
-            # Offset from top point to barracks center is (2, 1)
-            intersects = p1.circle_intersection(p2, (2 ** 2 + 1 ** 2) ** 0.5)
-            anyLowerPoint = next(iter(self.lower))
-            return max(intersects, key=lambda p: p.distance_to(anyLowerPoint))
+            point1 = points.pop().offset((self.x_offset, self.y_offset))
+            point2 = points.pop().offset((self.x_offset, self.y_offset))
+            intersects = point1.circle_intersection(point2, (2 ** 2 + 1 ** 2) ** 0.5)
+            any_lower_point = next(iter(self.lower))
+            return max(intersects, key=lambda p: p.distance_to(any_lower_point))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
     @property
@@ -94,12 +93,11 @@ class Ramp:
         """ Depot in the middle of the 3 depots """
         if len(self.upper2_for_ramp_wall) == 2:
             points = self.upper2_for_ramp_wall
-            p1 = points.pop().offset((self.x_offset, self.y_offset))  # still an error with pixelmap?
-            p2 = points.pop().offset((self.x_offset, self.y_offset))
-            # Offset from top point to depot center is (1.5, 0.5)
-            intersects = p1.circle_intersection(p2, (1.5 ** 2 + 0.5 ** 2) ** 0.5)
-            anyLowerPoint = next(iter(self.lower))
-            return max(intersects, key=lambda p: p.distance_to(anyLowerPoint))
+            point1 = points.pop().offset((self.x_offset, self.y_offset))
+            point2 = points.pop().offset((self.x_offset, self.y_offset))
+            intersects = point1.circle_intersection(point2, (1.5 ** 2 + 0.5 ** 2) ** 0.5)
+            any_lower_point = next(iter(self.lower))
+            return max(intersects, key=lambda p: p.distance_to(any_lower_point))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
     @property
@@ -107,12 +105,11 @@ class Ramp:
         """ Finds the 2 depot positions on the outside """
         if len(self.upper2_for_ramp_wall) == 2:
             points = self.upper2_for_ramp_wall
-            p1 = points.pop().offset((self.x_offset, self.y_offset))  # still an error with pixelmap?
-            p2 = points.pop().offset((self.x_offset, self.y_offset))
-            center = p1.towards(p2, p1.distance_to(p2) / 2)
-            depotPosition = self.depot_in_middle
-            # Offset from middle depot to corner depots is (2, 1)
-            intersects = center.circle_intersection(depotPosition, (2 ** 2 + 1 ** 2) ** 0.5)
+            point1 = points.pop().offset((self.x_offset, self.y_offset))
+            point2 = points.pop().offset((self.x_offset, self.y_offset))
+            center = point1.towards(point2, point1.distance_to(point2) / 2)
+            depot_position = self.depot_in_middle
+            intersects = center.circle_intersection(depot_position, (2 ** 2 + 1 ** 2) ** 0.5)
             return intersects
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
@@ -130,76 +127,94 @@ class Ramp:
         if len(self.upper2_for_ramp_wall) == 2:
             if self.barracks_can_fit_addon:
                 return self.barracks_in_middle
-            else:
-                return self.barracks_in_middle.offset((-2, 0))
+            return self.barracks_in_middle.offset((-2, 0))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
 
-class GameInfo(object):
+class GameInfo:
+    """It groups some info about the map and units, like ramps, map center and paint groups"""
+
     def __init__(self, proto):
-        # TODO: this might require an update during the game because placement grid and playable grid are greyed out on minerals, start locations and ramps (debris)
-        self._proto = proto
+        self.proto = proto
         self.players: List[Player] = [Player.from_proto(p) for p in proto.player_info]
         self.map_size: Size = Size.from_proto(proto.start_raw.map_size)
         self.pathing_grid: PixelMap = PixelMap(proto.start_raw.pathing_grid)
         self.terrain_height: PixelMap = PixelMap(proto.start_raw.terrain_height)
         self.placement_grid: PixelMap = PixelMap(proto.start_raw.placement_grid)
         self.playable_area = Rect.from_proto(proto.start_raw.playable_area)
-        self.map_ramps: List[Ramp] = self._find_ramps()
+        self.map_ramps: List[Ramp] = None
         self.player_races: Dict[int, "Race"] = {
             p.player_id: p.race_actual or p.race_requested for p in proto.player_info
         }
         self.start_locations: List[Point2] = [Point2.from_proto(sl) for sl in proto.start_raw.start_locations]
-        self.player_start_location: Point2 = None  # Filled later by BotAI._prepare_first_step
+        self.player_start_location: Point2 = None
 
     @property
     def map_center(self) -> Point2:
+        """Returns the map_center position as point2"""
         return self.playable_area.center
 
-    def _find_ramps(self) -> List[Ramp]:
+    def find_ramps(self) -> List[Ramp]:
         """Calculate (self.pathing_grid - self.placement_grid) (for sets) and then find ramps by comparing heights."""
-        rampDict = {
+        ramp_dict = {
             Point2((x, y)): self.pathing_grid[(x, y)] == 0 and self.placement_grid[(x, y)] == 0
             for x in range(self.pathing_grid.width)
             for y in range(self.pathing_grid.height)
         }
-
-        rampPoints = {p for p in rampDict if rampDict[p]}  # filter only points part of ramp
-        rampGroups = self._find_groups(rampPoints)
-        return [Ramp(group, self) for group in rampGroups]
+        ramp_points = {p for p in ramp_dict if ramp_dict[p]}  # filter only points part of ramp
+        ramp_groups = self._find_groups(ramp_points)
+        return [Ramp(group, self) for group in ramp_groups]
 
     def _find_groups(
         self, points: Set[Point2], minimum_points_per_group: int = 8, max_distance_between_points: int = 2
     ) -> List[Set[Point2]]:
-        """ From a set/list of points, this function will try to group points together """
-        foundGroups = []
-        currentGroup = set()
-        newlyAdded = set()
-        pointsPool = set(points)
+        """ From a set/list of points, this function will try to group points together
+         Paint clusters of points in rectangular map using flood fill algorithm. """
+        not_colored_yet = -1
+        current_color: int = not_colored_yet
+        picture: List[List[int]] = [
+            [-2 for j in range(self.pathing_grid.width)] for i in range(self.pathing_grid.height)
+        ]
 
-        while pointsPool or currentGroup:
-            if not currentGroup:
-                randomPoint = pointsPool.pop()
-                currentGroup.add(randomPoint)
-                newlyAdded.add(randomPoint)
+        def paint(po2: Point2) -> None:
+            picture[po2.y][po2.x] = current_color
 
-            newlyAddedOld = newlyAdded
-            newlyAdded = set()
-            for p1 in newlyAddedOld:
-                # create copy as we change set size during iteration
-                for p2 in pointsPool.copy():
-                    if abs(p1.x - p2.x) + abs(p1.y - p2.y) <= max_distance_between_points:
-                        currentGroup.add(p2)
-                        newlyAdded.add(p2)
-                        pointsPool.discard(p2)
-
-            # Check if all connected points were found
-            if not newlyAdded:
-                # Add to group if number of points reached threshold - discard group if not enough points
-                if len(currentGroup) >= minimum_points_per_group:
-                    foundGroups.append(currentGroup)
-                currentGroup = set()
-        """ Returns groups of points as list
-        [{p1, p2, p3}, {p4, p5, p6, p7, p8}]
-        """
-        return foundGroups
+        nearby: Set[Point2] = set()
+        for deltax in range(-max_distance_between_points, max_distance_between_points + 1):
+            for deltay in range(-max_distance_between_points, max_distance_between_points + 1):
+                if abs(deltax) + abs(deltay) <= max_distance_between_points:
+                    nearby.add(Point2((deltax, deltay)))
+        for point in points:
+            paint(point)
+        remaining: Set[Point2] = set(points)
+        queue: [Point2] = deque()
+        found_groups: List[Set[Point2]] = []
+        while remaining:
+            current_group: Set[Point2] = set()
+            if not queue:
+                current_color += 1
+                start = remaining.pop()
+                paint(start)
+                queue.append(start)
+                current_group.add(start)
+            while queue:
+                base: Point2 = queue.popleft()
+                for offset in nearby:
+                    pointx, pointy = base.x + offset.x, base.y + offset.y
+                    if (
+                        pointx < 0
+                        or pointy < 0
+                        or pointx >= self.pathing_grid.width
+                        or pointy >= self.pathing_grid.height
+                    ):
+                        continue
+                    if picture[pointy][pointx] != not_colored_yet:
+                        continue
+                    point: Point2 = Point2((pointx, pointy))
+                    remaining.remove(point)
+                    paint(point)
+                    queue.append(point)
+                    current_group.add(point)
+            if len(current_group) >= minimum_points_per_group:
+                found_groups.append(current_group)
+        return found_groups

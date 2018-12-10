@@ -1,37 +1,41 @@
+"""Group all caches methods and properties"""
 from functools import wraps
 
 
-def cache_forever(f):
-    f.cache = {}
+def cache_forever(file):
+    """Cache anything forever"""
+    file.cache = {}
 
-    @wraps(f)
+    @wraps(file)
     def inner(*args):
-        if args not in f.cache:
-            f.cache[args] = f(*args)
-        return f.cache[args]
+        if args not in file.cache:
+            file.cache[args] = file(*args)
+        return file.cache[args]
 
     return inner
 
 
-def method_cache_forever(f):
-    f.cache = {}
+def method_cache_forever(file):
+    """Cache anything forever(method)"""
+    file.cache = {}
 
-    @wraps(f)
+    @wraps(file)
     def inner(self, *args):
-        if args not in f.cache:
-            f.cache[args] = f(self, *args)
-        return f.cache[args]
+        if args not in file.cache:
+            file.cache[args] = file(self, *args)
+        return file.cache[args]
 
     return inner
 
 
-def property_cache_forever(f):
-    f.cached = None
+def property_cache_forever(file):
+    """Cache anything forever(property)"""
+    file.cached = None
 
-    @wraps(f)
+    @wraps(file)
     def inner(self):
-        if f.cached is None:
-            f.cached = f(self)
-        return f.cached
+        if file.cached is None:
+            file.cached = file(self)
+        return file.cached
 
     return property(inner)

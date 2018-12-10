@@ -6,37 +6,34 @@ class BuildEvochamber:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
-        """Builds the evolution chambers, placement can maybe be improved(far from priority),
-        also there is some occasional bug that prevents both to be built at the same time,
-        probably related to placement"""
-        local_controller = self.ai
-        pool = local_controller.pools
-        evochamber = local_controller.evochambers
-        if pool.ready:
-            if (
-                local_controller.can_afford(EVOLUTIONCHAMBER)
-                and (
-                    len(local_controller.townhalls) >= 3
-                    or (local_controller.close_enemy_production and len(local_controller.spines.ready) >= 4)
-                )
-                and len(evochamber) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
-            ):
-                return True
-        return False
+    async def should_handle(self):
+        """Builds the evolution chambers"""
+        local_controller = self.controller
+        return (
+            local_controller.building_requirement(EVOLUTIONCHAMBER, local_controller.pools.ready)
+            and (
+                len(local_controller.townhalls) >= 3
+                or (local_controller.close_enemy_production and len(local_controller.spines.ready) >= 4)
+            )
+            and len(local_controller.evochambers) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
+        )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
-        local_controller = self.ai
+        local_controller = self.controller
         position = await local_controller.get_production_position()
-        base = local_controller.bases
-        map_center = local_controller.game_info.map_center
         if position:
             await local_controller.build(EVOLUTIONCHAMBER, position)
             return True
-        furthest_base = local_controller.furthest_townhall_to_map_center
-        second_base = (base - {furthest_base}).closest_to(furthest_base)
-        await local_controller.build(EVOLUTIONCHAMBER, second_base.position.towards_with_random_angle(map_center, -14))
-        return True
+        if local_controller.townhalls:
+            await local_controller.build(EVOLUTIONCHAMBER, self.hardcoded_position())
+            return True
+
+    def hardcoded_position(self):
+        """Previous placement"""
+        local_controller = self.controller
+        return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
+            local_controller.game_info.map_center, -14
+        )

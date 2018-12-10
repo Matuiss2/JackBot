@@ -3,24 +3,21 @@ from sc2.constants import OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE
 
 
 class UpgradePneumatizedCarapace:
-    """Ok for now, maybe use overlord speed more and upgrade it earlier"""
+    """Ok for now, maybe use overlord speed more and upgrade it earlier once our bots gets even more reactive"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
+        self.selected_bases = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
-        return (
-            local_controller.caverns
-            and local_controller.hatcheries
-            and not local_controller.already_pending_upgrade(OVERLORDSPEED)
-            and local_controller.can_afford(RESEARCH_PNEUMATIZEDCARAPACE)
+        local_controller = self.controller
+        self.selected_bases = local_controller.hatcheries.idle
+        return local_controller.caverns and local_controller.can_upgrade(
+            OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE, self.selected_bases
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading overlord speed"""
-        local_controller = self.ai
-        chosen_base = local_controller.hatcheries.closest_to(local_controller.game_info.map_center)
-        local_controller.add_action(chosen_base(RESEARCH_PNEUMATIZEDCARAPACE))
+        self.controller.add_action(self.selected_bases.random(RESEARCH_PNEUMATIZEDCARAPACE))
         return True

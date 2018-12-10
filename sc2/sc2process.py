@@ -1,40 +1,44 @@
+"""Groups everything related to the processes"""
 from typing import Any, Optional, List
-
+import logging
 import sys
 import signal
 import time
 import asyncio
-import os.path
+import os
 import shutil
 import tempfile
 import subprocess
 import portpicker
 import aiohttp
-
-import logging
-
-logger = logging.getLogger(__name__)
-
 from .paths import Paths
 from .controller import Controller
 
+LOGGER = logging.getLogger(__name__)
 
-class kill_switch(object):
+
+class KillSwitch:
+    """Add processes to the kill list and kill then"""
+
     _to_kill: List[Any] = []
 
     @classmethod
     def add(cls, value):
-        logger.debug("kill_switch: Add switch")
+        """Add process to kill"""
+        LOGGER.debug("kill_switch: Add switch")
         cls._to_kill.append(value)
 
     @classmethod
     def kill_all(cls):
-        logger.info("kill_switch: Process cleanup")
-        for p in cls._to_kill:
-            p._clean()
+        """Kill all processes"""
+        LOGGER.info("kill_switch: Process cleanup")
+        for process in cls._to_kill:
+            process.clean()
 
 
 class SC2Process:
+    """Kill, clean, opens and connects the processes"""
+
     def __init__(self, host: str = "127.0.0.1", port: Optional[int] = None, fullscreen: bool = False) -> None:
         assert isinstance(host, str)
         assert isinstance(port, int) or port is None
@@ -46,37 +50,39 @@ class SC2Process:
         else:
             self._port = port
         self._tmp_dir = tempfile.mkdtemp(prefix="SC2_")
-        self._process = None
+        self.process = None
         self._session = None
-        self._ws = None
+        self.web_service = None
 
     async def __aenter__(self):
-        kill_switch.add(self)
+        KillSwitch.add(self)
 
-        def signal_handler(signal, frame):
-            kill_switch.kill_all()
+        def signal_handler():
+            KillSwitch.kill_all()
 
         signal.signal(signal.SIGINT, signal_handler)
 
         try:
-            self._process = self._launch()
-            self._ws = await self._connect()
+            self.process = self._launch()
+            self.web_service = await self._connect()
         except:
             await self._close_connection()
-            self._clean()
+            self.clean()
             raise
 
-        return Controller(self._ws, self)
+        return Controller(self.web_service, self)
 
     async def __aexit__(self, *args):
-        kill_switch.kill_all()
+        KillSwitch.kill_all()
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     @property
     def ws_url(self):
+        """Get the argument url"""
         return f"ws://{self._host}:{self._port}/sc2api"
 
     def _launch(self):
+        """Launch the exe"""
         args = [
             str(Paths.EXECUTABLE),
             "-listen",
@@ -90,64 +96,48 @@ class SC2Process:
             "-tempDir",
             self._tmp_dir,
         ]
-
-        if logger.getEffectiveLevel() <= logging.DEBUG:
+        if LOGGER.getEffectiveLevel() <= logging.DEBUG:
             args.append("-verbose")
-
-        return subprocess.Popen(
-            args,
-            cwd=(str(Paths.CWD) if Paths.CWD else None),
-            # , env=run_config.env
-        )
+        return subprocess.Popen(args, cwd=(str(Paths.CWD) if Paths.CWD else None))
 
     async def _connect(self):
+        """Performs the connection to the server"""
         for i in range(60):
-            if self._process == None:
-                # The ._clean() was called, clearing the process
-                logger.debug("Process cleanup complete, exit")
+            if not self.process:
                 sys.exit()
-
             await asyncio.sleep(1)
             try:
                 self._session = aiohttp.ClientSession()
-                ws = await self._session.ws_connect(self.ws_url, timeout=120)
-                logger.debug("Websocket connection ready")
-                return ws
+                web_service = await self._session.ws_connect(self.ws_url, timeout=60)
+                return web_service
             except aiohttp.client_exceptions.ClientConnectorError:
                 await self._session.close()
                 if i > 15:
-                    logger.debug("Connection refused (startup not complete (yet))")
+                    LOGGER.debug("Connection refused (startup not complete (yet))")
 
-        logger.debug("Websocket connection to SC2 process timed out")
+        LOGGER.debug("Websocket connection to SC2 process timed out")
         raise TimeoutError("Websocket")
 
     async def _close_connection(self):
-        logger.info("Closing connection...")
-
-        if self._ws is not None:
-            await self._ws.close()
-
+        """Closes the connection to the server"""
+        if self.web_service is not None:
+            await self.web_service.close()
         if self._session is not None:
             await self._session.close()
 
-    def _clean(self):
-        logger.info("Cleaning up...")
-
-        if self._process is not None:
-            if self._process.poll() is None:
+    def clean(self):
+        """Cleaning the remaining processes"""
+        if self.process is not None:
+            if self.process.poll() is None:
                 for _ in range(3):
-                    self._process.terminate()
+                    self.process.terminate()
                     time.sleep(0.5)
-                    if self._process.poll() is not None:
+                    if self.process.poll() is not None:
                         break
                 else:
-                    self._process.kill()
-                    self._process.wait()
-                    logger.error("KILLED")
-
+                    self.process.kill()
+                    self.process.wait()
+                    LOGGER.error("KILLED")
         if os.path.exists(self._tmp_dir):
             shutil.rmtree(self._tmp_dir)
-
-        self._process = None
-        self._ws = None
-        logger.info("Cleanup complete")
+        self.process = self.web_service = None

@@ -3,26 +3,29 @@ from sc2.constants import BURROW, RESEARCH_BURROW
 
 
 class UpgradeBurrow:
-    """Ok for now, didn't find a way to use it tho"""
+    """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
+        self.selected_bases = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
+        local_controller = self.controller
+        self.selected_bases = local_controller.hatcheries.idle
         return (
             len(local_controller.zerglings) >= 19
-            and (not local_controller.close_enemies_to_base or local_controller.time > 300)
-            and (not local_controller.close_enemy_production or local_controller.time > 300)
-            and local_controller.hatcheries.idle
-            and not local_controller.already_pending_upgrade(BURROW)
-            and local_controller.can_afford(RESEARCH_BURROW)
+            and (
+                all(
+                    not flag
+                    for flag in (local_controller.close_enemies_to_base, local_controller.close_enemy_production)
+                )
+                or local_controller.time >= 300
+            )
+            and local_controller.can_upgrade(BURROW, RESEARCH_BURROW, self.selected_bases)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading burrow"""
-        local_controller = self.ai
-        chosen_base = local_controller.hatcheries.idle.closest_to(local_controller.game_info.map_center)
-        local_controller.add_action(chosen_base(RESEARCH_BURROW))
+        self.controller.add_action(self.selected_bases.random(RESEARCH_BURROW))
         return True

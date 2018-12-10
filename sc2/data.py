@@ -1,4 +1,6 @@
+"""Group constants"""
 import enum
+from typing import Dict, Set
 from s2clientprotocol import (
     sc2api_pb2 as sc_pb,
     raw_pb2 as raw_pb,
@@ -6,52 +8,36 @@ from s2clientprotocol import (
     common_pb2 as common_pb,
     error_pb2 as error_pb,
 )
-from typing import List, Dict, Set, Tuple, Any, Optional, Union  # mypy type checking
+
 
 from .ids.unit_typeid import UnitTypeId
 from .ids.ability_id import AbilityId
 
-""" For the list of enums, see here
-
-https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_gametypes.h
-https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_action.h
-https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_unit.h
-https://github.com/Blizzard/s2client-api/blob/d9ba0a33d6ce9d233c2a4ee988360c188fbe9dbf/include/sc2api/sc2_data.h
-"""
-
-CreateGameError = enum.Enum("CreateGameError", sc_pb.ResponseCreateGame.Error.items())
-
-PlayerType = enum.Enum("PlayerType", sc_pb.PlayerType.items())
-Difficulty = enum.Enum("Difficulty", sc_pb.Difficulty.items())
-Status = enum.Enum("Status", sc_pb.Status.items())
-Result = enum.Enum("Result", sc_pb.Result.items())
-Alert = enum.Enum("Alert", sc_pb.Alert.items())
-ChatChannel = enum.Enum("ChatChannel", sc_pb.ActionChat.Channel.items())
-
-Race = enum.Enum("Race", common_pb.Race.items())
-
-DisplayType = enum.Enum("DisplayType", raw_pb.DisplayType.items())
-Alliance = enum.Enum("Alliance", raw_pb.Alliance.items())
-CloakState = enum.Enum("CloakState", raw_pb.CloakState.items())
-
-Attribute = enum.Enum("Attribute", data_pb.Attribute.items())
-TargetType = enum.Enum("TargetType", data_pb.Weapon.TargetType.items())
-Target = enum.Enum("Target", data_pb.AbilityData.Target.items())
-
-ActionResult = enum.Enum("ActionResult", error_pb.ActionResult.items())
-
-race_worker: Dict[Race, UnitTypeId] = {
-    Race.Protoss: UnitTypeId.PROBE,
-    Race.Terran: UnitTypeId.SCV,
-    Race.Zerg: UnitTypeId.DRONE,
+CREATE_GAME_ERROR = enum.Enum("CREATE_GAME_ERROR", sc_pb.ResponseCreateGame.Error.items())
+PLAYER_TYPE = enum.Enum("PLAYER_TYPE", sc_pb.PlayerType.items())
+DIFFICULTY = enum.Enum("Difficulty", sc_pb.Difficulty.items())
+STATUS = enum.Enum("Status", sc_pb.Status.items())
+RESULT = enum.Enum("Result", sc_pb.Result.items())
+ALERT = enum.Enum("Alert", sc_pb.Alert.items())
+CHAT_CHANNEL = enum.Enum("ChatChannel", sc_pb.ActionChat.Channel.items())
+RACE = enum.Enum("Race", common_pb.Race.items())
+DISPLAY_TYPE = enum.Enum("DisplayType", raw_pb.DisplayType.items())
+ALLIANCE = enum.Enum("Alliance", raw_pb.Alliance.items())
+CLOAK_STATE = enum.Enum("CloakState", raw_pb.CloakState.items())
+ATTRIBUTE = enum.Enum("Attribute", data_pb.Attribute.items())
+TARGET_TYPE = enum.Enum("TargetType", data_pb.Weapon.TargetType.items())
+TARGET = enum.Enum("Target", data_pb.AbilityData.Target.items())
+ACTION_RESULT = enum.Enum("ActionResult", error_pb.ActionResult.items())
+race_worker: Dict[RACE, UnitTypeId] = {
+    RACE.Protoss: UnitTypeId.PROBE,
+    RACE.Terran: UnitTypeId.SCV,
+    RACE.Zerg: UnitTypeId.DRONE,
 }
-
-race_townhalls: Dict[Race, Set[UnitTypeId]] = {
-    Race.Protoss: {UnitTypeId.NEXUS},
-    Race.Terran: {UnitTypeId.COMMANDCENTER, UnitTypeId.ORBITALCOMMAND, UnitTypeId.PLANETARYFORTRESS},
-    Race.Zerg: {UnitTypeId.HATCHERY, UnitTypeId.LAIR, UnitTypeId.HIVE},
+race_townhalls: Dict[RACE, Set[UnitTypeId]] = {
+    RACE.Protoss: {UnitTypeId.NEXUS},
+    RACE.Terran: {UnitTypeId.COMMANDCENTER, UnitTypeId.ORBITALCOMMAND, UnitTypeId.PLANETARYFORTRESS},
+    RACE.Zerg: {UnitTypeId.HATCHERY, UnitTypeId.LAIR, UnitTypeId.HIVE},
 }
-
 warpgate_abilities: Dict[AbilityId, AbilityId] = {
     AbilityId.GATEWAYTRAIN_ZEALOT: AbilityId.WARPGATETRAIN_ZEALOT,
     AbilityId.GATEWAYTRAIN_STALKER: AbilityId.WARPGATETRAIN_STALKER,
@@ -60,9 +46,8 @@ warpgate_abilities: Dict[AbilityId, AbilityId] = {
     AbilityId.GATEWAYTRAIN_SENTRY: AbilityId.WARPGATETRAIN_SENTRY,
     AbilityId.TRAIN_ADEPT: AbilityId.TRAINWARP_ADEPT,
 }
-
-race_gas: Dict[Race, UnitTypeId] = {
-    Race.Protoss: UnitTypeId.ASSIMILATOR,
-    Race.Terran: UnitTypeId.REFINERY,
-    Race.Zerg: UnitTypeId.EXTRACTOR,
+race_gas: Dict[RACE, UnitTypeId] = {
+    RACE.Protoss: UnitTypeId.ASSIMILATOR,
+    RACE.Terran: UnitTypeId.REFINERY,
+    RACE.Zerg: UnitTypeId.EXTRACTOR,
 }

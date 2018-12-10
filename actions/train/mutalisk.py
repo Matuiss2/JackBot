@@ -6,17 +6,15 @@ class TrainMutalisk:
     """Untested"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
-        if not local_controller.can_train(MUTALISK):
-            return False
-        return local_controller.spires.ready
+        local_controller = self.controller
+        return local_controller.can_train(MUTALISK, local_controller.spires.ready)
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of training mutas"""
-        local_controller = self.ai
+        local_controller = self.controller
         local_controller.add_action(local_controller.larvae.random.train(MUTALISK))
         return True

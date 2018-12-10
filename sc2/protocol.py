@@ -1,69 +1,65 @@
-import aiohttp
-
+"""Sc2 API protocol"""
 import logging
-
-logger = logging.getLogger(__name__)
-
 from s2clientprotocol import sc2api_pb2 as sc_pb
+from .data import STATUS
 
-from .data import Status
-from .player import Computer
+LOGGER = logging.getLogger(__name__)
 
 
 class ProtocolError(Exception):
-    pass
+    """Error warning raised locally"""
 
 
 class ConnectionAlreadyClosed(ProtocolError):
-    pass
+    """Error warning raised locally"""
 
 
-class Protocol(object):
-    def __init__(self, ws):
-        assert ws
-        self._ws = ws
+class Protocol:
+    """Sc2 API protocol"""
+
+    def __init__(self, web_service):
+        assert web_service
+        self.web_service = web_service
         self._status = None
 
     async def __request(self, request):
-        logger.debug(f"Sending request: {request !r}")
+        """Send request to server"""
+        LOGGER.debug(f"Sending request: {request !r}")
         try:
-            await self._ws.send_bytes(request.SerializeToString())
+            await self.web_service.send_bytes(request.SerializeToString())
         except TypeError:
-            logger.exception("Cannot send: Connection already closed.")
+            LOGGER.exception("Cannot send: Connection already closed.")
             raise ConnectionAlreadyClosed("Connection already closed.")
-        logger.debug(f"Request sent")
-
+        LOGGER.debug(f"Request sent")
         response = sc_pb.Response()
         try:
-            response_bytes = await self._ws.receive_bytes()
+            response_bytes = await self.web_service.receive_bytes()
         except TypeError:
-            logger.exception("Cannot receive: Connection already closed.")
+            LOGGER.exception("Cannot receive: Connection already closed.")
             raise ConnectionAlreadyClosed("Connection already closed.")
         response.ParseFromString(response_bytes)
-        logger.debug(f"Response received")
+        LOGGER.debug(f"Response received")
         return response
 
     async def _execute(self, **kwargs):
+        """Execute the request"""
         assert len(kwargs) == 1, "Only one request allowed"
-
         request = sc_pb.Request(**kwargs)
-
         response = await self.__request(request)
-
-        new_status = Status(response.status)
+        new_status = STATUS(response.status)
         if new_status != self._status:
-            logger.info(f"Client status changed to {new_status} (was {self._status})")
+            LOGGER.info(f"Client status changed to {new_status} (was {self._status})")
         self._status = new_status
-
         if response.error:
-            logger.debug(f"Response contained an error: {response.error}")
+            LOGGER.debug(f"Response contained an error: {response.error}")
             raise ProtocolError(f"{response.error}")
-
         return response
 
     async def ping(self):
+        """return the ping"""
         result = await self._execute(ping=sc_pb.RequestPing())
         return result
 
     async def quit(self):
+        """Quit the server"""
         await self._execute(quit=sc_pb.RequestQuit())

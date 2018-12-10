@@ -6,33 +6,27 @@ class BuildCavern:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
-        local_controller = self.ai
-        if local_controller.caverns:
-            return False
+        local_controller = self.controller
+        return local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns, local_controller.hives)
 
-        return (
-            local_controller.evochambers
-            and local_controller.hives
-            and local_controller.can_afford(ULTRALISKCAVERN)
-            and not local_controller.already_pending(ULTRALISKCAVERN)
-        )
-
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not build between the main and natural"""
-        local_controller = self.ai
+        local_controller = self.controller
         position = await local_controller.get_production_position()
         if position:
             await local_controller.build(ULTRALISKCAVERN, position)
             return True
+        if local_controller.furthest_townhall_to_map_center:
+            await local_controller.build(ULTRALISKCAVERN, near=self.hardcoded_position())
+            return True
 
-        await local_controller.build(
-            ULTRALISKCAVERN,
-            near=local_controller.townhalls.furthest_to(local_controller.game_info.map_center).position.towards(
-                local_controller.main_base_ramp.depot_in_middle, 6
-            ),
+    def hardcoded_position(self):
+        """Previous placement"""
+        local_controller = self.controller
+        return local_controller.furthest_townhall_to_map_center.position.towards(
+            local_controller.main_base_ramp.depot_in_middle, 6
         )
-        return True

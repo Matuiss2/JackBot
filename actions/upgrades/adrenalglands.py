@@ -6,23 +6,19 @@ class UpgradeAdrenalGlands:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
+        self.selected_pools = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
-        if not local_controller.pools.ready.idle:
-            return False
-
+        local_controller = self.controller
+        self.selected_pools = local_controller.pools.ready.idle
         return (
-            not local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED)
+            local_controller.can_upgrade(ZERGLINGATTACKSPEED, RESEARCH_ZERGLINGADRENALGLANDS, self.selected_pools)
             and local_controller.hives
-            and local_controller.can_afford(RESEARCH_ZERGLINGADRENALGLANDS)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading zergling atk speed"""
-        local_controller = self.ai
-        pool = local_controller.pools.ready
-        local_controller.add_action(pool.first(RESEARCH_ZERGLINGADRENALGLANDS))
+        self.controller.add_action(self.selected_pools.first(RESEARCH_ZERGLINGADRENALGLANDS))
         return True

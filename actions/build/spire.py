@@ -6,21 +6,19 @@ class BuildSpire:
     """Untested"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Build the spire if only floating buildings left"""
-        local_controller = self.ai
+        local_controller = self.controller
         return (
-            not local_controller.spires
-            and local_controller.can_afford(SPIRE)
+            local_controller.can_build_unique(SPIRE, local_controller.spires)
             and local_controller.floating_buildings_bm
-            and not local_controller.already_pending(SPIRE)
             and (local_controller.lairs or local_controller.hives)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """ Put the spire near the pool"""
-        local_controller = self.ai
+        local_controller = self.controller
         await local_controller.build(SPIRE, near=local_controller.pools.first)
         return True

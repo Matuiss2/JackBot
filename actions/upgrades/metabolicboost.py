@@ -6,21 +6,16 @@ class UpgradeMetabolicBoost:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
+        self.selected_pools = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.ai
-        if not local_controller.pools.ready.idle:
-            return False
+        local_controller = self.controller
+        self.selected_pools = local_controller.pools.ready.idle
+        return local_controller.can_upgrade(ZERGLINGMOVEMENTSPEED, RESEARCH_ZERGLINGMETABOLICBOOST, self.selected_pools)
 
-        return not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.can_afford(
-            RESEARCH_ZERGLINGMETABOLICBOOST
-        )
-
-    async def handle(self, iteration):
+    async def handle(self):
         """Execute the action of upgrading zergling speed"""
-        local_controller = self.ai
-        pool = local_controller.pools.ready
-        local_controller.add_action(pool.first(RESEARCH_ZERGLINGMETABOLICBOOST))
+        self.controller.add_action(self.selected_pools.first(RESEARCH_ZERGLINGMETABOLICBOOST))
         return True

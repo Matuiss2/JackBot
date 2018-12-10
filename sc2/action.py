@@ -1,14 +1,14 @@
+"""Group everything that is needed to initialize actions requirements"""
 from itertools import groupby
 from s2clientprotocol import raw_pb2 as raw_pb, common_pb2 as common_pb
-
 from .position import Point2
 from .unit import Unit
 
 
-def combine_actions(action_iter, game_data):
+def combine_actions(action_iter):
+    """Initialize the actions requirements"""
     for key, items in groupby(action_iter, key=lambda a: a.combining_tuple):
         ability, target, queue = key
-
         if target is None:
             cmd = raw_pb.ActionRawUnitCommand(
                 ability_id=ability.value, unit_tags=[u.unit.tag for u in items], queue_command=queue
@@ -29,5 +29,4 @@ def combine_actions(action_iter, game_data):
             )
         else:
             raise RuntimeError(f"Must target an unit or a point or None, found '{target !r}'")
-
         yield raw_pb.ActionRaw(unit_command=cmd)

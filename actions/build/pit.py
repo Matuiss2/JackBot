@@ -6,37 +6,30 @@ class BuildPit:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
+        self.controller = ai
 
-    async def should_handle(self, iteration):
-        """Builds the infestation pit, placement can maybe be improved(far from priority)"""
-        local_controller = self.ai
-        base = local_controller.townhalls
-        if local_controller.pits or len(base) < 4:
-            return False
-
-        if local_controller.already_pending(INFESTATIONPIT):
-            return False
-
+    async def should_handle(self):
+        """Builds the infestation pit, placement fails on very limited situations"""
+        local_controller = self.controller
         return (
-            local_controller.evochambers
-            and local_controller.lairs.ready
-            and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2) > 0
-            and local_controller.can_afford(INFESTATIONPIT)
-            and base
+            len(local_controller.townhalls) > 4
+            and local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL2)
+            and local_controller.can_build_unique(INFESTATIONPIT, local_controller.pits)
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Build it behind the mineral line if there is space, if not uses later placement"""
-        local_controller = self.ai
-        map_center = local_controller.game_info.map_center
+        local_controller = self.controller
         position = await local_controller.get_production_position()
         if position:
             await local_controller.build(INFESTATIONPIT, position)
             return True
-
-        await local_controller.build(
-            INFESTATIONPIT,
-            near=local_controller.townhalls.furthest_to(map_center).position.towards_with_random_angle(map_center, -14),
-        )
+        await local_controller.build(INFESTATIONPIT, near=self.hardcoded_position())
         return True
+
+    def hardcoded_position(self):
+        """Previous placement"""
+        local_controller = self.controller
+        return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
+            local_controller.game_info.map_center, -14
+        )

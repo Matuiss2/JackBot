@@ -6,29 +6,20 @@ class QueensAbilities:
     """Can be improved(Defense not utility)"""
 
     def __init__(self, ai):
-        self.ai = ai
-        self.queens = None
-        self.hatchery = None
-        self.enemies = None
+        self.controller = ai
+        self.queens = self.bases = self.enemies = None
 
-    async def should_handle(self, iteration):
+    async def should_handle(self):
         """Injection and creep spread, can be expanded so it accepts transfusion"""
-        local_controller = self.ai
+        local_controller = self.controller
         self.queens = local_controller.queens
-        self.hatchery = local_controller.townhalls
-        self.enemies = local_controller.known_enemy_units.not_structure
+        self.bases = local_controller.townhalls
+        self.enemies = local_controller.enemies.not_structure
+        return self.queens and self.bases
 
-        if not self.queens:
-            return False
-
-        if not self.hatchery:
-            return False
-
-        return True
-
-    async def handle(self, iteration):
+    async def handle(self):
         """Assign a queen to each base to make constant injections and the extras for creep spread"""
-        local_controller = self.ai
+        local_controller = self.controller
         if not (local_controller.floating_buildings_bm and local_controller.supply_used >= 199):
             action = local_controller.add_action
             for queen in self.queens.idle:
@@ -37,18 +28,16 @@ class QueensAbilities:
                 if self.enemies.closer_than(10, queen_position):
                     action(queen.attack(self.enemies.closest_to(queen_position)))
                     continue
-                selected = self.hatchery.closest_to(queen.position)
+                selected = self.bases.closest_to(queen.position)
                 if queen_energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
                     action(queen(EFFECT_INJECTLARVA, selected))
                     continue
                 elif queen_energy >= 25:
                     await local_controller.place_tumor(queen)
-
-            for hatch in self.hatchery.ready.noqueue:
+            for hatch in self.bases.ready.noqueue:
                 if not self.queens.closer_than(4, hatch):
                     for queen in self.queens.idle:
-                        if not local_controller.townhalls.closer_than(4, queen):
+                        if not self.bases.closer_than(4, queen):
                             action(queen.move(hatch.position))
                             break
-
             return True

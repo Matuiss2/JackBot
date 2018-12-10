@@ -1,45 +1,44 @@
-from .data import PlayerType, Race, Difficulty
+"""Group everything that defines a player"""
+from .data import PLAYER_TYPE, RACE, DIFFICULTY
 from .bot_ai import BotAI
 
 
-class AbstractPlayer(object):
-    def __init__(self, type, race=None, difficulty=None):
-        assert isinstance(type, PlayerType)
+class AbstractPlayer:
+    """Define what the all player types have in common"""
 
-        if type == PlayerType.Computer:
-            assert isinstance(difficulty, Difficulty)
-
-        elif type == PlayerType.Observer:
+    def __init__(self, tipo, race=None, difficulty=None):
+        assert isinstance(tipo, PLAYER_TYPE)
+        if tipo == PLAYER_TYPE.Computer:
+            assert isinstance(difficulty, DIFFICULTY)
+        elif tipo == PLAYER_TYPE.Observer:
             assert race is None
             assert difficulty is None
-
         else:
-            assert isinstance(race, Race)
+            assert isinstance(race, RACE)
             assert difficulty is None
-
-        self.type = type
-        if race is not None:
+        self.type = tipo
+        if race:
             self.race = race
-        if type == PlayerType.Computer:
+        if tipo == PLAYER_TYPE.Computer:
             self.difficulty = difficulty
 
 
 class Human(AbstractPlayer):
+    """Set the player type(human) and its race"""
+
     def __init__(self, race):
-        super().__init__(PlayerType.Participant, race)
+        super().__init__(PLAYER_TYPE.Participant, race)
 
     def __str__(self):
         return f"Human({self.race})"
 
 
 class Bot(AbstractPlayer):
+    """Set the player type(bot) and its race"""
+
     def __init__(self, race, ai):
-        """
-        AI can be None if this player object is just used to inform the
-        server about player types.
-        """
         assert isinstance(ai, BotAI) or ai is None
-        super().__init__(PlayerType.Participant, race)
+        super().__init__(PLAYER_TYPE.Participant, race)
         self.ai = ai
 
     def __str__(self):
@@ -47,35 +46,42 @@ class Bot(AbstractPlayer):
 
 
 class Computer(AbstractPlayer):
-    def __init__(self, race, difficulty=Difficulty.Easy):
-        super().__init__(PlayerType.Computer, race, difficulty)
+    """Set the player type(built-in ai), its race and difficulty"""
+
+    def __init__(self, race, difficulty=DIFFICULTY.Easy):
+        super().__init__(PLAYER_TYPE.Computer, race, difficulty)
 
     def __str__(self):
         return f"Computer({self.race}, {self.difficulty})"
 
 
 class Observer(AbstractPlayer):
+    """Creates the observer"""
+
     def __init__(self):
-        super().__init__(PlayerType.Observer)
+        super().__init__(PLAYER_TYPE.Observer)
 
     def __str__(self):
         return f"Observer()"
 
 
 class Player(AbstractPlayer):
+    """creates player of all 3 types"""
+
     @classmethod
     def from_proto(cls, proto):
-        if PlayerType(proto.type) == PlayerType.Observer:
-            return cls(proto.player_id, PlayerType(proto.type), None, None, None)
+        """Take necessary info from the protocol and creates player of all 3 types"""
+        if PLAYER_TYPE(proto.type) == PLAYER_TYPE.Observer:
+            return cls(proto.player_id, PLAYER_TYPE(proto.type), None, None, None)
         return cls(
             proto.player_id,
-            PlayerType(proto.type),
-            Race(proto.race_requested),
-            Difficulty(proto.difficulty) if proto.HasField("difficulty") else None,
-            Race(proto.race_actual) if proto.HasField("race_actual") else None,
+            PLAYER_TYPE(proto.type),
+            RACE(proto.race_requested),
+            DIFFICULTY(proto.difficulty) if proto.HasField("difficulty") else None,
+            RACE(proto.race_actual) if proto.HasField("race_actual") else None,
         )
 
-    def __init__(self, player_id, type, requested_race, difficulty=None, actual_race=None):
-        super().__init__(type, requested_race, difficulty)
+    def __init__(self, player_id, tipo, requested_race, difficulty=None, actual_race=None):
+        super().__init__(tipo, requested_race, difficulty)
         self.id: int = player_id
-        self.actual_race: Race = actual_race
+        self.actual_race: RACE = actual_race

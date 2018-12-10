@@ -6,37 +6,29 @@ class BuildHive:
     """Ok for now"""
 
     def __init__(self, ai):
-        self.ai = ai
-        self.lairs = None
+        self.controller = ai
+        self.selected_lairs = None
 
-    async def should_handle(self, iteration):
-        """Builds the infestation pit, placement can maybe be improved(far from priority)"""
-        local_controller = self.ai
-        if local_controller.hives:
-            return False
-
-        self.lairs = local_controller.lairs.ready
-
+    async def should_handle(self):
+        """Builds the hive"""
+        local_controller = self.controller
+        self.selected_lairs = local_controller.lairs.ready.idle
         return (
-            local_controller.pit.ready
-            and self.lairs.idle
-            and local_controller.can_afford(HIVE)
+            self.selected_lairs
+            and local_controller.can_build_unique(HIVE, local_controller.caverns, local_controller.pits.ready)
             and not await self.morphing_lairs()
         )
 
-    async def handle(self, iteration):
+    async def handle(self):
         """Finishes the action of making the hive"""
-        self.ai.add_action(self.lairs.ready.first(UPGRADETOHIVE_HIVE))
+        local_controller = self.controller
+        local_controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
         return True
 
     async def morphing_lairs(self):
         """Check if there is a lair morphing looping all hatcheries"""
-        for hatch in self.lairs:
-            if await self.is_morphing(hatch):
+        local_controller = self.controller
+        for hatch in local_controller.lairs:
+            if await local_controller.is_morphing(hatch, CANCEL_MORPHHIVE):
                 return True
         return False
-
-    async def is_morphing(self, hatch):
-        """Check if there is a lair morphing by checking the available abilities"""
-        abilities = await self.ai.get_available_abilities(hatch)
-        return CANCEL_MORPHHIVE in abilities
