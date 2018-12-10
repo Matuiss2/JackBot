@@ -175,18 +175,15 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
     def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on distance"""
         start = self.start_location
-        expansions = list(self.expansion_locations)
-        waypoints = [point for point in expansions]
+        waypoints = [point for point in list(self.expansion_locations)]
         waypoints.sort(key=lambda p: (p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2)
         self.ordered_expansions = [Point2((p[0], p[1])) for p in waypoints]
 
     def split_workers(self):
         """Split the workers on the beginning """
         for drone in self.drones:
-            closest_mineral_patch = self.state.mineral_field.closest_to(drone)
-            self.add_action(drone.gather(closest_mineral_patch))
+            self.add_action(drone.gather(self.state.mineral_field.closest_to(drone)))
 
     async def is_morphing(self, base, cancel):
         """Check if there is a lair morphing by checking the available abilities"""
-        abilities = await self.get_available_abilities(base)
-        return cancel in abilities
+        return cancel in await self.get_available_abilities(base)
