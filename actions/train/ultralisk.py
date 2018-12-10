@@ -6,7 +6,7 @@ class TrainUltralisk:
     """Ok for now"""
 
     def __init__(self, main):
-        self.controller = ai
+        self.controller = main
 
     async def should_handle(self):
         """Good for now but it might need to be changed vs particular

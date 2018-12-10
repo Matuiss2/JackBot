@@ -6,7 +6,7 @@ class TrainMutalisk:
     """Untested"""
 
     def __init__(self, main):
-        self.controller = ai
+        self.controller = main
 
     async def should_handle(self):
         """Requirements to run handle"""

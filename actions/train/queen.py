@@ -6,7 +6,7 @@ class TrainQueen:
     """Ok for now"""
 
     def __init__(self, main):
-        self.controller = ai
+        self.controller = main
         self.hatchery = None
 
     async def should_handle(self):
