@@ -1,11 +1,9 @@
 """Everything related to controlling army units goes here"""
-import numpy as np
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
     BUNKER,
     DISRUPTORPHASED,
-    DRONE,
     EGG,
     EVOLVEGROOVEDSPINES,
     EVOLVEMUSCULARAUGMENTS,
@@ -16,20 +14,19 @@ from sc2.constants import (
     HYDRALISK,
     PHOTONCANNON,
     PLANETARYFORTRESS,
-    PROBE,
     QUEEN,
-    SCV,
     SPINECRAWLER,
     ZERGLING,
     ZERGLINGATTACKSPEED,
 )
-
+from sc2 import RACE
 from actions.micro.micro_helpers import Micro
 from actions.micro.unit.hydralisks import HydraControl
 from actions.micro.unit.zerglings import ZerglingControl
+from actions.micro.army_value_tables import EnemyArmyValue
 
 
-class ArmyControl(ZerglingControl, HydraControl, Micro):
+class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     """Can be improved"""
 
     def __init__(self, main):
@@ -58,11 +55,11 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         enemy_building = local_controller.enemy_structures
         map_center = local_controller.game_info.map_center
         bases = local_controller.townhalls
+        close_targets = close_hydra_targets = None
         self.behavior_changing_upgrades_check()
         if bases.ready:
             self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
-        # enemy_detection = enemy_units.not_structure.of_type({OVERSEER, OBSERVER})
-        combined_enemies, targets, atk_force, hydra_targets = self.set_unit_groups()
+        targets, atk_force, hydra_targets = self.set_unit_groups()
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
                 continue
@@ -79,19 +76,19 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
             if attacking_unit.tag in self.retreat_units and bases:
                 self.has_retreated(attacking_unit)
                 continue
-            if (
-                attacking_unit.type_id == HYDRALISK
-                and hydra_targets
-                and hydra_targets.closer_than(17, self.unit_position)
-            ):
-                if self.retreat_unit(attacking_unit, combined_enemies):
+            if hydra_targets:
+                close_hydra_targets = hydra_targets.closer_than(20, self.unit_position)
+            if attacking_unit.type_id == HYDRALISK and close_hydra_targets:
+                if self.retreat_unit(attacking_unit, close_hydra_targets):
                     continue
                 if self.micro_hydras(hydra_targets, attacking_unit):
                     continue
-            if targets and targets.closer_than(17, self.unit_position):
-                if self.retreat_unit(attacking_unit, combined_enemies):
+            if targets:
+                close_targets = targets.closer_than(20, self.unit_position)
+            if close_targets:
+                if self.retreat_unit(attacking_unit, close_targets):
                     continue
-                if await self.handling_walls_and_attacking(attacking_unit, targets):
+                if await self.handling_walls_and_attacking(attacking_unit, close_targets):
                     continue
             elif enemy_building.closer_than(30, self.unit_position):
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
@@ -115,24 +112,20 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         if self.controller.townhalls.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
-    def retreat_unit(self, unit, combined_enemies):
+    def retreat_unit(self, unit, target):
         """Tell the unit to retreat when overwhelmed"""
         local_controller = self.controller
+        if local_controller.enemy_race == RACE.Zerg:
+            enemy_value = self.enemy_value_zerg(unit, target)
+        elif local_controller.enemy_race == RACE.Terran:
+            enemy_value = self.enemy_value_terran(unit, target)
+        else:
+            enemy_value = self.enemy_value_protoss(unit, target)
         if (
             local_controller.townhalls
             and not local_controller.close_enemies_to_base
-            and not local_controller.structures.closer_than(7, unit.position)
-            and len(combined_enemies.closer_than(20, unit.position))
-            >= np.sum(
-                np.array(
-                    [
-                        len(local_controller.zerglings.closer_than(13, unit.position)),
-                        len(local_controller.ultralisks.closer_than(13, unit.position)),
-                        len(local_controller.hydras.closer_than(13, unit.position)),
-                    ]
-                )
-                * np.array([1, 3, 8])
-            )
+            and not local_controller.structures.closer_than(7, self.unit_position)
+            and enemy_value >= self.battling_force_value(self.unit_position, 1, 3, 8)
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -144,17 +137,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         local_controller = self.controller
         if (
             local_controller.supply_used not in range(198, 201)
-            and np.sum(
-                np.array(
-                    [
-                        len(local_controller.zerglings.ready),
-                        len(local_controller.hydras.ready),
-                        len(local_controller.ultralisks.ready),
-                    ]
-                )
-                * np.array([1, 2, 4])
-            )
-            < 41
+            and self.gathering_force_value(1, 2, 4) < 41
             and local_controller.townhalls
             and self.retreat_units
             and not local_controller.counter_attack_vs_flying
@@ -205,8 +188,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         )
 
     def set_unit_groups(self):
-        """Set the targets, combined_enemies and atk_force"""
-        targets = hydra_targets = combined_enemies = None
+        """Set the targets and atk_force"""
+        targets = hydra_targets = None
         local_controller = self.controller
         enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
@@ -222,7 +205,6 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
             }
             filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
             static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-            combined_enemies = filtered_enemies.exclude_type({DRONE, SCV, PROBE}) | static_defence
             targets = static_defence | filtered_enemies.not_flying
             hydra_targets = static_defence | filtered_enemies
         atk_force = (
@@ -233,14 +215,14 @@ class ArmyControl(ZerglingControl, HydraControl, Micro):
         )
         if local_controller.floating_buildings_bm and local_controller.supply_used >= 199:
             atk_force = atk_force | local_controller.queens
-        return combined_enemies, targets, atk_force, hydra_targets
+        return targets, atk_force, hydra_targets
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
         local_controller = self.controller
         flying_buildings = local_controller.enemy_structures.flying
         if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and flying_buildings:
-            local_controller.add_action(unit.attack(flying_buildings.closest_to(unit.position)))
+            local_controller.add_action(unit.attack(flying_buildings.closest_to(self.unit_position)))
             return True
         return False
 
