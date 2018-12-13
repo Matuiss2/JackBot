@@ -112,7 +112,6 @@ class BotAI:
                     Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
                     for offset in [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
                 )
-                if all(point.distance_to(resource) >= 6 for resource in resources)
             ]
             possible_points.sort(
                 key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.2) for resource in resources])
