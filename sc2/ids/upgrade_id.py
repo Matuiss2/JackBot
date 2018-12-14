@@ -5,6 +5,7 @@ import enum
 
 class UpgradeId(enum.Enum):
     """All upgrade ids"""
+
     NULL = 0
     CARRIERLAUNCHSPEEDUPGRADE = 1
     GLIALRECONSTITUTION = 2

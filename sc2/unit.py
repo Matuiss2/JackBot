@@ -18,9 +18,7 @@ class Unit:
         assert isinstance(game_data, GameData)
         self.proto = proto_data
         self._game_data = game_data
-        self._weapons = None
-        self._ground_weapon = None
-        self._air_weapon = None
+        self._weapons = self._ground_weapon = self._air_weapon = None
 
     @property
     def type_id(self) -> UnitTypeId:
@@ -457,7 +455,7 @@ class Unit:
     @property
     def is_moving(self) -> bool:
         """Checks if the unit is moving"""
-        return self.orders and self.orders[0].ability.id in [AbilityId.MOVE]
+        return self.orders and self.orders[0].ability.id is AbilityId.MOVE
 
     @property
     def is_attacking(self) -> bool:
@@ -473,12 +471,12 @@ class Unit:
     @property
     def is_gathering(self) -> bool:
         """ Checks if a unit is on its way to a mineral field / vespene geyser to mine. """
-        return self.orders and self.orders[0].ability.id in {AbilityId.HARVEST_GATHER}
+        return self.orders and self.orders[0].ability.id is AbilityId.HARVEST_GATHER
 
     @property
     def is_returning(self) -> bool:
         """ Checks if a unit is returning from mineral field / vespene geyser to deliver resources to townhall. """
-        return self.orders and self.orders[0].ability.id in {AbilityId.HARVEST_RETURN}
+        return self.orders and self.orders[0].ability.id is AbilityId.HARVEST_RETURN
 
     @property
     def is_collecting(self) -> bool:
@@ -602,6 +600,10 @@ class Unit:
     def move(self, *args, **kwargs):
         """Make the unit move somewhere if it can"""
         return self(AbilityId.MOVE, *args, **kwargs)
+
+    def scan_move(self, *args, **kwargs):
+        """Make the unit scan somewhere if it can"""
+        return self(AbilityId.SCAN_MOVE, *args, **kwargs)
 
     def hold_position(self, *args, **kwargs):
         """Make the unit hold position if it can"""

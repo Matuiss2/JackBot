@@ -89,7 +89,7 @@ class BotAI:
     @property_cache_forever
     def expansion_locations(self):
         """List of possible expansion locations."""
-        resource_spread_threshold = 100
+        resource_spread_threshold = 144
         resources = self.state.mineral_field | self.state.vespene_geyser
         r_groups = []
         for mineral_field in resources:
@@ -107,11 +107,14 @@ class BotAI:
         centers = {}
         for resources in r_groups:
             possible_points = [
-                Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
-                for offset in [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
+                point
+                for point in (
+                    Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
+                    for offset in [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
+                )
             ]
             possible_points.sort(
-                key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.162) for resource in resources])
+                key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.2) for resource in resources])
             )
             centers[possible_points[0]] = resources
         return centers
@@ -184,9 +187,10 @@ class BotAI:
             for _ in range(0, geyser.ideal_harvesters - geyser.assigned_harvesters):
                 if worker_pool:
                     selected_worker = worker_pool.pop()
-                    if len(selected_worker.orders) == 1 and selected_worker.orders[0].ability.id in [
-                        AbilityId.HARVEST_RETURN
-                    ]:
+                    if (
+                        len(selected_worker.orders) == 1
+                        and selected_worker.orders[0].ability.id is AbilityId.HARVEST_RETURN
+                    ):
                         actions.append(selected_worker.move(geyser))
                         actions.append(selected_worker.return_resource(queue=True))
                     else:
@@ -196,9 +200,10 @@ class BotAI:
                 if worker_pool:
                     selected_worker = worker_pool.pop()
                     mineral_field = self.state.mineral_field.closest_to(townhall)
-                    if len(selected_worker.orders) == 1 and selected_worker.orders[0].ability.id in [
-                        AbilityId.HARVEST_RETURN
-                    ]:
+                    if (
+                        len(selected_worker.orders) == 1
+                        and selected_worker.orders[0].ability.id is AbilityId.HARVEST_RETURN
+                    ):
                         actions.append(selected_worker.move(townhall))
                         actions.append(selected_worker.return_resource(queue=True))
                         actions.append(selected_worker.gather(mineral_field, queue=True))
@@ -287,7 +292,7 @@ class BotAI:
             if (
                 not worker.orders
                 or len(worker.orders) == 1
-                and worker.orders[0].ability.id in [AbilityId.MOVE, AbilityId.HARVEST_GATHER, AbilityId.HARVEST_RETURN]
+                and worker.orders[0].ability.id in {AbilityId.MOVE, AbilityId.HARVEST_GATHER, AbilityId.HARVEST_RETURN}
             ):
                 return worker
         return workers.random if force else None
