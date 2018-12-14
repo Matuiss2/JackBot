@@ -602,6 +602,7 @@ class Unit:
         return self(AbilityId.MOVE, *args, **kwargs)
 
     def scan_move(self, *args, **kwargs):
+        """Make the unit scan somewhere if it can"""
         return self(AbilityId.SCAN_MOVE, *args, **kwargs)
 
     def hold_position(self, *args, **kwargs):
