@@ -5,8 +5,8 @@ from sc2.constants import BURROW, BURROWDOWN_ZERGLING
 class BlockExpansions:
     """Needs improvements"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.zerglings = None
 
     async def should_handle(self):

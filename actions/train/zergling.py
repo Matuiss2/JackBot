@@ -5,8 +5,8 @@ from sc2.constants import ZERGLING, ZERGLINGMOVEMENTSPEED
 class TrainZergling:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """good enough for now, maybe ratio values can be improved"""

@@ -4,8 +4,8 @@
 class Overseer:
     """Can be improved a lot, it barely do its job as of now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.bases = self.overseers = None
 
     async def should_handle(self):

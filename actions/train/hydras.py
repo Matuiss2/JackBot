@@ -5,8 +5,8 @@ from sc2.constants import HYDRALISK
 class TrainHydralisk:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """Requirements to run handle, it limits the training a little so it keeps building ultralisks,

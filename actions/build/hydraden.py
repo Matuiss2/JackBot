@@ -5,8 +5,8 @@ from sc2.constants import HYDRALISKDEN
 class BuildHydraden:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """Build the hydraden"""

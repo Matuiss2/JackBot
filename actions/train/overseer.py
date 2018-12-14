@@ -5,8 +5,8 @@ from sc2.constants import CANCEL_MORPHOVERSEER, MORPH_OVERSEER, OVERLORDCOCOON, 
 class TrainOverseer:
     """Should be expanded"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """Requirements to run handle, limits it to one it need to be expanded"""

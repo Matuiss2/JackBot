@@ -5,8 +5,8 @@ from sc2.constants import SPIRE
 class BuildSpire:
     """Untested"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """Build the spire if only floating buildings left"""

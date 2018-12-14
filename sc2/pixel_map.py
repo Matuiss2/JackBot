@@ -33,19 +33,19 @@ class PixelMap:
         return self.proto.bits_per_pixel // 8
 
     def __getitem__(self, pos):
-        x, y = pos
-        assert 0 <= x < self.width
-        assert 0 <= y < self.height
-        index = -self.width * y + x
+        width, height = pos
+        assert 0 <= width < self.width
+        assert 0 <= height < self.height
+        index = -self.width * height + width
         start = index * self.bytes_per_pixel
         data = self.data[start : start + self.bytes_per_pixel]
         return int.from_bytes(data, byteorder="little", signed=False)
 
     def __setitem__(self, pos, val):
-        x, y = pos
-        assert 0 <= x < self.width
-        assert 0 <= y < self.height
-        index = self.width * y + x
+        width, height = pos
+        assert 0 <= width < self.width
+        assert 0 <= height < self.height
+        index = self.width * height + width
         start = index * self.bytes_per_pixel
         self.data[start : start + self.bytes_per_pixel] = val
 
@@ -62,33 +62,33 @@ class PixelMap:
         nodes: Set[Point2] = set()
         queue: List[Point2] = [start_point]
         while queue:
-            x, y = queue.pop()
-            if not (0 <= x < self.width and 0 <= y < self.height):
+            width, height = queue.pop()
+            if not (0 <= width < self.width and 0 <= height < self.height):
                 continue
-            if Point2((x, y)) in nodes:
+            if Point2((width, height)) in nodes:
                 continue
-            if pred(self[x, y]):
-                nodes.add(Point2((x, y)))
-                queue.append(Point2((x + 1, y)))
-                queue.append(Point2((x - 1, y)))
-                queue.append(Point2((x, y + 1)))
-                queue.append(Point2((x, y - 1)))
+            if pred(self[width, height]):
+                nodes.add(Point2((width, height)))
+                queue.append(Point2((width + 1, height)))
+                queue.append(Point2((width - 1, height)))
+                queue.append(Point2((width, height + 1)))
+                queue.append(Point2((width, height - 1)))
         return nodes
 
     def flood_fill_all(self, pred: Callable[[int], bool]) -> Set[FrozenSet[Point2]]:
         """Not sure what this do"""
         groups: Set[FrozenSet[Point2]] = set()
-        for x in range(self.width):
-            for y in range(self.height):
-                if any((x, y) in g for g in groups):
+        for width in range(self.width):
+            for height in range(self.height):
+                if any((width, height) in g for g in groups):
                     continue
-                if pred(self[x, y]):
-                    groups.add(frozenset(self.flood_fill(Point2((x, y)), pred)))
+                if pred(self[width, height]):
+                    groups.add(frozenset(self.flood_fill(Point2((width, height)), pred)))
         return groups
 
     def print(self, wide=False):
         """Print the pixel map info"""
-        for y in range(self.height):
-            for x in range(self.width):
-                print("#" if self.is_set((x, y)) else " ", end=(" " if wide else ""))
+        for height in range(self.height):
+            for width in range(self.width):
+                print("#" if self.is_set((width, height)) else " ", end=(" " if wide else ""))
             print("")

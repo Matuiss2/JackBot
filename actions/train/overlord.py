@@ -5,8 +5,8 @@ from sc2.constants import OVERLORD
 class TrainOverlord:
     """Should be improved"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """We still get supply blocked sometimes, can be improved a lot still"""

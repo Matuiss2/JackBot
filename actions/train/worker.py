@@ -6,8 +6,8 @@ from sc2.constants import DRONE, OVERLORD
 class TrainWorker:
     """Needs improvements, its very greedy sometimes"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """Should this action be handled, needs more smart limitations, its very greedy sometimes"""

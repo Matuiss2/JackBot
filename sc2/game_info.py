@@ -188,7 +188,6 @@ class GameInfo:
             paint(point)
         remaining: Set[Point2] = set(points)
         queue: [Point2] = deque()
-        found_groups: List[Set[Point2]] = []
         while remaining:
             current_group: Set[Point2] = set()
             if not queue:
@@ -216,5 +215,4 @@ class GameInfo:
                     queue.append(point)
                     current_group.add(point)
             if len(current_group) >= minimum_points_per_group:
-                found_groups.append(current_group)
-        return found_groups
+                yield current_group

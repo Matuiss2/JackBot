@@ -4,8 +4,8 @@
 class Overlord:
     """Can be expanded further to spread vision better on the map"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.first_ov_scout = self.second_ov_scout = self.third_ov_scout = False
         self.locations = self.selected_ov = self.scout_position = self.overlords = None
 

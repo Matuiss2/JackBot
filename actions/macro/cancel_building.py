@@ -6,8 +6,8 @@ class Buildings:
     """Ok for now but can be improved, it works every time
      but it should prevent cancelled buildings to be replaced right after"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
 
     async def should_handle(self):
         """Requirements to run handle"""

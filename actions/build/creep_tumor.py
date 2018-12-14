@@ -4,8 +4,8 @@
 class CreepTumor:
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.tumors = None
 
     async def should_handle(self):

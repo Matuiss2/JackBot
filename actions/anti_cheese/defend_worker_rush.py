@@ -1,16 +1,14 @@
 """Everything related to defending a worker rush goes here"""
 import heapq
-
 from sc2.constants import DRONE, PROBE, SCV
-
 from actions.micro.micro_helpers import Micro
 
 
 class DefendWorkerRush(Micro):
     """Ok for now"""
 
-    def __init__(self, ai):
-        self.controller = ai
+    def __init__(self, main):
+        self.controller = main
         self.base = self.enemy_units_close = self.defenders = self.defender_tags = None
 
     async def should_handle(self):
