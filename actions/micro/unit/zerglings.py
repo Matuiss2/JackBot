@@ -1,6 +1,5 @@
 """Everything related to controlling hydralisks"""
 from sc2.constants import BANELING
-
 from actions.micro.micro_helpers import Micro
 
 

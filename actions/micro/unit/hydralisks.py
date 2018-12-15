@@ -1,7 +1,6 @@
 """Everything related to controlling hydralisks"""
 import math
 from sc2.constants import DUTCHMARAUDERSLOW
-
 from actions.micro.micro_helpers import Micro
 
 

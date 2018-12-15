@@ -1,5 +1,5 @@
 """Everything related to building positioning goes here"""
-from sc2.constants import EVOLUTIONCHAMBER, ENGINEERINGBAY
+from sc2.constants import ENGINEERINGBAY, EVOLUTIONCHAMBER
 from sc2.position import Point2
 
 

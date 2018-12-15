@@ -1,15 +1,15 @@
 """Everything related to handling very close proxies with drones goes here"""
 from sc2.constants import (
+    AUTOTURRET,
+    BARRACKS,
     BUNKER,
     DRONE,
+    GATEWAY,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     PROBE,
     SCV,
     SPINECRAWLER,
-    AUTOTURRET,
-    BARRACKS,
-    GATEWAY,
 )
 
 
