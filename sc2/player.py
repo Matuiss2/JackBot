@@ -1,6 +1,6 @@
 """Group everything that defines a player"""
-from .data import PLAYER_TYPE, RACE, DIFFICULTY
 from .bot_ai import BotAI
+from .data import DIFFICULTY, PLAYER_TYPE, RACE
 
 
 class AbstractPlayer:

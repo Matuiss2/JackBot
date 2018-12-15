@@ -1,7 +1,7 @@
 """Groups everything related to a position on the map or of an unit"""
-from math import sqrt, pi, sin, cos, atan2, inf, hypot
-import random
 import itertools
+import random
+from math import atan2, cos, hypot, inf, pi, sin, sqrt
 from typing import List, Set, Union
 
 FLOAT_DIGITS = 8

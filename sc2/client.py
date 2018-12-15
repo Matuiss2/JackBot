@@ -1,22 +1,19 @@
 """Group everything that interacts with the clients and debuggers"""
-from typing import List, Set, Optional, Union
 import logging
-from s2clientprotocol import (
-    sc2api_pb2 as sc_pb,
-    common_pb2 as common_pb,
-    query_pb2 as query_pb,
-    debug_pb2 as debug_pb,
-    raw_pb2 as raw_pb,
-)
+from typing import List, Optional, Set, Union
+from s2clientprotocol import common_pb2 as common_pb
+from s2clientprotocol import debug_pb2 as debug_pb
+from s2clientprotocol import query_pb2 as query_pb
+from s2clientprotocol import raw_pb2 as raw_pb
+from s2clientprotocol import sc2api_pb2 as sc_pb
 from sc2.ids.ability_id import AbilityId
 from sc2.ids.unit_typeid import UnitTypeId
-from .protocol import Protocol, ProtocolError
-from .game_info import GameInfo
-from .game_data import GameData, AbilityData
-from .data import STATUS, RESULT
-from .data import RACE, ACTION_RESULT, CHAT_CHANNEL
 from .action import combine_actions
+from .data import ACTION_RESULT, CHAT_CHANNEL, RACE, RESULT, STATUS
+from .game_data import AbilityData, GameData
+from .game_info import GameInfo
 from .position import Point2, Point3
+from .protocol import Protocol, ProtocolError
 from .unit import Unit
 from .units import Units
 

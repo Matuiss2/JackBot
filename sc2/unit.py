@@ -1,13 +1,13 @@
 """Everything related to a single unit in the game goes here"""
-from typing import List, Set, Optional, Union
+from typing import List, Optional, Set, Union
 from s2clientprotocol import raw_pb2 as raw_pb
 from sc2.ids.buff_id import BuffId
-from .position import Point2, Point3
-from .data import ALLIANCE, ATTRIBUTE, DISPLAY_TYPE, warpgate_abilities, TARGET_TYPE, RACE, CLOAK_STATE
-from .game_data import GameData, UnitTypeData
-from .ids.unit_typeid import UnitTypeId
-from .ids.ability_id import AbilityId
 from . import unit_command
+from .data import ALLIANCE, ATTRIBUTE, CLOAK_STATE, DISPLAY_TYPE, RACE, TARGET_TYPE, warpgate_abilities
+from .game_data import GameData, UnitTypeData
+from .ids.ability_id import AbilityId
+from .ids.unit_typeid import UnitTypeId
+from .position import Point2, Point3
 
 
 class Unit:

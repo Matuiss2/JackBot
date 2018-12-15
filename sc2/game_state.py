@@ -1,13 +1,13 @@
 """Groups some info about the all global(shared by all races) state of sc2 so it can be used in an easy way"""
 from typing import List, Set
-from .units import Units
-from .power_source import PsionicMatrix
-from .pixel_map import PixelMap
-from .ids.upgrade_id import UpgradeId
-from .ids.effect_id import EffectId
-from .position import Point2, Point3
 from .data import ALLIANCE, DISPLAY_TYPE
+from .ids.effect_id import EffectId
+from .ids.upgrade_id import UpgradeId
+from .pixel_map import PixelMap
+from .position import Point2, Point3
+from .power_source import PsionicMatrix
 from .score import ScoreDetails
+from .units import Units
 
 
 class Blip:
