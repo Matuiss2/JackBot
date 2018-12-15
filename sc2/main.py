@@ -1,14 +1,15 @@
 """Group everything needed to start a game"""
-import logging
 import asyncio
+import logging
 import async_timeout
-from .sc2process import SC2Process
-from .portconfig import Portconfig
 from .client import Client
-from .player import Human, Bot
-from .data import RESULT, CREATE_GAME_ERROR
+from .data import CREATE_GAME_ERROR, RESULT
 from .game_state import GameState
+from .player import Bot, Human
+from .portconfig import Portconfig
 from .protocol import ConnectionAlreadyClosed
+from .sc2process import SC2Process
+
 
 LOGGER = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 """Everything related to unit groups in the game goes here"""
 import random
-from typing import List, Dict, Set, Any, Optional, Union
-from .unit import Unit
+from typing import Any, Dict, List, Optional, Set, Union
 from .ids.unit_typeid import UnitTypeId
 from .position import Point2, Point3
+from .unit import Unit
 
 
 class Units(list):

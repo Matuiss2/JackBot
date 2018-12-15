@@ -1,5 +1,5 @@
 """Makes a pixelmap and returns is specifications"""
-from typing import Callable, Set, FrozenSet, List
+from typing import Callable, FrozenSet, List, Set
 from .position import Point2
 
 

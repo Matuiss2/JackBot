@@ -1,9 +1,9 @@
 """Groups some info about the map so it can be used in an easy way"""
-from typing import List, Dict, Set
 from collections import deque
-from .position import Point2, Size, Rect
+from typing import Dict, List, Set
 from .pixel_map import PixelMap
 from .player import Player
+from .position import Point2, Rect, Size
 
 
 class Ramp:

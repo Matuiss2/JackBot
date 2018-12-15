@@ -1,20 +1,20 @@
 """Global methods and class for the bot go here"""
+import logging
 import math
 import random
-import logging
-from typing import List, Optional, Union
 import statistics
-from .position import Point2, Point3
-from .data import RACE, ACTION_RESULT, race_worker, race_townhalls, race_gas, TARGET, RESULT
-from .unit import Unit
+from typing import List, Optional, Union
 from .cache import property_cache_forever
-from .game_data import AbilityData
-from .ids.unit_typeid import UnitTypeId
-from .ids.ability_id import AbilityId
-from .ids.upgrade_id import UpgradeId
-from .units import Units
+from .data import ACTION_RESULT, RACE, RESULT, TARGET, race_gas, race_townhalls, race_worker
+from .game_data import AbilityData, GameData
 from .game_state import GameState
-from .game_data import GameData
+from .ids.ability_id import AbilityId
+from .ids.unit_typeid import UnitTypeId
+from .ids.upgrade_id import UpgradeId
+from .position import Point2, Point3
+from .unit import Unit
+from .units import Units
+
 
 LOGGER = logging.getLogger(__name__)
 

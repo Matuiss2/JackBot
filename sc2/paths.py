@@ -1,9 +1,9 @@
 """Group the path for sc2.exe on all OS"""
+import logging
 import os
-from pathlib import Path
 import platform
 import re
-import logging
+from pathlib import Path
 
 LOGGER = logging.getLogger(__name__)
 

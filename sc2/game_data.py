@@ -2,14 +2,12 @@
 from bisect import bisect_left
 from functools import lru_cache, reduce
 from typing import List, Optional
-
+from .constants import ZERGLING
 from .data import ATTRIBUTE, RACE
+from .ids.ability_id import AbilityId
+from .ids.unit_typeid import UnitTypeId
 from .unit_command import UnitCommand
 
-from .ids.unit_typeid import UnitTypeId
-from .ids.ability_id import AbilityId
-
-from .constants import ZERGLING
 
 FREE_MORPH_ABILITY_CATEGORIES = ["Lower", "Raise", "Land", "Lift"]
 
