@@ -34,6 +34,8 @@ class BuildSpores:
         state = local_controller.state
         for base in local_controller.townhalls.ready:
             spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
-            if not local_controller.spores.closer_than(15, spore_position):
+            if not local_controller.spores.closer_than(
+                15, spore_position
+            ) and not local_controller.ground_enemies.closer_than(20, spore_position):
                 await local_controller.build(SPORECRAWLER, spore_position)
                 return True
