@@ -1,6 +1,5 @@
 """Everything related to controlling hydralisks"""
 from sc2.constants import BANELING
-
 from actions.micro.micro_helpers import Micro
 
 
@@ -22,27 +21,25 @@ class ZerglingControl(Micro):
         """If the enemy has banelings, run baneling dodging code."""
         local_controller = self.controller
         action = local_controller.add_action
-        banelings = self.baneling_group(unit, targets)
         self.handling_anti_banelings_group()
         if local_controller.enemies.of_type(BANELING):
+            banelings = self.baneling_group(unit, targets)
             for baneling in banelings:
-                # Check for close banelings
-                if baneling.distance_to(unit) < 4:
-                    # If we've triggered any banelings
-                    if self.baneling_sacrifices:
-                        # If we've triggered this specific baneling
-                        if baneling in self.baneling_sacrifices.values():
-                            # And this zergling is targeting it, attack it
-                            if unit in self.baneling_sacrifices and baneling == self.baneling_sacrifices[unit]:
-                                action(unit.attack(baneling))
-                                return True
-                            # Otherwise, run from it.
-                            retreat_point = self.find_retreat_point(baneling, unit)
-                            action(unit.move(retreat_point))
+                # Check for close banelings and if we've triggered any banelings
+                if baneling.distance_to(unit) < 4 and self.baneling_sacrifices:
+                    # If we've triggered this specific baneling
+                    if baneling in self.baneling_sacrifices.values():
+                        # And this zergling is targeting it, attack it
+                        if unit in self.baneling_sacrifices and baneling == self.baneling_sacrifices[unit]:
+                            action(unit.attack(baneling))
                             return True
-                        # If this baneling is not targeted yet, trigger it.
-                        return self.baneling_trigger(unit, baneling)
+                        # Otherwise, run from it.
+                        retreat_point = self.find_retreat_point(baneling, unit)
+                        action(unit.move(retreat_point))
+                        return True
+                    # If this baneling is not targeted yet, trigger it.
                     return self.baneling_trigger(unit, baneling)
+                return self.baneling_trigger(unit, baneling)
         return False
 
     def zergling_modifiers(self, unit, targets):

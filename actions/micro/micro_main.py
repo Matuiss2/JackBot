@@ -1,4 +1,5 @@
 """Everything related to controlling army units goes here"""
+from sc2 import RACE
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -7,11 +8,11 @@ from sc2.constants import (
     EGG,
     EVOLVEGROOVEDSPINES,
     EVOLVEMUSCULARAUGMENTS,
+    HYDRALISK,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
     MUTALISK,
-    HYDRALISK,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     QUEEN,
@@ -19,11 +20,10 @@ from sc2.constants import (
     ZERGLING,
     ZERGLINGATTACKSPEED,
 )
-from sc2 import RACE
+from actions.micro.army_value_tables import EnemyArmyValue
 from actions.micro.micro_helpers import Micro
 from actions.micro.unit.hydralisks import HydraControl
 from actions.micro.unit.zerglings import ZerglingControl
-from actions.micro.army_value_tables import EnemyArmyValue
 
 
 class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):

@@ -1,6 +1,5 @@
 """Everything related to creep spreading goes here"""
 import math
-
 from sc2.constants import BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, ZERGBUILD_CREEPTUMOR
 from sc2.data import ACTION_RESULT
 from sc2.position import Point2
