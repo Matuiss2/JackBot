@@ -109,7 +109,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated"""
-        if unit.position.distance_to_point2(self.rally_point) < 15:
+        if self.controller.townhalls.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
     def retreat_unit(self, unit, target):
