@@ -9,7 +9,6 @@ from .ids.ability_id import AbilityId
 from .ids.unit_typeid import UnitTypeId
 
 
-
 FREE_MORPH_ABILITY_CATEGORIES = ["Lower", "Raise", "Land", "Lift"]
 
 

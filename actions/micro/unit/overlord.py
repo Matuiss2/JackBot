@@ -12,9 +12,8 @@ class Overlord:
     async def should_handle(self):
         """Requirements to run handle"""
         self.overlords = self.controller.overlords.ready
-        return (
-            self.overlords
-            and any(not flag for flag in (self.first_ov_scout, self.second_ov_scout, self.third_ov_scout))
+        return self.overlords and any(
+            not flag for flag in (self.first_ov_scout, self.second_ov_scout, self.third_ov_scout)
         )
 
     async def handle(self):

@@ -83,7 +83,7 @@ class EnemyArmyValue:
     normal = 1
     countered = 0.5
     massive_countered = 0.2
-    worker = 0.05
+    worker = 0.01
 
     def protoss_value_for_zerglings(self, combined_enemies):
         """Calculate the enemy army value for zerglings vs protoss"""
@@ -317,8 +317,8 @@ class EnemyArmyValue:
             np.array(
                 [
                     len(local_controller.zerglings.closer_than(13, unit_position)),
-                    len(local_controller.ultralisks.closer_than(13, unit_position)),
                     len(local_controller.hydras.closer_than(13, unit_position)),
+                    len(local_controller.ultralisks.closer_than(13, unit_position)),
                 ]
             )
             * np.array([zvalue, hvalue, uvalue])
