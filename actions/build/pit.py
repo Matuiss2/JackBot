@@ -1,5 +1,5 @@
 """Everything related to building logic for the infestation pits goes here"""
-from sc2.constants import INFESTATIONPIT, ZERGGROUNDARMORSLEVEL2
+from sc2.constants import INFESTATIONPIT
 
 
 class BuildPit:

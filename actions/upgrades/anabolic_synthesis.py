@@ -12,7 +12,7 @@ class UpgradeUltraliskSpeed:
     async def should_handle(self):
         """Requirements to run handle"""
         local_controller = self.controller
-        self.selected_caverns = local_controller.caverns.idle
+        self.selected_caverns = local_controller.caverns.idle.noqueue
         return local_controller.can_upgrade(
             ANABOLICSYNTHESIS, ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2, self.selected_caverns
         )
