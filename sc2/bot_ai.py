@@ -2,18 +2,17 @@
 import logging
 import math
 import random
-import statistics
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 from .cache import property_cache_forever
 from .data import ACTION_RESULT, RACE, RESULT, TARGET, race_gas, race_townhalls, race_worker
-from .game_data import AbilityData, GameData
-from .game_state import GameState
 from .ids.ability_id import AbilityId
 from .ids.unit_typeid import UnitTypeId
 from .ids.upgrade_id import UpgradeId
 from .position import Point2, Point3
 from .unit import Unit
 from .units import Units
+from .game_data import AbilityData, GameData
+from .game_state import GameState
 
 
 LOGGER = logging.getLogger(__name__)
@@ -87,36 +86,39 @@ class BotAI:
         )
 
     @property_cache_forever
-    def expansion_locations(self):
+    def expansion_locations(self) -> Dict[Point2, Units]:
         """List of possible expansion locations."""
-        resource_spread_threshold = 144
-        resources = self.state.mineral_field | self.state.vespene_geyser
         r_groups = []
-        for mineral_field in resources:
-            for group in r_groups:
+        for mf in self.state.mineral_field | self.state.vespene_geyser:
+            mf_height = self.get_terrain_height(mf.position)
+            for g in r_groups:
                 if any(
-                    self.get_terrain_height(mineral_field.position) == self.get_terrain_height(p.position)
-                    and mineral_field.position.distance_squared(p.position) < resource_spread_threshold
-                    for p in group
+                    mf_height == self.get_terrain_height(p.position) and mf.position.distance_squared(p.position) < 144
+                    for p in g
                 ):
-                    group.append(mineral_field)
+                    g.append(mf)
                     break
-            else:
-                r_groups.append([mineral_field])
+            else:  # not found
+                r_groups.append([mf])
         r_groups = [g for g in r_groups if len(g) > 1]
+        offsets = [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
         centers = {}
         for resources in r_groups:
             possible_points = [
                 point
                 for point in (
                     Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
-                    for offset in [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
+                    for offset in offsets
+                )
+                if all(
+                    point.distance_to(resource) >= (6 if resource in self.state.mineral_field else 7)
+                    for resource in resources
                 )
             ]
-            possible_points.sort(
-                key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.2) for resource in resources])
-            )
-            centers[possible_points[0]] = resources
+            # choose best fitting point
+            result = min(possible_points, key=lambda p: sum(p.distance_to(resource) for resource in resources))
+            centers[result] = resources
+        """ Returns dict with center of resources as key, resources (mineral field, vespene geyser) as value """
         return centers
 
     async def get_available_abilities(

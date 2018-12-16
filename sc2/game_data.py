@@ -4,9 +4,9 @@ from functools import lru_cache, reduce
 from typing import List, Optional
 from .constants import ZERGLING
 from .data import ATTRIBUTE, RACE
+from .unit_command import UnitCommand
 from .ids.ability_id import AbilityId
 from .ids.unit_typeid import UnitTypeId
-from .unit_command import UnitCommand
 
 
 FREE_MORPH_ABILITY_CATEGORIES = ["Lower", "Raise", "Land", "Lift"]
