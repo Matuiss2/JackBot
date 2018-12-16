@@ -2,7 +2,7 @@
 from sc2.constants import ANABOLICSYNTHESIS, ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2
 
 
-class UpgradeChitinousPlating:
+class UpgradeUltraliskSpeed:
     """Ok for now"""
 
     def __init__(self, main):

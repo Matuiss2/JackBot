@@ -44,6 +44,7 @@ from actions.upgrades.evochamber import UpgradeEvochamber
 from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
 from actions.upgrades.hydra_speed import UpgradeMuscularAugments
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
+from actions.upgrades.anabolic_synthesis import UpgradeUltraliskSpeed
 from data_container import DataContainer
 
 
@@ -103,6 +104,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             UpgradeBurrow(self),
             UpgradeGroovedSpines(self),
             UpgradeMuscularAugments(self),
+            UpgradeUltraliskSpeed(self),
         )
         self.ordered_expansions = self.building_positions = self.locations = self.actions = []
 
