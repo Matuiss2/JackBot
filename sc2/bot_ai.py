@@ -6,14 +6,14 @@ import statistics
 from typing import List, Optional, Union
 from .cache import property_cache_forever
 from .data import ACTION_RESULT, RACE, RESULT, TARGET, race_gas, race_townhalls, race_worker
-from .game_data import AbilityData, GameData
-from .game_state import GameState
 from .ids.ability_id import AbilityId
 from .ids.unit_typeid import UnitTypeId
 from .ids.upgrade_id import UpgradeId
 from .position import Point2, Point3
 from .unit import Unit
 from .units import Units
+from .game_data import AbilityData, GameData
+from .game_state import GameState
 
 
 LOGGER = logging.getLogger(__name__)
