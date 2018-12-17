@@ -13,6 +13,7 @@ class BuildPit:
         local_controller = self.controller
         return (
             len(local_controller.townhalls) > 4
+            and local_controller.time > 690
             and local_controller.can_build_unique(INFESTATIONPIT, local_controller.pits)
             and not local_controller.ground_enemies.closer_than(20, self.hardcoded_position())
         )
