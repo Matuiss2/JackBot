@@ -20,50 +20,63 @@ class ScoreDetails:
 
     @property
     def idle_production_time(self):
+        """returns the sum of the time that the production facilities stayed idle
+         on the game by the player until the call"""
         return self.proto.idle_production_time
 
     @property
     def idle_worker_time(self):
+        """returns the sum of the time that the workers stayed idle on the game by the player until the call"""
         return self.proto.idle_worker_time
 
     @property
     def total_value_units(self):
+        """returns the sum of the unit values on the game by the player until the call"""
         return self.proto.total_value_units
 
     @property
     def total_value_structures(self):
+        """returns the sum of the structures values on the game by the player until the call"""
         return self.proto.total_value_structures
 
     @property
     def killed_value_units(self):
+        """returns the sum of the unit values that were killed on the game by the player until the call"""
         return self.proto.killed_value_units
 
     @property
     def killed_value_structures(self):
+        """returns the sum of the structure values that were killed on the game by the player until the call"""
         return self.proto.killed_value_structures
 
     @property
     def collected_minerals(self):
+        """returns the amount of collected minerals on the game by the player until the call"""
         return self.proto.collected_minerals
 
     @property
     def collected_vespene(self):
+        """returns the amount of collected vespene on the game by the player until the call"""
         return self.proto.collected_vespene
 
     @property
     def collection_rate_minerals(self):
+        """returns the collection rate(by minute) of minerals from the last minute by the player"""
         return self.proto.collection_rate_minerals
 
     @property
     def collection_rate_vespene(self):
+        """returns the collection rate(by minute) of vespene from the last minute by the player"""
         return self.proto.collection_rate_vespene
 
     @property
     def spent_minerals(self):
+        """returns the amount of spent minerals on the game by the player until the call"""
         return self.proto.spent_minerals
 
     @property
     def spent_vespene(self):
+        """returns the amount of spent vespene on the game by the player until the call"""
         return self.proto.spent_vespene
 
     @property
@@ -248,76 +261,95 @@ class ScoreDetails:
 
     @property
     def total_used_minerals_none(self):
+        """returns the average amount of minerals that was stored on the game by the player until the call"""
         return self.proto.total_used_minerals.none
 
     @property
     def total_used_minerals_army(self):
+        """returns the amount of minerals used on army on the game by the player until the call"""
         return self.proto.total_used_minerals.army
 
     @property
     def total_used_minerals_economy(self):
+        """returns the amount of minerals used on drones on the game by the player until the call"""
         return self.proto.total_used_minerals.economy
 
     @property
     def total_used_minerals_technology(self):
+        """returns the amount of minerals used on tech on the game by the player until the call"""
         return self.proto.total_used_minerals.technology
 
     @property
     def total_used_minerals_upgrade(self):
+        """returns the amount of minerals used on upgrades on the game by the player until the call"""
         return self.proto.total_used_minerals.upgrade
 
     @property
     def total_used_vespene_none(self):
+        """returns the average amount of vespene that was stored on the game by the player until the call"""
         return self.proto.total_used_vespene.none
 
     @property
     def total_used_vespene_army(self):
+        """returns the amount of vespene used on army on the game by the player until the call"""
         return self.proto.total_used_vespene.army
 
     @property
     def total_used_vespene_economy(self):
+        """returns the amount of vespene used on drones on the game by the player until the call"""
         return self.proto.total_used_vespene.economy
 
     @property
     def total_used_vespene_technology(self):
+        """returns the amount of vespene used on tech on the game by the player until the call"""
         return self.proto.total_used_vespene.technology
 
     @property
     def total_used_vespene_upgrade(self):
+        """returns the amount of vespene used on upgrades on the game by the player until the call"""
         return self.proto.total_used_vespene.upgrade
 
     @property
     def total_damage_dealt_life(self):
+        """returns the amount of damage dealt to the enemies hp on the game by the player until the call"""
         return self.proto.total_damage_dealt.life
 
     @property
     def total_damage_dealt_shields(self):
+        """returns the amount of damage dealt to the enemies shield on the game by the player until the call"""
         return self.proto.total_damage_dealt.shields
 
     @property
     def total_damage_dealt_energy(self):
+        """returns the amount of damage dealt to the enemies energy on the game by the player until the call"""
         return self.proto.total_damage_dealt.energy
 
     @property
     def total_damage_taken_life(self):
+        """returns the amount of hp lost by attacks(f.e feedback) on the game by the player until the call"""
         return self.proto.total_damage_taken.life
 
     @property
     def total_damage_taken_shields(self):
+        """returns the amount of shield lost by attacks(f.e feedback) on the game by the player until the call"""
         return self.proto.total_damage_taken.shields
 
     @property
     def total_damage_taken_energy(self):
+        """returns the amount of energy lost by attacks(f.e feedback) on the game by the player until the call"""
         return self.proto.total_damage_taken.energy
 
     @property
     def total_healed_life(self):
+        """returns the amount of hp replenished on the game by the player until the call"""
         return self.proto.total_healed.life
 
     @property
     def total_healed_shields(self):
+        """returns the amount of shield replenished on the game by the player until the call"""
         return self.proto.total_healed.shields
 
     @property
     def total_healed_energy(self):
+        """returns the amount of energy replenished on the game by the player until the call"""
         return self.proto.total_healed.energy

@@ -25,7 +25,7 @@ class BuildingPositioning:
                 if point.distance_to(mineral_field.closer_than(10, center).closest_to(point)) == 3
             ):
                 # also check engineering bay placement for hatcheries that just spawned but have no creep around
-                if await self.can_place(ENGINEERINGBAY, point) and await self.can_place(EVOLUTIONCHAMBER, point):
+                if await self.can_place(ENGINEERINGBAY, point) or await self.can_place(EVOLUTIONCHAMBER, point):
                     if self.building_positions:
                         if all(
                             abs(already_found.x - point.x) >= 3 or abs(already_found.y - point.y) >= 3

@@ -89,17 +89,18 @@ class BotAI:
     def expansion_locations(self) -> Dict[Point2, Units]:
         """List of possible expansion locations."""
         r_groups = []
-        for mf in self.state.mineral_field | self.state.vespene_geyser:
-            mf_height = self.get_terrain_height(mf.position)
-            for g in r_groups:
+        for mineral_field in self.state.mineral_field | self.state.vespene_geyser:
+            mf_height = self.get_terrain_height(mineral_field.position)
+            for group in r_groups:
                 if any(
-                    mf_height == self.get_terrain_height(p.position) and mf.position.distance_squared(p.position) < 144
-                    for p in g
+                    mf_height == self.get_terrain_height(p.position)
+                    and mineral_field.position.distance_squared(p.position) < 144
+                    for p in group
                 ):
-                    g.append(mf)
+                    group.append(mineral_field)
                     break
-            else:  # not found
-                r_groups.append([mf])
+            else:
+                r_groups.append([mineral_field])
         r_groups = [g for g in r_groups if len(g) > 1]
         offsets = [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
         centers = {}
@@ -115,10 +116,8 @@ class BotAI:
                     for resource in resources
                 )
             ]
-            # choose best fitting point
             result = min(possible_points, key=lambda p: sum(p.distance_to(resource) for resource in resources))
             centers[result] = resources
-        """ Returns dict with center of resources as key, resources (mineral field, vespene geyser) as value """
         return centers
 
     async def get_available_abilities(
@@ -181,10 +180,8 @@ class BotAI:
             actions.append(idle_worker.gather(self.state.mineral_field.closest_to(idle_worker)))
         for location, townhall in owned_expansions.items():
             self.close_workers_assignment(20, townhall, worker_pool, location)
-            continue
         for geyser in self.geysers:
             self.close_workers_assignment(5, geyser, worker_pool, geyser)
-            continue
         for geyser in self.geysers:
             for _ in range(0, geyser.ideal_harvesters - geyser.assigned_harvesters):
                 if worker_pool:
