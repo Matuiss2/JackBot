@@ -8,8 +8,8 @@ class BuildingPositioning:
 
     async def prepare_building_positions(self, center):
         """Check all possible positions behind the mineral line when a hatchery is built"""
-        mineral_field = self.state.mineral_field
-        if mineral_field:
+        mineral_field_close_to_center = self.state.mineral_field.closer_than(10, center)
+        if mineral_field_close_to_center:
             close_points = range(-12, 13)
             center_position = center.position
             add_positions = self.building_positions.append
@@ -22,7 +22,7 @@ class BuildingPositioning:
                     for y in close_points
                     if 144 >= x * x + y * y >= 64
                 )
-                if point.distance_to(mineral_field.closer_than(10, center).closest_to(point)) == 3
+                if point.distance_to(mineral_field_close_to_center.closer_than(10, center).closest_to(point)) == 3
             ):
                 # also check engineering bay placement for hatcheries that just spawned but have no creep around
                 if await self.can_place(ENGINEERINGBAY, point) or await self.can_place(EVOLUTIONCHAMBER, point):
