@@ -41,7 +41,7 @@ class BuildExpansion:
         drones = local_controller.drones
         if not self.worker_to_first_base and len(local_controller.townhalls) < 2 and local_controller.minerals > 225:
             self.worker_to_first_base = True
-            action(local_controller.drones.random.move(await self.controller.get_next_expansion()))
+            action(local_controller.drones.random.move(await local_controller.get_next_expansion()))
             return True
         for expansion in local_controller.ordered_expansions:
             if await local_controller.can_place(HATCHERY, expansion):

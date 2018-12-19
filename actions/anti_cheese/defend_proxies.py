@@ -56,7 +56,6 @@ class DefendProxies:
         local_controller = self.controller
         drones = local_controller.drones
         available = drones.filter(lambda x: x.is_collecting and not x.is_attacking)
-        # self.rush_buildings = local_controller.enemy_structures.closer_than(20, self.townhalls.first)
         for worker in local_controller.enemies.of_type({PROBE, DRONE, SCV}).filter(
             lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in local_controller.structures)
         ):
@@ -65,9 +64,7 @@ class DefendProxies:
         attacking_buildings = self.rush_buildings.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:
-            available = drones.filter(
-                lambda x: x.order_target not in [y.tag for y in attacking_buildings]
-            )  # filter x with not target order in attacking buildings
+            available = drones.filter(lambda x: x.order_target not in [y.tag for y in attacking_buildings])
             self.pull_drones(attacking_buildings, available)
         if not_attacking_buildings:
             self.pull_drones(not_attacking_buildings, available)

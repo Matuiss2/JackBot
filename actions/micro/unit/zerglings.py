@@ -17,7 +17,7 @@ class ZerglingControl(Micro):
         self.controller.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
-    def baneling_dodge(self, unit, targets):  # needs refactor(too-many-blocks)
+    def baneling_dodge(self, unit, targets):
         """If the enemy has banelings, run baneling dodging code."""
         local_controller = self.controller
         action = local_controller.add_action
