@@ -113,7 +113,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             local_controller.townhalls
             and not local_controller.close_enemies_to_base
             and not local_controller.structures.closer_than(7, self.unit_position)
-            and enemy_value >= self.battling_force_value(self.unit_position, 1, 5, 8)
+            and enemy_value >= self.battling_force_value(self.unit_position, 1, 5, 13)
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
