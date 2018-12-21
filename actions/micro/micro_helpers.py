@@ -1,7 +1,7 @@
 """Every helper for controlling units go here"""
 from sc2.position import Point2
 from sc2.unit import Unit
-from sc2.constants import GUARDIANSHIELDPERSISTENT, SCANNERSWEEP
+from sc2.constants import GUARDIANSHIELDPERSISTENT, SCANNERSWEEP, ULTRALISK
 
 
 def filter_in_attack_range_of(unit, targets):
@@ -15,7 +15,7 @@ class Micro:
     def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
         local_controller = self.controller
-        if not local_controller.state.effects:
+        if not local_controller.state.effects or unit.type_id == ULTRALISK:
             return False
         for effect in local_controller.state.effects:
             if effect.id in (SCANNERSWEEP, GUARDIANSHIELDPERSISTENT):
