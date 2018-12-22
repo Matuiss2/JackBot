@@ -268,7 +268,7 @@ class Unit:
     @property
     def has_vespene(self) -> bool:
         """ Checks if a geyser has any gas remaining (can't build extractors on empty geysers), useful for lategame """
-        return self.proto.vespene_contents
+        return bool(self.proto.vespene_contents)
 
     @property
     def weapons(self):
@@ -304,7 +304,7 @@ class Unit:
     @property
     def has_cargo(self) -> bool:
         """ If this unit has units loaded """
-        return self.proto.cargo_space_taken
+        return bool(self.proto.cargo_space_taken)
 
     @property
     def cargo_used(self) -> Union[float, int]:

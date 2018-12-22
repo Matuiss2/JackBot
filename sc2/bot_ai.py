@@ -287,7 +287,7 @@ class BotAI:
     def select_build_worker(self, pos: Union[Unit, Point2, Point3], force: bool = False) -> Optional[Unit]:
         """Select a worker to build a bulding with."""
         workers = self.workers.closer_than(20, pos) or self.workers
-        for worker in workers.prefer_close_to(pos).prefer_idle:
+        for worker in workers.sorted_by_distance_to(pos).prefer_idle:
             if (
                 not worker.orders
                 or len(worker.orders) == 1
@@ -513,7 +513,7 @@ class BotAI:
             await self._issue_building_complete_event(unit)
 
     async def _issue_unit_added_events(self):
-        for unit in self.units:
+        for unit in self.units.not_structure:
             if unit.tag not in self._units_previous_map:
                 await self.on_unit_created(unit)
 
