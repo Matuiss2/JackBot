@@ -268,6 +268,10 @@ class Units(list):
         return self.filter(lambda unit: unit.is_flying)
 
     @property
+    def visible(self) -> "Units":
+        return self.filter(lambda unit: unit.is_visible)
+
+    @property
     def not_flying(self) -> "Units":
         """Returns the units from the list that are not flying"""
         return self.filter(lambda unit: not unit.is_flying)

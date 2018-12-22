@@ -8,7 +8,7 @@ class BuildingPositioning:
 
     async def prepare_building_positions(self, center):
         """Check all possible positions behind the mineral line when a hatchery is built"""
-        mineral_field_close_to_center = self.state.mineral_field.closer_than(10, center) # rename it
+        mineral_field_close_to_center = self.state.mineral_field.closer_than(10, center)  # rename it
         if mineral_field_close_to_center:
             close_points = range(-12, 13)
             center_position = center.position

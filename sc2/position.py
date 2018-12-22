@@ -1,7 +1,7 @@
 """Groups everything related to a position on the map or of an unit"""
 import itertools
 import random
-from math import atan2, cos, hypot, inf, pi, sin, sqrt
+from math import atan2, cos, hypot, inf, pi, sin
 from typing import List, Set, Union
 
 FLOAT_DIGITS = 8
@@ -32,8 +32,8 @@ class Pointlike(tuple):
         """Helper for distance_to"""
         if self == position:
             return 0
-        return sqrt(
-            sum(self.__class__((b - a) * (b - a) for a, b in itertools.zip_longest(self, position, fillvalue=0)))
+        return (
+            sum(self.__class__((b - a) * (b - a) for a, b in itertools.zip_longest(self, position, fillvalue=0))) ** 0.5
         )
 
     def distance_to(self, unit_or_pos: Union["Unit", "Point2", "Point3"]) -> Union[int, float]:
