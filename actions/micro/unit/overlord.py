@@ -33,5 +33,5 @@ class Overlord:
         elif self.second_ov_scout and not self.third_ov_scout and len(local_controller.overlords.ready) == 3:
             self.third_ov_scout = True
             self.selected_ov = self.overlords.closest_to(local_controller.townhalls.first)
-            self.scout_position = locations[-2].towards(map_center, -15)
+            self.scout_position = map_center
         local_controller.add_action(self.selected_ov.move(self.scout_position))
