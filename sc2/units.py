@@ -320,6 +320,7 @@ class Units(list):
         """Sort the list putting the idle units first"""
         return self.sorted(lambda unit: unit.is_idle, reverse=True)
 
+
 class UnitSelection(Units):
     """Group requirement to select a group of units"""
 

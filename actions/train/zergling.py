@@ -16,10 +16,13 @@ class TrainZergling:
             not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150
         ) and not local_controller.close_enemy_production:
             return False
-        if not local_controller.can_train(ZERGLING, local_controller.pools.ready):
+        cavern = local_controller.caverns
+        if not local_controller.can_train(ZERGLING, local_controller.pools.ready) or (
+            local_controller.hives and not cavern
+        ):
             return False
         zergling_quantity = len(zerglings)
-        if local_controller.caverns.ready and len(local_controller.ultralisks) * 8.5 <= zergling_quantity:
+        if cavern.ready and len(local_controller.ultralisks) * 8.5 <= zergling_quantity:
             return False
         if local_controller.hydradens.ready and len(local_controller.hydras) * 3 <= zergling_quantity:
             return False

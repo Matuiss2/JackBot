@@ -12,7 +12,10 @@ class TrainHydralisk:
         """Requirements to run handle, it limits the training a little so it keeps building ultralisks,
          needs more limitations so the transition to hive is smoother"""
         local_controller = self.controller
-        if local_controller.caverns.ready:
+        cavern = local_controller.caverns
+        if local_controller.hives and not cavern:
+            return False
+        if cavern.ready:
             return len(local_controller.ultralisks) * 2.75 > len(local_controller.hydras)
         return not local_controller.floating_buildings_bm and local_controller.can_train(
             HYDRALISK, local_controller.hydradens.ready
