@@ -15,16 +15,16 @@ class HydraControl(Micro):
         closest_threat = None
         closest_threat_distance = math.inf
         for threat in threats:
-            if threat.distance_to(unit) < closest_threat_distance and threat.ground_dps:
+            if threat.distance_to(unit) < closest_threat_distance:
                 closest_threat = threat
                 closest_threat_distance = threat.distance_to(unit)
         # If there's a close enemy that does damage,
         if closest_threat:
             # Hit and run if we can.
-            if (
-                our_range > closest_threat.ground_range + closest_threat.radius
-                and our_movespeed > closest_threat.movement_speed
-            ):
+            enemy_range = closest_threat.ground_range
+            if not enemy_range:
+                enemy_range = 0
+            if our_range > enemy_range + closest_threat.radius and our_movespeed > closest_threat.movement_speed:
                 return self.hit_and_run(closest_threat, unit, self.hydra_atk_range)
             return self.stutter_step(closest_threat, unit)
         # If there isn't a close enemy that does damage,

@@ -189,7 +189,6 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
                 LARVA,
                 INFESTEDTERRANSEGG,
                 INFESTEDTERRAN,
-                AUTOTURRET,
             }
             filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
             static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})

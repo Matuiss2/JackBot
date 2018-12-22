@@ -91,7 +91,10 @@ class Micro:
         action = self.controller.add_action
         unit_radius = unit.radius
         our_range = unit.ground_range + unit_radius
-        enemy_range = target.ground_range + target.radius
+        partial_enemy_range = target.ground_range
+        if not partial_enemy_range:
+            partial_enemy_range = 0
+        enemy_range = partial_enemy_range + target.radius
         if range_upgrade:
             our_range += 1
         # Our unit should stay just outside enemy range, and inside our range.
