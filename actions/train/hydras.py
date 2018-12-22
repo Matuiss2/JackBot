@@ -13,11 +13,9 @@ class TrainHydralisk:
          needs more limitations so the transition to hive is smoother"""
         local_controller = self.controller
         cavern = local_controller.caverns
-        if (
-            local_controller.hives
-            and not cavern
-            and not local_controller.can_train(HYDRALISK, local_controller.hydradens.ready)
-        ):
+        if local_controller.hives and not cavern:
+            return False
+        if not local_controller.can_train(HYDRALISK, local_controller.hydradens.ready):
             return False
         if cavern.ready:
             return len(local_controller.ultralisks) * 2.75 > len(local_controller.hydras)
