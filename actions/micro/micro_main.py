@@ -34,6 +34,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         self.retreat_units = set()
         self.baneling_sacrifices = {}
         self.rally_point = self.action = self.unit_position = self.attack_command = self.bases = None
+        self.static_defence = None
         self.zergling_atk_speed = self.hydra_move_speed = self.hydra_atk_range = False
 
     async def should_handle(self):
@@ -143,7 +144,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def attack_closest_building(self, unit):
         """Attack the starting location"""
         local_controller = self.controller
-        enemy_building = local_controller.enemy_structures.not_flying
+        enemy_building = local_controller.enemy_structures.not_flying.exclude_type(self.static_defence)
         if enemy_building:
             local_controller.add_action(
                 unit.attack(enemy_building.closest_to(local_controller.furthest_townhall_to_map_center))
@@ -182,18 +183,11 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
         if enemy_units:
-            excluded_units = {
-                ADEPTPHASESHIFT,
-                DISRUPTORPHASED,
-                EGG,
-                LARVA,
-                INFESTEDTERRANSEGG,
-                INFESTEDTERRAN,
-            }
+            excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN}
             filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
-            static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-            targets = static_defence | filtered_enemies.not_flying
-            hydra_targets = static_defence | filtered_enemies
+            self.static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
+            targets = self.static_defence | filtered_enemies.not_flying
+            hydra_targets = self.static_defence | filtered_enemies
         atk_force = (
             local_controller.zerglings
             | local_controller.ultralisks
