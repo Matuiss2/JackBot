@@ -1,7 +1,13 @@
 """Every helper for controlling units go here"""
+from sc2.constants import (
+    GUARDIANSHIELDPERSISTENT,
+    LIBERATORTARGETMORPHDELAYPERSISTENT,
+    LIBERATORTARGETMORPHPERSISTENT,
+    SCANNERSWEEP,
+    ULTRALISK,
+)
 from sc2.position import Point2
 from sc2.unit import Unit
-from sc2.constants import GUARDIANSHIELDPERSISTENT, SCANNERSWEEP, ULTRALISK
 
 
 def filter_in_attack_range_of(unit, targets):
@@ -17,8 +23,14 @@ class Micro:
         local_controller = self.controller
         if not local_controller.state.effects or unit.type_id == ULTRALISK:
             return False
+        excluded_effects = (
+            SCANNERSWEEP,
+            GUARDIANSHIELDPERSISTENT,
+            LIBERATORTARGETMORPHDELAYPERSISTENT,
+            LIBERATORTARGETMORPHPERSISTENT,
+        )  # Placeholder(must find better way to handle some of these)
         for effect in local_controller.state.effects:
-            if effect.id in (SCANNERSWEEP, GUARDIANSHIELDPERSISTENT):
+            if effect.id in excluded_effects:
                 continue
             danger_zone = local_controller.game_data.effects[effect.id].radius + unit.radius + 0.1
             if not unit.position.distance_to_point2(unit.position.closest(effect.positions)) < danger_zone:
