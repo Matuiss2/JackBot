@@ -126,7 +126,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         local_controller = self.controller
         if (
             local_controller.supply_used not in range(198, 201)
-            and self.gathering_force_value(1, 2, 4) < 38 + 1.5 * local_controller.time // 100
+            and self.gathering_force_value(1, 2, 4) < 40 + 1.25 * local_controller.time // 100
             and local_controller.townhalls
             and self.retreat_units
             and not local_controller.counter_attack_vs_flying
