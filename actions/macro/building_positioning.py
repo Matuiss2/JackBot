@@ -22,7 +22,7 @@ class BuildingPositioning:
                     for y in close_points
                     if 144 >= x * x + y * y >= 64
                 )
-                if point.distance_to(mineral_field_close_to_center.closer_than(10, center).closest_to(point)) == 3
+                if point.distance_to(mineral_field_close_to_center.closest_to(point)) == 3
             ):
                 # also check engineering bay placement for hatcheries that just spawned but have no creep around
                 if await self.can_place(ENGINEERINGBAY, point) or await self.can_place(EVOLUTIONCHAMBER, point):
