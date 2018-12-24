@@ -20,7 +20,7 @@ if __name__ == "__main__":
             ["AcidPlantLE", "BlueshiftLE", "CeruleanFallLE", "DreamcatcherLE", "FractureLE", "LostAndFoundLE"]
         )
 
-        sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(RACE.Protoss, DIFFICULTY.CheatVision)], realtime=False)
+        sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(RACE.Zerg, DIFFICULTY.CheatVision)], realtime=False)
         # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)
         # sc2.run_game(sc2.maps.get("drone_scout_defense"), [bot], realtime=True)
         # sc2.run_game(sc2.maps.get("test_anti_colossus"),[bot, Computer(Race.Protoss,

@@ -45,6 +45,9 @@ class BuildExpansion:
             return True
         for expansion in local_controller.ordered_expansions:
             if await local_controller.can_place(HATCHERY, expansion):
+                enemy_units = local_controller.ground_enemies
+                if enemy_units and enemy_units.closer_than(15, expansion):
+                    return False
                 if drones:
                     action(drones.closest_to(expansion).build(HATCHERY, expansion))
                     return True
