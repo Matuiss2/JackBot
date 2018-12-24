@@ -185,7 +185,9 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         if enemy_units:
             excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN}
             filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
-            self.static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
+            self.static_defence = enemy_building.of_type(
+                {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS, AUTOTURRET}
+            )
             targets = self.static_defence | filtered_enemies.not_flying
             hydra_targets = self.static_defence | filtered_enemies
         atk_force = (
