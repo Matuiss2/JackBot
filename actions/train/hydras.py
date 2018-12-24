@@ -15,8 +15,6 @@ class TrainHydralisk:
         cavern = local_controller.caverns
         if local_controller.hives and not cavern:
             return False
-        if len(local_controller.townhalls) < 3:
-            return False
         if not local_controller.can_train(HYDRALISK, local_controller.hydradens.ready):
             return False
         if cavern.ready:
