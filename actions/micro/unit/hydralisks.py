@@ -1,6 +1,6 @@
 """Everything related to controlling hydralisks"""
 import math
-from sc2.constants import DUTCHMARAUDERSLOW
+from sc2.constants import DUTCHMARAUDERSLOW, FUNGALGROWTH
 from actions.micro.micro_helpers import Micro
 
 
@@ -45,4 +45,6 @@ class HydraControl(Micro):
         # If we've been hit with Marauder's Concussive Shells, our movespeed is half.
         if unit.has_buff(DUTCHMARAUDERSLOW):
             our_movespeed *= 0.5
+        if unit.has_buff(FUNGALGROWTH):
+            our_movespeed *= 0.25
         return our_movespeed, our_range
