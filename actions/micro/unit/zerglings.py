@@ -1,5 +1,5 @@
 """Everything related to controlling hydralisks"""
-from sc2.constants import BANELING
+from sc2.constants import BANELING, DISRUPTORPHASED
 from actions.micro.micro_helpers import Micro
 
 
@@ -9,6 +9,8 @@ class ZerglingControl(Micro):
     def micro_zerglings(self, unit, targets):
         """Target low hp units smartly, and surrounds when attack cd is down"""
         if self.baneling_dodge(unit, targets):
+            return True
+        if self.disruptor_dodge(unit):
             return True
         if self.zergling_modifiers(unit, targets):
             return True
@@ -41,6 +43,15 @@ class ZerglingControl(Micro):
                     return self.baneling_trigger(unit, baneling)
                 return self.baneling_trigger(unit, baneling)
         return False
+
+    def disruptor_dodge(self, unit):  # refactor it
+        local_controller = self.controller
+        action = local_controller.add_action
+        for ball in local_controller.enemies.of_type(DISRUPTORPHASED):
+            if ball.distance_to(unit) < 3:
+                retreat_point = self.find_retreat_point(ball, unit)
+                action(unit.move(retreat_point))
+                return True
 
     def zergling_modifiers(self, unit, targets):
         """Group modifiers for zerglings"""
