@@ -10,7 +10,7 @@ class HydraControl(Micro):
     def micro_hydras(self, targets, unit):
         """Control the hydras"""
         our_movespeed, our_range = self.hydra_modifiers(unit)
-        threats = self.trigger_threats(targets, unit, 17)
+        threats = self.trigger_threats(targets, unit, 14)
         # Find the closest threat.
         closest_threat = None
         closest_threat_distance = math.inf

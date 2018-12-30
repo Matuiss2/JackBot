@@ -117,7 +117,7 @@ class Micro:
         # Check to make sure this range isn't negative.
         if minimum_distance > our_range:
             minimum_distance = our_range - unit_radius
-        # If our unit is in that range, and our attack is at least halfway off cooldown, attack.(test with it on 60%)
+        # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
         if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 0.295 * 22.4:
             action(unit.attack(target))
             return True
