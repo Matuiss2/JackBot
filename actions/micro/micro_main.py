@@ -104,6 +104,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def retreat_unit(self, unit, target):
         """Tell the unit to retreat when overwhelmed"""
         local_controller = self.controller
+        if local_controller.townhalls.closer_than(10, unit):
+            return False
         if local_controller.enemy_race == RACE.Zerg:
             enemy_value = self.enemy_value_zerg(unit, target)
         elif local_controller.enemy_race == RACE.Terran:
