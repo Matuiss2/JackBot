@@ -121,7 +121,7 @@ class Micro:
         if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 0.295 * 22.4:
             action(unit.attack(target))
             return True
-        # If our unit is too close, or our weapon is on more than one quarter cooldown, run away.
+        # If our unit is too close, or our weapon is on more than a quarter cooldown, run away.
         if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 0.1475 * 22.4:
             retreat_point = self.find_retreat_point(target, unit)
             action(unit.move(retreat_point))
