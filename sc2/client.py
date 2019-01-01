@@ -28,7 +28,7 @@ class Client(Protocol):
         super().__init__(web_service)
         self.game_step = 8
         self._player_id = self.game_result = None
-        self._debug_texts = self._debug_lines = self._debug_boxes = self._debug_spheres = []
+        self._debug_texts, self._debug_lines, self._debug_boxes, self._debug_spheres = [], [], [], []
 
     @property
     def in_game(self):
