@@ -153,7 +153,10 @@ class Micro:
                 yield enemy
 
     def disruptor_dodge(self, unit):
+        """If the enemy has disruptors, run baneling dodging code."""
         local_controller = self.controller
+        if unit.type_id == ULTRALISK:
+            return False
         for ball in local_controller.enemies.of_type(DISRUPTORPHASED):
             if ball.distance_to(unit) < 3:
                 retreat_point = self.find_retreat_point(ball, unit)
