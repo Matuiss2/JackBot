@@ -58,8 +58,8 @@ async def play_game_ai(client, player_id, ai, realtime, step_time_limit, game_ti
                         await ai.on_step(iteration)
                 except asyncio.TimeoutError:
                     LOGGER.warning("Running AI step: out of time")
-        except Exception:
-            LOGGER.exception("AI step threw an error")
+        except Exception as exp:
+            LOGGER.exception(exp)
             LOGGER.error("resigning due to previous error")
             ai.on_end(RESULT.Defeat)
             return RESULT.Defeat
@@ -107,10 +107,7 @@ async def _host_game(
         client = await _setup_host_game(server, map_settings, players, realtime)
         try:
             result = await play_game(players[0], client, realtime, portconfig, step_time_limit, game_time_limit)
-            if save_replay_as:
-                await client.save_replay(save_replay_as)
-            await client.leave()
-            await client.quit()
+            save_game(save_replay_as, client)
         except ConnectionAlreadyClosed:
             logging.error(f"Connection was closed before the game ended")
             return None
@@ -155,10 +152,7 @@ async def _join_game(players, realtime, portconfig, save_replay_as=None, step_ti
         client = Client(server.web_service)
         try:
             result = await play_game(players[1], client, realtime, portconfig, step_time_limit, game_time_limit)
-            if save_replay_as:
-                await client.save_replay(save_replay_as)
-            await client.leave()
-            await client.quit()
+            save_game(save_replay_as, client)
         except ConnectionAlreadyClosed:
             logging.error(f"Connection was closed before the game ended")
             return None
@@ -179,3 +173,10 @@ def run_game(map_settings, players, **kwargs):
     else:
         result = asyncio.get_event_loop().run_until_complete(_host_game(map_settings, players, **kwargs))
     return result
+
+def save_game(save_replay_as, client):
+    """Save the game"""
+    if save_replay_as:
+        await client.save_replay(save_replay_as)
+    await client.leave()
+    await client.quit()

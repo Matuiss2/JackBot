@@ -31,12 +31,12 @@ class Unit:
         return self._game_data.units[self.proto.unit_type]
 
     @property
-    def is_snapshot(self) -> bool:
+    def is_snapshot(self):
         """Checks if the unit was visible on a snapshot"""
         return self.proto.display_type == DISPLAY_TYPE.Snapshot.value
 
     @property
-    def is_visible(self) -> bool:
+    def is_visible(self):
         """Checks if the unit is outside the FOW"""
         return self.proto.display_type == DISPLAY_TYPE.Visible.value
 

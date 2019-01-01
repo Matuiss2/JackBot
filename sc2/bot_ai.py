@@ -2,7 +2,7 @@
 import logging
 import math
 import random
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 from .cache import property_cache_forever
 from .data import ACTION_RESULT, RACE, RESULT, TARGET, race_gas, race_townhalls, race_worker
 from .ids.ability_id import AbilityId
@@ -10,6 +10,7 @@ from .ids.unit_typeid import UnitTypeId
 from .ids.upgrade_id import UpgradeId
 from .position import Point2, Point3
 from .unit import Unit
+from .unit_command import UnitCommand
 from .units import Units
 from .game_data import AbilityData, GameData
 from .game_state import GameState
@@ -86,7 +87,7 @@ class BotAI:
         )
 
     @property_cache_forever
-    def expansion_locations(self) -> Dict[Point2, Units]:
+    def expansion_locations(self):
         """List of possible expansion locations."""
         r_groups = []
         for mineral_field in self.state.mineral_field | self.state.vespene_geyser:
@@ -309,7 +310,7 @@ class BotAI:
     async def find_placement(
         self,
         building: UnitTypeId,
-        near: Union[Unit, Point2, Point3],
+        near,
         max_distance: int = 20,
         random_alternative: bool = True,
         placement_step: int = 2,
@@ -425,7 +426,7 @@ class BotAI:
             LOGGER.error(f"Error: {possible_action} (action: {action})")
         return possible_action
 
-    async def do_actions(self, actions: List["UnitCommand"]):
+    async def do_actions(self, actions: List[UnitCommand]):
         """Group all actions then execute all at the 'same' time"""
         if not actions:
             return None
@@ -471,8 +472,8 @@ class BotAI:
 
     def prepare_start(self, client, player_id, game_info, game_data):
         """Ran until game start to set game and player data."""
-        self._client: "Client" = client
-        self._game_info: "GameInfo" = game_info
+        self._client = client
+        self._game_info = game_info
         self._game_data: GameData = game_data
         self.player_id: int = player_id
         self.race: RACE = RACE(self._game_info.player_races[self.player_id])

@@ -1,6 +1,6 @@
 """Groups some info about the map so it can be used in an easy way"""
 from collections import deque
-from typing import Dict, List, Set
+from typing import List, Set
 from .pixel_map import PixelMap
 from .player import Player
 from .position import Point2, Rect, Size
@@ -143,9 +143,7 @@ class GameInfo:
         self.placement_grid: PixelMap = PixelMap(proto.start_raw.placement_grid)
         self.playable_area = Rect.from_proto(proto.start_raw.playable_area)
         self.map_ramps: List[Ramp] = None
-        self.player_races: Dict[int, "Race"] = {
-            p.player_id: p.race_actual or p.race_requested for p in proto.player_info
-        }
+        self.player_races = {p.player_id: p.race_actual or p.race_requested for p in proto.player_info}
         self.start_locations: List[Point2] = [Point2.from_proto(sl) for sl in proto.start_raw.start_locations]
         self.player_start_location: Point2 = None
 
@@ -170,15 +168,13 @@ class GameInfo:
     ) -> List[Set[Point2]]:
         """ From a set/list of points, this function will try to group points together
          Paint clusters of points in rectangular map using flood fill algorithm. """
-        not_colored_yet = -1
-        current_color: int = not_colored_yet
+        current_color: int = -1
         picture: List[List[int]] = [
-            [-2 for j in range(self.pathing_grid.width)] for i in range(self.pathing_grid.height)
+            [-2 for _ in range(self.pathing_grid.width)] for _ in range(self.pathing_grid.height)
         ]
 
         def paint(po2: Point2) -> None:
             picture[po2.y][po2.x] = current_color
-
         nearby: Set[Point2] = set()
         for deltax in range(-max_distance_between_points, max_distance_between_points + 1):
             for deltay in range(-max_distance_between_points, max_distance_between_points + 1):
@@ -207,7 +203,7 @@ class GameInfo:
                         or pointy >= self.pathing_grid.height
                     ):
                         continue
-                    if picture[pointy][pointx] != not_colored_yet:
+                    if picture[pointy][pointx] != -1:
                         continue
                     point: Point2 = Point2((pointx, pointy))
                     remaining.remove(point)

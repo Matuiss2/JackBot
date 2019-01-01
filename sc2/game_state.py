@@ -11,7 +11,7 @@ from .units import Units
 
 
 class Blip:
-    """Identifies and categorize the visible units"""
+    """Identifies and categorize the clocked units"""
 
     def __init__(self, proto):
         self.proto = proto

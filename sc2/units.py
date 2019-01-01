@@ -273,6 +273,7 @@ class Units(list):
 
     @property
     def visible(self) -> "Units":
+        """Returns the units from the list that are visible"""
         return self.filter(lambda unit: unit.is_visible)
 
     @property
