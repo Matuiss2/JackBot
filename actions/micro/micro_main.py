@@ -61,6 +61,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
                 continue
+            if self.disruptor_dodge(attacking_unit):
+                continue
             self.unit_position = attacking_unit.position
             self.attack_command = attacking_unit.attack
             if self.anti_proxy_trigger(attacking_unit):

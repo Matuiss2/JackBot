@@ -1,5 +1,6 @@
 """Every helper for controlling units go here"""
 from sc2.constants import (
+    DISRUPTORPHASED,
     GUARDIANSHIELDPERSISTENT,
     LIBERATORTARGETMORPHDELAYPERSISTENT,
     LIBERATORTARGETMORPHPERSISTENT,
@@ -150,3 +151,11 @@ class Micro:
         for enemy in targets:
             if enemy.distance_to(unit) < trigger_range:
                 yield enemy
+
+    def disruptor_dodge(self, unit):
+        local_controller = self.controller
+        for ball in local_controller.enemies.of_type(DISRUPTORPHASED):
+            if ball.distance_to(unit) < 3:
+                retreat_point = self.find_retreat_point(ball, unit)
+                local_controller.add_action(unit.move(retreat_point))
+                return True
