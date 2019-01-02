@@ -116,8 +116,7 @@ class GameState:
         self.abilities = self.observation.abilities
         destructible = [x for x in self.observation.raw_data.units if x.alliance == 3 and x.radius > 1.5]
         self.destructible: Units = Units.from_proto(destructible, game_data)
-        visible_units, hidden_units = [], []
-        visibleUnits, hiddenUnits, minerals, geysers, destructables, enemy, own = ([] for _ in range(7))
+        visible_units, hidden_units, minerals, geysers, destructables, enemy, own = ([] for _ in range(7))
         mineral_ids = {
             UnitTypeId.RICHMINERALFIELD.value,
             UnitTypeId.RICHMINERALFIELD750.value,
@@ -142,9 +141,9 @@ class GameState:
         }
         for unit in self.observation.raw_data.units:
             if unit.is_blip:
-                hiddenUnits.append(unit)
+                hidden_units.append(unit)
             else:
-                visibleUnits.append(unit)
+                visible_units.append(unit)
                 # all destructible rocks except the one below the main base ramps
                 if unit.alliance == 3 and unit.radius > 1.5:
                     destructables.append(unit)
@@ -165,7 +164,7 @@ class GameState:
         self.mineral_field: Units = Units.from_proto(minerals, game_data)
         self.vespene_geyser: Units = Units.from_proto(geysers, game_data)
         self.destructables: Units = Units.from_proto(destructables, game_data)
-        self.units: Units = Units.from_proto(visibleUnits, game_data)
+        self.units: Units = Units.from_proto(visible_units, game_data)
         self.distance_units: Units = Units.from_proto(own + enemy + minerals + geysers, game_data)
         self.blips: Set[Blip] = {Blip(unit) for unit in hidden_units}
         self.visibility: PixelMap = PixelMap(self.observation.raw_data.map_state.visibility)

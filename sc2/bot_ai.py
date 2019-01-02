@@ -94,35 +94,40 @@ class BotAI:
     @property_cache_forever
     def expansion_locations(self):
         """List of possible expansion locations."""
-        r_groups = []
-        for mineral_field in self.state.mineral_field | self.state.vespene_geyser:
-            mf_height = self.get_terrain_height(mineral_field.position)
-            for group in r_groups:
-                if any(
-                    mf_height == self.get_terrain_height(p.position)
-                    and mineral_field.position.distance_squared(p.position) < 144
-                    for p in group
-                ):
-                    group.append(mineral_field)
+        minerals = self.state.mineral_field
+        geysers = self.state.vespene_geyser
+        all_resources = minerals | geysers
+        resource_groups = []
+        for mineral_patches in all_resources:
+            mf_height = self.get_terrain_height(mineral_patches.position)
+            for cluster in resource_groups:
+                if len(cluster) == 10:
+                    continue
+                if mineral_patches.position.distance_squared(
+                    cluster[0].position
+                ) < 225 and mf_height == self.get_terrain_height(cluster[0].position):
+                    cluster.append(mineral_patches)
                     break
+                else:
+                    continue
             else:
-                r_groups.append([mineral_field])
-        r_groups = [g for g in r_groups if len(g) > 1]
-        offsets = [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
+                resource_groups.append([mineral_patches])
+        resource_groups = [cluster for cluster in resource_groups if len(cluster) > 1]
         centers = {}
-        for resources in r_groups:
-            possible_points = [
-                point
-                for point in (
-                    Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
-                    for offset in offsets
-                )
-                if all(
-                    point.distance_to(resource) >= (6 if resource in self.state.mineral_field else 7)
-                    for resource in resources
-                )
-            ]
-            result = min(possible_points, key=lambda p: sum(p.distance_to(resource) for resource in resources))
+        for resources in resource_groups:
+            result = min(
+                [
+                    point
+                    for point in (
+                        Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
+                        for offset in [
+                            (x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49
+                        ]
+                    )
+                    if all(point.distance_to(resource) >= (7 if resource in geysers else 6) for resource in resources)
+                ],
+                key=lambda p: sum(p.distance_to(resource) for resource in resources),
+            )
             centers[result] = resources
         return centers
 
