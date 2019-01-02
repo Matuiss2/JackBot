@@ -83,7 +83,7 @@ class Ramp:
             points = self.upper2_for_ramp_wall
             point1 = points.pop().offset((self.x_offset, self.y_offset))
             point2 = points.pop().offset((self.x_offset, self.y_offset))
-            intersects = point1.circle_intersection(point2, (2 ** 2 + 1 ** 2) ** 0.5)
+            intersects = point1.circle_intersection(point2, 2.24)
             any_lower_point = next(iter(self.lower))
             return max(intersects, key=lambda p: p.distance_to(any_lower_point))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
@@ -95,7 +95,7 @@ class Ramp:
             points = self.upper2_for_ramp_wall
             point1 = points.pop().offset((self.x_offset, self.y_offset))
             point2 = points.pop().offset((self.x_offset, self.y_offset))
-            intersects = point1.circle_intersection(point2, (1.5 ** 2 + 0.5 ** 2) ** 0.5)
+            intersects = point1.circle_intersection(point2, 1.58)
             any_lower_point = next(iter(self.lower))
             return max(intersects, key=lambda p: p.distance_to(any_lower_point))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
@@ -109,7 +109,7 @@ class Ramp:
             point2 = points.pop().offset((self.x_offset, self.y_offset))
             center = point1.towards(point2, point1.distance_to(point2) / 2)
             depot_position = self.depot_in_middle
-            intersects = center.circle_intersection(depot_position, (2 ** 2 + 1 ** 2) ** 0.5)
+            intersects = center.circle_intersection(depot_position, 2.24)
             return intersects
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
@@ -175,6 +175,7 @@ class GameInfo:
 
         def paint(po2: Point2) -> None:
             picture[po2.y][po2.x] = current_color
+
         nearby: Set[Point2] = set()
         for deltax in range(-max_distance_between_points, max_distance_between_points + 1):
             for deltay in range(-max_distance_between_points, max_distance_between_points + 1):

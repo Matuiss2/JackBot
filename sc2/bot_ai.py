@@ -28,6 +28,7 @@ class BotAI:
         self.enemy_id = self.units = self.workers = self.townhalls = self.geysers = self.minerals = self.vespene = None
         self.supply_used = self.supply_cap = self.supply_left = self._client = self._game_info = self._game_data = None
         self.player_id = self.race = self._units_previous_map = self.units = self.state = None
+        self.cached_known_enemy_structures = self.cached_known_enemy_units = None
 
     @property
     def enemy_race(self) -> RACE:
@@ -68,12 +69,16 @@ class BotAI:
     @property
     def known_enemy_units(self) -> Units:
         """List of known enemy units, including structures."""
-        return self.state.units.enemy
+        if not self.cached_known_enemy_units:
+            self.cached_known_enemy_units = self.state.enemy_units
+        return self.cached_known_enemy_units
 
     @property
     def known_enemy_structures(self) -> Units:
         """List of known enemy units, structures only."""
-        return self.state.units.enemy.structure
+        if not self.cached_known_enemy_structures:
+            self.cached_known_enemy_structures = self.state.enemy_units.structure
+        return self.cached_known_enemy_structures
 
     @property
     def main_base_ramp(self):
@@ -141,7 +146,10 @@ class BotAI:
         assert isinstance(building, UnitTypeId)
         if not location:
             location = await self.get_next_expansion()
-        await self.build(building, near=location, max_distance=max_distance, random_alternative=False, placement_step=1)
+        if location:
+            await self.build(
+                building, near=location, max_distance=max_distance, random_alternative=False, placement_step=1
+            )
 
     def is_near_to_expansion(self, unit, exp_loc):
         """If the expansion location is already taken returns True"""
@@ -402,6 +410,8 @@ class BotAI:
             near = near.position.to2
         elif near is not None:
             near = near.to2
+        else:
+            return None
         possible_placements = await self.find_placement(
             building, near.rounded, max_distance, random_alternative, placement_step
         )
@@ -492,7 +502,7 @@ class BotAI:
         self._units_previous_map.clear()
         for unit in self.units:
             self._units_previous_map[unit.tag] = unit
-        self.units: Units = state.units.owned
+        self.units: Units = state.own_units
         self.workers: Units = self.units(race_worker[self.race])
         self.townhalls: Units = self.units(race_townhalls[self.race])
         self.geysers: Units = self.units(race_gas[self.race])
@@ -501,6 +511,9 @@ class BotAI:
         self.supply_used: Union[float, int] = state.common.food_used
         self.supply_cap: Union[float, int] = state.common.food_cap
         self.supply_left: Union[float, int] = self.supply_cap - self.supply_used
+        # reset cached values
+        self.cached_known_enemy_structures = None
+        self.cached_known_enemy_units = None
 
     async def issue_events(self):
         """ This function will be automatically run from main.py and triggers the following functions:

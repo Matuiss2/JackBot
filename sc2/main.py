@@ -174,6 +174,7 @@ def run_game(map_settings, players, **kwargs):
         result = asyncio.get_event_loop().run_until_complete(_host_game(map_settings, players, **kwargs))
     return result
 
+
 async def save_game(save_replay_as, client):
     """Save the game"""
     if save_replay_as:
