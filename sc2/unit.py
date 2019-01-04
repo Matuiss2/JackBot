@@ -68,7 +68,7 @@ class Unit:
     @property
     def position(self) -> Point2:
         """2d position of the unit."""
-        return self.position3d.to2
+        return Point2((self.proto.pos.x, self.proto.pos.y))
 
     @property
     def position3d(self) -> Point3:
