@@ -193,7 +193,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
                 {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS, AUTOTURRET}
             )
             targets = self.static_defence | filtered_enemies.not_flying
-            hydra_targets = self.static_defence.visible | filtered_enemies
+            hydra_targets = self.static_defence | filtered_enemies
         atk_force = (
             local_controller.zerglings
             | local_controller.ultralisks
