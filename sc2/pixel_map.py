@@ -45,7 +45,7 @@ class PixelMap:
         width, height = pos
         assert 0 <= width < self.width
         assert 0 <= height < self.height
-        index = self.width * height + width
+        index = -self.width * height + width
         start = index * self.bytes_per_pixel
         self.data[start : start + self.bytes_per_pixel] = val
 

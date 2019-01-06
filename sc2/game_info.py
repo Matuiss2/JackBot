@@ -1,6 +1,6 @@
 """Groups some info about the map so it can be used in an easy way"""
 from collections import deque
-from typing import Dict, List, Set
+from typing import List, Set
 from .pixel_map import PixelMap
 from .player import Player
 from .position import Point2, Rect, Size
@@ -83,7 +83,7 @@ class Ramp:
             points = self.upper2_for_ramp_wall
             point1 = points.pop().offset((self.x_offset, self.y_offset))
             point2 = points.pop().offset((self.x_offset, self.y_offset))
-            intersects = point1.circle_intersection(point2, (2 ** 2 + 1 ** 2) ** 0.5)
+            intersects = point1.circle_intersection(point2, 2.24)
             any_lower_point = next(iter(self.lower))
             return max(intersects, key=lambda p: p.distance_to(any_lower_point))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
@@ -95,7 +95,7 @@ class Ramp:
             points = self.upper2_for_ramp_wall
             point1 = points.pop().offset((self.x_offset, self.y_offset))
             point2 = points.pop().offset((self.x_offset, self.y_offset))
-            intersects = point1.circle_intersection(point2, (1.5 ** 2 + 0.5 ** 2) ** 0.5)
+            intersects = point1.circle_intersection(point2, 1.58)
             any_lower_point = next(iter(self.lower))
             return max(intersects, key=lambda p: p.distance_to(any_lower_point))
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
@@ -109,7 +109,7 @@ class Ramp:
             point2 = points.pop().offset((self.x_offset, self.y_offset))
             center = point1.towards(point2, point1.distance_to(point2) / 2)
             depot_position = self.depot_in_middle
-            intersects = center.circle_intersection(depot_position, (2 ** 2 + 1 ** 2) ** 0.5)
+            intersects = center.circle_intersection(depot_position, 2.24)
             return intersects
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
@@ -143,9 +143,7 @@ class GameInfo:
         self.placement_grid: PixelMap = PixelMap(proto.start_raw.placement_grid)
         self.playable_area = Rect.from_proto(proto.start_raw.playable_area)
         self.map_ramps: List[Ramp] = None
-        self.player_races: Dict[int, "Race"] = {
-            p.player_id: p.race_actual or p.race_requested for p in proto.player_info
-        }
+        self.player_races = {p.player_id: p.race_actual or p.race_requested for p in proto.player_info}
         self.start_locations: List[Point2] = [Point2.from_proto(sl) for sl in proto.start_raw.start_locations]
         self.player_start_location: Point2 = None
 
@@ -170,10 +168,9 @@ class GameInfo:
     ) -> List[Set[Point2]]:
         """ From a set/list of points, this function will try to group points together
          Paint clusters of points in rectangular map using flood fill algorithm. """
-        not_colored_yet = -1
-        current_color: int = not_colored_yet
+        current_color: int = -1
         picture: List[List[int]] = [
-            [-2 for j in range(self.pathing_grid.width)] for i in range(self.pathing_grid.height)
+            [-2 for _ in range(self.pathing_grid.width)] for _ in range(self.pathing_grid.height)
         ]
 
         def paint(po2: Point2) -> None:
@@ -207,7 +204,7 @@ class GameInfo:
                         or pointy >= self.pathing_grid.height
                     ):
                         continue
-                    if picture[pointy][pointx] != not_colored_yet:
+                    if picture[pointy][pointx] != -1:
                         continue
                     point: Point2 = Point2((pointx, pointy))
                     remaining.remove(point)

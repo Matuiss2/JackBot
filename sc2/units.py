@@ -115,13 +115,13 @@ class Units(list):
         """ Returns units closer than the parameter distance value to the argument"""
         if isinstance(position, Unit):
             position = position.position
-        return self.filter(lambda unit: unit.position.distance_to_point2(position.to2) < distance)
+        return self.filter(lambda unit: unit.position.distance_squared(position.to2) < distance ** 2)
 
     def further_than(self, distance: Union[int, float], position: Union[Unit, Point2, Point3]) -> "Units":
         """ Returns units further than the parameter distance value to the argument"""
         if isinstance(position, Unit):
             position = position.position
-        return self.filter(lambda unit: unit.position.distance_to_point2(position.to2) > distance)
+        return self.filter(lambda unit: unit.position.distance_squared(position.to2) > distance ** 2)
 
     def subgroup(self, units):
         """Returns a subgroup of units from the main group"""
@@ -133,10 +133,14 @@ class Units(list):
 
     def sorted(self, keyfn: callable, reverse: bool = False) -> "Units":
         """Sort units from the main group based on given key"""
+        if len(self) in (0, 1):
+            return self
         return self.subgroup(sorted(self, key=keyfn, reverse=reverse))
 
     def sorted_by_distance_to(self, position: Union[Unit, Point2], reverse: bool = False) -> "Units":
         """ This function should be a bit faster than using units.sorted(keyfn=lambda u: u.distance_to(position)) """
+        if len(self) in (0, 1):
+            return self
         position = position.position
         return self.sorted(keyfn=lambda unit: unit.position.distance_squared(position), reverse=reverse)
 
@@ -268,6 +272,11 @@ class Units(list):
         return self.filter(lambda unit: unit.is_flying)
 
     @property
+    def visible(self) -> "Units":
+        """Returns the units from the list that are visible"""
+        return self.filter(lambda unit: unit.is_visible)
+
+    @property
     def not_flying(self) -> "Units":
         """Returns the units from the list that are not flying"""
         return self.filter(lambda unit: not unit.is_flying)
@@ -311,10 +320,6 @@ class Units(list):
     def prefer_idle(self) -> "Units":
         """Sort the list putting the idle units first"""
         return self.sorted(lambda unit: unit.is_idle, reverse=True)
-
-    def prefer_close_to(self, unit_or_point: Union[Unit, Point2, Point3]) -> "Units":
-        """Sort the list putting the closer units to the parameter position first"""
-        return self.sorted(lambda unit: unit.distance_to(unit_or_point))
 
 
 class UnitSelection(Units):

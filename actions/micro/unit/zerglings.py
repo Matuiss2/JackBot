@@ -17,7 +17,7 @@ class ZerglingControl(Micro):
         self.controller.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
-    def baneling_dodge(self, unit, targets):  # needs refactor(too-many-blocks)
+    def baneling_dodge(self, unit, targets):
         """If the enemy has banelings, run baneling dodging code."""
         local_controller = self.controller
         action = local_controller.add_action
@@ -44,11 +44,11 @@ class ZerglingControl(Micro):
 
     def zergling_modifiers(self, unit, targets):
         """Group modifiers for zerglings"""
-        if self.zergling_atk_speed:  # more than half of the attack time with adrenal glands (0.35)
-            if unit.weapon_cooldown <= 0.25 * 22.4:  # 22.4 = the game speed times the frames per sec
+        if self.zergling_atk_speed:
+            if unit.weapon_cooldown <= 0.284 * 22.4:  # 22.4 = the game speed times the frames per sec
                 return self.attack_close_target(unit, targets)
             return self.move_to_next_target(unit, targets)
-        if unit.weapon_cooldown <= 0.35 * 22.4:  # more than half of the attack time with adrenal glands (0.35)
+        if unit.weapon_cooldown <= 0.398 * 22.4:
             return self.attack_close_target(unit, targets)
         return False
 

@@ -12,10 +12,12 @@ class ScoreDetails:
 
     @property
     def score_type(self):
+        """Returns all score types"""
         return self._data.score_type
 
     @property
     def score(self):
+        """Score from post game(I think)"""
         return self._data.score
 
     @property
@@ -81,14 +83,17 @@ class ScoreDetails:
 
     @property
     def food_used_none(self):
+        """returns the supply that's is not used compared to the current supply cap(I think)"""
         return self.proto.food_used.none
 
     @property
     def food_used_army(self):
+        """returns the supply that's is used on army units"""
         return self.proto.food_used.army
 
     @property
     def food_used_economy(self):
+        """returns the supply that's is used on worker and utility units"""
         return self.proto.food_used.economy
 
     @property
@@ -105,10 +110,12 @@ class ScoreDetails:
 
     @property
     def killed_minerals_army(self):
+        """returns the amount of minerals value for the enemy army killed on the game by the player until the call"""
         return self.proto.killed_minerals.army
 
     @property
     def killed_minerals_economy(self):
+        """returns the amount of minerals value for the enemy workers killed on the game by the player until the call"""
         return self.proto.killed_minerals.economy
 
     @property
@@ -117,6 +124,8 @@ class ScoreDetails:
 
     @property
     def killed_minerals_upgrade(self):
+        """returns the amount of minerals value for the stopped enemy upgrades
+         on the game by the player until the call"""
         return self.proto.killed_minerals.upgrade
 
     @property
@@ -125,10 +134,12 @@ class ScoreDetails:
 
     @property
     def killed_vespene_army(self):
+        """returns the amount of minerals value for the enemy army killed on the game by the player until the call"""
         return self.proto.killed_vespene.army
 
     @property
     def killed_vespene_economy(self):
+        """returns the amount of vespene value for the enemy workers killed on the game by the player until the call"""
         return self.proto.killed_vespene.economy
 
     @property
@@ -137,6 +148,8 @@ class ScoreDetails:
 
     @property
     def killed_vespene_upgrade(self):
+        """returns the amount of minerals value for the stopped enemy upgrades
+         on the game by the player until the call"""
         return self.proto.killed_vespene.upgrade
 
     @property

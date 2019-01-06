@@ -1,7 +1,14 @@
 """Every helper for controlling units go here"""
+from sc2.constants import (
+    DISRUPTORPHASED,
+    GUARDIANSHIELDPERSISTENT,
+    LIBERATORTARGETMORPHDELAYPERSISTENT,
+    LIBERATORTARGETMORPHPERSISTENT,
+    SCANNERSWEEP,
+    ULTRALISK,
+)
 from sc2.position import Point2
 from sc2.unit import Unit
-from sc2.constants import GUARDIANSHIELDPERSISTENT, SCANNERSWEEP
 
 
 def filter_in_attack_range_of(unit, targets):
@@ -15,10 +22,16 @@ class Micro:
     def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
         local_controller = self.controller
-        if not local_controller.state.effects:
+        if not local_controller.state.effects or unit.type_id == ULTRALISK:
             return False
+        excluded_effects = (
+            SCANNERSWEEP,
+            GUARDIANSHIELDPERSISTENT,
+            LIBERATORTARGETMORPHDELAYPERSISTENT,
+            LIBERATORTARGETMORPHPERSISTENT,
+        )  # Placeholder(must find better way to handle some of these)
         for effect in local_controller.state.effects:
-            if effect.id in (SCANNERSWEEP, GUARDIANSHIELDPERSISTENT):
+            if effect.id in excluded_effects:
                 continue
             danger_zone = local_controller.game_data.effects[effect.id].radius + unit.radius + 0.1
             if not unit.position.distance_to_point2(unit.position.closest(effect.positions)) < danger_zone:
@@ -91,7 +104,10 @@ class Micro:
         action = self.controller.add_action
         unit_radius = unit.radius
         our_range = unit.ground_range + unit_radius
-        enemy_range = target.ground_range + target.radius
+        partial_enemy_range = target.ground_range
+        if not partial_enemy_range:
+            partial_enemy_range = 0
+        enemy_range = partial_enemy_range + target.radius
         if range_upgrade:
             our_range += 1
         # Our unit should stay just outside enemy range, and inside our range.
@@ -103,11 +119,11 @@ class Micro:
         if minimum_distance > our_range:
             minimum_distance = our_range - unit_radius
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
-        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 0.13 * 22.4:
+        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 0.295 * 22.4:
             action(unit.attack(target))
             return True
-        # If our unit is too close, or our weapon is on more than one quarter cooldown, run away.
-        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 0.13 * 22.4:
+        # If our unit is too close, or our weapon is on more than a quarter cooldown, run away.
+        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 0.1475 * 22.4:
             retreat_point = self.find_retreat_point(target, unit)
             action(unit.move(retreat_point))
             return True
@@ -135,3 +151,14 @@ class Micro:
         for enemy in targets:
             if enemy.distance_to(unit) < trigger_range:
                 yield enemy
+
+    def disruptor_dodge(self, unit):
+        """If the enemy has disruptors, run baneling dodging code."""
+        local_controller = self.controller
+        if unit.type_id == ULTRALISK:
+            return False
+        for ball in local_controller.enemies.of_type(DISRUPTORPHASED):
+            if ball.distance_to(unit) < 3:
+                retreat_point = self.find_retreat_point(ball, unit)
+                local_controller.add_action(unit.move(retreat_point))
+                return True

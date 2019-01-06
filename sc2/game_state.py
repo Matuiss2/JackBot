@@ -8,10 +8,11 @@ from .position import Point2, Point3
 from .power_source import PsionicMatrix
 from .score import ScoreDetails
 from .units import Units
+from sc2.constants import UnitTypeId
 
 
 class Blip:
-    """Identifies and categorize the visible units"""
+    """Identifies and categorize the clocked units"""
 
     def __init__(self, proto):
         self.proto = proto
@@ -115,26 +116,59 @@ class GameState:
         self.abilities = self.observation.abilities
         destructible = [x for x in self.observation.raw_data.units if x.alliance == 3 and x.radius > 1.5]
         self.destructible: Units = Units.from_proto(destructible, game_data)
-        visible_units, hidden_units = [], []
+        visible_units, hidden_units, minerals, geysers, destructables, enemy, own = ([] for _ in range(7))
+        mineral_ids = {
+            UnitTypeId.RICHMINERALFIELD.value,
+            UnitTypeId.RICHMINERALFIELD750.value,
+            UnitTypeId.MINERALFIELD.value,
+            UnitTypeId.MINERALFIELD750.value,
+            UnitTypeId.LABMINERALFIELD.value,
+            UnitTypeId.LABMINERALFIELD750.value,
+            UnitTypeId.PURIFIERRICHMINERALFIELD.value,
+            UnitTypeId.PURIFIERRICHMINERALFIELD750.value,
+            UnitTypeId.PURIFIERMINERALFIELD.value,
+            UnitTypeId.PURIFIERMINERALFIELD750.value,
+            UnitTypeId.BATTLESTATIONMINERALFIELD.value,
+            UnitTypeId.BATTLESTATIONMINERALFIELD750.value,
+        }
+        geyser_ids = {
+            UnitTypeId.VESPENEGEYSER.value,
+            UnitTypeId.SPACEPLATFORMGEYSER.value,
+            UnitTypeId.RICHVESPENEGEYSER.value,
+            UnitTypeId.PROTOSSVESPENEGEYSER.value,
+            UnitTypeId.PURIFIERVESPENEGEYSER.value,
+            UnitTypeId.SHAKURASVESPENEGEYSER.value,
+        }
         for unit in self.observation.raw_data.units:
             if unit.is_blip:
                 hidden_units.append(unit)
             else:
                 visible_units.append(unit)
+                # all destructible rocks except the one below the main base ramps
+                if unit.alliance == 3 and unit.radius > 1.5:
+                    destructables.append(unit)
+                elif unit.alliance == 3:
+                    # mineral field enums
+                    if unit.unit_type in mineral_ids:
+                        minerals.append(unit)
+                    # geyser enums
+                    elif unit.unit_type in geyser_ids:
+                        geysers.append(unit)
+                elif unit.alliance == 1:
+                    own.append(unit)
+                elif unit.alliance == 4:
+                    enemy.append(unit)
+
+        self.own_units: Units = Units.from_proto(own, game_data)
+        self.enemy_units: Units = Units.from_proto(enemy, game_data)
+        self.mineral_field: Units = Units.from_proto(minerals, game_data)
+        self.vespene_geyser: Units = Units.from_proto(geysers, game_data)
+        self.destructables: Units = Units.from_proto(destructables, game_data)
         self.units: Units = Units.from_proto(visible_units, game_data)
+        self.distance_units: Units = Units.from_proto(own + enemy + minerals + geysers, game_data)
         self.blips: Set[Blip] = {Blip(unit) for unit in hidden_units}
         self.visibility: PixelMap = PixelMap(self.observation.raw_data.map_state.visibility)
         self.creep: PixelMap = PixelMap(self.observation.raw_data.map_state.creep)
         self.dead_units: Set[int] = {dead_unit_tag for dead_unit_tag in self.observation.raw_data.event.dead_units}
         self.effects: Set[EffectData] = {EffectData(effect) for effect in self.observation.raw_data.effects}
         self.upgrades: Set[UpgradeId] = {UpgradeId(upgrade) for upgrade in self.observation.raw_data.player.upgrade_ids}
-
-    @property
-    def mineral_field(self) -> Units:
-        """Return all mineral patches info"""
-        return self.units.mineral_field
-
-    @property
-    def vespene_geyser(self) -> Units:
-        """Return all geysers info"""
-        return self.units.vespene_geyser

@@ -34,6 +34,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         self.retreat_units = set()
         self.baneling_sacrifices = {}
         self.rally_point = self.action = self.unit_position = self.attack_command = self.bases = None
+        self.static_defence = None
         self.zergling_atk_speed = self.hydra_move_speed = self.hydra_atk_range = False
 
     async def should_handle(self):
@@ -59,6 +60,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         targets, atk_force, hydra_targets = self.set_unit_groups()
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
+                continue
+            if self.disruptor_dodge(attacking_unit):
                 continue
             self.unit_position = attacking_unit.position
             self.attack_command = attacking_unit.attack
@@ -103,6 +106,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def retreat_unit(self, unit, target):
         """Tell the unit to retreat when overwhelmed"""
         local_controller = self.controller
+        if local_controller.townhalls.closer_than(10, unit):
+            return False
         if local_controller.enemy_race == RACE.Zerg:
             enemy_value = self.enemy_value_zerg(unit, target)
         elif local_controller.enemy_race == RACE.Terran:
@@ -113,7 +118,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             local_controller.townhalls
             and not local_controller.close_enemies_to_base
             and not local_controller.structures.closer_than(7, self.unit_position)
-            and enemy_value >= self.battling_force_value(self.unit_position, 1, 5, 8)
+            and enemy_value >= self.battling_force_value(self.unit_position, 1, 5, 13)
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -125,7 +130,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         local_controller = self.controller
         if (
             local_controller.supply_used not in range(198, 201)
-            and self.gathering_force_value(1, 2, 4) < 41
+            and self.gathering_force_value(1, 2, 4) < 39 + 1.25 * local_controller.time // 100
             and local_controller.townhalls
             and self.retreat_units
             and not local_controller.counter_attack_vs_flying
@@ -143,7 +148,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def attack_closest_building(self, unit):
         """Attack the starting location"""
         local_controller = self.controller
-        enemy_building = local_controller.enemy_structures.not_flying
+        enemy_building = local_controller.enemy_structures.not_flying.exclude_type(self.static_defence)
         if enemy_building:
             local_controller.add_action(
                 unit.attack(enemy_building.closest_to(local_controller.furthest_townhall_to_map_center))
@@ -182,19 +187,13 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
         if enemy_units:
-            excluded_units = {
-                ADEPTPHASESHIFT,
-                DISRUPTORPHASED,
-                EGG,
-                LARVA,
-                INFESTEDTERRANSEGG,
-                INFESTEDTERRAN,
-                AUTOTURRET,
-            }
+            excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN}
             filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
-            static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-            targets = static_defence | filtered_enemies.not_flying
-            hydra_targets = static_defence | filtered_enemies
+            self.static_defence = enemy_building.of_type(
+                {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS, AUTOTURRET}
+            )
+            targets = self.static_defence | filtered_enemies.not_flying
+            hydra_targets = self.static_defence | filtered_enemies
         atk_force = (
             local_controller.zerglings
             | local_controller.ultralisks

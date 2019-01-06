@@ -3,6 +3,7 @@ import numpy as np
 from sc2.constants import (
     ADEPT,
     ARCHON,
+    AUTOTURRET,
     BANELING,
     BANSHEE,
     BATTLECRUISER,
@@ -148,6 +149,7 @@ class EnemyArmyValue:
     def terran_value_for_zerglings(self, combined_enemies):
         """Calculate the enemy army value for zerglings vs terran"""
         terran_as_zergling_table = {
+            AUTOTURRET: self.counter,
             BUNKER: self.counter,
             HELLION: self.counter,
             HELLIONTANK: self.massive_counter,
@@ -167,6 +169,7 @@ class EnemyArmyValue:
     def terran_value_for_hydralisks(self, combined_enemies):
         """Calculate the enemy army value for hydralisks vs terran"""
         terran_as_hydralisk_table = {
+            AUTOTURRET: self.advantage,
             BUNKER: self.normal,
             HELLION: self.countered,
             HELLIONTANK: self.advantage,
@@ -191,6 +194,7 @@ class EnemyArmyValue:
     def terran_value_for_ultralisks(self, combined_enemies):
         """Calculate the enemy army value for ultralisks vs terran"""
         terran_as_ultralisk_table = {
+            AUTOTURRET: self.countered,
             BUNKER: self.countered,
             HELLION: self.massive_countered,
             HELLIONTANK: self.countered,

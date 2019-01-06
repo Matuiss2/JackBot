@@ -27,12 +27,8 @@ class Client(Protocol):
     def __init__(self, web_service):
         super().__init__(web_service)
         self.game_step = 8
-        self._player_id = None
-        self.game_result = None
-        self._debug_texts = list()
-        self._debug_lines = list()
-        self._debug_boxes = list()
-        self._debug_spheres = list()
+        self._player_id = self.game_result = None
+        self._debug_texts, self._debug_lines, self._debug_boxes, self._debug_spheres = [], [], [], []
 
     @property
     def in_game(self):
@@ -210,7 +206,7 @@ class Client(Protocol):
 
     async def query_available_abilities(
         self, units: Union[List[Unit], "Units"], ignore_resource_requirements: bool = False
-    ) -> List[List[AbilityId]]:
+    ):
         """ Query abilities of multiple units """
         if not isinstance(units, list):
             assert isinstance(units, Unit)

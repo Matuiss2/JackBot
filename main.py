@@ -106,7 +106,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             UpgradeMuscularAugments(self),
             UpgradeUltraliskSpeed(self),
         )
-        self.ordered_expansions = self.building_positions = self.locations = self.actions = []
+        self.ordered_expansions, self.building_positions, self.locations, self.actions = [], [], [], []
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""

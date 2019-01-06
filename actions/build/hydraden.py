@@ -7,16 +7,20 @@ class BuildHydraden:
 
     def __init__(self, main):
         self.controller = main
+        self.selected_pools = None
 
     async def should_handle(self):
         """Build the hydraden"""
         local_controller = self.controller
+        self.selected_pools = local_controller.pools
         return (
-            local_controller.can_build_unique(HYDRALISKDEN, local_controller.hydradens, local_controller.lairs)
+            local_controller.can_build_unique(
+                HYDRALISKDEN, local_controller.hydradens, (local_controller.lairs and self.selected_pools)
+            )
             and not local_controller.close_enemy_production
             and not local_controller.floating_buildings_bm
             and len(local_controller.townhalls) >= 3
-            and not local_controller.ground_enemies.closer_than(20, local_controller.pools.first)
+            and not local_controller.ground_enemies.closer_than(20, self.selected_pools.first)
         )
 
     async def handle(self):
@@ -26,5 +30,5 @@ class BuildHydraden:
         if position:
             await local_controller.build(HYDRALISKDEN, position)
             return True
-        await local_controller.build(HYDRALISKDEN, near=local_controller.pools.first)
+        await local_controller.build(HYDRALISKDEN, near=self.selected_pools.first)
         return True
