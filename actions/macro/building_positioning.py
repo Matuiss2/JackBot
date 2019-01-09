@@ -10,30 +10,32 @@ class BuildingPositioning:
         """Check all possible positions behind the mineral line when a hatchery is built"""
         mineral_field = self.state.mineral_field
         if mineral_field:
-            close_points = range(-12, 13)
+            close_points = range(-10, 11)
             center_position = center.position
             add_positions = self.building_positions.append
             # No point in separating it on variables, I united everything, it gets points that are behind minerals
-            for point in (
-                point
+            viable_points = [point
                 for point in (
                     Point2((x + center_position.x, y + center_position.y))
                     for x in close_points
                     for y in close_points
-                    if 144 >= x * x + y * y >= 64
+                    if 121 >= x * x + y * y >= 81
                 )
-                if point.distance_to(mineral_field.closer_than(10, center).closest_to(point)) == 3
-            ):
-                # also check engineering bay placement for hatcheries that just spawned but have no creep around
-                if await self.can_place(ENGINEERINGBAY, point) and await self.can_place(EVOLUTIONCHAMBER, point):
-                    if self.building_positions:
-                        if all(
-                            abs(already_found.x - point.x) >= 3 or abs(already_found.y - point.y) >= 3
-                            for already_found in self.building_positions
-                        ):
-                            add_positions(point)
-                    else:
+                if abs(point.distance_to(mineral_field.closer_than(10, center).closest_to(point)) - 3) < 0.5]
+
+            ability = self._game_data.units[ENGINEERINGBAY.value].creation_ability
+            mask = await self._client.query_building_placement(ability, viable_points)
+            viable_points = [point for i, point in enumerate(viable_points) if mask[i] == ActionResult.Success]
+
+            for point in viable_points:
+                if self.building_positions:
+                    if all(
+                        abs(already_found.x - point.x) >= 3 or abs(already_found.y - point.y) >= 3
+                        for already_found in self.building_positions
+                    ):
                         add_positions(point)
+                else:
+                    add_positions(point)
 
     async def get_production_position(self):
         """Find the safest position looping through all possible ones"""
