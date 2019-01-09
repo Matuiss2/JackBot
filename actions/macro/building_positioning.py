@@ -1,5 +1,6 @@
 """Everything related to building positioning goes here"""
 from sc2.constants import EVOLUTIONCHAMBER, ENGINEERINGBAY
+from sc2.data import ACTION_RESULT
 from sc2.position import Point2
 
 
@@ -25,7 +26,7 @@ class BuildingPositioning:
 
             ability = self._game_data.units[ENGINEERINGBAY.value].creation_ability
             mask = await self._client.query_building_placement(ability, viable_points)
-            viable_points = [point for i, point in enumerate(viable_points) if mask[i] == ActionResult.Success]
+            viable_points = [point for i, point in enumerate(viable_points) if mask[i] == ACTION_RESULT.Success]
 
             for point in viable_points:
                 if self.building_positions:
