@@ -1,5 +1,6 @@
 """Groups some info about the all global(shared by all races) state of sc2 so it can be used in an easy way"""
 from typing import List, Set
+from sc2.constants import UnitTypeId
 from .data import ALLIANCE, DISPLAY_TYPE
 from .ids.effect_id import EffectId
 from .ids.upgrade_id import UpgradeId
@@ -8,7 +9,6 @@ from .position import Point2, Point3
 from .power_source import PsionicMatrix
 from .score import ScoreDetails
 from .units import Units
-from sc2.constants import UnitTypeId
 
 
 class Blip:
