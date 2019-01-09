@@ -1,6 +1,6 @@
 """Unit commands are grouped here"""
-from .position import Point2
 from .ids.ability_id import AbilityId
+from .position import Point2
 from . import unit as unit_module
 
 

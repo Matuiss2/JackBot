@@ -2,9 +2,11 @@
 import sc2
 from sc2.constants import HATCHERY
 from sc2.position import Point2
-from data_container import DataContainer
-from actions.micro.micro_main import ArmyControl
+from actions.anti_cheese.defend_proxies import DefendProxies
+from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
 from actions.build.cavern import BuildCavern
+from actions.build.creep_spread import CreepControl
+from actions.build.creep_tumor import CreepTumor
 from actions.build.evochamber import BuildEvochamber
 from actions.build.expansion import BuildExpansion
 from actions.build.extractor import BuildExtractor
@@ -16,9 +18,14 @@ from actions.build.pool import BuildPool
 from actions.build.spines import BuildSpines
 from actions.build.spire import BuildSpire
 from actions.build.spores import BuildSpores
-from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
-from actions.anti_cheese.defend_proxies import DefendProxies
+from actions.macro.building_positioning import BuildingPositioning
+from actions.macro.cancel_building import Buildings
 from actions.macro.distribute_workers import DistributeWorkers
+from actions.micro.block_expansions import BlockExpansions
+from actions.micro.micro_main import ArmyControl
+from actions.micro.unit.drone import Drone
+from actions.micro.unit.overlord import Overlord
+from actions.micro.unit.overseer import Overseer
 from actions.micro.unit.queen import QueensAbilities
 from actions.train.hydras import TrainHydralisk
 from actions.train.mutalisk import TrainMutalisk
@@ -28,23 +35,17 @@ from actions.train.queen import TrainQueen
 from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
 from actions.train.zergling import TrainZergling
-from actions.build.creep_tumor import CreepTumor
-from actions.micro.unit.drone import Drone
-from actions.macro.cancel_building import Buildings
-from actions.micro.unit.overlord import Overlord
-from actions.micro.unit.overseer import Overseer
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
 from actions.upgrades.evochamber import UpgradeEvochamber
-from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 
 # from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
 from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
 from actions.upgrades.hydra_speed import UpgradeMuscularAugments
-from actions.macro.building_positioning import BuildingPositioning
-from actions.micro.block_expansions import BlockExpansions
-from actions.build.creep_spread import CreepControl
+from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
+from actions.upgrades.anabolic_synthesis import UpgradeUltraliskSpeed
+from data_container import DataContainer
 
 
 # noinspection PyMissingConstructor
@@ -103,8 +104,9 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             UpgradeBurrow(self),
             UpgradeGroovedSpines(self),
             UpgradeMuscularAugments(self),
+            UpgradeUltraliskSpeed(self),
         )
-        self.ordered_expansions = self.building_positions = self.locations = self.actions = []
+        self.ordered_expansions, self.building_positions, self.locations, self.actions = [], [], [], []
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""

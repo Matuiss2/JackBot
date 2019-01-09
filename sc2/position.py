@@ -1,7 +1,7 @@
 """Groups everything related to a position on the map or of an unit"""
-from math import sqrt, pi, sin, cos, atan2, inf, hypot
-import random
 import itertools
+import random
+from math import atan2, cos, hypot, inf, pi, sin
 from typing import List, Set, Union
 
 FLOAT_DIGITS = 8
@@ -32,11 +32,11 @@ class Pointlike(tuple):
         """Helper for distance_to"""
         if self == position:
             return 0
-        return sqrt(
-            sum(self.__class__((b - a) * (b - a) for a, b in itertools.zip_longest(self, position, fillvalue=0)))
+        return (
+            sum(self.__class__((b - a) * (b - a) for a, b in itertools.zip_longest(self, position, fillvalue=0))) ** 0.5
         )
 
-    def distance_to(self, unit_or_pos: Union["Unit", "Point2", "Point3"]) -> Union[int, float]:
+    def distance_to(self, unit_or_pos) -> Union[int, float]:
         """Distance from a unit or point to another point"""
         if isinstance(unit_or_pos, Pointlike):
             return self.return_distance(unit_or_pos)
@@ -52,17 +52,19 @@ class Pointlike(tuple):
         This is to speed up the sorting process. """
         return (self[0] - po2[0]) ** 2 + (self[1] - po2[1]) ** 2
 
-    def sort_by_distance(self, iterator: Union["Units", List["Point2"]]) -> List["Point2"]:
+    def sort_by_distance(self, iterator) -> List["Point2"]:
         """ This returns the target points sorted as list.
         You should not pass a set or dict since those are not sortable.
         If you want to sort your units towards a point, use 'units.sorted_by_distance_to(point)' instead. """
-        if iterator and all(isinstance(p, Point2) for p in iterator):
-            return sorted(iterator, key=self.distance_squared)
-        return sorted(iterator, key=self.distance_to)
+        if len(iterator) == 1:
+            return iterator[0]
+        return sorted(iterator, key=lambda p: self.distance_squared(p.position))
 
-    def closest(self, iterator: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Point2"]:
+    def closest(self, iterator):
         """ This function assumes the 2d distance is meant """
         assert iterator
+        if len(iterator) == 1:
+            return iterator[0]
         closest_distance_squared = inf
         for po2 in iterator:
             p2pos = po2
@@ -74,7 +76,7 @@ class Pointlike(tuple):
                 closest_element = po2
         return closest_element
 
-    def distance_to_closest(self, iterator: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
+    def distance_to_closest(self, iterator) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
         assert iterator
         closest_distance_squared = inf
@@ -86,9 +88,11 @@ class Pointlike(tuple):
                 closest_distance_squared = distance
         return closest_distance_squared ** 0.5
 
-    def furthest(self, iterator: Union["Units", List["Point2"], Set["Point2"]]) -> Union["Unit", "Pointlike"]:
+    def furthest(self, iterator):
         """ This function assumes the 2d distance is meant """
         assert iterator
+        if len(iterator) == 1:
+            return iterator[0]
         furthest_distance_squared = -inf
         for po2 in iterator:
             p2pos = po2
@@ -100,7 +104,7 @@ class Pointlike(tuple):
                 furthest_element = po2
         return furthest_element
 
-    def distance_to_furthest(self, iterator: Union["Units", List["Point2"], Set["Point2"]]) -> Union[int, float]:
+    def distance_to_furthest(self, iterator) -> Union[int, float]:
         """ This function assumes the 2d distance is meant """
         assert iterator
         furthest_distance_squared = -inf
@@ -121,11 +125,12 @@ class Pointlike(tuple):
         return self.__class__(_sign(b - a) for a, b in itertools.zip_longest(self, point[: len(self)], fillvalue=0))
 
     def towards(
-        self, point: Union["Unit", "Pointlike"], distance: Union[int, float] = 1, limit: bool = False
+        self, point, distance: Union[int, float] = 1, limit: bool = False
     ) -> "Pointlike":
         """Returns a point defined by the second parameter between the argument and the first parameter point"""
         point = point.position
-        assert self != point
+        if self == point:
+            return self
         dist = self.distance_to(point)
         if limit:
             distance = min(dist, distance)

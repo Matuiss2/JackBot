@@ -1,5 +1,5 @@
 """Upgrading hydras atk speed"""
-from sc2.constants import RESEARCH_GROOVEDSPINES, EVOLVEGROOVEDSPINES
+from sc2.constants import EVOLVEGROOVEDSPINES, RESEARCH_GROOVEDSPINES
 
 
 class UpgradeGroovedSpines:

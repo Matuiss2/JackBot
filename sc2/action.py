@@ -1,6 +1,7 @@
 """Group everything that is needed to initialize actions requirements"""
 from itertools import groupby
-from s2clientprotocol import raw_pb2 as raw_pb, common_pb2 as common_pb
+from s2clientprotocol import common_pb2 as common_pb
+from s2clientprotocol import raw_pb2 as raw_pb
 from .position import Point2
 from .unit import Unit
 

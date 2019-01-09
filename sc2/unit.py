@@ -1,13 +1,13 @@
 """Everything related to a single unit in the game goes here"""
-from typing import List, Set, Optional, Union
+from typing import List, Optional, Set, Union
 from s2clientprotocol import raw_pb2 as raw_pb
 from sc2.ids.buff_id import BuffId
-from .position import Point2, Point3
-from .data import ALLIANCE, ATTRIBUTE, DISPLAY_TYPE, warpgate_abilities, TARGET_TYPE, RACE, CLOAK_STATE
-from .game_data import GameData, UnitTypeData
-from .ids.unit_typeid import UnitTypeId
-from .ids.ability_id import AbilityId
 from . import unit_command
+from .data import ALLIANCE, ATTRIBUTE, CLOAK_STATE, DISPLAY_TYPE, RACE, TARGET_TYPE, warpgate_abilities
+from .game_data import GameData, UnitTypeData
+from .ids.ability_id import AbilityId
+from .ids.unit_typeid import UnitTypeId
+from .position import Point2, Point3
 
 
 class Unit:
@@ -31,12 +31,12 @@ class Unit:
         return self._game_data.units[self.proto.unit_type]
 
     @property
-    def is_snapshot(self) -> bool:
+    def is_snapshot(self):
         """Checks if the unit was visible on a snapshot"""
         return self.proto.display_type == DISPLAY_TYPE.Snapshot.value
 
     @property
-    def is_visible(self) -> bool:
+    def is_visible(self):
         """Checks if the unit is outside the FOW"""
         return self.proto.display_type == DISPLAY_TYPE.Visible.value
 
@@ -68,7 +68,7 @@ class Unit:
     @property
     def position(self) -> Point2:
         """2d position of the unit."""
-        return self.position3d.to2
+        return Point2((self.proto.pos.x, self.proto.pos.y))
 
     @property
     def position3d(self) -> Point3:
@@ -268,7 +268,7 @@ class Unit:
     @property
     def has_vespene(self) -> bool:
         """ Checks if a geyser has any gas remaining (can't build extractors on empty geysers), useful for lategame """
-        return self.proto.vespene_contents
+        return bool(self.proto.vespene_contents)
 
     @property
     def weapons(self):
@@ -304,7 +304,7 @@ class Unit:
     @property
     def has_cargo(self) -> bool:
         """ If this unit has units loaded """
-        return self.proto.cargo_space_taken
+        return bool(self.proto.cargo_space_taken)
 
     @property
     def cargo_used(self) -> Union[float, int]:

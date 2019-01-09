@@ -1,18 +1,18 @@
 """Groups everything related to the processes"""
-from typing import Any, Optional, List
-import logging
-import sys
-import signal
-import time
 import asyncio
+import logging
 import os
 import shutil
-import tempfile
+import signal
 import subprocess
-import portpicker
+import sys
+import tempfile
+import time
+from typing import Any, List, Optional
 import aiohttp
-from .paths import Paths
+import portpicker
 from .controller import Controller
+from .paths import Paths
 
 LOGGER = logging.getLogger(__name__)
 

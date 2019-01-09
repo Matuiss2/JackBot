@@ -1,20 +1,20 @@
 """Global methods and class for the bot go here"""
+import logging
 import math
 import random
-import logging
 from typing import List, Optional, Union
-import statistics
-from .position import Point2, Point3
-from .data import RACE, ACTION_RESULT, race_worker, race_townhalls, race_gas, TARGET, RESULT
-from .unit import Unit
 from .cache import property_cache_forever
-from .game_data import AbilityData
-from .ids.unit_typeid import UnitTypeId
+from .data import ACTION_RESULT, RACE, RESULT, TARGET, race_gas, race_townhalls, race_worker
 from .ids.ability_id import AbilityId
+from .ids.unit_typeid import UnitTypeId
 from .ids.upgrade_id import UpgradeId
+from .position import Point2, Point3
+from .unit import Unit
+from .unit_command import UnitCommand
 from .units import Units
+from .game_data import AbilityData, GameData
 from .game_state import GameState
-from .game_data import GameData
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class BotAI:
         self.enemy_id = self.units = self.workers = self.townhalls = self.geysers = self.minerals = self.vespene = None
         self.supply_used = self.supply_cap = self.supply_left = self._client = self._game_info = self._game_data = None
         self.player_id = self.race = self._units_previous_map = self.units = self.state = None
+        self.cached_known_enemy_structures = self.cached_known_enemy_units = None
 
     @property
     def enemy_race(self) -> RACE:
@@ -68,12 +69,16 @@ class BotAI:
     @property
     def known_enemy_units(self) -> Units:
         """List of known enemy units, including structures."""
-        return self.state.units.enemy
+        if not self.cached_known_enemy_units:
+            self.cached_known_enemy_units = self.state.enemy_units
+        return self.cached_known_enemy_units
 
     @property
     def known_enemy_structures(self) -> Units:
         """List of known enemy units, structures only."""
-        return self.state.units.enemy.structure
+        if not self.cached_known_enemy_structures:
+            self.cached_known_enemy_structures = self.state.enemy_units.structure
+        return self.cached_known_enemy_structures
 
     @property
     def main_base_ramp(self):
@@ -89,34 +94,41 @@ class BotAI:
     @property_cache_forever
     def expansion_locations(self):
         """List of possible expansion locations."""
-        resource_spread_threshold = 144
-        resources = self.state.mineral_field | self.state.vespene_geyser
-        r_groups = []
-        for mineral_field in resources:
-            for group in r_groups:
-                if any(
-                    self.get_terrain_height(mineral_field.position) == self.get_terrain_height(p.position)
-                    and mineral_field.position.distance_squared(p.position) < resource_spread_threshold
-                    for p in group
-                ):
-                    group.append(mineral_field)
+        minerals = self.state.mineral_field
+        geysers = self.state.vespene_geyser
+        all_resources = minerals | geysers
+        resource_groups = []
+        for mineral_patches in all_resources:
+            mf_height = self.get_terrain_height(mineral_patches.position)
+            for cluster in resource_groups:
+                if len(cluster) == 10:
+                    continue
+                if mineral_patches.position.distance_squared(
+                    cluster[0].position
+                ) < 225 and mf_height == self.get_terrain_height(cluster[0].position):
+                    cluster.append(mineral_patches)
                     break
+                else:
+                    continue
             else:
-                r_groups.append([mineral_field])
-        r_groups = [g for g in r_groups if len(g) > 1]
+                resource_groups.append([mineral_patches])
+        resource_groups = [cluster for cluster in resource_groups if len(cluster) > 1]
         centers = {}
-        for resources in r_groups:
-            possible_points = [
-                point
-                for point in (
-                    Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
-                    for offset in [(x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49]
-                )
-            ]
-            possible_points.sort(
-                key=lambda p: statistics.mean([abs(p.distance_to(resource) - 7.2) for resource in resources])
+        for resources in resource_groups:
+            result = min(
+                [
+                    point
+                    for point in (
+                        Point2((offset[0] + resources[-1].position.x, offset[1] + resources[-1].position.y))
+                        for offset in [
+                            (x, y) for x in range(-9, 10) for y in range(-9, 10) if 75 >= x ** 2 + y ** 2 >= 49
+                        ]
+                    )
+                    if all(point.distance_to(resource) >= (7 if resource in geysers else 6) for resource in resources)
+                ],
+                key=lambda p: sum(p.distance_to(resource) for resource in resources),
             )
-            centers[possible_points[0]] = resources
+            centers[result] = resources
         return centers
 
     async def get_available_abilities(
@@ -139,7 +151,10 @@ class BotAI:
         assert isinstance(building, UnitTypeId)
         if not location:
             location = await self.get_next_expansion()
-        await self.build(building, near=location, max_distance=max_distance, random_alternative=False, placement_step=1)
+        if location:
+            await self.build(
+                building, near=location, max_distance=max_distance, random_alternative=False, placement_step=1
+            )
 
     def is_near_to_expansion(self, unit, exp_loc):
         """If the expansion location is already taken returns True"""
@@ -179,10 +194,8 @@ class BotAI:
             actions.append(idle_worker.gather(self.state.mineral_field.closest_to(idle_worker)))
         for location, townhall in owned_expansions.items():
             self.close_workers_assignment(20, townhall, worker_pool, location)
-            continue
         for geyser in self.geysers:
             self.close_workers_assignment(5, geyser, worker_pool, geyser)
-            continue
         for geyser in self.geysers:
             for _ in range(0, geyser.ideal_harvesters - geyser.assigned_harvesters):
                 if worker_pool:
@@ -288,7 +301,7 @@ class BotAI:
     def select_build_worker(self, pos: Union[Unit, Point2, Point3], force: bool = False) -> Optional[Unit]:
         """Select a worker to build a bulding with."""
         workers = self.workers.closer_than(20, pos) or self.workers
-        for worker in workers.prefer_close_to(pos).prefer_idle:
+        for worker in workers.sorted_by_distance_to(pos).prefer_idle:
             if (
                 not worker.orders
                 or len(worker.orders) == 1
@@ -310,7 +323,7 @@ class BotAI:
     async def find_placement(
         self,
         building: UnitTypeId,
-        near: Union[Unit, Point2, Point3],
+        near,
         max_distance: int = 20,
         random_alternative: bool = True,
         placement_step: int = 2,
@@ -402,6 +415,8 @@ class BotAI:
             near = near.position.to2
         elif near is not None:
             near = near.to2
+        else:
+            return None
         possible_placements = await self.find_placement(
             building, near.rounded, max_distance, random_alternative, placement_step
         )
@@ -426,7 +441,7 @@ class BotAI:
             LOGGER.error(f"Error: {possible_action} (action: {action})")
         return possible_action
 
-    async def do_actions(self, actions: List["UnitCommand"]):
+    async def do_actions(self, actions: List[UnitCommand]):
         """Group all actions then execute all at the 'same' time"""
         if not actions:
             return None
@@ -472,8 +487,8 @@ class BotAI:
 
     def prepare_start(self, client, player_id, game_info, game_data):
         """Ran until game start to set game and player data."""
-        self._client: "Client" = client
-        self._game_info: "GameInfo" = game_info
+        self._client = client
+        self._game_info = game_info
         self._game_data: GameData = game_data
         self.player_id: int = player_id
         self.race: RACE = RACE(self._game_info.player_races[self.player_id])
@@ -492,7 +507,7 @@ class BotAI:
         self._units_previous_map.clear()
         for unit in self.units:
             self._units_previous_map[unit.tag] = unit
-        self.units: Units = state.units.owned
+        self.units: Units = state.own_units
         self.workers: Units = self.units(race_worker[self.race])
         self.townhalls: Units = self.units(race_townhalls[self.race])
         self.geysers: Units = self.units(race_gas[self.race])
@@ -501,6 +516,9 @@ class BotAI:
         self.supply_used: Union[float, int] = state.common.food_used
         self.supply_cap: Union[float, int] = state.common.food_cap
         self.supply_left: Union[float, int] = self.supply_cap - self.supply_used
+        # reset cached values
+        self.cached_known_enemy_structures = None
+        self.cached_known_enemy_units = None
 
     async def issue_events(self):
         """ This function will be automatically run from main.py and triggers the following functions:
@@ -514,7 +532,7 @@ class BotAI:
             await self._issue_building_complete_event(unit)
 
     async def _issue_unit_added_events(self):
-        for unit in self.units:
+        for unit in self.units.not_structure:
             if unit.tag not in self._units_previous_map:
                 await self.on_unit_created(unit)
 

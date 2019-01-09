@@ -1,17 +1,14 @@
 """Group constants"""
 import enum
 from typing import Dict, Set
-from s2clientprotocol import (
-    sc2api_pb2 as sc_pb,
-    raw_pb2 as raw_pb,
-    data_pb2 as data_pb,
-    common_pb2 as common_pb,
-    error_pb2 as error_pb,
-)
-
-
-from .ids.unit_typeid import UnitTypeId
+from s2clientprotocol import common_pb2 as common_pb
+from s2clientprotocol import data_pb2 as data_pb
+from s2clientprotocol import error_pb2 as error_pb
+from s2clientprotocol import raw_pb2 as raw_pb
+from s2clientprotocol import sc2api_pb2 as sc_pb
 from .ids.ability_id import AbilityId
+from .ids.unit_typeid import UnitTypeId
+
 
 CREATE_GAME_ERROR = enum.Enum("CREATE_GAME_ERROR", sc_pb.ResponseCreateGame.Error.items())
 PLAYER_TYPE = enum.Enum("PLAYER_TYPE", sc_pb.PlayerType.items())

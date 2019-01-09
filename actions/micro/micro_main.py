@@ -1,4 +1,5 @@
 """Everything related to controlling army units goes here"""
+from sc2 import RACE
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -7,11 +8,11 @@ from sc2.constants import (
     EGG,
     EVOLVEGROOVEDSPINES,
     EVOLVEMUSCULARAUGMENTS,
+    HYDRALISK,
     INFESTEDTERRAN,
     INFESTEDTERRANSEGG,
     LARVA,
     MUTALISK,
-    HYDRALISK,
     PHOTONCANNON,
     PLANETARYFORTRESS,
     QUEEN,
@@ -19,11 +20,10 @@ from sc2.constants import (
     ZERGLING,
     ZERGLINGATTACKSPEED,
 )
-from sc2 import RACE
+from actions.micro.army_value_tables import EnemyArmyValue
 from actions.micro.micro_helpers import Micro
 from actions.micro.unit.hydralisks import HydraControl
 from actions.micro.unit.zerglings import ZerglingControl
-from actions.micro.army_value_tables import EnemyArmyValue
 
 
 class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
@@ -33,7 +33,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         self.controller = main
         self.retreat_units = set()
         self.baneling_sacrifices = {}
-        self.rally_point = self.action = self.unit_position = self.attack_command = None
+        self.rally_point = self.action = self.unit_position = self.attack_command = self.bases = None
+        self.static_defence = None
         self.zergling_atk_speed = self.hydra_move_speed = self.hydra_atk_range = False
 
     async def should_handle(self):
@@ -53,57 +54,47 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         local_controller = self.controller
         self.action = local_controller.add_action
         enemy_building = local_controller.enemy_structures
-        map_center = local_controller.game_info.map_center
-        bases = local_controller.townhalls
+        self.bases = local_controller.townhalls
         close_targets = close_hydra_targets = None
         self.behavior_changing_upgrades_check()
-        if bases.ready:
-            self.rally_point = bases.ready.closest_to(map_center).position.towards(map_center, 10)
         targets, atk_force, hydra_targets = self.set_unit_groups()
         for attacking_unit in atk_force:
             if self.dodge_effects(attacking_unit):
+                continue
+            if self.disruptor_dodge(attacking_unit):
                 continue
             self.unit_position = attacking_unit.position
             self.attack_command = attacking_unit.attack
             if self.anti_proxy_trigger(attacking_unit):
                 if self.attack_enemy_proxy_units(targets, attacking_unit):
                     continue
-                else:
-                    self.action(attacking_unit.move(local_controller.spines.closest_to(attacking_unit)))
-                    continue
+                self.action(attacking_unit.move(local_controller.spines.closest_to(attacking_unit)))
+                continue
             if self.anti_terran_bm(attacking_unit):
                 continue
-            if attacking_unit.tag in self.retreat_units and bases:
+            if attacking_unit.tag in self.retreat_units and self.bases:
                 self.has_retreated(attacking_unit)
                 continue
-            if hydra_targets:
-                close_hydra_targets = hydra_targets.closer_than(20, self.unit_position)
-            if attacking_unit.type_id == HYDRALISK and close_hydra_targets:
-                if self.retreat_unit(attacking_unit, close_hydra_targets):
-                    continue
-                if self.micro_hydras(hydra_targets, attacking_unit):
-                    continue
-            if targets:
-                close_targets = targets.closer_than(20, self.unit_position)
-            if close_targets:
-                if self.retreat_unit(attacking_unit, close_targets):
-                    continue
-                if await self.handling_walls_and_attacking(attacking_unit, close_targets):
-                    continue
-            elif enemy_building.closer_than(30, self.unit_position):
+            if self.specific_hydra_behavior(hydra_targets, close_hydra_targets, attacking_unit):
+                continue
+            if await self.specific_zergling_behavior(targets, close_targets, attacking_unit):
+                continue
+            if enemy_building.closer_than(30, self.unit_position):
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 continue
-            elif local_controller.time < 1000 and not local_controller.close_enemies_to_base:
+            if local_controller.time < 1000 and not local_controller.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
                 continue
-            else:
-                if self.keep_attacking(attacking_unit, targets):
-                    continue
-                elif bases:
-                    self.move_to_rallying_point(attacking_unit)
+            if self.keep_attacking(attacking_unit, targets):
+                continue
+            self.move_to_rallying_point(attacking_unit)
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
+        local_controller = self.controller
+        map_center = local_controller.game_info.map_center
+        if self.bases.ready:
+            self.rally_point = self.bases.ready.closest_to(map_center).position.towards(map_center, 10)
         if unit.position.distance_to_point2(self.rally_point) > 5:
             self.controller.add_action(unit.move(self.rally_point))
 
@@ -115,6 +106,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def retreat_unit(self, unit, target):
         """Tell the unit to retreat when overwhelmed"""
         local_controller = self.controller
+        if local_controller.townhalls.closer_than(10, unit):
+            return False
         if local_controller.enemy_race == RACE.Zerg:
             enemy_value = self.enemy_value_zerg(unit, target)
         elif local_controller.enemy_race == RACE.Terran:
@@ -125,7 +118,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             local_controller.townhalls
             and not local_controller.close_enemies_to_base
             and not local_controller.structures.closer_than(7, self.unit_position)
-            and enemy_value >= self.battling_force_value(self.unit_position, 1, 3, 8)
+            and enemy_value >= self.battling_force_value(self.unit_position, 1, 5, 13)
         ):
             self.move_to_rallying_point(unit)
             self.retreat_units.add(unit.tag)
@@ -137,7 +130,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         local_controller = self.controller
         if (
             local_controller.supply_used not in range(198, 201)
-            and self.gathering_force_value(1, 2, 4) < 41
+            and self.gathering_force_value(1, 2, 4) < 39 + 1.25 * local_controller.time // 100
             and local_controller.townhalls
             and self.retreat_units
             and not local_controller.counter_attack_vs_flying
@@ -155,7 +148,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def attack_closest_building(self, unit):
         """Attack the starting location"""
         local_controller = self.controller
-        enemy_building = local_controller.enemy_structures.not_flying
+        enemy_building = local_controller.enemy_structures.not_flying.exclude_type(self.static_defence)
         if enemy_building:
             local_controller.add_action(
                 unit.attack(enemy_building.closest_to(local_controller.furthest_townhall_to_map_center))
@@ -194,19 +187,13 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         enemy_units = local_controller.enemies
         enemy_building = local_controller.enemy_structures
         if enemy_units:
-            excluded_units = {
-                ADEPTPHASESHIFT,
-                DISRUPTORPHASED,
-                EGG,
-                LARVA,
-                INFESTEDTERRANSEGG,
-                INFESTEDTERRAN,
-                AUTOTURRET,
-            }
+            excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN}
             filtered_enemies = enemy_units.not_structure.exclude_type(excluded_units)
-            static_defence = enemy_building.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
-            targets = static_defence | filtered_enemies.not_flying
-            hydra_targets = static_defence | filtered_enemies
+            self.static_defence = enemy_building.of_type(
+                {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS, AUTOTURRET}
+            )
+            targets = self.static_defence | filtered_enemies.not_flying
+            hydra_targets = self.static_defence | filtered_enemies
         atk_force = (
             local_controller.zerglings
             | local_controller.ultralisks
@@ -251,6 +238,30 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
                 return True
             self.attack_startlocation(unit)
             return True
+        return False
+
+    def specific_hydra_behavior(self, hydra_targets, close_hydra_targets, unit):
+        """Group everything related to hydras behavior on attack"""
+        if hydra_targets:
+            close_hydra_targets = hydra_targets.closer_than(20, self.unit_position)
+        if unit.type_id == HYDRALISK and close_hydra_targets:
+            if self.retreat_unit(unit, close_hydra_targets):
+                return True
+            if self.micro_hydras(hydra_targets, unit):
+                return True
+            return False
+        return False
+
+    async def specific_zergling_behavior(self, targets, close_targets, unit):
+        """Group everything related to zergling behavior on attack"""
+        if targets:
+            close_targets = targets.closer_than(20, self.unit_position)
+        if close_targets:
+            if self.retreat_unit(unit, close_targets):
+                return True
+            if await self.handling_walls_and_attacking(unit, close_targets):
+                return True
+            return False
         return False
 
     def behavior_changing_upgrades_check(self):
