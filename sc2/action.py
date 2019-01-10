@@ -17,14 +17,14 @@ def combine_actions(action_iter):
         elif isinstance(target, Point2):
             cmd = raw_pb.ActionRawUnitCommand(
                 ability_id=ability.value,
-                unit_tags=[u.unit.tag for u in items],
+                unit_tags=list({u.unit.tag for u in items}),
                 queue_command=queue,
                 target_world_space_pos=common_pb.Point2D(x=target.x, y=target.y),
             )
         elif isinstance(target, Unit):
             cmd = raw_pb.ActionRawUnitCommand(
                 ability_id=ability.value,
-                unit_tags=[u.unit.tag for u in items],
+                unit_tags=list({u.unit.tag for u in items}),
                 queue_command=queue,
                 target_unit_tag=target.tag,
             )

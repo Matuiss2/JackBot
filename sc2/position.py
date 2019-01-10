@@ -124,9 +124,7 @@ class Pointlike(tuple):
         """Not sure what it does"""
         return self.__class__(_sign(b - a) for a, b in itertools.zip_longest(self, point[: len(self)], fillvalue=0))
 
-    def towards(
-        self, point, distance: Union[int, float] = 1, limit: bool = False
-    ) -> "Pointlike":
+    def towards(self, point, distance: Union[int, float] = 1, limit: bool = False) -> "Pointlike":
         """Returns a point defined by the second parameter between the argument and the first parameter point"""
         point = point.position
         if self == point:

@@ -3,7 +3,7 @@ import logging
 import math
 import random
 from typing import List, Optional, Union
-from .cache import property_cache_forever
+from .cache import property_cache_forever, property_cache_once_per_frame
 from .data import ACTION_RESULT, RACE, RESULT, TARGET, race_gas, race_townhalls, race_worker
 from .ids.ability_id import AbilityId
 from .ids.unit_typeid import UnitTypeId
@@ -66,14 +66,14 @@ class BotAI:
         """Possible start locations for enemies."""
         return self._game_info.start_locations
 
-    @property
+    @property_cache_once_per_frame
     def known_enemy_units(self) -> Units:
         """List of known enemy units, including structures."""
         if not self.cached_known_enemy_units:
             self.cached_known_enemy_units = self.state.enemy_units
         return self.cached_known_enemy_units
 
-    @property
+    @property_cache_once_per_frame
     def known_enemy_structures(self) -> Units:
         """List of known enemy units, structures only."""
         if not self.cached_known_enemy_structures:
@@ -94,9 +94,8 @@ class BotAI:
     @property_cache_forever
     def expansion_locations(self):
         """List of possible expansion locations."""
-        minerals = self.state.mineral_field
         geysers = self.state.vespene_geyser
-        all_resources = minerals | geysers
+        all_resources = self.state.resources
         resource_groups = []
         for mineral_patches in all_resources:
             mf_height = self.get_terrain_height(mineral_patches.position)
