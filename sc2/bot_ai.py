@@ -69,16 +69,12 @@ class BotAI:
     @property_cache_once_per_frame
     def known_enemy_units(self) -> Units:
         """List of known enemy units, including structures."""
-        if not self.cached_known_enemy_units:
-            self.cached_known_enemy_units = self.state.enemy_units
-        return self.cached_known_enemy_units
+        return self.state.enemy_units
 
     @property_cache_once_per_frame
     def known_enemy_structures(self) -> Units:
         """List of known enemy units, structures only."""
-        if not self.cached_known_enemy_structures:
-            self.cached_known_enemy_structures = self.state.enemy_units.structure
-        return self.cached_known_enemy_structures
+        return self.state.enemy_units.structure
 
     @property
     def main_base_ramp(self):
