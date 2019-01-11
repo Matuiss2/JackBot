@@ -41,24 +41,6 @@ def property_cache_forever(file):
     return property(inner)
 
 
-def method_cache_once_per_frame(f):
-    """ Untested but should work for functions with arguments
-        Only works on properties of the bot object because it requires access to self.state.game_loop """
-    f.frame = -1
-    f.cache = {}
-
-    @wraps(f)
-    def inner(self, *args):
-        if f.frame != self.state.game_loop:
-            f.frame = self.state.game_loop
-            f.cache = {}
-        if args not in f.cache:
-            f.cache[args] = f(self, *args)
-        return f.cache[args]
-
-    return inner
-
-
 def property_cache_once_per_frame(f):
     """ This decorator caches the return value for one game loop,
      then clears it if it is accessed in a different game loop
