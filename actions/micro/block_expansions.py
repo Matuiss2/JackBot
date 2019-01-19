@@ -26,7 +26,7 @@ class BlockExpansions:
          sometimes it just get stuck, also no need to send it to the enemy main"""
         local_controller = self.controller
         local_controller.burrowed_lings = [
-            unit.tag for unit in self.zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:3]
+            unit.tag for unit in self.zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:4]
         ]
         for list_index, zergling in enumerate(self.zerglings.tags_in(local_controller.burrowed_lings)):
             location = local_controller.ordered_expansions[:-2][-list_index - 1]
