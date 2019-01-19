@@ -1,6 +1,6 @@
 """Everything related to building positioning goes here"""
 from sc2.constants import EVOLUTIONCHAMBER, ENGINEERINGBAY
-from sc2.data import ACTION_RESULT
+from sc2.data import ActionResult
 from sc2.position import Point2
 
 
@@ -25,14 +25,14 @@ class BuildingPositioning:
                 )
                 if abs(point.distance_to(mineral_field.closer_than(10, center).closest_to(point)) - 3) < 0.5
             ]
-            e_bay_ability = self.game_data.units[ENGINEERINGBAY.value].creation_ability
-            e_bay_mask = await self.client.query_building_placement(e_bay_ability, viable_points)
-            evo_ability = self.game_data.units[EVOLUTIONCHAMBER.value].creation_ability
-            evo_mask = await self.client.query_building_placement(evo_ability, viable_points)
+            e_bay_ability = self._game_data.units[ENGINEERINGBAY.value].creation_ability
+            e_bay_mask = await self._client.query_building_placement(e_bay_ability, viable_points)
+            evo_ability = self._game_data.units[EVOLUTIONCHAMBER.value].creation_ability
+            evo_mask = await self._client.query_building_placement(evo_ability, viable_points)
             viable_points = [
                 point
                 for i, point in enumerate(viable_points)
-                if e_bay_mask[i] == ACTION_RESULT.Success and evo_mask[i] == ACTION_RESULT.Success
+                if e_bay_mask[i] == ActionResult.Success and evo_mask[i] == ActionResult.Success
             ]
 
             for point in viable_points:

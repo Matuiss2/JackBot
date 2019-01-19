@@ -1,5 +1,5 @@
 """Everything related to controlling army units goes here"""
-from sc2 import RACE
+from sc2 import Race
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -108,9 +108,9 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         local_controller = self.controller
         if local_controller.townhalls.closer_than(10, unit):
             return False
-        if local_controller.enemy_race == RACE.Zerg:
+        if local_controller.enemy_race == Race.Zerg:
             enemy_value = self.enemy_value_zerg(unit, target)
-        elif local_controller.enemy_race == RACE.Terran:
+        elif local_controller.enemy_race == Race.Terran:
             enemy_value = self.enemy_value_terran(unit, target)
         else:
             enemy_value = self.enemy_value_protoss(unit, target)
@@ -217,7 +217,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         """It micros normally if no wall, if there is one attack it"""
         local_controller = self.controller
         closest_target = target.closest_to
-        if await local_controller.client.query_pathing(unit, closest_target(unit).position):
+        if await local_controller._client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(unit, target)
             self.action(self.attack_command(closest_target(self.unit_position)))

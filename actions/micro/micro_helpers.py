@@ -33,11 +33,11 @@ class Micro:
         for effect in local_controller.state.effects:
             if effect.id in excluded_effects:
                 continue
-            danger_zone = local_controller.game_data.effects[effect.id].radius + unit.radius + 0.1
+            danger_zone = unit.radius + 0.2
             if not unit.position.distance_to_point2(unit.position.closest(effect.positions)) < danger_zone:
                 continue
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
-            local_controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -1 * danger_zone)))
+            local_controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
         return False
 

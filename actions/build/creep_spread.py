@@ -1,7 +1,7 @@
 """Everything related to creep spreading goes here"""
 import math
 from sc2.constants import BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, ZERGBUILD_CREEPTUMOR
-from sc2.data import ACTION_RESULT
+from sc2.data import ActionResult
 from sc2.position import Point2
 
 
@@ -44,11 +44,11 @@ class CreepControl:
             for alpha in range(location_attempts)
         ]
         # check if any of the positions are valid
-        valid_placements = await self.client.query_building_placement(
-            self.game_data.abilities[ZERGBUILD_CREEPTUMOR.value], positions
+        valid_placements = await self._client.query_building_placement(
+            self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value], positions
         )
         # filter valid results
-        valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ACTION_RESULT.Success]
+        valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ActionResult.Success]
         creep_destination = self.enemy_start_locations[0]
         if valid_placements:
             tumors = self.tumors

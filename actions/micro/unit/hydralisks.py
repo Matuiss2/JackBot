@@ -1,6 +1,6 @@
 """Everything related to controlling hydralisks"""
 import math
-from sc2.constants import DUTCHMARAUDERSLOW, FUNGALGROWTH
+from sc2.constants import FUNGALGROWTH, SLOW
 from actions.micro.micro_helpers import Micro
 
 
@@ -43,7 +43,7 @@ class HydraControl(Micro):
         if self.controller.has_creep(unit):
             our_movespeed *= 1.30
         # If we've been hit with Marauder's Concussive Shells, our movespeed is half.
-        if unit.has_buff(DUTCHMARAUDERSLOW):
+        if unit.has_buff(SLOW):
             our_movespeed *= 0.5
         if unit.has_buff(FUNGALGROWTH):
             our_movespeed *= 0.25
