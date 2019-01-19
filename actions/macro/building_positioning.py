@@ -1,6 +1,6 @@
 """Everything related to building positioning goes here"""
 from sc2.constants import EVOLUTIONCHAMBER, ENGINEERINGBAY
-from sc2.data import ACTION_RESULT
+from sc2.data import ActionResult
 from sc2.position import Point2
 
 
@@ -32,7 +32,7 @@ class BuildingPositioning:
             viable_points = [
                 point
                 for i, point in enumerate(viable_points)
-                if e_bay_mask[i] == ACTION_RESULT.Success and evo_mask[i] == ACTION_RESULT.Success
+                if e_bay_mask[i] == ActionResult.Success and evo_mask[i] == ActionResult.Success
             ]
 
             for point in viable_points:

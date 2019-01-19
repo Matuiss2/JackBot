@@ -1,5 +1,5 @@
 """Everything related to controlling army units goes here"""
-from sc2 import RACE
+from sc2 import Race
 from sc2.constants import (
     ADEPTPHASESHIFT,
     AUTOTURRET,
@@ -108,9 +108,9 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         local_controller = self.controller
         if local_controller.townhalls.closer_than(10, unit):
             return False
-        if local_controller.enemy_race == RACE.Zerg:
+        if local_controller.enemy_race == Race.Zerg:
             enemy_value = self.enemy_value_zerg(unit, target)
-        elif local_controller.enemy_race == RACE.Terran:
+        elif local_controller.enemy_race == Race.Terran:
             enemy_value = self.enemy_value_terran(unit, target)
         else:
             enemy_value = self.enemy_value_protoss(unit, target)
