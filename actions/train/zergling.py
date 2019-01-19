@@ -26,8 +26,6 @@ class TrainZergling(BuildHive):
         ):
             return False
         zergling_quantity = len(zerglings)
-        if cavern.ready and len(local_controller.ultralisks) * 8.5 <= zergling_quantity:
-            return False
         if local_controller.hydradens.ready and len(local_controller.hydras) * 3 <= zergling_quantity:
             return False
         if local_controller.floating_buildings_bm:
