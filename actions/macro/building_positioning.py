@@ -25,10 +25,10 @@ class BuildingPositioning:
                 )
                 if abs(point.distance_to(mineral_field.closer_than(10, center).closest_to(point)) - 3) < 0.5
             ]
-            e_bay_ability = self.game_data.units[ENGINEERINGBAY.value].creation_ability
-            e_bay_mask = await self.client.query_building_placement(e_bay_ability, viable_points)
-            evo_ability = self.game_data.units[EVOLUTIONCHAMBER.value].creation_ability
-            evo_mask = await self.client.query_building_placement(evo_ability, viable_points)
+            e_bay_ability = self._game_data.units[ENGINEERINGBAY.value].creation_ability
+            e_bay_mask = await self._client.query_building_placement(e_bay_ability, viable_points)
+            evo_ability = self._game_data.units[EVOLUTIONCHAMBER.value].creation_ability
+            evo_mask = await self._client.query_building_placement(evo_ability, viable_points)
             viable_points = [
                 point
                 for i, point in enumerate(viable_points)

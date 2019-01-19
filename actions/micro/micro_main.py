@@ -217,7 +217,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         """It micros normally if no wall, if there is one attack it"""
         local_controller = self.controller
         closest_target = target.closest_to
-        if await local_controller.client.query_pathing(unit, closest_target(unit).position):
+        if await local_controller._client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(unit, target)
             self.action(self.attack_command(closest_target(self.unit_position)))
