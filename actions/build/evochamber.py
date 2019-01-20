@@ -19,6 +19,7 @@ class BuildEvochamber:
             )
             and len(local_controller.evochambers) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
             and not local_controller.ground_enemies.closer_than(20, self.hardcoded_position())
+            and local_controller.drones
         )
 
     async def handle(self):
@@ -26,11 +27,13 @@ class BuildEvochamber:
         local_controller = self.controller
         position = await local_controller.get_production_position()
         if position:
-            await local_controller.build(EVOLUTIONCHAMBER, position)
-            return True
-        if local_controller.townhalls:
-            await local_controller.build(EVOLUTIONCHAMBER, self.hardcoded_position())
-            return True
+            print("position found evo")
+        if not position and local_controller.townhalls:
+            print("position not found evo")
+            position = self.hardcoded_position()
+        selected_drone = local_controller.select_build_worker(position)
+        self.controller.add_action(selected_drone.build(EVOLUTIONCHAMBER, position))
+        return True
 
     def hardcoded_position(self):
         """Previous placement"""

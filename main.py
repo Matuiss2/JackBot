@@ -120,9 +120,9 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         else:
             self._client.game_step = 8
 
-    async def on_unit_created(self, unit):
+    async def on_building_construction_complete(self, unit):
         """Prepares all the building locations near a new expansion"""
-        if unit.type_id is HATCHERY:
+        if unit.type_id == HATCHERY:
             await self.prepare_building_positions(unit)
 
     async def on_step(self, iteration):

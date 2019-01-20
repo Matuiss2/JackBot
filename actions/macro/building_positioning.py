@@ -13,7 +13,6 @@ class BuildingPositioning:
         if mineral_field:
             close_points = range(-11, 12)
             center_position = center.position
-            add_positions = self.building_positions.append
             # No point in separating it on variables, I united everything, it gets points that are behind minerals
             viable_points = [
                 point
@@ -27,13 +26,7 @@ class BuildingPositioning:
             ]
             e_bay_ability = self._game_data.units[ENGINEERINGBAY.value].creation_ability
             e_bay_mask = await self._client.query_building_placement(e_bay_ability, viable_points)
-            evo_ability = self._game_data.units[EVOLUTIONCHAMBER.value].creation_ability
-            evo_mask = await self._client.query_building_placement(evo_ability, viable_points)
-            viable_points = [
-                point
-                for i, point in enumerate(viable_points)
-                if e_bay_mask[i] == ActionResult.Success and evo_mask[i] == ActionResult.Success
-            ]
+            viable_points = [point for i, point in enumerate(viable_points) if e_bay_mask[i] == ActionResult.Success]
 
             for point in viable_points:
                 if self.building_positions:
@@ -41,9 +34,9 @@ class BuildingPositioning:
                         abs(already_found.x - point.x) >= 3 or abs(already_found.y - point.y) >= 3
                         for already_found in self.building_positions
                     ):
-                        add_positions(point)
+                        self.building_positions.append(point)
                 else:
-                    add_positions(point)
+                    self.building_positions.append(point)
 
     async def get_production_position(self):
         """Find the safest position looping through all possible ones"""
