@@ -26,8 +26,13 @@ class BuildingPositioning:
             ]
             e_bay_ability = self._game_data.units[ENGINEERINGBAY.value].creation_ability
             e_bay_mask = await self._client.query_building_placement(e_bay_ability, viable_points)
-            viable_points = [point for i, point in enumerate(viable_points) if e_bay_mask[i] == ActionResult.Success]
-
+            evo_ability = self._game_data.units[EVOLUTIONCHAMBER.value].creation_ability
+            evo_mask = await self._client.query_building_placement(evo_ability, viable_points)
+            viable_points = [
+                point
+                for i, point in enumerate(viable_points)
+                if e_bay_mask[i] == ActionResult.Success or evo_mask[i] == ActionResult.Success
+            ]
             for point in viable_points:
                 if self.building_positions:
                     if all(
@@ -40,8 +45,8 @@ class BuildingPositioning:
 
     async def get_production_position(self):
         """Find the safest position looping through all possible ones"""
-        if self.building_positions:
-            for building_position in self.building_positions:
-                if await self.can_place(EVOLUTIONCHAMBER, building_position):
-                    return building_position
+
+        for building_position in self.building_positions:
+            if await self.can_place(EVOLUTIONCHAMBER, building_position):
+                return building_position
         return None

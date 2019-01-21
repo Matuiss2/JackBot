@@ -134,6 +134,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         self.add_action = self.actions.append
         if not iteration:
             self.locations = list(self.expansion_locations.keys())
+            await self.prepare_building_positions(self.townhalls.first)
             self.prepare_expansions()
             self.split_workers()
         await self.run_commands(self.unit_commands)
