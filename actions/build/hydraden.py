@@ -27,8 +27,9 @@ class BuildHydraden:
         """Build it behind the mineral line if there is space, if not places it near a pool"""
         local_controller = self.controller
         position = await local_controller.get_production_position()
-        if position:
-            await local_controller.build(HYDRALISKDEN, position)
-            return True
-        await local_controller.build(HYDRALISKDEN, near=self.selected_pools.first)
+        if not position:
+            print("wanted position not found for hydraden")
+            return False
+        selected_drone = local_controller.select_build_worker(position)
+        self.controller.add_action(selected_drone.build(HYDRALISKDEN, position))
         return True
