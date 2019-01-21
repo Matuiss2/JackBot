@@ -11,25 +11,15 @@ class BuildCavern:
     async def should_handle(self):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
         local_controller = self.controller
-
-        return local_controller.can_build_unique(
-            ULTRALISKCAVERN, local_controller.caverns, local_controller.hives
-        ) and not local_controller.ground_enemies.closer_than(20, self.hardcoded_position())
+        return local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns, local_controller.hives)
 
     async def handle(self):
-        """Build it behind the mineral line if there is space, if not build between the main and natural"""
+        """Build it behind the mineral line if there is space"""
         local_controller = self.controller
         position = await local_controller.get_production_position()
-        if position:
-            await local_controller.build(ULTRALISKCAVERN, position)
-            return True
-        if local_controller.furthest_townhall_to_map_center:
-            await local_controller.build(ULTRALISKCAVERN, near=self.hardcoded_position())
-            return True
-
-    def hardcoded_position(self):
-        """Previous placement"""
-        local_controller = self.controller
-        return local_controller.furthest_townhall_to_map_center.position.towards(
-            local_controller.main_base_ramp.depot_in_middle, 6
-        )
+        if not position:
+            print("wanted position unavailable for cavern")
+            return False
+        selected_drone = local_controller.select_build_worker(position)
+        local_controller.add_action(selected_drone.build(ULTRALISKCAVERN, position))
+        return True

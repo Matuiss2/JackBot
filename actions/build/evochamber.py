@@ -22,11 +22,11 @@ class BuildEvochamber:
         )
 
     async def handle(self):
-        """Build it behind the mineral line if there is space, if not uses later placement"""
+        """Build it behind the mineral line if there is space"""
         local_controller = self.controller
         position = await local_controller.get_production_position()
         if not position and local_controller.townhalls:
-            print("wanted position not found for evo")
+            print("wanted position unavailable for evo")
             return False
         selected_drone = local_controller.select_build_worker(position)
         local_controller.add_action(selected_drone.build(EVOLUTIONCHAMBER, position))

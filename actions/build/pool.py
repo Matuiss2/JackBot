@@ -18,16 +18,12 @@ class BuildPool:
         )
 
     async def handle(self):
-        """Build it behind the mineral line if there is space, if not uses later placement"""
+        """Build it behind the mineral line if there is space"""
         local_controller = self.controller
-        position = self.hardcoded_position()
+        position = await local_controller.get_production_position()
+        if not position:
+            print("wanted position unavailable for pool")
+            return False
         selected_drone = local_controller.select_build_worker(position)
-        self.controller.add_action(selected_drone.build(SPAWNINGPOOL, position))
+        local_controller.add_action(selected_drone.build(SPAWNINGPOOL, position))
         return True
-
-    def hardcoded_position(self):
-        """Previous placement"""
-        local_controller = self.controller
-        return local_controller.furthest_townhall_to_map_center.position.towards_with_random_angle(
-            local_controller.game_info.map_center, -10
-        )
