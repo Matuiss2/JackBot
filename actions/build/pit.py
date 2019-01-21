@@ -13,7 +13,6 @@ class BuildPit:
         local_controller = self.controller
         return (
             len(local_controller.townhalls) > 4
-            and local_controller.time > 600
             and local_controller.can_build_unique(INFESTATIONPIT, local_controller.pits)
         )
 

@@ -50,6 +50,5 @@ class UpgradeEvochamber:
                 for upgrade in await local_controller.get_available_abilities(evo):
                     if upgrade in self.upgrade_list and local_controller.can_afford(upgrade):
                         action(evo(upgrade))
-                        self.upgrade_list.remove(upgrade)
                         return True
         return True
