@@ -18,7 +18,6 @@ class BuildEvochamber:
                 or (local_controller.close_enemy_production and len(local_controller.spines.ready) >= 4)
             )
             and len(local_controller.evochambers) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
-            and local_controller.drones
         )
 
     async def handle(self):
