@@ -31,5 +31,5 @@ class BuildHydraden:
             print("wanted position not found for hydraden")
             return False
         selected_drone = local_controller.select_build_worker(position)
-        self.controller.add_action(selected_drone.build(HYDRALISKDEN, position))
+        local_controller.add_action(selected_drone.build(HYDRALISKDEN, position))
         return True

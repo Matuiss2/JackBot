@@ -29,5 +29,5 @@ class BuildEvochamber:
             print("wanted position not found for evo")
             return False
         selected_drone = local_controller.select_build_worker(position)
-        self.controller.add_action(selected_drone.build(EVOLUTIONCHAMBER, position))
+        local_controller.add_action(selected_drone.build(EVOLUTIONCHAMBER, position))
         return True
