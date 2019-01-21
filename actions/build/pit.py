@@ -18,12 +18,8 @@ class BuildPit:
         )
 
     async def handle(self):
-        """Build it behind the mineral line if there is space"""
-        local_controller = self.controller
-        position = await local_controller.get_production_position()
-        if not position:
-            print("wanted position unavailable for pit")
+        """Build the pit"""
+        build = await self.controller.place_building(INFESTATIONPIT)
+        if not build:
             return False
-        selected_drone = local_controller.select_build_worker(position)
-        local_controller.add_action(selected_drone.build(INFESTATIONPIT, position))
         return True
