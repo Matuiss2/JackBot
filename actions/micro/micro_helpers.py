@@ -162,3 +162,4 @@ class Micro:
                 retreat_point = self.find_retreat_point(ball, unit)
                 local_controller.add_action(unit.move(retreat_point))
                 return True
+        return None
