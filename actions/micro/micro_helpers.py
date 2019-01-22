@@ -18,6 +18,7 @@ def filter_in_attack_range_of(unit, targets):
 
 class Micro:
     """Group all helpers, for unit control and targeting here"""
+
     # TODO - fix
     '''def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""

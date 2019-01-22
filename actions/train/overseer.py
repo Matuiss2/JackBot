@@ -14,7 +14,7 @@ class TrainOverseer:
         return (
             (local_controller.lairs or local_controller.hives)
             and local_controller.overlords
-            and not await self.morphing_overlords()
+            and not local_controller.already_pending(OVERSEER, all_units=True)
             and local_controller.can_afford(OVERSEER)
             and len(local_controller.overseers) < len(local_controller.townhalls.ready)
         )
@@ -29,11 +29,3 @@ class TrainOverseer:
                 local_controller.actions.append(selected_ov(MORPH_OVERSEER))
         else:
             local_controller.actions.append(selected_ov(MORPH_OVERSEER))
-
-    async def morphing_overlords(self):
-        """Check if there is a overlord morphing looping through all cocoons"""
-        local_controller = self.controller
-        for egg in local_controller.units(OVERLORDCOCOON):
-            if await local_controller.is_morphing(egg, CANCEL_MORPHOVERSEER):
-                return True
-        return False

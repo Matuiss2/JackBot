@@ -19,7 +19,7 @@ if __name__ == "__main__":
         RANDOM_MAP = random.choice(
             ["AcidPlantLE", "BlueshiftLE", "CeruleanFallLE", "DreamcatcherLE", "FractureLE", "LostAndFoundLE"]
         )
-        # 797 - 203 / 
+        # 797 - 203 /
         sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Protoss, Difficulty.CheatVision)], realtime=False)
         # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)
         # sc2.run_game(sc2.maps.get("drone_scout_defense"), [bot], realtime=True)

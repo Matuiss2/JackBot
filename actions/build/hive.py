@@ -16,7 +16,7 @@ class BuildHive:
         return (
             self.selected_lairs
             and local_controller.can_build_unique(HIVE, local_controller.caverns, local_controller.pits.ready)
-            and not await self.morphing_lairs()
+            and not local_controller.already_pending(HIVE, all_units=True)
         )
 
     async def handle(self):
@@ -25,10 +25,4 @@ class BuildHive:
         local_controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
         return True
 
-    async def morphing_lairs(self):
-        """Check if there is a lair morphing looping all hatcheries"""
-        local_controller = self.controller
-        for hatch in local_controller.lairs:
-            if await local_controller.is_morphing(hatch, CANCEL_MORPHHIVE):
-                return True
-        return False
+

@@ -196,7 +196,3 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         """Split the workers on the beginning """
         for drone in self.drones:
             self.add_action(drone.gather(self.state.mineral_field.closest_to(drone)))
-
-    async def is_morphing(self, base, cancel):
-        """Check if there is a lair morphing by checking the available abilities"""
-        return cancel in await self.get_available_abilities(base)

@@ -1,14 +1,12 @@
 """Everything related to training zergling goes here"""
-from sc2.constants import ZERGLING, ZERGLINGMOVEMENTSPEED
-from actions.build.hive import BuildHive
+from sc2.constants import HIVE, ZERGLING, ZERGLINGMOVEMENTSPEED
 
 
-class TrainZergling(BuildHive):
+class TrainZergling:
     """Ok for now"""
 
     def __init__(self, main):
         self.controller = main
-        BuildHive.__init__(self, self.controller)
 
     async def should_handle(self):
         """good enough for now, maybe ratio values can be improved"""
@@ -18,7 +16,11 @@ class TrainZergling(BuildHive):
             not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150
         ) and not local_controller.close_enemy_production:
             return False
-        if local_controller.pits.ready and not local_controller.hives and not await BuildHive.morphing_lairs(self):
+        if (
+            local_controller.pits.ready
+            and not local_controller.hives
+            and not local_controller.already_pending(HIVE, all_units=True)
+        ):
             return False
         cavern = local_controller.caverns
         if not local_controller.can_train(ZERGLING, local_controller.pools.ready) or (
