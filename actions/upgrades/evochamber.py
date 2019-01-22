@@ -45,10 +45,9 @@ class UpgradeEvochamber:
         if local_controller.hydradens and not self.upgrades_added:
             self.upgrades_added = True
             self.upgrade_list.extend(self.ranged_upgrades)
-        if self.upgrade_list:
-            for evo in self.selected_evos:
-                for upgrade in await local_controller.get_available_abilities(evo):
-                    if upgrade in self.upgrade_list and local_controller.can_afford(upgrade):
-                        action(evo(upgrade))
-                        return True
+        for evo in self.selected_evos:
+            for upgrade in await local_controller.get_available_abilities(evo):
+                if upgrade in self.upgrade_list and local_controller.can_afford(upgrade):
+                    action(evo(upgrade))
+                    return True
         return True
