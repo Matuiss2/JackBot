@@ -55,7 +55,6 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         self.action = local_controller.add_action
         enemy_building = local_controller.enemy_structures
         self.bases = local_controller.townhalls
-        close_targets = close_hydra_targets = None
         self.behavior_changing_upgrades_check()
         targets, atk_force, hydra_targets = self.set_unit_groups()
         for attacking_unit in atk_force:
@@ -75,9 +74,9 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if attacking_unit.tag in self.retreat_units and self.bases:
                 self.has_retreated(attacking_unit)
                 continue
-            if self.specific_hydra_behavior(hydra_targets, close_hydra_targets, attacking_unit):
+            if self.specific_hydra_behavior(hydra_targets, attacking_unit):
                 continue
-            if await self.specific_zergling_behavior(targets, close_targets, attacking_unit):
+            if await self.specific_zergling_behavior(targets, attacking_unit):
                 continue
             if enemy_building.closer_than(30, self.unit_position):
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
@@ -240,8 +239,9 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             return True
         return False
 
-    def specific_hydra_behavior(self, hydra_targets, close_hydra_targets, unit):
+    def specific_hydra_behavior(self, hydra_targets, unit):
         """Group everything related to hydras behavior on attack"""
+        close_hydra_targets = None
         if hydra_targets:
             close_hydra_targets = hydra_targets.closer_than(20, self.unit_position)
         if unit.type_id == HYDRALISK and close_hydra_targets:
@@ -252,8 +252,9 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             return False
         return False
 
-    async def specific_zergling_behavior(self, targets, close_targets, unit):
+    async def specific_zergling_behavior(self, targets, unit):
         """Group everything related to zergling behavior on attack"""
+        close_targets = None
         if targets:
             close_targets = targets.closer_than(20, self.unit_position)
         if close_targets:

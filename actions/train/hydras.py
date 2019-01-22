@@ -22,7 +22,7 @@ class TrainHydralisk(BuildHive):
         if local_controller.pits.ready and not local_controller.hives and not await BuildHive.morphing_lairs(self):
             return False
         if cavern.ready:
-            return len(local_controller.ultralisks) * 2.75 > len(local_controller.hydras)
+            return len(local_controller.ultralisks) * 3.5 > len(local_controller.hydras)
         return not local_controller.floating_buildings_bm
 
     async def handle(self):

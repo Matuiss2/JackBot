@@ -16,7 +16,7 @@ class BlockExpansions:
         return (
             self.zerglings
             and not local_controller.burrowed_lings
-            and len(self.zerglings) >= 5
+            and len(self.zerglings) >= 4
             and local_controller.already_pending_upgrade(BURROW) == 1
         )
 
@@ -26,9 +26,9 @@ class BlockExpansions:
          sometimes it just get stuck, also no need to send it to the enemy main"""
         local_controller = self.controller
         local_controller.burrowed_lings = [
-            unit.tag for unit in self.zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:5]
+            unit.tag for unit in self.zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:4]
         ]
         for list_index, zergling in enumerate(self.zerglings.tags_in(local_controller.burrowed_lings)):
-            location = local_controller.ordered_expansions[:-1][-list_index - 1]
+            location = local_controller.ordered_expansions[:-2][-list_index - 1]
             local_controller.add_action(zergling.move(location))
             local_controller.add_action(zergling(BURROWDOWN_ZERGLING, queue=True))

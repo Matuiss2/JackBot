@@ -23,14 +23,11 @@ class BuildExpansion:
             and (not local_controller.close_enemy_production or game_time > 690)
         ):
             if not local_controller.already_pending(HATCHERY):
-                if not (
-                    local_controller.enemy_structures.closer_than(50, local_controller.start_location)
-                    and game_time < 300
-                ):
-                    if base_amount <= 5:
-                        return len(local_controller.zerglings) > 19 or game_time >= 285 if base_amount == 2 else True
-                    return local_controller.caverns
-                return False
+                if local_controller.minerals >= 1000:
+                    return True
+                if base_amount <= 5:
+                    return len(local_controller.zerglings) > 19 or game_time >= 285 if base_amount == 2 else True
+                return local_controller.caverns
             return False
         return False
 

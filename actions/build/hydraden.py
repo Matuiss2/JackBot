@@ -24,11 +24,8 @@ class BuildHydraden:
         )
 
     async def handle(self):
-        """Build it behind the mineral line if there is space, if not places it near a pool"""
-        local_controller = self.controller
-        position = await local_controller.get_production_position()
-        if position:
-            await local_controller.build(HYDRALISKDEN, position)
-            return True
-        await local_controller.build(HYDRALISKDEN, near=self.selected_pools.first)
+        """Build the hydraden"""
+        build = await self.controller.place_building(HYDRALISKDEN)
+        if not build:
+            return False
         return True

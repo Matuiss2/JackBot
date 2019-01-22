@@ -120,9 +120,9 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         else:
             self._client.game_step = 8
 
-    async def on_unit_created(self, unit):
+    async def on_building_construction_complete(self, unit):
         """Prepares all the building locations near a new expansion"""
-        if unit.type_id is HATCHERY:
+        if unit.type_id == HATCHERY:
             await self.prepare_building_positions(unit)
 
     async def on_step(self, iteration):
@@ -134,6 +134,7 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         self.add_action = self.actions.append
         if not iteration:
             self.locations = list(self.expansion_locations.keys())
+            await self.prepare_building_positions(self.townhalls.first)
             self.prepare_expansions()
             self.split_workers()
         await self.run_commands(self.unit_commands)
@@ -169,6 +170,16 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             and not building
             and self.building_requirement(unit_type, requirement)
         )
+
+    async def place_building(self, building):
+        """Build it behind the mineral line if there is space"""
+        position = await self.get_production_position()
+        if not position:
+            print("wanted position unavailable")
+            return None
+        selected_drone = self.select_build_worker(position)
+        if selected_drone:
+            self.add_action(selected_drone.build(building, position))
 
     def can_upgrade(self, upgrade, research, host_building):
         """Global requirements for upgrades"""

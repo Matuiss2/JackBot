@@ -33,7 +33,7 @@ class TrainOverseer:
     async def morphing_overlords(self):
         """Check if there is a overlord morphing looping through all cocoons"""
         local_controller = self.controller
-        for hatch in local_controller.units(OVERLORDCOCOON):
-            if await local_controller.is_morphing(hatch, CANCEL_MORPHOVERSEER):
+        for egg in local_controller.units(OVERLORDCOCOON):
+            if await local_controller.is_morphing(egg, CANCEL_MORPHOVERSEER):
                 return True
         return False
