@@ -11,8 +11,6 @@ class BuildCavern:
     async def should_handle(self):
         """Builds the ultralisk cavern, placement can maybe be improved(far from priority)"""
         local_controller = self.controller
-        if not local_controller.already_pending_upgrade(ZERGGROUNDARMORSLEVEL3):
-            return False
         return local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns, local_controller.hives)
 
     async def handle(self):
