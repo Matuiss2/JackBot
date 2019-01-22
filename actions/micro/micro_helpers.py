@@ -18,8 +18,8 @@ def filter_in_attack_range_of(unit, targets):
 
 class Micro:
     """Group all helpers, for unit control and targeting here"""
-
-    def dodge_effects(self, unit: Unit) -> bool:
+    # TODO - fix
+    '''def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
         local_controller = self.controller
         if not local_controller.state.effects or unit.type_id == ULTRALISK:
@@ -39,7 +39,7 @@ class Micro:
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
             local_controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
-        return False
+        return False'''
 
     def attack_close_target(self, unit, enemies):
         """It targets lowest hp units on its range, if there is any, attack the closest"""

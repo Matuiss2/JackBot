@@ -58,8 +58,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         self.behavior_changing_upgrades_check()
         targets, atk_force, hydra_targets = self.set_unit_groups()
         for attacking_unit in atk_force:
-            if self.dodge_effects(attacking_unit):
-                continue
+            '''if self.dodge_effects(attacking_unit):
+                continue'''
             if self.disruptor_dodge(attacking_unit):
                 continue
             self.unit_position = attacking_unit.position
