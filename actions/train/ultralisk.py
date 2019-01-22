@@ -1,5 +1,5 @@
 """Everything related to training ultralisks goes here"""
-from sc2.constants import ULTRALISK, ZERGGROUNDARMORSLEVEL3
+from sc2.constants import ULTRALISK
 
 
 class TrainUltralisk:

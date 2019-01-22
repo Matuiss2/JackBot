@@ -1,5 +1,5 @@
 """Everything related to building logic for the ultra cavern goes here"""
-from sc2.constants import ULTRALISKCAVERN, ZERGGROUNDARMORSLEVEL3
+from sc2.constants import ULTRALISKCAVERN
 
 
 class BuildCavern:
