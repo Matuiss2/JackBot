@@ -1,5 +1,5 @@
 """Everything related to building logic for the lairs goes here"""
-from sc2.constants import CANCEL_MORPHLAIR, LAIR, UPGRADETOLAIR_LAIR
+from sc2.constants import LAIR, UPGRADETOLAIR_LAIR
 
 
 class BuildLair:
@@ -30,4 +30,3 @@ class BuildLair:
             self.selected_bases.furthest_to(local_controller.game_info.map_center)(UPGRADETOLAIR_LAIR)
         )
         return True
-

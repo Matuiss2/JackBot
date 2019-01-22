@@ -1,5 +1,5 @@
 """Everything related to training overseers goes here"""
-from sc2.constants import CANCEL_MORPHOVERSEER, MORPH_OVERSEER, OVERLORDCOCOON, OVERSEER
+from sc2.constants import MORPH_OVERSEER, OVERLORDCOCOON, OVERSEER
 
 
 class TrainOverseer:

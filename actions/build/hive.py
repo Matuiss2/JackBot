@@ -1,5 +1,5 @@
 """Everything related to building logic for the hives goes here"""
-from sc2.constants import CANCEL_MORPHHIVE, HIVE, UPGRADETOHIVE_HIVE
+from sc2.constants import HIVE, UPGRADETOHIVE_HIVE
 
 
 class BuildHive:
@@ -24,5 +24,3 @@ class BuildHive:
         local_controller = self.controller
         local_controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
         return True
-
-
