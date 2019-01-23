@@ -45,17 +45,17 @@ from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
 from actions.upgrades.hydra_speed import UpgradeMuscularAugments
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.anabolic_synthesis import UpgradeUltraliskSpeed
-from data_container import DataContainer
+from data_containers.data_container import MainDataContainer
 
 
 # noinspection PyMissingConstructor
-class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, BlockExpansions):
+class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, BlockExpansions):
     """It makes periodic attacks with good surrounding and targeting micro, it goes hydras mid-game
      and ultras end-game"""
 
     def __init__(self, debug=False):
         CreepControl.__init__(self)
-        DataContainer.__init__(self)
+        MainDataContainer.__init__(self)
         self.debug = debug
         self.iteration = self.add_action = None
         self.unit_commands = (
