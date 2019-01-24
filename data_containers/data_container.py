@@ -1,6 +1,6 @@
 """All global variables and triggers are grouped here"""
 from data_containers.special_cases import SituationalData
-from data_containers.our_units import OurUnitsData
+from data_containers.our_stuff import OurUnitsData
 from data_containers.ungrouped_data import OtherData
 
 

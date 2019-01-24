@@ -8,6 +8,7 @@ class BlockExpansions:
     def __init__(self, main):
         self.controller = main
         self.zerglings = None
+        self.burrowed_lings = []
 
     async def should_handle(self):
         """Requirements for handle"""

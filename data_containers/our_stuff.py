@@ -34,7 +34,6 @@ class OurUnitsData:
         self.ultralisks = self.overseers = self.mutalisks = self.larvae = self.hydras = self.evochambers = None
         self.caverns = self.hydradens = self.pools = self.pits = self.spines = self.tumors = self.extractors = None
         self.spores = self.spires = self.structures = None
-        self.burrowed_lings = []
 
     def initialize_bases(self):
         """Initialize the bases"""
