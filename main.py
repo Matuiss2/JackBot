@@ -38,11 +38,10 @@ from actions.train.zergling import TrainZergling
 from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
 from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
-from actions.upgrades.evochamber import UpgradeEvochamber
+from actions.upgrades.evochamber_upgrades import UpgradeEvochamber
 
 # from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
-from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
-from actions.upgrades.hydra_speed import UpgradeMuscularAugments
+from actions.upgrades.hydraden_upgrades import UpgradeHydraden
 from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
 from actions.upgrades.anabolic_synthesis import UpgradeUltraliskSpeed
 from data_containers.data_container import MainDataContainer
@@ -102,8 +101,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
             UpgradeEvochamber(self),
             # UpgradePneumatizedCarapace(self),
             UpgradeBurrow(self),
-            UpgradeGroovedSpines(self),
-            UpgradeMuscularAugments(self),
+            UpgradeHydraden(self),
             UpgradeUltraliskSpeed(self),
         )
         self.ordered_expansions, self.building_positions, self.locations, self.actions = [], [], [], []
