@@ -1,15 +1,15 @@
 """All global variables and triggers are grouped here"""
 from data_containers.special_cases import SituationalData
-from data_containers.our_stuff import OurUnitsData
+from data_containers.our_stuff import OurStuffData
 from data_containers.ungrouped_data import OtherData
 
 
-class MainDataContainer(SituationalData, OurUnitsData, OtherData):
+class MainDataContainer(SituationalData, OurStuffData, OtherData):
     """This is the main data container for all data the bot requires"""
 
     def __init__(self):
         SituationalData.__init__(self)
-        OurUnitsData.__init__(self)
+        OurStuffData.__init__(self)
         OtherData.__init__(self)
         self.close_enemy_production = self.one_base_play = self.floating_buildings_bm = None
         self.counter_attack_vs_flying = self.close_enemies_to_base = False
@@ -17,9 +17,7 @@ class MainDataContainer(SituationalData, OurUnitsData, OtherData):
     def prepare_data(self):
         """Prepares the data"""
         self.counter_attack_vs_flying = self.close_enemies_to_base = False
-        self.initialize_bases()
-        self.initialize_units()
-        self.initialize_buildings()
+        self.initialize_our_stuff()
         self.initialize_enemies()
         self.prepare_bases_data()
         self.enemy_special_cases()

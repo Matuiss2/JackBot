@@ -21,6 +21,7 @@ from sc2.constants import (
 
 class SituationalData:
     """This is the data container for all situational data"""
+
     def __init__(self):
         self.close_enemies_to_base = self.counter_attack_vs_flying = False
 

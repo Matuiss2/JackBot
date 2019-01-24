@@ -4,6 +4,7 @@ from sc2.constants import DRONE, PROBE, SCV
 
 class OtherData:
     """This is the data container for all ungroupable data"""
+
     def __init__(self):
         self.enemies = self.flying_enemies = self.ground_enemies = self.enemy_structures = None
         self.furthest_townhall_to_map_center = None
