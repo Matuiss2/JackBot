@@ -12,7 +12,7 @@ from sc2.constants import (
 )
 
 
-class UpgradeEvochamber:
+class UpgradesFromEvochamber:
     """Ok for now"""
 
     def __init__(self, main):

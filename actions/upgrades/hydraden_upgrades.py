@@ -2,7 +2,7 @@
 from sc2.constants import EVOLVEGROOVEDSPINES, EVOLVEMUSCULARAUGMENTS, RESEARCH_GROOVEDSPINES, RESEARCH_MUSCULARAUGMENTS
 
 
-class UpgradeHydraden:
+class UpgradesFromHydraden:
     """Ok for now"""
 
     def __init__(self, main):

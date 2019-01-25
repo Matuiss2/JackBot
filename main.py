@@ -35,14 +35,13 @@ from actions.train.queen import TrainQueen
 from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
 from actions.train.zergling import TrainZergling
-from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
+from actions.upgrades.spawning_pool_upgrades import UpgradesFromSpawningPool
 from actions.upgrades.burrow import UpgradeBurrow
 from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
-from actions.upgrades.evochamber_upgrades import UpgradeEvochamber
+from actions.upgrades.evochamber_upgrades import UpgradesFromEvochamber
 
 # from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
-from actions.upgrades.hydraden_upgrades import UpgradeHydraden
-from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
+from actions.upgrades.hydraden_upgrades import UpgradesFromHydraden
 from actions.upgrades.anabolic_synthesis import UpgradeUltraliskSpeed
 from data_containers.data_container import MainDataContainer
 
@@ -96,12 +95,11 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         )
         self.upgrade_commands = (
             UpgradeChitinousPlating(self),
-            UpgradeMetabolicBoost(self),
-            UpgradeAdrenalGlands(self),
-            UpgradeEvochamber(self),
+            UpgradesFromSpawningPool(self),
+            UpgradesFromEvochamber(self),
             # UpgradePneumatizedCarapace(self),
             UpgradeBurrow(self),
-            UpgradeHydraden(self),
+            UpgradesFromHydraden(self),
             UpgradeUltraliskSpeed(self),
         )
         self.ordered_expansions, self.building_positions, self.locations, self.actions = [], [], [], []
