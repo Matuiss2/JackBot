@@ -146,7 +146,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
 
     def can_train(self, unit_type, requirement=True, larva=True):
         """Global requirements for creating an unit"""
-        return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type) and requirement
+        return (not larva or self.larvae) and self.can_afford(unit_type) and requirement
 
     def building_requirement(self, unit_type, requirement=True):
         """Global requirements for building every structure"""
