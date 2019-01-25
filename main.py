@@ -36,16 +36,13 @@ from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
 from actions.train.zergling import TrainZergling
 from actions.upgrades.spawning_pool_upgrades import UpgradesFromSpawningPool
-from actions.upgrades.burrow import UpgradeBurrow
+from actions.upgrades.base_upgrades import UpgradesFromBases
 from actions.upgrades.evochamber_upgrades import UpgradesFromEvochamber
-
-# from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
 from actions.upgrades.hydraden_upgrades import UpgradesFromHydraden
 from actions.upgrades.cavern_upgrades import UpgradesFromCavern
 from data_containers.data_container import MainDataContainer
 
 
-# noinspection PyMissingConstructor
 class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, BlockExpansions):
     """It makes periodic attacks with good surrounding and targeting micro, it goes hydras mid-game
      and ultras end-game"""
@@ -95,8 +92,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         self.upgrade_commands = (
             UpgradesFromSpawningPool(self),
             UpgradesFromEvochamber(self),
-            # UpgradePneumatizedCarapace(self),
-            UpgradeBurrow(self),
+            UpgradesFromBases(self),
             UpgradesFromHydraden(self),
             UpgradesFromCavern(self),
         )
