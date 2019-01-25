@@ -11,23 +11,15 @@ class TrainZergling:
     async def should_handle(self):
         """good enough for now, maybe ratio values can be improved"""
         local_controller = self.controller
-        zerglings = local_controller.zerglings
         if (
             not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150
         ) and not local_controller.close_enemy_production:
             return False
-        if (
-            local_controller.pits.ready
-            and not local_controller.hives
-            and not local_controller.already_pending(HIVE, all_units=True)
+        if not local_controller.can_train(ZERGLING, local_controller.pools.ready, hive_lock=True) or (
+            local_controller.hives and not local_controller.caverns
         ):
             return False
-        cavern = local_controller.caverns
-        if not local_controller.can_train(ZERGLING, local_controller.pools.ready) or (
-            local_controller.hives and not cavern
-        ):
-            return False
-        zergling_quantity = len(zerglings)
+        zergling_quantity = len(local_controller.zerglings)
         if local_controller.hydradens.ready and len(local_controller.hydras) * 3 <= zergling_quantity:
             return False
         if local_controller.floating_buildings_bm:

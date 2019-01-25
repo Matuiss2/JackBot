@@ -17,12 +17,6 @@ class TrainHydralisk:
             return False
         if not local_controller.can_train(HYDRALISK, local_controller.hydradens.ready):
             return False
-        if (
-            local_controller.pits.ready
-            and not local_controller.hives
-            and not local_controller.already_pending(HIVE, all_units=True)
-        ):
-            return False
         if cavern.ready:
             return len(local_controller.ultralisks) * 3.5 > len(local_controller.hydras)
         return not local_controller.floating_buildings_bm
