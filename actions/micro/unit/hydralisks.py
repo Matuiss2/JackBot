@@ -9,7 +9,7 @@ class HydraControl(Micro):
 
     def micro_hydras(self, targets, unit):
         """Control the hydras"""
-        our_movespeed, our_range = self.hydra_modifiers(unit)
+        our_move_speed, our_range = self.hydra_modifiers(unit)
         threats = self.trigger_threats(targets, unit, 14)
         # Find the closest threat.
         closest_threat = None
@@ -24,7 +24,7 @@ class HydraControl(Micro):
             enemy_range = closest_threat.ground_range
             if not enemy_range:
                 enemy_range = 0
-            if our_range > enemy_range + closest_threat.radius and our_movespeed > closest_threat.movement_speed:
+            if our_range > enemy_range + closest_threat.radius and our_move_speed > closest_threat.movement_speed:
                 return self.hit_and_run(closest_threat, unit, self.hydra_atk_range)
             return self.stutter_step(closest_threat, unit)
         # If there isn't a close enemy that does damage,
@@ -32,19 +32,19 @@ class HydraControl(Micro):
 
     def hydra_modifiers(self, unit):
         """Group modifiers for hydras"""
-        our_movespeed = unit.movement_speed
+        our_move_speed = unit.movement_speed
         our_range = unit.ground_range + unit.radius
         if self.hydra_atk_range:
             our_range += 1
-        # If we've researched Muscular Augments, our movespeed is 125% of base.
+        # If we've researched Muscular Augments, our move speed is 125% of base.
         if self.hydra_move_speed:
-            our_movespeed *= 1.25
+            our_move_speed *= 1.25
         # If we're on creep, it's 30% more.
         if self.controller.has_creep(unit):
-            our_movespeed *= 1.30
-        # If we've been hit with Marauder's Concussive Shells, our movespeed is half.
+            our_move_speed *= 1.30
+        # If we've been hit with Marauder's Concussive Shells, our move speed is half.
         if unit.has_buff(SLOW):
-            our_movespeed *= 0.5
+            our_move_speed *= 0.5
         if unit.has_buff(FUNGALGROWTH):
-            our_movespeed *= 0.25
-        return our_movespeed, our_range
+            our_move_speed *= 0.25
+        return our_move_speed, our_range

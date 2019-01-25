@@ -7,7 +7,7 @@ class OtherData:
 
     def __init__(self):
         self.enemies = self.flying_enemies = self.ground_enemies = self.enemy_structures = None
-        self.furthest_townhall_to_map_center = None
+        self.furthest_townhall_to_center = None
 
     def initialize_enemies(self):
         """Initialize everything related to enemies"""
@@ -20,4 +20,4 @@ class OtherData:
     def prepare_bases_data(self):
         """Prepare data related to our bases"""
         if self.townhalls:
-            self.furthest_townhall_to_map_center = self.townhalls.furthest_to(self.game_info.map_center)
+            self.furthest_townhall_to_center = self.townhalls.furthest_to(self.game_info.map_center)

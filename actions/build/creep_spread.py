@@ -13,8 +13,7 @@ class CreepControl:
 
     async def spread_creep(self):
         """ Iterate over all tumors to spread itself remove used creeps"""
-        tumors = self.tumors
-        for tumor in tumors:
+        for tumor in self.tumors:
             if tumor.tag not in self.used_tumors:
                 await self.place_tumor(tumor)
 

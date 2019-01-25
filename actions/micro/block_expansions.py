@@ -23,7 +23,7 @@ class BlockExpansions:
     async def handle(self):
         """Take the 5 'safest' zerglings and send them to the furthest enemy expansion locations to burrow
         needs improvements refill the force in case of failing until it succeeds(for a while at least),
-         sometimes it just get stuck, also no need to send it to the enemy main"""
+        sometimes it just get stuck, also no need to send it to the enemy main"""
         local_controller = self.controller
         local_controller.burrowed_lings = [
             unit.tag for unit in self.zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:4]

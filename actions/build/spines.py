@@ -24,7 +24,7 @@ class BuildSpines:
         local_controller = self.controller
         await local_controller.build(
             SPINECRAWLER,
-            near=local_controller.furthest_townhall_to_map_center.position.towards(
+            near=local_controller.furthest_townhall_to_center.position.towards(
                 local_controller.main_base_ramp.depot_in_middle, 14
             ),
         )

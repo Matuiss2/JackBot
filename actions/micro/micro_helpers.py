@@ -102,7 +102,7 @@ class Micro:
 
     def hit_and_run(self, target, unit, range_upgrade=None):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
-        # Only do this when our range > enemy range, our movespeed > enemy movespeed, and enemy is targeting us.
+        # Only do this when our range > enemy range, our move speed > enemy move speed, and enemy is targeting us.
         action = self.controller.add_action
         unit_radius = unit.radius
         our_range = unit.ground_range + unit_radius
@@ -155,7 +155,7 @@ class Micro:
                 yield enemy
 
     def disruptor_dodge(self, unit):
-        """If the enemy has disruptors, run baneling dodging code."""
+        """If the enemy has disruptor's, run baneling dodging code."""
         local_controller = self.controller
         if unit.type_id == ULTRALISK:
             return False

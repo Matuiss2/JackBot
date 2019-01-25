@@ -7,14 +7,13 @@ class QueensAbilities:
 
     def __init__(self, main):
         self.controller = main
-        self.queens = self.bases = self.enemies = None
+        self.queens = self.bases = None
 
     async def should_handle(self):
         """Injection and creep spread, can be expanded so it accepts transfusion"""
         local_controller = self.controller
         self.queens = local_controller.queens
         self.bases = local_controller.townhalls
-        self.enemies = local_controller.enemies.not_structure
         return self.queens and self.bases
 
     async def handle(self):
@@ -25,8 +24,9 @@ class QueensAbilities:
             for queen in self.queens.idle:
                 queen_position = queen.position
                 queen_energy = queen.energy
-                if self.enemies.closer_than(10, queen_position):
-                    action(queen.attack(self.enemies.closest_to(queen_position)))
+                enemies = local_controller.enemies.not_structure
+                if enemies.closer_than(10, queen_position):
+                    action(queen.attack(enemies.closest_to(queen_position)))
                     continue
                 selected = self.bases.closest_to(queen.position)
                 if queen_energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):

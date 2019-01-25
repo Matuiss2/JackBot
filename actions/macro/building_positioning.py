@@ -45,7 +45,6 @@ class BuildingPositioning:
 
     async def get_production_position(self):
         """Find the safest position looping through all possible ones"""
-
         for building_position in self.building_positions:
             if await self.can_place(EVOLUTIONCHAMBER, building_position):
                 return building_position

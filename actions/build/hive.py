@@ -21,6 +21,5 @@ class BuildHive:
 
     async def handle(self):
         """Finishes the action of making the hive"""
-        local_controller = self.controller
-        local_controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
+        self.controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
         return True

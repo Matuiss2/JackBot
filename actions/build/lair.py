@@ -27,6 +27,6 @@ class BuildLair:
         """Finishes the action of making the lair choosing the safest base"""
         local_controller = self.controller
         local_controller.add_action(
-            self.selected_hatchery.furthest_to(local_controller.game_info.map_center)(UPGRADETOLAIR_LAIR)
+            local_controller.furthest_townhall_to_center(UPGRADETOLAIR_LAIR)
         )
         return True

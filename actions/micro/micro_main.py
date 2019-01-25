@@ -141,7 +141,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if enemy_building and local_controller.townhalls:
                 self.attack_closest_building(unit)
             else:
-                self.attack_startlocation(unit)
+                self.attack_start_location(unit)
         return False
 
     def attack_closest_building(self, unit):
@@ -150,10 +150,10 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         enemy_building = local_controller.enemy_structures.not_flying.exclude_type(self.static_defence)
         if enemy_building:
             local_controller.add_action(
-                unit.attack(enemy_building.closest_to(local_controller.furthest_townhall_to_map_center))
+                unit.attack(enemy_building.closest_to(local_controller.furthest_townhall_to_center))
             )
 
-    def attack_startlocation(self, unit):
+    def attack_start_location(self, unit):
         """It tell to attack the starting location"""
         local_controller = self.controller
         if local_controller.enemy_start_locations:
@@ -235,7 +235,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if target:
                 self.action(self.attack_command(target.closest_to(self.unit_position)))
                 return True
-            self.attack_startlocation(unit)
+            self.attack_start_location(unit)
             return True
         return False
 
