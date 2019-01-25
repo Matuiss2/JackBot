@@ -1,5 +1,5 @@
 """Everything related to training zergling goes here"""
-from sc2.constants import HIVE, ZERGLING, ZERGLINGMOVEMENTSPEED
+from sc2.constants import ZERGLING, ZERGLINGMOVEMENTSPEED
 
 
 class TrainZergling:

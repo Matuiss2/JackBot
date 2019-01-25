@@ -1,5 +1,5 @@
 """Everything related to training hydralisks goes here"""
-from sc2.constants import HIVE, HYDRALISK
+from sc2.constants import HYDRALISK
 
 
 class TrainHydralisk:
