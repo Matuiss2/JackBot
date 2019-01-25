@@ -1,4 +1,4 @@
-"""SC2 zerg bot by Matuiss) with huge help of Thommath, Tweakimp, Burny, Helfull, Niknoc"""
+"""SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
 import sc2
 from sc2.constants import HATCHERY, HIVE
 from sc2.position import Point2
