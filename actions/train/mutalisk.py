@@ -9,7 +9,7 @@ class TrainMutalisk:
         self.controller = main
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to train mutalisks, maybe some locks are needed"""
         local_controller = self.controller
         return local_controller.can_train(MUTALISK, local_controller.spires.ready)
 

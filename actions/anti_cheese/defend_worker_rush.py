@@ -5,7 +5,7 @@ from actions.micro.micro_helpers import Micro
 
 
 class DefendWorkerRush(Micro):
-    """Ok for now"""
+    """Ok for now, but probably can be expanded to handle more than just worker rushes"""
 
     def __init__(self, main):
         self.controller = main
@@ -21,8 +21,7 @@ class DefendWorkerRush(Micro):
         return self.enemy_units_close or self.defender_tags
 
     async def handle(self):
-        """It destroys every worker rush without losing more than 2 workers,
-         it counter scouting worker rightfully now, its too big and can be split"""
+        """It destroys every worker rush without losing more than 2 workers"""
         close_workers = self.enemy_units_close
         enemy_worker_force = len(close_workers)
         if self.defender_tags:
@@ -41,7 +40,7 @@ class DefendWorkerRush(Micro):
             self.defender_tags = self.defense_force(enemy_worker_force * 2)
 
     def save_lowhp_drone(self, drone, base):
-        """Remove drones with less 6 hp from the defending force"""
+        """Remove drones with less 6 hp(one worker hit) from the defending force"""
         local_controller = self.controller
         if drone.health <= 6:
             if not drone.is_collecting:
@@ -54,7 +53,7 @@ class DefendWorkerRush(Micro):
         return False
 
     def refill_defense_force(self, enemy_count):
-        """If there is less workers on the defenders force than the ideal refill it"""
+        """If there are less workers on the defenders force than the ideal refill it"""
         local_controller = self.controller
         self.defenders = local_controller.drones.filter(
             lambda worker: worker.tag in self.defender_tags and worker.health > 0

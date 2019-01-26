@@ -10,7 +10,7 @@ class UpgradesFromHydraden:
         self.selected_dens = self.selected_research = None
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to upgrade stuff from hydradens"""
         local_controller = self.controller
         self.selected_dens = local_controller.hydradens.ready.noqueue.idle
         if local_controller.floating_buildings_bm:
@@ -26,6 +26,6 @@ class UpgradesFromHydraden:
             return True
 
     async def handle(self):
-        """Execute the action of upgrading hydras speed and hydra range"""
+        """Execute the action of upgrading hydras speed and range"""
         self.controller.add_action(self.selected_dens.first(self.selected_research))
         return True

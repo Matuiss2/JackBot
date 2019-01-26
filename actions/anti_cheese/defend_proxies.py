@@ -1,4 +1,4 @@
-"""Everything related to handling very close proxies with drones goes here"""
+"""Everything related to handling proxies are here"""
 from sc2.constants import (
     AUTOTURRET,
     BARRACKS,
@@ -14,14 +14,14 @@ from sc2.constants import (
 
 
 class DefendProxies:
-    """Needs improvements on the quantity"""
+    """Needs improvements on the quantity, also on the follow up(its overly defensive)"""
 
     def __init__(self, main):
         self.controller = main
         self.rush_buildings = None
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
         local_controller = self.controller
         if local_controller.townhalls:
             self.rush_buildings = local_controller.enemy_structures.exclude_type(
@@ -35,7 +35,7 @@ class DefendProxies:
         )
 
     def is_being_attacked(self, unit):
-        """Only for enemy units, returns how often they are attacked"""
+        """Returns how often our units are attacking the given enemy unit"""
         return len(
             [
                 "attacker"

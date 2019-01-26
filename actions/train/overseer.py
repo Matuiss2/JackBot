@@ -3,13 +3,13 @@ from sc2.constants import MORPH_OVERSEER, OVERLORDCOCOON, OVERSEER
 
 
 class TrainOverseer:
-    """Should be expanded"""
+    """Should be expanded a little, it needs at least one more to run alongside the offensive army"""
 
     def __init__(self, main):
         self.controller = main
 
     async def should_handle(self):
-        """Requirements to run handle, limits it to one it need to be expanded"""
+        """Requirements to morph overseers"""
         local_controller = self.controller
         return (
             (local_controller.lairs or local_controller.hives)

@@ -13,7 +13,6 @@ class BuildingPositioning:
         if mineral_field:
             close_points = range(-11, 12)
             center_position = center.position
-            # No point in separating it on variables, I united everything, it gets points that are behind minerals
             viable_points = [
                 point
                 for point in (

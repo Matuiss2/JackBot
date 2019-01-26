@@ -1,10 +1,10 @@
-"""Everything related to controlling hydralisks"""
+"""Everything related to controlling zerglings"""
 from sc2.constants import BANELING
 from actions.micro.micro_helpers import Micro
 
 
 class ZerglingControl(Micro):
-    """Can be improved(Defense not utility)"""
+    """Can be improved in many ways"""
 
     def micro_zerglings(self, unit, targets):
         """Target low hp units smartly, and surrounds when attack cd is down"""
@@ -18,7 +18,8 @@ class ZerglingControl(Micro):
         return True
 
     def baneling_dodge(self, unit, targets):
-        """If the enemy has banelings, run baneling dodging code."""
+        """If the enemy has banelings, run baneling dodging code. It can be improved,
+         its a little bugged and just avoid the baneling not pop it"""
         local_controller = self.controller
         action = local_controller.add_action
         self.handling_anti_banelings_group()
@@ -43,9 +44,9 @@ class ZerglingControl(Micro):
         return False
 
     def zergling_modifiers(self, unit, targets):
-        """Group modifiers for zerglings"""
+        """Modifiers for zerglings"""
         if self.zergling_atk_speed:
-            if unit.weapon_cooldown <= 0.284 * 22.4:  # 22.4 = the game speed times the frames per sec
+            if unit.weapon_cooldown <= 0.284 * 22.4:
                 return self.attack_close_target(unit, targets)
             return self.move_to_next_target(unit, targets)
         if unit.weapon_cooldown <= 0.398 * 22.4:
@@ -55,13 +56,12 @@ class ZerglingControl(Micro):
     def baneling_group(self, unit, targets):
         """Put the banelings on one group"""
         threats = self.trigger_threats(targets, unit, 5)
-        # Check for banelings
         for threat in threats:
             if threat.type_id == BANELING:
                 yield threat
 
     def handling_anti_banelings_group(self):
-        """If the sacrificial zergling dies before the missions is over remove him from the group"""
+        """If the sacrificial zergling dies before the missions is over remove him from the group(needs to be fixed)"""
         local_controller = self.controller
         for zergling in list(self.baneling_sacrifices):
             if (

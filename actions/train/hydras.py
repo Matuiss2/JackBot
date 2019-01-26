@@ -9,8 +9,7 @@ class TrainHydralisk:
         self.controller = main
 
     async def should_handle(self):
-        """Requirements to run handle, it limits the training a little so it keeps building ultralisks,
-         needs more limitations so the transition to hive is smoother"""
+        """Requirements to train the hydralisks"""
         local_controller = self.controller
         cavern = local_controller.caverns
         if local_controller.hives and not cavern:

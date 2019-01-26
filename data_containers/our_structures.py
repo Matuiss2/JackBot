@@ -16,7 +16,7 @@ from sc2.constants import (
 
 
 class OurBuildingsData:
-    """This is the data container for all our buildings data"""
+    """This is the data container for all our buildings"""
 
     def __init__(self):
         self.evochambers = self.pools = self.spines = self.tumors = self.extractors = self.spores = self.spires = None

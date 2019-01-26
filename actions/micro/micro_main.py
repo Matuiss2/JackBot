@@ -27,7 +27,7 @@ from actions.micro.unit.zerglings import ZerglingControl
 
 
 class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
-    """Can be improved"""
+    """Can be improved performance wise also few bugs on some of it's elements"""
 
     def __init__(self, main):
         self.controller = main
@@ -47,10 +47,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             | local_controller.hydras
         )
 
-    async def handle(self):  # needs further refactoring(too-many-branches)
-        """It surrounds and target low hp units, also retreats when overwhelmed,
-         it can be improved a lot but is already much better than a-move
-        Name army_micro because it is in army.py."""
+    async def handle(self):
+        """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
         local_controller = self.controller
         self.action = local_controller.add_action
         enemy_building = local_controller.enemy_structures
@@ -98,7 +96,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             self.controller.add_action(unit.move(self.rally_point))
 
     def has_retreated(self, unit):
-        """Identify if the unit has retreated"""
+        """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
         if self.controller.townhalls.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
@@ -145,7 +143,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         return False
 
     def attack_closest_building(self, unit):
-        """Attack the starting location"""
+        """Attack the closest enemy building"""
         local_controller = self.controller
         enemy_building = local_controller.enemy_structures.not_flying.exclude_type(self.static_defence)
         if enemy_building:
@@ -160,7 +158,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
 
     def anti_proxy_trigger(self, unit):
-        """It triggers the anti-proxy logic"""
+        """Requirements for the anti-proxy logic"""
         local_controller = self.controller
         spines = local_controller.spines
         return (
@@ -171,7 +169,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         )
 
     def attack_enemy_proxy_units(self, targets, unit):
-        """Attack the proxy army if it get too close to the ramp"""
+        """Requirements to attack the proxy army if it gets too close to the ramp"""
         return (
             targets
             and targets.closer_than(5, unit)
@@ -180,7 +178,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         )
 
     def set_unit_groups(self):
-        """Set the targets and atk_force"""
+        """Set the targets and atk_force, separating then by type"""
         targets = hydra_targets = None
         local_controller = self.controller
         enemy_units = local_controller.enemies
@@ -213,7 +211,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         return False
 
     async def handling_walls_and_attacking(self, unit, target):
-        """It micros normally if no wall, if there is one attack it"""
+        """It micros normally if no wall, if there is one attack it
+        (can be improved, it does whats expected but its a regression overall when there is no walls)"""
         local_controller = self.controller
         closest_target = target.closest_to
         if await local_controller._client.query_pathing(unit, closest_target(unit).position):
@@ -228,7 +227,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         """It keeps the attack going if it meets the requirements no matter what"""
         local_controller = self.controller
         enemy_building = local_controller.enemy_structures
-        if not self.retreat_units or local_controller.close_enemies_to_base or local_controller.time >= 1000:
+        if not self.retreat_units or local_controller.close_enemies_to_base:
             if enemy_building:
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 return True
@@ -266,7 +265,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         return False
 
     def behavior_changing_upgrades_check(self):
-        """Check for upgrades the will change how the units behavior are calculated"""
+        """Check for upgrades that will change how the units behavior are calculated"""
         local_controller = self.controller
         if not self.zergling_atk_speed and local_controller.hives:
             self.zergling_atk_speed = local_controller.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1

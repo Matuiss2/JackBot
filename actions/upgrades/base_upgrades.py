@@ -10,7 +10,7 @@ class UpgradesFromBases:
         self.selected_bases = self.selected_research = None
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to upgrade stuff from bases"""
         local_controller = self.controller
         self.selected_bases = local_controller.hatcheries.idle
         if not (len(local_controller.zerglings) >= 19 and not local_controller.close_enemy_production):
@@ -25,6 +25,6 @@ class UpgradesFromBases:
             return True
 
     async def handle(self):
-        """Execute the action of upgrading burrow"""
+        """Execute the action of upgrading burrow or ov speed"""
         self.controller.add_action(self.selected_bases.random(self.selected_research))
         return True

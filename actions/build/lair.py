@@ -3,14 +3,14 @@ from sc2.constants import LAIR, UPGRADETOLAIR_LAIR
 
 
 class BuildLair:
-    """Maybe can be improved, probably its a bit greedy"""
+    """Maybe can be improved, probably its a bit greedy it leaves a gap where the bot is vulnerable"""
 
     def __init__(self, main):
         self.controller = main
         self.selected_hatchery = None
 
     async def should_handle(self):
-        """Builds the lair"""
+        """Requirements to build the lair"""
         local_controller = self.controller
         self.selected_hatchery = local_controller.hatcheries.ready.idle
         return (
@@ -24,7 +24,7 @@ class BuildLair:
         )
 
     async def handle(self):
-        """Finishes the action of making the lair choosing the safest base"""
+        """Finishes the action of making the lair choosing the safest available base"""
         local_controller = self.controller
         local_controller.add_action(
             local_controller.furthest_townhall_to_center(UPGRADETOLAIR_LAIR)

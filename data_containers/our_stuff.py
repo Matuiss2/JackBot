@@ -1,4 +1,4 @@
-"""All data that on our possession are here"""
+"""All data that are on our possession are here"""
 from sc2.constants import HATCHERY, HIVE, LAIR
 
 from data_containers.our_structures import OurBuildingsData
@@ -6,7 +6,7 @@ from data_containers.our_units import OurUnitsData
 
 
 class OurStuffData(OurBuildingsData, OurUnitsData):
-    """This is the data container for all our units and buildings data"""
+    """This is the data container for all our units and buildings"""
 
     def __init__(self):
         OurBuildingsData.__init__(self)
@@ -33,7 +33,7 @@ class OurStuffData(OurBuildingsData, OurUnitsData):
         self.initialize_hive_buildings()
 
     def initialize_bases(self):
-        """Initialize the bases"""
+        """Initialize our bases"""
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)

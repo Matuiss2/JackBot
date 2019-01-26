@@ -11,7 +11,7 @@ class UpgradesFromCavern:
         self.selected_caverns = self.selected_research = None
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to upgrade stuff from caverns"""
         local_controller = self.controller
         self.selected_caverns = local_controller.caverns.idle.noqueue
         if local_controller.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.selected_caverns):
@@ -24,6 +24,6 @@ class UpgradesFromCavern:
             return True
 
     async def handle(self):
-        """Execute the action of upgrading ultra armor"""
+        """Execute the action of upgrading ultra armor and speed"""
         self.controller.add_action(self.selected_caverns.first(self.selected_research))
         return True

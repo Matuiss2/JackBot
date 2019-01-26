@@ -3,14 +3,13 @@ from sc2.constants import ULTRALISK
 
 
 class TrainUltralisk:
-    """Ok for now"""
+    """Good for now but it might need to be changed vs particular enemy units compositions"""
 
     def __init__(self, main):
         self.controller = main
 
     async def should_handle(self):
-        """Good for now but it might need to be changed vs particular
-         enemy units compositions"""
+        """Requirement for training ultralisks"""
         local_controller = self.controller
         return local_controller.can_train(ULTRALISK, local_controller.caverns.ready)
 

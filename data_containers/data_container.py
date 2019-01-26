@@ -15,7 +15,7 @@ class MainDataContainer(SituationalData, OurStuffData, OtherData):
         self.counter_attack_vs_flying = self.close_enemies_to_base = False
 
     def prepare_data(self):
-        """Prepares the data"""
+        """Prepares the data every iteration"""
         self.counter_attack_vs_flying = self.close_enemies_to_base = False
         self.initialize_our_stuff()
         self.initialize_enemies()
@@ -23,7 +23,7 @@ class MainDataContainer(SituationalData, OurStuffData, OtherData):
         self.enemy_special_cases()
 
     def enemy_special_cases(self):
-        """ Pretty much makes SituationalData be updated all iterations"""
+        """Pretty much makes SituationalData be updated all iterations"""
         self.prepare_enemy_data_points()
         self.close_enemy_production = self.check_for_proxy_buildings()
         self.floating_buildings_bm = self.check_for_floating_buildings()

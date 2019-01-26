@@ -9,7 +9,7 @@ class BuildSpines:
         self.controller = main
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to build the spines"""
         local_controller = self.controller
         return (
             local_controller.building_requirement(SPINECRAWLER, local_controller.pools.ready)

@@ -3,14 +3,14 @@ from sc2.constants import HIVE, UPGRADETOHIVE_HIVE
 
 
 class BuildHive:
-    """Ok for now"""
+    """Maybe can be improved"""
 
     def __init__(self, main):
         self.controller = main
         self.selected_lairs = None
 
     async def should_handle(self):
-        """Builds the hive"""
+        """Requirement to build the hive, maybe its too greedy maybe we should raise the lock for it"""
         local_controller = self.controller
         self.selected_lairs = local_controller.lairs.ready.idle
         return (

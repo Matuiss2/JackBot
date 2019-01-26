@@ -3,7 +3,7 @@ from sc2.constants import DRONE, HYDRALISK, LARVA, MUTALISK, OVERLORD, OVERSEER,
 
 
 class OurUnitsData:
-    """This is the data container for all our units data"""
+    """This is the data container for all our units"""
 
     def __init__(self):
         self.overlords = self.drones = self.queens = self.zerglings = self.larvae = self.overseers = None

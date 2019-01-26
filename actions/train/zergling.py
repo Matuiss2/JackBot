@@ -9,10 +9,10 @@ class TrainZergling:
         self.controller = main
 
     async def should_handle(self):
-        """good enough for now, maybe ratio values can be improved"""
+        """Requirements to train zerglings, good enough for now but ratio values can probably be improved"""
         local_controller = self.controller
         if (
-            not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150
+            not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 145
         ) and not local_controller.close_enemy_production:
             return False
         if not local_controller.can_train(ZERGLING, local_controller.pools.ready, hive_lock=True) or (

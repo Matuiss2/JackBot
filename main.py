@@ -44,8 +44,7 @@ from data_containers.data_container import MainDataContainer
 
 
 class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, BlockExpansions):
-    """It makes periodic attacks with good surrounding and targeting micro, it goes hydras mid-game
-     and ultras end-game"""
+    """It makes periodic attacks with zerglings early, it goes hydras mid-game and ultras end-game"""
 
     def __init__(self, debug=False):
         CreepControl.__init__(self)
@@ -111,12 +110,12 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
             self._client.game_step = 8
 
     async def on_building_construction_complete(self, unit):
-        """Prepares all the building locations near a new expansion"""
+        """Prepares all the building placements near a new expansion"""
         if unit.type_id == HATCHERY:
             await self.prepare_building_positions(unit)
 
     async def on_step(self, iteration):
-        """Calls used units here, so it just calls it once per loop"""
+        """Group all other functions in this bot, its the main"""
         self.iteration = iteration
         self.prepare_data()
         self.set_game_step()

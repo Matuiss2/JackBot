@@ -34,7 +34,7 @@ class UpgradesFromEvochamber:
         }
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to upgrade stuff from evochambers"""
         self.selected_evos = self.controller.evochambers.ready.idle
         return self.selected_evos
 
