@@ -9,7 +9,7 @@ class BuildPool:
         self.controller = main
 
     async def should_handle(self):
-        """Should this action be handled"""
+        """Requirement for building the spawning pool"""
         local_controller = self.controller
         return local_controller.can_build_unique(SPAWNINGPOOL, local_controller.pools) and (
             len(local_controller.townhalls) >= 2
@@ -18,7 +18,7 @@ class BuildPool:
         )
 
     async def handle(self):
-        """Build the pool"""
+        """Places the pool"""
         build = await self.controller.place_building(SPAWNINGPOOL)
         if not build:
             return False

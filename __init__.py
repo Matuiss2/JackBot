@@ -43,7 +43,7 @@ async def join_ladder_game(
         await server.ping()
         _client = Client(server.web_service)
         try:
-            result = await sc2.main.play_game(
+            result = await sc2.main._play_game(
                 players[0], _client, realtime, portconfig, step_time_limit, game_time_limit
             )
             if save_replay_as:

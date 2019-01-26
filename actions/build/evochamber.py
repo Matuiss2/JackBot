@@ -3,13 +3,13 @@ from sc2.constants import EVOLUTIONCHAMBER
 
 
 class BuildEvochamber:
-    """Ok for now"""
+    """Can maybe be improved"""
 
     def __init__(self, main):
         self.controller = main
 
     async def should_handle(self):
-        """Builds the evolution chambers"""
+        """Requirements for building the evolution chambers, maybe its to early can probably be improved"""
         local_controller = self.controller
         return (
             local_controller.building_requirement(EVOLUTIONCHAMBER, local_controller.pools.ready)

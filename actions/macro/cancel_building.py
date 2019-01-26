@@ -3,14 +3,13 @@ from sc2.constants import CANCEL, HATCHERY
 
 
 class Buildings:
-    """Ok for now but can be improved, it works every time
-     but it should prevent cancelled buildings to be replaced right after"""
+    """Ok for now"""
 
     def __init__(self, main):
         self.controller = main
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements for cancelling the building"""
         local_controller = self.controller
         return (
             local_controller.time < 300
@@ -19,7 +18,7 @@ class Buildings:
         )
 
     async def handle(self):
-        """Make the cancelling general"""
+        """Cancel the threatened building"""
         local_controller = self.controller
         for building in local_controller.structures.not_ready.exclude_type(local_controller.tumors):
             build_progress = building.build_progress

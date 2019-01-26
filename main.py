@@ -1,6 +1,6 @@
-"""SC2 zerg bot by JackBot team(Helfull, Matuiss, Niknoc) with huge help of Thommath, Tweakimp and Burny"""
+"""SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
 import sc2
-from sc2.constants import HATCHERY
+from sc2.constants import HATCHERY, HIVE
 from sc2.position import Point2
 from actions.anti_cheese.defend_proxies import DefendProxies
 from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
@@ -35,27 +35,20 @@ from actions.train.queen import TrainQueen
 from actions.train.ultralisk import TrainUltralisk
 from actions.train.worker import TrainWorker
 from actions.train.zergling import TrainZergling
-from actions.upgrades.adrenalglands import UpgradeAdrenalGlands
-from actions.upgrades.burrow import UpgradeBurrow
-from actions.upgrades.chitinous_plating import UpgradeChitinousPlating
-from actions.upgrades.evochamber import UpgradeEvochamber
-
-# from actions.upgrades.pneumatized_carapace import UpgradePneumatizedCarapace
-from actions.upgrades.hydra_atk_speed import UpgradeGroovedSpines
-from actions.upgrades.hydra_speed import UpgradeMuscularAugments
-from actions.upgrades.metabolicboost import UpgradeMetabolicBoost
-from actions.upgrades.anabolic_synthesis import UpgradeUltraliskSpeed
-from data_container import DataContainer
+from actions.upgrades.spawning_pool_upgrades import UpgradesFromSpawningPool
+from actions.upgrades.base_upgrades import UpgradesFromBases
+from actions.upgrades.evochamber_upgrades import UpgradesFromEvochamber
+from actions.upgrades.hydraden_upgrades import UpgradesFromHydraden
+from actions.upgrades.cavern_upgrades import UpgradesFromCavern
+from data_containers.data_container import MainDataContainer
 
 
-# noinspection PyMissingConstructor
-class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, BlockExpansions):
-    """It makes periodic attacks with good surrounding and targeting micro, it goes hydras mid-game
-     and ultras end-game"""
+class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, BlockExpansions):
+    """It makes periodic attacks with zerglings early, it goes hydras mid-game and ultras end-game"""
 
     def __init__(self, debug=False):
         CreepControl.__init__(self)
-        DataContainer.__init__(self)
+        MainDataContainer.__init__(self)
         self.debug = debug
         self.iteration = self.add_action = None
         self.unit_commands = (
@@ -96,15 +89,11 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             BuildHydraden(self),
         )
         self.upgrade_commands = (
-            UpgradeChitinousPlating(self),
-            UpgradeMetabolicBoost(self),
-            UpgradeAdrenalGlands(self),
-            UpgradeEvochamber(self),
-            # UpgradePneumatizedCarapace(self),
-            UpgradeBurrow(self),
-            UpgradeGroovedSpines(self),
-            UpgradeMuscularAugments(self),
-            UpgradeUltraliskSpeed(self),
+            UpgradesFromSpawningPool(self),
+            UpgradesFromEvochamber(self),
+            UpgradesFromBases(self),
+            UpgradesFromHydraden(self),
+            UpgradesFromCavern(self),
         )
         self.ordered_expansions, self.building_positions, self.locations, self.actions = [], [], [], []
 
@@ -121,12 +110,12 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
             self._client.game_step = 8
 
     async def on_building_construction_complete(self, unit):
-        """Prepares all the building locations near a new expansion"""
+        """Prepares all the building placements near a new expansion"""
         if unit.type_id == HATCHERY:
             await self.prepare_building_positions(unit)
 
     async def on_step(self, iteration):
-        """Calls used units here, so it just calls it once per loop"""
+        """Group all other functions in this bot, its the main"""
         self.iteration = iteration
         self.prepare_data()
         self.set_game_step()
@@ -154,9 +143,11 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
                     print(f"Handling: {command.__class__}")
                 await command.handle()
 
-    def can_train(self, unit_type, requirement=True, larva=True):
+    def can_train(self, unit_type, requirement=True, larva=True, hive_lock=True):
         """Global requirements for creating an unit"""
-        return (not larva or self.larvae) and self.can_afford(unit_type) and self.can_feed(unit_type) and requirement
+        if hive_lock and self.pits.ready and not self.hives and not self.already_pending(HIVE, all_units=True):
+            return False
+        return (not larva or self.larvae) and self.can_afford(unit_type) and requirement
 
     def building_requirement(self, unit_type, requirement=True):
         """Global requirements for building every structure"""
@@ -196,7 +187,3 @@ class JackBot(sc2.BotAI, DataContainer, CreepControl, BuildingPositioning, Block
         """Split the workers on the beginning """
         for drone in self.drones:
             self.add_action(drone.gather(self.state.mineral_field.closest_to(drone)))
-
-    async def is_morphing(self, base, cancel):
-        """Check if there is a lair morphing by checking the available abilities"""
-        return cancel in await self.get_available_abilities(base)

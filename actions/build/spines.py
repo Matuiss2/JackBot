@@ -9,7 +9,7 @@ class BuildSpines:
         self.controller = main
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Requirements to build the spines"""
         local_controller = self.controller
         return (
             local_controller.building_requirement(SPINECRAWLER, local_controller.pools.ready)
@@ -24,7 +24,7 @@ class BuildSpines:
         local_controller = self.controller
         await local_controller.build(
             SPINECRAWLER,
-            near=local_controller.furthest_townhall_to_map_center.position.towards(
+            near=local_controller.furthest_townhall_to_center.position.towards(
                 local_controller.main_base_ramp.depot_in_middle, 14
             ),
         )

@@ -1,14 +1,15 @@
 """Every helper for controlling units go here"""
 from sc2.constants import (
     DISRUPTORPHASED,
-    GUARDIANSHIELDPERSISTENT,
-    LIBERATORTARGETMORPHDELAYPERSISTENT,
-    LIBERATORTARGETMORPHPERSISTENT,
-    SCANNERSWEEP,
+    # GUARDIANSHIELDPERSISTENT,
+    # LIBERATORTARGETMORPHDELAYPERSISTENT,
+    # LIBERATORTARGETMORPHPERSISTENT,
+    # SCANNERSWEEP,
     ULTRALISK,
 )
 from sc2.position import Point2
-from sc2.unit import Unit
+
+# from sc2.unit import Unit
 
 
 def filter_in_attack_range_of(unit, targets):
@@ -19,7 +20,8 @@ def filter_in_attack_range_of(unit, targets):
 class Micro:
     """Group all helpers, for unit control and targeting here"""
 
-    def dodge_effects(self, unit: Unit) -> bool:
+    # TODO - fix
+    '''def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
         local_controller = self.controller
         if not local_controller.state.effects or unit.type_id == ULTRALISK:
@@ -39,10 +41,10 @@ class Micro:
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
             local_controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
-        return False
+        return False'''
 
     def attack_close_target(self, unit, enemies):
-        """It targets lowest hp units on its range, if there is any, attack the closest"""
+        """It targets lowest hp units on its range, if there is any attack the closest"""
         targets_close = filter_in_attack_range_of(unit, enemies)
         if targets_close:
             self.attack_lowhp(unit, targets_close)
@@ -64,7 +66,7 @@ class Micro:
         return False
 
     def move_to_next_target(self, unit, enemies):
-        """It helps on the targeting and positioning"""
+        """It helps on the targeting and positioning on the attack"""
         targets_in_range_1 = enemies.closer_than(1, unit)
         if targets_in_range_1:
             self.move_lowhp(unit, targets_in_range_1)
@@ -79,14 +81,10 @@ class Micro:
         """Attack enemy with lowest HP"""
         self.controller.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
 
-    def closest_lowest_hp(self, unit, enemies):
-        """Find the closest of the lowest hp enemies"""
-        return self.lowest_hp(enemies).closest_to(unit)
-
     @staticmethod
-    def lowest_hp(enemies):
-        """returns all of the units who share the lowest hp """
-        return enemies.filter(lambda x: x.health == min(unit.health for unit in enemies))
+    def closest_lowest_hp(unit, enemies):
+        """Find the closest within the lowest hp enemies"""
+        return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
     def stutter_step(self, target, unit):
         """Attack when the unit can, run while it can't. We don't outrun the enemy."""
@@ -100,7 +98,7 @@ class Micro:
 
     def hit_and_run(self, target, unit, range_upgrade=None):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
-        # Only do this when our range > enemy range, our movespeed > enemy movespeed, and enemy is targeting us.
+        # Only do this when our range > enemy range, our move speed > enemy move speed, and enemy is targeting us.
         action = self.controller.add_action
         unit_radius = unit.radius
         our_range = unit.ground_range + unit_radius
@@ -115,8 +113,7 @@ class Micro:
             minimum_distance = enemy_range + unit_radius + 0.1
         else:
             minimum_distance = our_range - unit_radius
-        # Check to make sure this range isn't negative.
-        if minimum_distance > our_range:
+        if minimum_distance > our_range: # Check to make sure this range isn't negative.
             minimum_distance = our_range - unit_radius
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
         if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 0.295 * 22.4:
@@ -127,8 +124,7 @@ class Micro:
             retreat_point = self.find_retreat_point(target, unit)
             action(unit.move(retreat_point))
             return True
-        # If our unit is too far, run towards.
-        pursuit_point = self.find_pursuit_point(target, unit)
+        pursuit_point = self.find_pursuit_point(target, unit) # If our unit is too far, run towards.
         action(unit.move(pursuit_point))
         return True
 
@@ -153,7 +149,7 @@ class Micro:
                 yield enemy
 
     def disruptor_dodge(self, unit):
-        """If the enemy has disruptors, run baneling dodging code."""
+        """If the enemy has disruptor's, run a dodging code."""
         local_controller = self.controller
         if unit.type_id == ULTRALISK:
             return False
@@ -162,3 +158,4 @@ class Micro:
                 retreat_point = self.find_retreat_point(ball, unit)
                 local_controller.add_action(unit.move(retreat_point))
                 return True
+        return None

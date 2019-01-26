@@ -76,7 +76,8 @@ def general_calculation(table, targets):
 
 
 class EnemyArmyValue:
-    """Separate the enemy army values by unit and race"""
+    """Separate the enemy army values by unit and race
+    (can be improved by tuning and considering upgrades, position, distance...might be a little to hard)"""
 
     massive_counter = 2.5
     counter = 1.75

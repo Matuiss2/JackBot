@@ -10,7 +10,7 @@ class BuildHydraden:
         self.selected_pools = None
 
     async def should_handle(self):
-        """Build the hydraden"""
+        """Requirement to build the hydraden"""
         local_controller = self.controller
         self.selected_pools = local_controller.pools
         return (
@@ -20,7 +20,6 @@ class BuildHydraden:
             and not local_controller.close_enemy_production
             and not local_controller.floating_buildings_bm
             and len(local_controller.townhalls) >= 3
-            and not local_controller.ground_enemies.closer_than(20, self.selected_pools.first)
         )
 
     async def handle(self):

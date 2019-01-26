@@ -1,20 +1,20 @@
 """Everything related to training overseers goes here"""
-from sc2.constants import CANCEL_MORPHOVERSEER, MORPH_OVERSEER, OVERLORDCOCOON, OVERSEER
+from sc2.constants import MORPH_OVERSEER, OVERLORDCOCOON, OVERSEER
 
 
 class TrainOverseer:
-    """Should be expanded"""
+    """Should be expanded a little, it needs at least one more to run alongside the offensive army"""
 
     def __init__(self, main):
         self.controller = main
 
     async def should_handle(self):
-        """Requirements to run handle, limits it to one it need to be expanded"""
+        """Requirements to morph overseers"""
         local_controller = self.controller
         return (
             (local_controller.lairs or local_controller.hives)
             and local_controller.overlords
-            and not await self.morphing_overlords()
+            and not local_controller.already_pending(OVERSEER, all_units=True)
             and local_controller.can_afford(OVERSEER)
             and len(local_controller.overseers) < len(local_controller.townhalls.ready)
         )
@@ -29,11 +29,3 @@ class TrainOverseer:
                 local_controller.actions.append(selected_ov(MORPH_OVERSEER))
         else:
             local_controller.actions.append(selected_ov(MORPH_OVERSEER))
-
-    async def morphing_overlords(self):
-        """Check if there is a overlord morphing looping through all cocoons"""
-        local_controller = self.controller
-        for egg in local_controller.units(OVERLORDCOCOON):
-            if await local_controller.is_morphing(egg, CANCEL_MORPHOVERSEER):
-                return True
-        return False

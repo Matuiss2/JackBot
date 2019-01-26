@@ -9,7 +9,7 @@ class Drone:
         self.drones = None
 
     async def should_handle(self):
-        """Requirements to run handle"""
+        """Sends the scouting drone periodically when not playing against proxies"""
         local_controller = self.controller
         self.drones = local_controller.drones
         return self.drones and local_controller.iteration % 2000 == 75 and not local_controller.close_enemy_production

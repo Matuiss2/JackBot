@@ -1,31 +1,25 @@
 """Everything related to training zergling goes here"""
 from sc2.constants import ZERGLING, ZERGLINGMOVEMENTSPEED
-from actions.build.hive import BuildHive
 
 
-class TrainZergling(BuildHive):
+class TrainZergling:
     """Ok for now"""
 
     def __init__(self, main):
         self.controller = main
-        BuildHive.__init__(self, self.controller)
 
     async def should_handle(self):
-        """good enough for now, maybe ratio values can be improved"""
+        """Requirements to train zerglings, good enough for now but ratio values can probably be improved"""
         local_controller = self.controller
-        zerglings = local_controller.zerglings
         if (
-            not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 150
+            not local_controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and local_controller.time < 145
         ) and not local_controller.close_enemy_production:
             return False
-        if local_controller.pits.ready and not local_controller.hives and not await BuildHive.morphing_lairs(self):
-            return False
-        cavern = local_controller.caverns
-        if not local_controller.can_train(ZERGLING, local_controller.pools.ready) or (
-            local_controller.hives and not cavern
+        if not local_controller.can_train(ZERGLING, local_controller.pools.ready, hive_lock=True) or (
+            local_controller.hives and not local_controller.caverns
         ):
             return False
-        zergling_quantity = len(zerglings)
+        zergling_quantity = len(local_controller.zerglings)
         if local_controller.hydradens.ready and len(local_controller.hydras) * 3 <= zergling_quantity:
             return False
         if local_controller.floating_buildings_bm:

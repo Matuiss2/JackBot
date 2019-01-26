@@ -1,4 +1,4 @@
-"""Everything related to creep spreading goes here"""
+"""Everything related to calculate the creep spreading goes here"""
 import math
 from sc2.constants import BUILD_CREEPTUMOR_QUEEN, BUILD_CREEPTUMOR_TUMOR, ZERGBUILD_CREEPTUMOR
 from sc2.data import ActionResult
@@ -6,15 +6,14 @@ from sc2.position import Point2
 
 
 class CreepControl:
-    """It spreads creeps, finds 'optimal' locations for it"""
+    """It spreads creeps, finds 'optimal' locations for it(have trouble with ramps, many improvements can be made)"""
 
     def __init__(self):
         self.used_tumors = []
 
     async def spread_creep(self):
-        """ Iterate over all tumors to spread itself remove used creeps"""
-        tumors = self.tumors
-        for tumor in tumors:
+        """ Iterate over all tumors to spread itself remove used creeps and creeps that failed in finding a placement"""
+        for tumor in self.tumors:
             if tumor.tag not in self.used_tumors:
                 await self.place_tumor(tumor)
 
@@ -63,7 +62,6 @@ class CreepControl:
             # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
             action = self.add_action
             for c_location in valid_placements:
-                # 8.5 it doesnt get in the way of the injection
                 if all(c_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
                     if not tumors:
                         action(unit(unit_ability, c_location))
@@ -74,5 +72,5 @@ class CreepControl:
                     if c_location.distance_to_closest(tumors) >= 4:
                         action(unit(unit_ability, c_location))
                         break
-            if unit_ability == BUILD_CREEPTUMOR_TUMOR:  # if tumor
+            if unit_ability == BUILD_CREEPTUMOR_TUMOR:
                 self.used_tumors.append(unit.tag)

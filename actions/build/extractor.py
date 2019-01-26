@@ -3,14 +3,15 @@ from sc2.constants import EXTRACTOR
 
 
 class BuildExtractor:
-    """Can be improved, the ratio mineral-vespene still sightly off"""
+    """Can probably be improved,
+    but I think the problem is more on the vespene collection than the extractor building"""
 
     def __init__(self, main):
         self.controller = main
         self.drone = self.geyser = None
 
     async def should_handle(self):
-        """Couldn't find another way to build the geysers its way to inefficient,
+        """Couldn't find another way to build the geysers its heavily based on Burny's approach,
          still trying to find the optimal number"""
         local_controller = self.controller
         finished_bases = local_controller.townhalls.ready

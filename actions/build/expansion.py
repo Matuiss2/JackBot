@@ -3,15 +3,15 @@ from sc2.constants import HATCHERY
 
 
 class BuildExpansion:
-    """Ok for now"""
+    """Can be improved"""
 
     def __init__(self, main):
         self.controller = main
         self.worker_to_first_base = False
 
     async def should_handle(self):
-        """Good for now, maybe the 7th or more hatchery can be postponed
-         for when extra mining patches or production are needed """
+        """Fourth base sometimes are not build at the expected time maybe reduce the lock for it,
+         also maybe the 7th or more hatchery can be postponed for when extra mining patches or production are needed """
         local_controller = self.controller
         base = local_controller.townhalls
         base_amount = len(base)
