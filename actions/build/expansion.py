@@ -22,9 +22,11 @@ class BuildExpansion:
             and not local_controller.close_enemies_to_base
             and (not local_controller.close_enemy_production or game_time > 690)
         ):
-            if local_controller.minerals >= 1000:
+            hatcheries_in_progress = local_controller.already_pending(HATCHERY)
+            if local_controller.minerals >= 1000 and hatcheries_in_progress < 2:
+                # Rare are the cases that this will trigger, it still untested
                 return True
-            if not local_controller.already_pending(HATCHERY):
+            if not hatcheries_in_progress:
                 if base_amount <= 5:
                     return len(local_controller.zerglings) > 19 or game_time >= 285 if base_amount == 2 else True
                 return local_controller.caverns
