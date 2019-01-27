@@ -79,7 +79,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if enemy_building.closer_than(30, self.unit_position):
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 continue
-            if local_controller.time < 1000 and not local_controller.close_enemies_to_base:
+            if not local_controller.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
                 continue
             if self.keep_attacking(attacking_unit, targets):
