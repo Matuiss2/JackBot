@@ -18,7 +18,8 @@ class BuildSpire:
         )
 
     async def handle(self):
-        """Put the spire near the pool"""
-        local_controller = self.controller
-        await local_controller.build(SPIRE, near=local_controller.pools.first)
+        """Places the spire"""
+        build = await self.controller.place_building(SPIRE)
+        if not build:
+            return False
         return True

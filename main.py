@@ -46,10 +46,9 @@ from data_containers.data_container import MainDataContainer
 class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, BlockExpansions):
     """It makes periodic attacks with zerglings early, it goes hydras mid-game and ultras end-game"""
 
-    def __init__(self, debug=False):
+    def __init__(self):
         CreepControl.__init__(self)
         MainDataContainer.__init__(self)
-        self.debug = debug
         self.iteration = self.add_action = None
         self.unit_commands = (
             BlockExpansions(self),
@@ -131,16 +130,13 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         await self.run_commands(self.build_commands)
         await self.run_commands(self.upgrade_commands)
         if self.actions:
-            if self.debug:
-                print(self.actions)
             await self.do_actions(self.actions)
 
-    async def run_commands(self, commands):
+    @staticmethod
+    async def run_commands(commands):
         """Group all requirements and execution for a class logic"""
         for command in commands:
             if await command.should_handle():
-                if self.debug:
-                    print(f"Handling: {command.__class__}")
                 await command.handle()
 
     def can_train(self, unit_type, requirement=True, larva=True, hive_lock=True):
