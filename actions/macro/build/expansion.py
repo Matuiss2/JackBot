@@ -16,6 +16,7 @@ class BuildExpansion:
         base = local_controller.townhalls
         base_amount = len(base)
         game_time = local_controller.time
+
         if (
             base
             and local_controller.can_afford(HATCHERY)
@@ -23,7 +24,11 @@ class BuildExpansion:
             and (not local_controller.close_enemy_production or game_time > 690)
         ):
             hatcheries_in_progress = local_controller.already_pending(HATCHERY)
-            if local_controller.minerals >= 1000 and hatcheries_in_progress < 2:
+            if (
+                local_controller.minerals >= 1000
+                and hatcheries_in_progress < 2
+                and len(local_controller.townhalls) + hatcheries_in_progress < len(local_controller.ordered_expansions)
+            ):
                 # Rare are the cases that this will trigger, it still untested
                 return True
             if not hatcheries_in_progress:
