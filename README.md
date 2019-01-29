@@ -10,6 +10,8 @@ Its a bot does an early aggression, then tries to make a transition to hydralisk
 
 - Python 3.6 or newer
 
-- Sc2.exe
+- The most recent Sc2 version
 
-- Python-sc2 library (pip install sc2)
+- The most recent Python-sc2 library (pip install sc2)
+
+- Numpy
