@@ -13,7 +13,7 @@ class UpgradesFromBases:
         """Requirements to upgrade stuff from bases"""
         local_controller = self.controller
         self.selected_bases = local_controller.hatcheries.idle
-        if not (len(local_controller.zerglings) >= 19 and not local_controller.close_enemy_production):
+        if len(local_controller.zerglings) <= 19 and not local_controller.close_enemy_production:
             return False
         if local_controller.can_upgrade(BURROW, RESEARCH_BURROW, self.selected_bases):
             self.selected_research = RESEARCH_BURROW
