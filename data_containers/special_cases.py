@@ -84,6 +84,6 @@ class SituationalData:
             return len(self.enemy_structures.of_type(BARRACKS)) not in (1, 2) or not self.enemy_structures.of_type(
                 REFINERY
             )
-
         if self.enemy_race is Race.Protoss:
             return len(self.enemy_structures.of_type(GATEWAY)) != 1 or not self.enemy_structures.of_type(ASSIMILATOR)
+        return None
