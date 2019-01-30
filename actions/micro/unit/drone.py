@@ -6,6 +6,7 @@ class Drone:
 
     def __init__(self, main):
         self.controller = main
+        self.rush_scout = False
         self.drones = None
 
     async def should_handle(self):
@@ -15,8 +16,12 @@ class Drone:
         return self.drones and local_controller.iteration % 2000 == 75 and not local_controller.close_enemy_production
 
     async def handle(self):
-        """It sends a drone to scout the map, starting with the closest place then going base by base to the furthest"""
+        """It sends 2 drones to scout the map, for rushes or proxies"""
         local_controller = self.controller
-        scout = self.drones.random
-        for point in local_controller.ordered_expansions:
+        scout = self.drones.closest_to(local_controller.start_location)
+        expansion_locations = local_controller.ordered_expansions
+        for point in expansion_locations[2:]:
             local_controller.add_action(scout.move(point, queue=True))
+        if not self.rush_scout:
+            self.rush_scout = True
+            local_controller.add_action(self.drones.random.move(expansion_locations[-1]))
