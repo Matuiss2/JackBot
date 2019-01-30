@@ -103,7 +103,7 @@ class EnemyArmyValue:
             DISRUPTOR: self.counter,
             IMMORTAL: self.advantage,
         }
-        return general_calculation(protoss_as_zergling_table, combined_enemies.ready)
+        return general_calculation(protoss_as_zergling_table, combined_enemies)
 
     def protoss_value_for_hydralisks(self, combined_enemies):
         """Calculate the enemy army value for hydralisks vs protoss"""
@@ -127,7 +127,7 @@ class EnemyArmyValue:
             VOIDRAY: self.countered,
             MOTHERSHIP: self.normal,
         }
-        return general_calculation(protoss_as_hydralisks_table, combined_enemies.ready)
+        return general_calculation(protoss_as_hydralisks_table, combined_enemies)
 
     def protoss_value_for_ultralisks(self, combined_enemies):
         """Calculate the enemy army value for ultralisks vs protoss"""
@@ -145,7 +145,7 @@ class EnemyArmyValue:
             DISRUPTOR: self.normal,
             IMMORTAL: self.massive_counter,
         }
-        return general_calculation(protoss_as_ultralisks_table, combined_enemies.ready)
+        return general_calculation(protoss_as_ultralisks_table, combined_enemies)
 
     def terran_value_for_zerglings(self, combined_enemies):
         """Calculate the enemy army value for zerglings vs terran"""
@@ -165,7 +165,7 @@ class EnemyArmyValue:
             THOR: self.countered,
             VIKINGASSAULT: self.countered,
         }
-        return general_calculation(terran_as_zergling_table, combined_enemies.ready)
+        return general_calculation(terran_as_zergling_table, combined_enemies)
 
     def terran_value_for_hydralisks(self, combined_enemies):
         """Calculate the enemy army value for hydralisks vs terran"""
@@ -190,7 +190,7 @@ class EnemyArmyValue:
             MEDIVAC: self.massive_countered,
             VIKINGFIGHTER: self.massive_countered,
         }
-        return general_calculation(terran_as_hydralisk_table, combined_enemies.ready)
+        return general_calculation(terran_as_hydralisk_table, combined_enemies)
 
     def terran_value_for_ultralisks(self, combined_enemies):
         """Calculate the enemy army value for ultralisks vs terran"""
@@ -210,7 +210,7 @@ class EnemyArmyValue:
             THOR: self.counter,
             VIKINGASSAULT: self.countered,
         }
-        return general_calculation(terran_as_ultralisk_table, combined_enemies.ready)
+        return general_calculation(terran_as_ultralisk_table, combined_enemies)
 
     def zerg_value_for_zerglings(self, combined_enemies):
         """Calculate the enemy army value for zerglings vs zerg"""
@@ -234,7 +234,7 @@ class EnemyArmyValue:
             SPINECRAWLER: self.counter,
             BROODLING: self.normal,
         }
-        return general_calculation(zerg_as_zergling_table, combined_enemies.ready)
+        return general_calculation(zerg_as_zergling_table, combined_enemies)
 
     def zerg_value_for_hydralisk(self, combined_enemies):
         """Calculate the enemy army value for hydralisks vs zerg"""
@@ -265,7 +265,7 @@ class EnemyArmyValue:
             BROODLORD: self.normal,
             BROODLING: self.countered,
         }
-        return general_calculation(zerg_as_hydralisk_table, combined_enemies.ready)
+        return general_calculation(zerg_as_hydralisk_table, combined_enemies)
 
     def zerg_value_for_ultralisks(self, combined_enemies):
         """Calculate the enemy army value for ultralisks vs zerg"""
@@ -289,7 +289,7 @@ class EnemyArmyValue:
             SPINECRAWLER: self.normal,
             BROODLING: self.countered,
         }
-        return general_calculation(zerg_as_ultralisk_table, combined_enemies.ready)
+        return general_calculation(zerg_as_ultralisk_table, combined_enemies)
 
     def enemy_value_terran(self, unit, target_group):
         """Returns the right enemy value based on the unit vs terran"""
