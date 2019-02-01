@@ -81,9 +81,11 @@ class SituationalData:
     def check_for_rushes(self):
         """Got and adapted from SeeBot"""
         if self.enemy_race is Race.Terran:
-            return len(self.enemy_structures.of_type(BARRACKS)) not in (1, 2) or not self.enemy_structures.of_type(
-                REFINERY
-            )
+            return (
+                len(self.enemy_structures.of_type(BARRACKS)) > 2 or not self.enemy_structures.of_type(REFINERY)
+            ) and len(self.enemy_structures.of_type(COMMANDCENTER)) == 1
         if self.enemy_race is Race.Protoss:
-            return len(self.enemy_structures.of_type(GATEWAY)) != 1 or not self.enemy_structures.of_type(ASSIMILATOR)
+            return (
+                len(self.enemy_structures.of_type(GATEWAY)) != 1 or not self.enemy_structures.of_type(ASSIMILATOR)
+            ) and len(self.enemy_structures.of_type(NEXUS)) == 1
         return None
