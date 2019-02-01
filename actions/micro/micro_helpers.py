@@ -159,3 +159,13 @@ class Micro:
                 local_controller.add_action(unit.move(retreat_point))
                 return True
         return None
+
+    def find_hidden_bases(self, unit):
+        """ Find hidden bases if enemy main is destroyed"""
+        local_controller = self.controller
+        if not local_controller.enemies and unit.distance_to(self.enemy_start_locations[0]) < 15:
+            for point in local_controller.ordered_expansions[::-1]:
+                if not local_controller.enemies:
+                    local_controller.add_action(unit.move(point, queue=True))
+                    return True
+        return False

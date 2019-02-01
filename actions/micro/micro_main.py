@@ -85,6 +85,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if self.keep_attacking(attacking_unit, targets):
                 continue
             self.move_to_rallying_point(attacking_unit)
+            if self.find_hidden_bases:
+                continue
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
@@ -137,8 +139,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             enemy_building = local_controller.enemy_structures
             if enemy_building and local_controller.townhalls:
                 self.attack_closest_building(unit)
-            else:
-                self.attack_start_location(unit)
+            return self.attack_start_location(unit)
         return False
 
     def attack_closest_building(self, unit):
@@ -153,8 +154,10 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def attack_start_location(self, unit):
         """It tell to attack the starting location"""
         local_controller = self.controller
-        if local_controller.enemy_start_locations:
+        if local_controller.enemy_start_locations and unit.distance_to(local_controller.enemy_start_locations[0]) >= 15:
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
+            return True
+        return False
 
     def anti_proxy_trigger(self, unit):
         """Requirements for the anti-proxy logic"""
@@ -233,8 +236,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if target:
                 self.action(self.attack_command(target.closest_to(self.unit_position)))
                 return True
-            self.attack_start_location(unit)
-            return True
+            return self.attack_start_location(unit)
         return False
 
     def specific_hydra_behavior(self, hydra_targets, unit):
