@@ -85,8 +85,6 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if self.keep_attacking(attacking_unit, targets):
                 continue
             self.move_to_rallying_point(attacking_unit)
-            if self.find_hidden_bases:
-                continue
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
@@ -154,7 +152,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def attack_start_location(self, unit):
         """It tell to attack the starting location"""
         local_controller = self.controller
-        if local_controller.enemy_start_locations and unit.distance_to(local_controller.enemy_start_locations[0]) >= 15:
+        if local_controller.enemy_start_locations:
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
             return True
         return False
