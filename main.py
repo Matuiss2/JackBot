@@ -125,7 +125,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         if not iteration:
             self.locations = list(self.expansion_locations.keys())
             await self.prepare_building_positions(self.townhalls.first)
-            self.prepare_expansions()
+            await self.prepare_expansions()
             self.split_workers()
         await self.run_commands(self.unit_commands)
         await self.run_commands(self.train_commands)
@@ -174,12 +174,16 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         """Global requirements for upgrades"""
         return not self.already_pending_upgrade(upgrade) and self.can_afford(research) and host_building
 
-    def prepare_expansions(self):
-        """Prepare all expansion locations and put it in order based on distance"""
+    async def prepare_expansions(self):
+        """Prepare all expansion locations and put it in order based on pathing distance"""
         start = self.start_location
-        waypoints = [point for point in list(self.expansion_locations)]
-        waypoints.sort(key=lambda p: (p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2)
-        self.ordered_expansions = [Point2((p[0], p[1])) for p in waypoints]
+        waypoints = [
+            (await self._client.query_pathing(start, point), point)
+            for point in list(self.expansion_locations)
+            if await self._client.query_pathing(start, point)
+        ] # remove all None values for pathing
+        # p1 is the expansion location - p0 is the pathing distance to the main base
+        self.ordered_expansions = [Point2((p[1])) for p in sorted(waypoints, key=lambda p: p[0])]
 
     def split_workers(self):
         """Split the workers on the beginning """

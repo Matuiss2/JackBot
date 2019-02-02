@@ -19,9 +19,8 @@ class Overlord:
     async def handle(self):
         """Send the ovs to the center, our natural and near our natural(to check proxies and incoming attacks)"""
         local_controller = self.controller
-        locations = local_controller.ordered_expansions
         map_center = local_controller.game_info.map_center
-        natural = locations[1]
+        natural = local_controller.ordered_expansions[0]
         if not self.first_ov_scout:
             self.first_ov_scout = True
             self.selected_ov = self.overlords.first
