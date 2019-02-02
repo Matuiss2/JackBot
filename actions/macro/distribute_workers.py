@@ -24,11 +24,11 @@ class DistributeWorkers:
 
     async def handle(self):
         """Groups the resulting actions from all functions below"""
+        self.distribute_idle_workers()
         self.gather_gas()
         self.distribute_to_deficits(
             self.mining_bases, self.workers_to_distribute, self.mineral_fields, self.deficit_bases
         )
-        self.distribute_idle_workers()
         return True
 
     def distribute_idle_workers(self):
