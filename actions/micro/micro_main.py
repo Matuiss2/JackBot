@@ -134,8 +134,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             self.move_to_rallying_point(unit)
             return True
         if not local_controller.close_enemy_production or local_controller.time >= 480:
-            enemy_building = local_controller.enemy_structures
-            if enemy_building and local_controller.townhalls:
+            if local_controller.townhalls:
                 self.attack_closest_building(unit)
             return self.attack_start_location(unit)
         return False
@@ -152,7 +151,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def attack_start_location(self, unit):
         """It tell to attack the starting location"""
         local_controller = self.controller
-        if local_controller.enemy_start_locations:
+        if local_controller.enemy_start_locations and not local_controller.enemy_structures:
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
             return True
         return False
