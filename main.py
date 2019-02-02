@@ -27,19 +27,19 @@ from actions.micro.unit.drone import Drone
 from actions.micro.unit.overlord import Overlord
 from actions.micro.unit.overseer import Overseer
 from actions.micro.unit.queen import QueensAbilities
-from actions.train.hydras import TrainHydralisk
-from actions.train.mutalisk import TrainMutalisk
-from actions.train.overlord import TrainOverlord
-from actions.train.overseer import TrainOverseer
-from actions.train.queen import TrainQueen
-from actions.train.ultralisk import TrainUltralisk
-from actions.train.worker import TrainWorker
-from actions.train.zergling import TrainZergling
-from actions.upgrades.spawning_pool_upgrades import UpgradesFromSpawningPool
-from actions.upgrades.base_upgrades import UpgradesFromBases
-from actions.upgrades.evochamber_upgrades import UpgradesFromEvochamber
-from actions.upgrades.hydraden_upgrades import UpgradesFromHydraden
-from actions.upgrades.cavern_upgrades import UpgradesFromCavern
+from actions.macro.train import TrainHydralisk
+from actions.macro.train import TrainMutalisk
+from actions.macro.train import TrainOverlord
+from actions.macro.train import TrainOverseer
+from actions.macro.train import TrainQueen
+from actions.macro.train import TrainUltralisk
+from actions.macro.train import TrainWorker
+from actions.macro.train import TrainZergling
+from actions.macro.upgrades import UpgradesFromSpawningPool
+from actions.macro.upgrades import UpgradesFromBases
+from actions.macro.upgrades import UpgradesFromEvochamber
+from actions.macro.upgrades.hydraden_upgrades import UpgradesFromHydraden
+from actions.macro.upgrades.cavern_upgrades import UpgradesFromCavern
 from data_containers.data_container import MainDataContainer
 
 

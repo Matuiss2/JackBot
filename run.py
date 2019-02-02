@@ -17,7 +17,15 @@ if __name__ == "__main__":
         # Local game
         print("Starting local game...")
         RANDOM_MAP = random.choice(
-            ["AcidPlantLE", "BlueshiftLE", "CeruleanFallLE", "DreamcatcherLE", "FractureLE", "LostAndFoundLE"]
+            [
+                "AutomatonLE",
+                "BlueshiftLE",
+                "DarknessSanctuaryLE",
+                "KairosJunctionLE",
+                "ParaSiteLE",
+                "PortAleksanderLE",
+                "StasisLE",
+            ]
         )
         # 797 - 203 /
         sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Terran, Difficulty.CheatVision)], realtime=False)
