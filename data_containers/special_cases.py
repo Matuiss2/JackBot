@@ -1,5 +1,6 @@
 """All situational data are here"""
 from sc2.constants import (
+    ASSIMILATOR,
     BARRACKS,
     COMMANDCENTER,
     CORRUPTOR,
@@ -13,10 +14,13 @@ from sc2.constants import (
     OVERSEER,
     PROBE,
     RAVEN,
+    REFINERY,
     SCV,
     VIPER,
     WARPPRISM,
 )
+
+from sc2 import Race
 
 
 class SituationalData:
@@ -73,3 +77,15 @@ class SituationalData:
                     self.close_enemies_to_base = True
                 if close_enemy_flying and not self.counter_attack_vs_flying:
                     self.counter_attack_vs_flying = True
+
+    def check_for_rushes(self):
+        """Got and adapted from SeeBot"""
+        if self.enemy_race is Race.Terran:
+            return (
+                len(self.enemy_structures.of_type(BARRACKS)) > 2 or not self.enemy_structures.of_type(REFINERY)
+            ) and len(self.enemy_structures.of_type(COMMANDCENTER)) == 1
+        if self.enemy_race is Race.Protoss:
+            return (
+                len(self.enemy_structures.of_type(GATEWAY)) != 1 or not self.enemy_structures.of_type(ASSIMILATOR)
+            ) and len(self.enemy_structures.of_type(NEXUS)) == 1
+        return None

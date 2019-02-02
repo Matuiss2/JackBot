@@ -79,7 +79,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if enemy_building.closer_than(30, self.unit_position):
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 continue
-            if local_controller.time < 1000 and not local_controller.close_enemies_to_base:
+            if not local_controller.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
                 continue
             if self.keep_attacking(attacking_unit, targets):
@@ -126,8 +126,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         """Control the idle units, by gathering then or telling then to attack"""
         local_controller = self.controller
         if (
-            local_controller.supply_used not in range(198, 201)
-            and self.gathering_force_value(1, 2, 4) < 39 + 1.25 * local_controller.time // 100
+            self.gathering_force_value(1, 2, 4) < 42
             and local_controller.townhalls
             and self.retreat_units
             and not local_controller.counter_attack_vs_flying
@@ -135,11 +134,9 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             self.move_to_rallying_point(unit)
             return True
         if not local_controller.close_enemy_production or local_controller.time >= 480:
-            enemy_building = local_controller.enemy_structures
-            if enemy_building and local_controller.townhalls:
+            if local_controller.townhalls:
                 self.attack_closest_building(unit)
-            else:
-                self.attack_start_location(unit)
+            return self.attack_start_location(unit)
         return False
 
     def attack_closest_building(self, unit):
@@ -154,8 +151,10 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     def attack_start_location(self, unit):
         """It tell to attack the starting location"""
         local_controller = self.controller
-        if local_controller.enemy_start_locations:
+        if local_controller.enemy_start_locations and not local_controller.enemy_structures:
             local_controller.add_action(unit.attack(local_controller.enemy_start_locations[0]))
+            return True
+        return False
 
     def anti_proxy_trigger(self, unit):
         """Requirements for the anti-proxy logic"""
@@ -234,8 +233,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             if target:
                 self.action(self.attack_command(target.closest_to(self.unit_position)))
                 return True
-            self.attack_start_location(unit)
-            return True
+            return self.attack_start_location(unit)
         return False
 
     def specific_hydra_behavior(self, hydra_targets, unit):

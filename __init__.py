@@ -3,10 +3,9 @@ import argparse
 import asyncio
 import logging
 import sc2
+import aiohttp
 from sc2.portconfig import Portconfig
-from sc2.sc2process import SC2Process
 from sc2.client import Client
-from sc2.protocol import ConnectionAlreadyClosed
 
 
 def run_ladder_game(bot):
@@ -38,19 +37,18 @@ def run_ladder_game(bot):
 async def join_ladder_game(
     host, port, players, realtime, portconfig, save_replay_as=None, step_time_limit=None, game_time_limit=None
 ):
-    """Run the requirements for joining the ladder and save the replay if requested"""
-    async with SC2Process(host=host, port=port) as server:
-        await server.ping()
-        _client = Client(server.web_service)
-        try:
-            result = await sc2.main._play_game(
-                players[0], _client, realtime, portconfig, step_time_limit, game_time_limit
-            )
-            if save_replay_as:
-                await _client.save_replay(save_replay_as)
-            await _client.leave()
-            await _client.quit()
-        except ConnectionAlreadyClosed:
-            logging.error("Connection was closed before the game ended")
-            return None
-        return result
+    ws_url = "ws://{}:{}/sc2api".format(host, port)
+    ws_connection = await aiohttp.ClientSession().ws_connect(ws_url, timeout=120)
+    client = Client(ws_connection)
+    try:
+        result = await sc2.main._play_game(players[0], client, realtime, portconfig, step_time_limit, game_time_limit)
+        if save_replay_as is not None:
+            await client.save_replay(save_replay_as)
+        await client.leave()
+        await client.quit()
+    except ConnectionError:
+        logging.error(f"Connection was closed before the game ended")
+        return None
+    finally:
+        ws_connection.close()
+    return result

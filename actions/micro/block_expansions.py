@@ -25,7 +25,7 @@ class BlockExpansions:
         excluding the main and the natural, to block it, need to fix the mentioned bug"""
         local_controller = self.controller
         local_controller.burrowed_lings = [
-            unit.tag for unit in self.zerglings.sorted_by_distance_to(local_controller.ordered_expansions[1])[:4]
+            unit.tag for unit in self.zerglings.sorted_by_distance_to(local_controller.ordered_expansions[0])[:4]
         ]
         for list_index, zergling in enumerate(self.zerglings.tags_in(local_controller.burrowed_lings)):
             location = local_controller.ordered_expansions[:-2][-list_index - 1]

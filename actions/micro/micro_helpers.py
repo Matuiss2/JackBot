@@ -35,8 +35,8 @@ class Micro:
         for effect in local_controller.state.effects:
             if effect.id in excluded_effects:
                 continue
-            danger_zone = unit.radius + 0.2
-            if not unit.position.distance_to_point2(unit.position.closest(effect.positions)) < danger_zone:
+            danger_zone = effect.radius + unit.radius + 0.2
+            if unit.position.distance_to_closest(effect.positions) > danger_zone:
                 continue
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
             local_controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
@@ -101,7 +101,7 @@ class Micro:
         # Only do this when our range > enemy range, our move speed > enemy move speed, and enemy is targeting us.
         action = self.controller.add_action
         unit_radius = unit.radius
-        our_range = unit.ground_range + unit_radius
+        our_range = unit.ground_range
         partial_enemy_range = target.ground_range
         if not partial_enemy_range:
             partial_enemy_range = 0
@@ -110,11 +110,11 @@ class Micro:
             our_range += 1
         # Our unit should stay just outside enemy range, and inside our range.
         if enemy_range:
-            minimum_distance = enemy_range + unit_radius + 0.1
+            minimum_distance = enemy_range + unit_radius + 0.01
         else:
             minimum_distance = our_range - unit_radius
-        if minimum_distance > our_range: # Check to make sure this range isn't negative.
-            minimum_distance = our_range - unit_radius
+        if minimum_distance > our_range:  # Check to make sure this range isn't negative.
+            minimum_distance = our_range - unit_radius - 0.01
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
         if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 0.295 * 22.4:
             action(unit.attack(target))
@@ -124,7 +124,7 @@ class Micro:
             retreat_point = self.find_retreat_point(target, unit)
             action(unit.move(retreat_point))
             return True
-        pursuit_point = self.find_pursuit_point(target, unit) # If our unit is too far, run towards.
+        pursuit_point = self.find_pursuit_point(target, unit)  # If our unit is too far, run towards.
         action(unit.move(pursuit_point))
         return True
 
