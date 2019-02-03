@@ -26,6 +26,6 @@ class BlockExpansions:
             unit.tag for unit in self.zerglings.sorted_by_distance_to(self.controller.ordered_expansions[0])[:4]
         ]
         for list_index, zergling in enumerate(self.zerglings.tags_in(self.controller.burrowed_lings)):
-            location = self.controller.ordered_expansions[:-2][-list_index - 1]
+            location = self.controller.ordered_expansions[:-1][-list_index - 1]
             self.controller.add_action(zergling.move(location))
             self.controller.add_action(zergling(BURROWDOWN_ZERGLING, queue=True))
