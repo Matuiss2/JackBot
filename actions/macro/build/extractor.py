@@ -27,7 +27,7 @@ class BuildExtractor:
             if (not gas_amount and self.controller.pools) or gas_amount < 3 <= len(self.controller.townhalls):
                 return True
             return (self.controller.time > 900 or self.controller.spires) or (
-                    self.controller.hydradens and gas_amount < 7
+                    self.controller.hydradens and gas_amount < 8
             )
 
     async def handle(self):
