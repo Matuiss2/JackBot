@@ -11,7 +11,7 @@ class BuildSpines:
     async def should_handle(self):
         """Requirements to build the spines"""
         return (
-                self.controller.building_requirement(SPINECRAWLER, self.controller.pools.ready)
+            self.controller.building_requirement(SPINECRAWLER, self.controller.pools.ready)
             and self.controller.townhalls
             and self.controller.close_enemy_production
             and len(self.controller.spines) < 4

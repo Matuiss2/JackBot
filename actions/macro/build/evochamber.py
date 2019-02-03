@@ -11,7 +11,7 @@ class BuildEvochamber:
     async def should_handle(self):
         """Requirements for building the evolution chambers, maybe its to early can probably be improved"""
         return (
-                self.controller.building_requirement(EVOLUTIONCHAMBER, self.controller.pools.ready)
+            self.controller.building_requirement(EVOLUTIONCHAMBER, self.controller.pools.ready)
             and (
                 len(self.controller.townhalls) >= 3
                 or (self.controller.close_enemy_production and len(self.controller.spines.ready) >= 4)

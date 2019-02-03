@@ -13,7 +13,7 @@ class BuildSpores:
         base = self.controller.townhalls.ready
         spores = self.controller.spores
         spore_building_trigger = (
-                self.controller.flying_enemies
+            self.controller.flying_enemies
             and not (len(spores) > len(base) or self.controller.close_enemies_to_base)
             and (au for au in self.controller.flying_enemies if au.can_attack_ground)
         )

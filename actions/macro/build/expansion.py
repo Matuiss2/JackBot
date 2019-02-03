@@ -24,7 +24,7 @@ class BuildExpansion:
         ):
             hatcheries_in_progress = self.controller.already_pending(HATCHERY)
             if (
-                    self.controller.minerals >= 1000
+                self.controller.minerals >= 1250
                 and hatcheries_in_progress < 2
                 and len(self.controller.townhalls) + hatcheries_in_progress < len(self.controller.expansion_locations)
             ):
@@ -32,7 +32,9 @@ class BuildExpansion:
                 return True
             if not hatcheries_in_progress:
                 if base_amount <= 5:
-                    return len(self.controller.zerglings) > 19 or game_time >= 285 if base_amount == 2 else True
+                    if base_amount == 4:
+                        return len(self.controller.hydras) > 7
+                    return len(self.controller.zerglings) > 21 or game_time >= 285 if base_amount == 2 else True
                 return self.controller.caverns
             return False
         return False

@@ -24,7 +24,5 @@ class BuildLair:
 
     async def handle(self):
         """Finishes the action of making the lair choosing the safest available base"""
-        self.controller.add_action(
-            self.controller.furthest_townhall_to_center(UPGRADETOLAIR_LAIR)
-        )
+        self.controller.add_action(self.controller.furthest_townhall_to_center(UPGRADETOLAIR_LAIR))
         return True

@@ -11,7 +11,7 @@ class BuildSpire:
     async def should_handle(self):
         """Build the spire if only floating buildings left"""
         return (
-                self.controller.can_build_unique(SPIRE, self.controller.spires)
+            self.controller.can_build_unique(SPIRE, self.controller.spires)
             and self.controller.floating_buildings_bm
             and (self.controller.lairs or self.controller.hives)
         )

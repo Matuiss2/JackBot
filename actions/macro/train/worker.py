@@ -1,5 +1,4 @@
 """Everything related to training drones goes here"""
-import numpy as np
 from sc2.constants import DRONE, OVERLORD
 
 
@@ -27,18 +26,9 @@ class TrainWorker:
             ):
                 return True
             optimal_workers = min(
-                sum(x.ideal_harvesters * 1.35 for x in self.controller.townhalls | geysers), 81 - len(geysers)
+                sum(x.ideal_harvesters * 1.35 for x in self.controller.townhalls | geysers), 94 - len(geysers)
             )
-            return (
-                workers_total + drones_in_queue < optimal_workers
-                and np.sum(
-                    np.array(
-                        [len(self.controller.zerglings), len(self.controller.hydras), len(self.controller.ultralisks)]
-                    )
-                    * np.array([1, 2, 3])
-                )
-                > 15
-            )
+            return workers_total + drones_in_queue < optimal_workers and len(self.controller.zerglings) > 17
         return False
 
     async def handle(self):

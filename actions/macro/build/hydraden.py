@@ -13,7 +13,7 @@ class BuildHydraden:
         """Requirement to build the hydraden"""
         self.selected_pools = self.controller.pools
         return (
-                self.controller.can_build_unique(
+            self.controller.can_build_unique(
                 HYDRALISKDEN, self.controller.hydradens, (self.controller.lairs and self.selected_pools)
             )
             and not self.controller.close_enemy_production
