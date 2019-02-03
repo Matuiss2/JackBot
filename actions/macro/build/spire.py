@@ -10,11 +10,10 @@ class BuildSpire:
 
     async def should_handle(self):
         """Build the spire if only floating buildings left"""
-        local_controller = self.controller
         return (
-            local_controller.can_build_unique(SPIRE, local_controller.spires)
-            and local_controller.floating_buildings_bm
-            and (local_controller.lairs or local_controller.hives)
+                self.controller.can_build_unique(SPIRE, self.controller.spires)
+            and self.controller.floating_buildings_bm
+            and (self.controller.lairs or self.controller.hives)
         )
 
     async def handle(self):

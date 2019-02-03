@@ -13,23 +13,22 @@ class BuildExtractor:
     async def should_handle(self):
         """Couldn't find another way to build the geysers its heavily based on Burny's approach,
          still trying to find the optimal number"""
-        local_controller = self.controller
-        finished_bases = local_controller.townhalls.ready
-        if (local_controller.vespene * 1.25 > local_controller.minerals) or (
-            not local_controller.building_requirement(EXTRACTOR, finished_bases)
+        finished_bases = self.controller.townhalls.ready
+        if (self.controller.vespene * 1.25 > self.controller.minerals) or (
+            not self.controller.building_requirement(EXTRACTOR, finished_bases)
         ):
             return False
-        gas = local_controller.extractors
+        gas = self.controller.extractors
         gas_amount = len(gas)
-        for geyser in local_controller.state.vespene_geyser.closer_than(10, finished_bases.random):
-            self.drone = local_controller.select_build_worker(geyser.position)
-            if not self.drone or local_controller.already_pending(EXTRACTOR) or gas_amount > 10:
+        for geyser in self.controller.state.vespene_geyser.closer_than(10, finished_bases.random):
+            self.drone = self.controller.select_build_worker(geyser.position)
+            if not self.drone or self.controller.already_pending(EXTRACTOR) or gas_amount > 10:
                 return False
             self.geyser = geyser
-            if (not gas and local_controller.pools) or gas_amount < 3 <= len(local_controller.townhalls):
+            if (not gas and self.controller.pools) or gas_amount < 3 <= len(self.controller.townhalls):
                 return True
-            return (local_controller.time > 900 or local_controller.spires) or (
-                local_controller.hydradens and gas_amount < 7
+            return (self.controller.time > 900 or self.controller.spires) or (
+                    self.controller.hydradens and gas_amount < 7
             )
 
     async def handle(self):

@@ -11,16 +11,15 @@ class UpgradesFromHydraden:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from hydradens"""
-        local_controller = self.controller
-        self.selected_dens = local_controller.hydradens.ready.noqueue.idle
-        if local_controller.floating_buildings_bm:
+        self.selected_dens = self.controller.hydradens.ready.noqueue.idle
+        if self.controller.floating_buildings_bm:
             return False
-        if local_controller.can_upgrade(EVOLVEGROOVEDSPINES, RESEARCH_GROOVEDSPINES, self.selected_dens):
+        if self.controller.can_upgrade(EVOLVEGROOVEDSPINES, RESEARCH_GROOVEDSPINES, self.selected_dens):
             self.selected_research = RESEARCH_GROOVEDSPINES
             return True
         if (
-            local_controller.can_upgrade(EVOLVEMUSCULARAUGMENTS, RESEARCH_MUSCULARAUGMENTS, self.selected_dens)
-            and local_controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1
+            self.controller.can_upgrade(EVOLVEMUSCULARAUGMENTS, RESEARCH_MUSCULARAUGMENTS, self.selected_dens)
+            and self.controller.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1
         ):
             self.selected_research = RESEARCH_MUSCULARAUGMENTS
             return True

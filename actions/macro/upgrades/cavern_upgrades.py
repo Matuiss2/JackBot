@@ -12,12 +12,11 @@ class UpgradesFromCavern:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from caverns"""
-        local_controller = self.controller
-        self.selected_caverns = local_controller.caverns.idle.noqueue
-        if local_controller.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.selected_caverns):
+        self.selected_caverns = self.controller.caverns.idle.noqueue
+        if self.controller.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.selected_caverns):
             self.selected_research = RESEARCH_CHITINOUSPLATING
             return True
-        if local_controller.can_upgrade(
+        if self.controller.can_upgrade(
             ANABOLICSYNTHESIS, ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2, self.selected_caverns
         ):
             self.selected_research = ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2

@@ -22,9 +22,8 @@ class Micro:
 
     # TODO - fix
     '''def dodge_effects(self, unit: Unit) -> bool:
-        """Dodge any effects"""
-        local_controller = self.controller
-        if not local_controller.state.effects or unit.type_id == ULTRALISK:
+        """Dodge any effects"""        
+        if not self.controller.state.effects or unit.type_id == ULTRALISK:
             return False
         excluded_effects = (
             SCANNERSWEEP,
@@ -32,14 +31,14 @@ class Micro:
             LIBERATORTARGETMORPHDELAYPERSISTENT,
             LIBERATORTARGETMORPHPERSISTENT,
         )  # Placeholder(must find better way to handle some of these)
-        for effect in local_controller.state.effects:
+        for effect in self.controller.state.effects:
             if effect.id in excluded_effects:
                 continue
             danger_zone = effect.radius + unit.radius + 0.2
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
                 continue
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
-            local_controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
+            self.controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
         return False'''
 
@@ -150,12 +149,11 @@ class Micro:
 
     def disruptor_dodge(self, unit):
         """If the enemy has disruptor's, run a dodging code."""
-        local_controller = self.controller
         if unit.type_id == ULTRALISK:
             return False
-        for ball in local_controller.enemies.of_type(DISRUPTORPHASED):
+        for ball in self.controller.enemies.of_type(DISRUPTORPHASED):
             if ball.distance_to(unit) < 3:
                 retreat_point = self.find_retreat_point(ball, unit)
-                local_controller.add_action(unit.move(retreat_point))
+                self.controller.add_action(unit.move(retreat_point))
                 return True
         return None

@@ -12,44 +12,42 @@ class BuildExpansion:
     async def should_handle(self):
         """Fourth base sometimes are not build at the expected time maybe reduce the lock for it,
          also maybe the 7th or more hatchery can be postponed for when extra mining patches or production are needed """
-        local_controller = self.controller
-        base = local_controller.townhalls
+        base = self.controller.townhalls
         base_amount = len(base)
-        game_time = local_controller.time
+        game_time = self.controller.time
 
         if (
             base
-            and local_controller.can_afford(HATCHERY)
-            and not local_controller.close_enemies_to_base
-            and (not local_controller.close_enemy_production or game_time > 690)
+            and self.controller.can_afford(HATCHERY)
+            and not self.controller.close_enemies_to_base
+            and (not self.controller.close_enemy_production or game_time > 690)
         ):
-            hatcheries_in_progress = local_controller.already_pending(HATCHERY)
+            hatcheries_in_progress = self.controller.already_pending(HATCHERY)
             if (
-                local_controller.minerals >= 1000
+                    self.controller.minerals >= 1000
                 and hatcheries_in_progress < 2
-                and len(local_controller.townhalls) + hatcheries_in_progress < len(local_controller.expansion_locations)
+                and len(self.controller.townhalls) + hatcheries_in_progress < len(self.controller.expansion_locations)
             ):
                 # Rare are the cases that this will trigger, it still untested
                 return True
             if not hatcheries_in_progress:
                 if base_amount <= 5:
-                    return len(local_controller.zerglings) > 19 or game_time >= 285 if base_amount == 2 else True
-                return local_controller.caverns
+                    return len(self.controller.zerglings) > 19 or game_time >= 285 if base_amount == 2 else True
+                return self.controller.caverns
             return False
         return False
 
     async def handle(self):
         """Expands to the nearest expansion location using the nearest drone to it"""
-        local_controller = self.controller
-        action = local_controller.add_action
-        drones = local_controller.drones
-        if not self.worker_to_first_base and len(local_controller.townhalls) < 2 and local_controller.minerals > 225:
+        action = self.controller.add_action
+        drones = self.controller.drones
+        if not self.worker_to_first_base and len(self.controller.townhalls) < 2 and self.controller.minerals > 225:
             self.worker_to_first_base = True
-            action(local_controller.drones.random.move(await local_controller.get_next_expansion()))
+            action(self.controller.drones.random.move(await self.controller.get_next_expansion()))
             return True
-        for expansion in local_controller.ordered_expansions:
-            if await local_controller.can_place(HATCHERY, expansion):
-                enemy_units = local_controller.ground_enemies
+        for expansion in self.controller.ordered_expansions:
+            if await self.controller.can_place(HATCHERY, expansion):
+                enemy_units = self.controller.ground_enemies
                 if enemy_units and enemy_units.closer_than(15, expansion):
                     return False
                 if drones:

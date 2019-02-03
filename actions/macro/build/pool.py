@@ -10,11 +10,10 @@ class BuildPool:
 
     async def should_handle(self):
         """Requirement for building the spawning pool"""
-        local_controller = self.controller
-        return local_controller.can_build_unique(SPAWNINGPOOL, local_controller.pools) and (
-            len(local_controller.townhalls) >= 2
-            or local_controller.close_enemy_production
-            or local_controller.time > 145
+        return self.controller.can_build_unique(SPAWNINGPOOL, self.controller.pools) and (
+            len(self.controller.townhalls) >= 2
+            or self.controller.close_enemy_production
+            or self.controller.time > 145
         )
 
     async def handle(self):

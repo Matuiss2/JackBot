@@ -10,19 +10,16 @@ class TrainOverlord:
 
     async def should_handle(self):
         """We still get supply blocked sometimes, can be improved a lot still"""
-        local_controller = self.controller
-        if local_controller.supply_cap <= 200 and local_controller.supply_left < (
-            7 + local_controller.supply_used // 7
-        ):
-            overlords_in_queue = local_controller.already_pending(OVERLORD)
-            if local_controller.can_train(OVERLORD):
-                base_amount = len(local_controller.townhalls)
+        if self.controller.supply_cap <= 200 and self.controller.supply_left < (7 + self.controller.supply_used // 7):
+            overlords_in_queue = self.controller.already_pending(OVERLORD)
+            if self.controller.can_train(OVERLORD):
+                base_amount = len(self.controller.townhalls)
                 if (
-                    len(local_controller.drones.ready) == 14
-                    or (len(local_controller.overlords) == 2 and base_amount == 1)
-                    or (base_amount == 2 and not local_controller.pools)
+                    len(self.controller.drones.ready) == 14
+                    or (len(self.controller.overlords) == 2 and base_amount == 1)
+                    or (base_amount == 2 and not self.controller.pools)
                 ):
-                    return local_controller.close_enemy_production
+                    return self.controller.close_enemy_production
                 if (base_amount in (1, 2) and overlords_in_queue) or (overlords_in_queue >= 3):
                     return False
                 return True
@@ -31,6 +28,5 @@ class TrainOverlord:
 
     async def handle(self):
         """Execute the action of training overlords"""
-        local_controller = self.controller
-        local_controller.add_action(local_controller.larvae.random.train(OVERLORD))
+        self.controller.add_action(self.controller.larvae.random.train(OVERLORD))
         return True

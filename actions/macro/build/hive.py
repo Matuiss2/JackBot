@@ -11,12 +11,11 @@ class BuildHive:
 
     async def should_handle(self):
         """Requirement to build the hive, maybe its too greedy maybe we should raise the lock for it"""
-        local_controller = self.controller
-        self.selected_lairs = local_controller.lairs.ready.idle
+        self.selected_lairs = self.controller.lairs.ready.idle
         return (
             self.selected_lairs
-            and local_controller.can_build_unique(HIVE, local_controller.caverns, local_controller.pits.ready)
-            and not local_controller.already_pending(HIVE, all_units=True)
+            and self.controller.can_build_unique(HIVE, self.controller.caverns, self.controller.pits.ready)
+            and not self.controller.already_pending(HIVE, all_units=True)
         )
 
     async def handle(self):

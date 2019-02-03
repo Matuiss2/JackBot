@@ -40,14 +40,13 @@ class UpgradesFromEvochamber:
 
     async def handle(self):
         """Execute the action of upgrading armor, melee and ranged attacks"""
-        local_controller = self.controller
-        action = local_controller.add_action
-        if local_controller.hydradens and not self.upgrades_added:
+        action = self.controller.add_action
+        if self.controller.hydradens and not self.upgrades_added:
             self.upgrades_added = True
             self.upgrade_list.extend(self.ranged_upgrades)
         for evo in self.selected_evos:
-            for upgrade in await local_controller.get_available_abilities(evo):
-                if upgrade in self.upgrade_list and local_controller.can_afford(upgrade):
+            for upgrade in await self.controller.get_available_abilities(evo):
+                if upgrade in self.upgrade_list and self.controller.can_afford(upgrade):
                     action(evo(upgrade))
                     return True
         return True

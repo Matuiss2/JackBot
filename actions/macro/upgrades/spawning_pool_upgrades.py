@@ -16,14 +16,13 @@ class UpgradesFromSpawningPool:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from pools"""
-        local_controller = self.controller
-        self.selected_pools = local_controller.pools.ready.idle
-        if local_controller.can_upgrade(ZERGLINGMOVEMENTSPEED, RESEARCH_ZERGLINGMETABOLICBOOST, self.selected_pools):
+        self.selected_pools = self.controller.pools.ready.idle
+        if self.controller.can_upgrade(ZERGLINGMOVEMENTSPEED, RESEARCH_ZERGLINGMETABOLICBOOST, self.selected_pools):
             self.selected_research = RESEARCH_ZERGLINGMETABOLICBOOST
             return True
         if (
-            local_controller.can_upgrade(ZERGLINGATTACKSPEED, RESEARCH_ZERGLINGADRENALGLANDS, self.selected_pools)
-            and local_controller.hives
+            self.controller.can_upgrade(ZERGLINGATTACKSPEED, RESEARCH_ZERGLINGADRENALGLANDS, self.selected_pools)
+            and self.controller.hives
         ):
             self.selected_research = RESEARCH_ZERGLINGADRENALGLANDS
             return True

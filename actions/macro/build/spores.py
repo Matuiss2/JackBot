@@ -10,35 +10,33 @@ class BuildSpores:
 
     async def should_handle(self):
         """Requirements build the spores"""
-        local_controller = self.controller
-        base = local_controller.townhalls.ready
-        spores = local_controller.spores
+        base = self.controller.townhalls.ready
+        spores = self.controller.spores
         spore_building_trigger = (
-            local_controller.flying_enemies
-            and not (len(spores) > len(base) or local_controller.close_enemies_to_base)
-            and (au for au in local_controller.flying_enemies if au.can_attack_ground)
+                self.controller.flying_enemies
+            and not (len(spores) > len(base) or self.controller.close_enemies_to_base)
+            and (au for au in self.controller.flying_enemies if au.can_attack_ground)
         )
         if base:
             return (
-                (spore_building_trigger or local_controller.time >= 420)
-                and not local_controller.already_pending(SPORECRAWLER)
+                (spore_building_trigger or self.controller.time >= 420)
+                and not self.controller.already_pending(SPORECRAWLER)
                 and not spores.closer_than(15, base.random)
-                and local_controller.building_requirement(SPORECRAWLER, local_controller.pools.ready)
+                and self.controller.building_requirement(SPORECRAWLER, self.controller.pools.ready)
             )
 
     async def handle(self):
         """Build the spore right on the middle of the base"""
-        local_controller = self.controller
-        state = local_controller.state
-        for base in local_controller.townhalls.ready:
+        state = self.controller.state
+        for base in self.controller.townhalls.ready:
             spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
-            selected_drone = local_controller.select_build_worker(spore_position)
+            selected_drone = self.controller.select_build_worker(spore_position)
             if (
-                not local_controller.ground_enemies.closer_than(20, spore_position)
+                not self.controller.ground_enemies.closer_than(20, spore_position)
                 and selected_drone
-                and not local_controller.spores.closer_than(15, spore_position)
+                and not self.controller.spores.closer_than(15, spore_position)
             ):
-                build = local_controller.add_action(selected_drone.build(SPORECRAWLER, spore_position))
+                build = self.controller.add_action(selected_drone.build(SPORECRAWLER, spore_position))
                 if not build:
                     return False
                 return True

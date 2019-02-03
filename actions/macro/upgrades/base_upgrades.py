@@ -11,14 +11,13 @@ class UpgradesFromBases:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from bases"""
-        local_controller = self.controller
-        self.selected_bases = local_controller.hatcheries.idle
-        if len(local_controller.zerglings) <= 19 and not local_controller.close_enemy_production:
+        self.selected_bases = self.controller.hatcheries.idle
+        if len(self.controller.zerglings) <= 19 and not self.controller.close_enemy_production:
             return False
-        if local_controller.can_upgrade(BURROW, RESEARCH_BURROW, self.selected_bases):
+        if self.controller.can_upgrade(BURROW, RESEARCH_BURROW, self.selected_bases):
             self.selected_research = RESEARCH_BURROW
             return True
-        if local_controller.caverns and local_controller.can_upgrade(
+        if self.controller.caverns and self.controller.can_upgrade(
             OVERLORDSPEED, RESEARCH_PNEUMATIZEDCARAPACE, self.selected_bases
         ):
             self.selected_research = RESEARCH_PNEUMATIZEDCARAPACE

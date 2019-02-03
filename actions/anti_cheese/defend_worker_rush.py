@@ -13,11 +13,10 @@ class DefendWorkerRush(Micro):
 
     async def should_handle(self):
         """Requirements to run handle"""
-        local_controller = self.controller
-        self.base = local_controller.hatcheries.ready
+        self.base = self.controller.hatcheries.ready
         if not self.base:
             return False
-        self.enemy_units_close = local_controller.enemies.closer_than(8, self.base.first).of_type({PROBE, DRONE, SCV})
+        self.enemy_units_close = self.controller.enemies.closer_than(8, self.base.first).of_type({PROBE, DRONE, SCV})
         return self.enemy_units_close or self.defender_tags
 
     async def handle(self):
@@ -41,11 +40,10 @@ class DefendWorkerRush(Micro):
 
     def save_lowhp_drone(self, drone, base):
         """Remove drones with less 6 hp(one worker hit) from the defending force"""
-        local_controller = self.controller
         if drone.health <= 6:
             if not drone.is_collecting:
-                local_controller.add_action(
-                    drone.gather(local_controller.state.mineral_field.closest_to(base.first.position))
+                self.controller.add_action(
+                    drone.gather(self.controller.state.mineral_field.closest_to(base.first.position))
                 )
             else:
                 self.defender_tags.remove(drone.tag)
@@ -54,21 +52,19 @@ class DefendWorkerRush(Micro):
 
     def refill_defense_force(self, enemy_count):
         """If there are less workers on the defenders force than the ideal refill it"""
-        local_controller = self.controller
-        self.defenders = local_controller.drones.filter(
+        self.defenders = self.controller.drones.filter(
             lambda worker: worker.tag in self.defender_tags and worker.health > 0
         )
-        defender_deficit = min(len(local_controller.drones) - 1, enemy_count + enemy_count) - len(self.defenders)
+        defender_deficit = min(len(self.controller.drones) - 1, enemy_count + enemy_count) - len(self.defenders)
         if defender_deficit > 0:
             additional_drones = self.defense_force(defender_deficit)
             self.defender_tags = self.defender_tags + additional_drones
 
     def clear_defense_force(self, base):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
-        local_controller = self.controller
         if self.defenders:
             for drone in self.defenders:
-                local_controller.add_action(drone.gather(local_controller.state.mineral_field.closest_to(base.first)))
+                self.controller.add_action(drone.gather(self.controller.state.mineral_field.closest_to(base.first)))
             self.defender_tags = []
             self.defenders = None
 

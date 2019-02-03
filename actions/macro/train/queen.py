@@ -11,13 +11,12 @@ class TrainQueen:
 
     async def should_handle(self):
         """Requirement for training the queens"""
-        local_controller = self.controller
-        self.hatchery = local_controller.townhalls.exclude_type(LAIR).noqueue.ready
+        self.hatchery = self.controller.townhalls.exclude_type(LAIR).noqueue.ready
         return (
             self.hatchery
-            and len(local_controller.queens) < len(self.hatchery) + 1
-            and not local_controller.already_pending(QUEEN)
-            and local_controller.can_train(QUEEN, local_controller.pools.ready, larva=False)
+            and len(self.controller.queens) < len(self.hatchery) + 1
+            and not self.controller.already_pending(QUEEN)
+            and self.controller.can_train(QUEEN, self.controller.pools.ready, larva=False)
         )
 
     async def handle(self):

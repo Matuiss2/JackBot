@@ -20,10 +20,9 @@ class ZerglingControl(Micro):
     def baneling_dodge(self, unit, targets):
         """If the enemy has banelings, run baneling dodging code. It can be improved,
          its a little bugged and just avoid the baneling not pop it"""
-        local_controller = self.controller
-        action = local_controller.add_action
+        action = self.controller.add_action
         self.handling_anti_banelings_group()
-        if local_controller.enemies.of_type(BANELING):
+        if self.controller.enemies.of_type(BANELING):
             banelings = self.baneling_group(unit, targets)
             for baneling in banelings:
                 # Check for close banelings and if we've triggered any banelings
@@ -62,11 +61,10 @@ class ZerglingControl(Micro):
 
     def handling_anti_banelings_group(self):
         """If the sacrificial zergling dies before the missions is over remove him from the group(needs to be fixed)"""
-        local_controller = self.controller
         for zergling in list(self.baneling_sacrifices):
             if (
-                zergling not in local_controller.units()
-                or self.baneling_sacrifices[zergling] not in local_controller.enemies
+                zergling not in self.controller.units()
+                or self.baneling_sacrifices[zergling] not in self.controller.enemies
             ):
                 del self.baneling_sacrifices[zergling]
 

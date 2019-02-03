@@ -11,34 +11,29 @@ class TrainWorker:
 
     async def should_handle(self):
         """Should this action be handled, needs more smart limitations, its very greedy sometimes"""
-        local_controller = self.controller
-        workers_total = len(local_controller.workers)
-        geysers = local_controller.extractors
-        drones_in_queue = local_controller.already_pending(DRONE)
+        workers_total = len(self.controller.workers)
+        geysers = self.controller.extractors
+        drones_in_queue = self.controller.already_pending(DRONE)
         if (
-            not local_controller.close_enemies_to_base
-            and local_controller.can_train(DRONE)
-            and not local_controller.counter_attack_vs_flying
+            not self.controller.close_enemies_to_base
+            and self.controller.can_train(DRONE)
+            and not self.controller.counter_attack_vs_flying
         ):
             if workers_total == 12 and not drones_in_queue:
                 return True
             if (
                 workers_total in (13, 14, 15)
-                and len(local_controller.overlords) + local_controller.already_pending(OVERLORD) > 1
+                and len(self.controller.overlords) + self.controller.already_pending(OVERLORD) > 1
             ):
                 return True
             optimal_workers = min(
-                sum(x.ideal_harvesters * 1.33 for x in local_controller.townhalls | geysers), 90 - len(geysers)
+                sum(x.ideal_harvesters * 1.33 for x in self.controller.townhalls | geysers), 90 - len(geysers)
             )
             return (
                 workers_total + drones_in_queue < optimal_workers
                 and np.sum(
                     np.array(
-                        [
-                            len(local_controller.zerglings),
-                            len(local_controller.hydras),
-                            len(local_controller.ultralisks),
-                        ]
+                        [len(self.controller.zerglings), len(self.controller.hydras), len(self.controller.ultralisks)]
                     )
                     * np.array([1, 2, 3])
                 )
@@ -48,6 +43,5 @@ class TrainWorker:
 
     async def handle(self):
         """Execute the action of training drones"""
-        local_controller = self.controller
-        local_controller.add_action(local_controller.larvae.random.train(DRONE))
+        self.controller.add_action(self.controller.larvae.random.train(DRONE))
         return True

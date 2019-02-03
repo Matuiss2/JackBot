@@ -10,9 +10,8 @@ class Overseer:
 
     async def should_handle(self):
         """Requirements to move the overlords"""
-        local_controller = self.controller
-        self.bases = local_controller.townhalls.ready
-        self.overseers = local_controller.overseers
+        self.bases = self.controller.townhalls.ready
+        self.overseers = self.controller.overseers
         return self.overseers and self.bases
 
     async def handle(self):

@@ -10,14 +10,13 @@ class BuildEvochamber:
 
     async def should_handle(self):
         """Requirements for building the evolution chambers, maybe its to early can probably be improved"""
-        local_controller = self.controller
         return (
-            local_controller.building_requirement(EVOLUTIONCHAMBER, local_controller.pools.ready)
+                self.controller.building_requirement(EVOLUTIONCHAMBER, self.controller.pools.ready)
             and (
-                len(local_controller.townhalls) >= 3
-                or (local_controller.close_enemy_production and len(local_controller.spines.ready) >= 4)
+                len(self.controller.townhalls) >= 3
+                or (self.controller.close_enemy_production and len(self.controller.spines.ready) >= 4)
             )
-            and len(local_controller.evochambers) + local_controller.already_pending(EVOLUTIONCHAMBER) < 2
+            and len(self.controller.evochambers) + self.controller.already_pending(EVOLUTIONCHAMBER) < 2
         )
 
     async def handle(self):

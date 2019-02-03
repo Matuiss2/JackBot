@@ -22,16 +22,15 @@ class DefendProxies:
 
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
-        local_controller = self.controller
-        if local_controller.townhalls:
-            self.rush_buildings = local_controller.enemy_structures.exclude_type(
+        if self.controller.townhalls:
+            self.rush_buildings = self.controller.enemy_structures.exclude_type(
                 {AUTOTURRET, BARRACKS, GATEWAY}
-            ).closer_than(50, local_controller.townhalls.furthest_to(local_controller.game_info.map_center))
+            ).closer_than(50, self.controller.townhalls.furthest_to(self.controller.game_info.map_center))
         return (
             self.rush_buildings
-            and local_controller.time <= 270
-            and len(local_controller.drones) >= 15
-            and not local_controller.ground_enemies
+            and self.controller.time <= 270
+            and len(self.controller.drones) >= 15
+            and not self.controller.ground_enemies
         )
 
     def is_being_attacked(self, unit):
@@ -53,14 +52,13 @@ class DefendProxies:
     async def handle(self):
         """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
          surface area possible when attacking the buildings"""
-        local_controller = self.controller
-        drones = local_controller.drones
+        drones = self.controller.drones
         available = drones.filter(lambda x: x.is_collecting and not x.is_attacking)
-        for worker in local_controller.enemies.of_type({PROBE, DRONE, SCV}).filter(
-            lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in local_controller.structures)
+        for worker in self.controller.enemies.of_type({PROBE, DRONE, SCV}).filter(
+            lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in self.controller.structures)
         ):
             if not self.is_being_attacked(worker) and available:
-                local_controller.add_action(available.closest_to(worker).attack(worker))
+                self.controller.add_action(available.closest_to(worker).attack(worker))
         attacking_buildings = self.rush_buildings.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:

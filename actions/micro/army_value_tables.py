@@ -317,13 +317,12 @@ class EnemyArmyValue:
 
     def battling_force_value(self, unit_position, zvalue, hvalue, uvalue):
         """Returns the right value for our army that is in battle"""
-        local_controller = self.controller
         return np.sum(
             np.array(
                 [
-                    len(local_controller.zerglings.closer_than(13, unit_position)),
-                    len(local_controller.hydras.closer_than(13, unit_position)),
-                    len(local_controller.ultralisks.closer_than(13, unit_position)),
+                    len(self.controller.zerglings.closer_than(13, unit_position)),
+                    len(self.controller.hydras.closer_than(13, unit_position)),
+                    len(self.controller.ultralisks.closer_than(13, unit_position)),
                 ]
             )
             * np.array([zvalue, hvalue, uvalue])
@@ -331,13 +330,12 @@ class EnemyArmyValue:
 
     def gathering_force_value(self, zvalue, hvalue, uvalue):
         """Returns the right value for our army that is gathering"""
-        local_controller = self.controller
         return np.sum(
             np.array(
                 [
-                    len(local_controller.zerglings.ready),
-                    len(local_controller.hydras.ready),
-                    len(local_controller.ultralisks.ready),
+                    len(self.controller.zerglings.ready),
+                    len(self.controller.hydras.ready),
+                    len(self.controller.ultralisks.ready),
                 ]
             )
             * np.array([zvalue, hvalue, uvalue])

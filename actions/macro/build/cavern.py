@@ -10,8 +10,7 @@ class BuildCavern:
 
     async def should_handle(self):
         """Builds the ultralisk cavern"""
-        local_controller = self.controller
-        return local_controller.can_build_unique(ULTRALISKCAVERN, local_controller.caverns, local_controller.hives)
+        return self.controller.can_build_unique(ULTRALISKCAVERN, self.controller.caverns, self.controller.hives)
 
     async def handle(self):
         """Build the cavern on the decided placement"""
