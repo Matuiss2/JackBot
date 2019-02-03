@@ -27,7 +27,7 @@ class TrainWorker:
             ):
                 return True
             optimal_workers = min(
-                sum(x.ideal_harvesters * 1.33 for x in self.controller.townhalls | geysers), 90 - len(geysers)
+                sum(x.ideal_harvesters * 1.35 for x in self.controller.townhalls | geysers), 92 - len(geysers)
             )
             return (
                 workers_total + drones_in_queue < optimal_workers
@@ -37,7 +37,7 @@ class TrainWorker:
                     )
                     * np.array([1, 2, 3])
                 )
-                > 15
+                > 17
             )
         return False
 

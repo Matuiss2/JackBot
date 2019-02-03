@@ -18,14 +18,13 @@ class BuildExtractor:
             not self.controller.building_requirement(EXTRACTOR, finished_bases)
         ):
             return False
-        gas = self.controller.extractors
-        gas_amount = len(gas)
+        gas_amount = len(self.controller.extractors)
         for geyser in self.controller.state.vespene_geyser.closer_than(10, finished_bases.random):
             self.drone = self.controller.select_build_worker(geyser.position)
             if not self.drone or self.controller.already_pending(EXTRACTOR) or gas_amount > 10:
                 return False
             self.geyser = geyser
-            if (not gas and self.controller.pools) or gas_amount < 3 <= len(self.controller.townhalls):
+            if (not gas_amount and self.controller.pools) or gas_amount < 3 <= len(self.controller.townhalls):
                 return True
             return (self.controller.time > 900 or self.controller.spires) or (
                     self.controller.hydradens and gas_amount < 7

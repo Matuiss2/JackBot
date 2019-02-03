@@ -22,7 +22,7 @@ class Micro:
 
     # TODO - fix
     '''def dodge_effects(self, unit: Unit) -> bool:
-        """Dodge any effects"""        
+        """Dodge any effects"""
         if not self.controller.state.effects or unit.type_id == ULTRALISK:
             return False
         excluded_effects = (
