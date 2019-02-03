@@ -37,7 +37,7 @@ class TrainWorker:
                     )
                     * np.array([1, 2, 3])
                 )
-                > 17
+                > 19
             )
         return False
 
