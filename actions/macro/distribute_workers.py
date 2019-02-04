@@ -109,7 +109,7 @@ class DistributeWorkers:
         if self.require_gas:
             for extractor in self.geysers:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
-                if 0 < required_drones < len(self.controller.drones):
+                if 0 < required_drones < self.controller.drone_amount:
                     for drone in self.controller.drones.random_group_of(required_drones):
                         self.controller.add_action(drone.gather(extractor))
 

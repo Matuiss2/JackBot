@@ -56,7 +56,7 @@ class DefendWorkerRush(Micro):
         self.defenders = self.controller.drones.filter(
             lambda worker: worker.tag in self.defender_tags and worker.health > 0
         )
-        defender_deficit = min(len(self.controller.drones) - 1, enemy_count + enemy_count) - len(self.defenders)
+        defender_deficit = min(self.controller.drone_amount - 1, enemy_count + enemy_count) - len(self.defenders)
         if defender_deficit > 0:
             additional_drones = self.defense_force(defender_deficit)
             self.defender_tags = self.defender_tags + additional_drones

@@ -29,7 +29,7 @@ class DefendProxies:
         return (
             self.rush_buildings
             and self.controller.time <= 270
-            and len(self.controller.drones) >= 15
+            and self.controller.drone_amount >= 15
             and not self.controller.ground_enemies
         )
 
