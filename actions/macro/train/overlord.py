@@ -15,7 +15,7 @@ class TrainOverlord:
             if self.controller.can_train(OVERLORD):
                 if (
                     len(self.controller.drones.ready) == 14
-                    or (len(self.controller.overlords) == 2 and self.controller.base_amount == 1)
+                    or (self.controller.overlord_amount == 2 and self.controller.base_amount == 1)
                     or (self.controller.base_amount == 2 and not self.controller.pools)
                 ):
                     return self.controller.close_enemy_production

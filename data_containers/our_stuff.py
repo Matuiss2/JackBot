@@ -12,7 +12,7 @@ class OurStuffData(OurBuildingsData, OurUnitsData):
         OurBuildingsData.__init__(self)
         OurUnitsData.__init__(self)
         self.structures = self.hatcheries = self.lairs = self.hives = self.base_amount = self.hydra_amount = None
-        self.zergling_amount = self.drone_amount = None
+        self.zergling_amount = self.drone_amount = self.overlord_amount = None
 
     def initialize_our_stuff(self):
         """Initializes our stuff"""
@@ -45,3 +45,4 @@ class OurStuffData(OurBuildingsData, OurUnitsData):
         self.hydra_amount = len(self.hydras)
         self.zergling_amount = len(self.zerglings)
         self.drone_amount = len(self.drones)
+        self.overlord_amount = len(self.overlords)

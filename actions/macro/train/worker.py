@@ -10,7 +10,7 @@ class TrainWorker:
 
     async def should_handle(self):
         """Should this action be handled, needs more smart limitations, its very greedy sometimes"""
-        workers_total = len(self.controller.workers)
+        workers_total = self.controller.drone_amount
         geysers = self.controller.extractors
         drones_in_queue = self.controller.already_pending(DRONE)
         if (
@@ -22,7 +22,7 @@ class TrainWorker:
                 return True
             if (
                 workers_total in (13, 14, 15)
-                and len(self.controller.overlords) + self.controller.already_pending(OVERLORD) > 1
+                and self.controller.overlord_amount + self.controller.already_pending(OVERLORD) > 1
             ):
                 return True
             optimal_workers = min(
