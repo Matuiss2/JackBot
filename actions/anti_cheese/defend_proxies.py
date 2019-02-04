@@ -25,7 +25,7 @@ class DefendProxies:
         if self.controller.townhalls:
             self.rush_buildings = self.controller.enemy_structures.exclude_type(
                 {AUTOTURRET, BARRACKS, GATEWAY}
-            ).closer_than(50, self.controller.townhalls.furthest_to(self.controller.game_info.map_center))
+            ).closer_than(50, self.controller.furthest_townhall_to_center)
         return (
             self.rush_buildings
             and self.controller.time <= 270

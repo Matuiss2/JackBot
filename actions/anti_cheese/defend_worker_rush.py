@@ -1,6 +1,8 @@
 """Everything related to defending a worker rush goes here"""
 import heapq
+
 from sc2.constants import DRONE, PROBE, SCV
+
 from actions.micro.micro_helpers import Micro
 
 
@@ -24,17 +26,16 @@ class DefendWorkerRush(Micro):
         close_workers = self.enemy_units_close
         enemy_worker_force = len(close_workers)
         if self.defender_tags:
-            base = self.base
             if close_workers:
                 self.refill_defense_force(enemy_worker_force)
                 for drone in self.defenders:
-                    if not self.save_lowhp_drone(drone, base):
-                        if drone.weapon_cooldown <= 0.60 * 22.4:
+                    if not self.save_lowhp_drone(drone, self.base):
+                        if drone.weapon_cooldown <= 0.60 * 22.4:  # 13.44
                             self.attack_close_target(drone, close_workers)
                         elif not self.move_to_next_target(drone, close_workers):
                             self.move_lowhp(drone, close_workers)
             else:
-                self.clear_defense_force(base)
+                self.clear_defense_force(self.base)
         elif close_workers:
             self.defender_tags = self.defense_force(enemy_worker_force * 2)
 
