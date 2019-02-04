@@ -3,7 +3,7 @@ from sc2.constants import BURROW, BURROWDOWN_ZERGLING
 
 
 class BlockExpansions:
-    """Can be improved, it bugs occasionally, sometime it just doesnt send some of the zerglings"""
+    """Can be improved, it bugs occasionally, sometimes it just doesnt send some of the zerglings"""
 
     def __init__(self, main):
         self.controller = main

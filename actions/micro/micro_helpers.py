@@ -152,7 +152,7 @@ class Micro:
         if unit.type_id == ULTRALISK:
             return False
         for ball in self.controller.enemies.of_type(DISRUPTORPHASED):
-            if ball.distance_to(unit) < 3:
+            if ball.distance_to(unit) < 4:
                 retreat_point = self.find_retreat_point(ball, unit)
                 self.controller.add_action(unit.move(retreat_point))
                 return True

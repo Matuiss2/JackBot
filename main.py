@@ -151,10 +151,10 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         """Global requirements for building every structure"""
         return requirement and self.can_afford(unit_type)
 
-    def can_build_unique(self, unit_type, building, requirement=True):
+    def can_build_unique(self, unit_type, building, requirement=True, all_units=False):
         """Global requirements for building unique buildings"""
         return (
-            not self.already_pending(unit_type)
+            not self.already_pending(unit_type, all_units=all_units)
             and self.can_afford(unit_type)
             and not building
             and self.building_requirement(unit_type, requirement)

@@ -12,10 +12,8 @@ class BuildHive:
     async def should_handle(self):
         """Requirement to build the hive, maybe its too greedy maybe we should raise the lock for it"""
         self.selected_lairs = self.controller.lairs.ready.idle
-        return (
-            self.selected_lairs
-            and self.controller.can_build_unique(HIVE, self.controller.caverns, self.controller.pits.ready)
-            and not self.controller.already_pending(HIVE, all_units=True)
+        return self.selected_lairs and self.controller.can_build_unique(
+            HIVE, self.controller.caverns, self.controller.pits.ready, all_units=True
         )
 
     async def handle(self):

@@ -18,8 +18,7 @@ class BuildLair:
                 len(self.controller.townhalls) >= 3
                 or (self.controller.close_enemy_production and len(self.controller.evochambers.ready) >= 2)
             )
-            and self.controller.can_build_unique(LAIR, self.controller.caverns, self.selected_hatchery)
-            and not self.controller.already_pending(LAIR, all_units=True)
+            and self.controller.can_build_unique(LAIR, self.controller.caverns, self.selected_hatchery, all_units=True)
         )
 
     async def handle(self):

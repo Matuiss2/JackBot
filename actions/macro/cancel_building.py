@@ -17,7 +17,7 @@ class Buildings:
         )
 
     async def handle(self):
-        """Cancel the threatened building"""
+        """Cancel the threatened building adapted from Burny's bot"""
         for building in self.controller.structures.not_ready.exclude_type(self.controller.tumors):
             build_progress = building.build_progress
             relative_health = building.health_percentage

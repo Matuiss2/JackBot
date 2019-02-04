@@ -27,16 +27,16 @@ class QueensAbilities:
                 if enemies.closer_than(10, queen_position):
                     action(queen.attack(enemies.closest_to(queen_position)))
                     continue
-                selected = self.bases.closest_to(queen.position)
-                if queen_energy >= 25 and not selected.has_buff(QUEENSPAWNLARVATIMER):
-                    action(queen(EFFECT_INJECTLARVA, selected))
+                selected_base = self.bases.closest_to(queen.position)
+                if queen_energy >= 25 and not selected_base.has_buff(QUEENSPAWNLARVATIMER):
+                    action(queen(EFFECT_INJECTLARVA, selected_base))
                     continue
                 elif queen_energy >= 25:
                     await self.controller.place_tumor(queen)
-            for hatch in self.bases.ready.noqueue:
-                if not self.queens.closer_than(4, hatch):
+            for base in self.bases.ready.noqueue:
+                if not self.queens.closer_than(4, base):
                     for queen in self.queens.idle:
                         if not self.bases.closer_than(4, queen):
-                            action(queen.move(hatch.position))
+                            action(queen.move(base.position))
                             break
             return True

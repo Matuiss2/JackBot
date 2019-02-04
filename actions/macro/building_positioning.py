@@ -27,12 +27,11 @@ class BuildingPositioning:
             e_bay_mask = await self._client.query_building_placement(e_bay_ability, viable_points)
             evo_ability = self._game_data.units[EVOLUTIONCHAMBER.value].creation_ability
             evo_mask = await self._client.query_building_placement(evo_ability, viable_points)
-            viable_points = [
+            for point in [
                 point
                 for i, point in enumerate(viable_points)
                 if e_bay_mask[i] == ActionResult.Success or evo_mask[i] == ActionResult.Success
-            ]
-            for point in viable_points:
+            ]:
                 if self.building_positions:
                     if all(
                         abs(already_found.x - point.x) >= 3 or abs(already_found.y - point.y) >= 3

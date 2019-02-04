@@ -46,7 +46,6 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
     async def handle(self):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
         self.action = self.controller.add_action
-        enemy_building = self.controller.enemy_structures
         self.bases = self.controller.townhalls
         self.behavior_changing_upgrades_check()
         targets, atk_force, hydra_targets = self.set_unit_groups()
@@ -71,6 +70,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
                 continue
             if await self.specific_zergling_behavior(targets, attacking_unit):
                 continue
+            enemy_building = self.controller.enemy_structures
             if enemy_building.closer_than(30, self.unit_position):
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 continue
@@ -87,16 +87,16 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         if self.bases.ready:
             self.rally_point = self.bases.ready.closest_to(map_center).position.towards(map_center, 10)
         if unit.position.distance_to_point2(self.rally_point) > 5:
-            self.controller.add_action(unit.move(self.rally_point))
+            self.action(unit.move(self.rally_point))
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
-        if self.controller.townhalls.closer_than(15, unit.position):
+        if self.bases.closer_than(15, unit.position):
             self.retreat_units.remove(unit.tag)
 
     def retreat_unit(self, unit, target):
         """Tell the unit to retreat when overwhelmed"""
-        if self.controller.townhalls.closer_than(15, unit) or self.controller.counter_attack_vs_flying:
+        if self.bases.closer_than(15, unit) or self.controller.counter_attack_vs_flying:
             return False
         if self.controller.enemy_race == Race.Zerg:
             enemy_value = self.enemy_value_zerg(unit, target)
@@ -105,7 +105,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         else:
             enemy_value = self.enemy_value_protoss(unit, target)
         if (
-            self.controller.townhalls
+            self.bases
             and not self.controller.close_enemies_to_base
             and not self.controller.structures.closer_than(7, self.unit_position)
             and enemy_value >= self.battling_force_value(self.unit_position, 1, 5, 13)
@@ -119,14 +119,14 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         """Control the idle units, by gathering then or telling then to attack"""
         if (
             self.gathering_force_value(1, 2, 4) < 42
-            and self.controller.townhalls
+            and self.bases
             and self.retreat_units
             and not self.controller.counter_attack_vs_flying
         ):
             self.move_to_rallying_point(unit)
             return True
         if not self.controller.close_enemy_production or self.controller.time >= 480:
-            if self.controller.townhalls:
+            if self.bases:
                 self.attack_closest_building(unit)
             return self.attack_start_location(unit)
         return False
@@ -135,14 +135,12 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         """Attack the closest enemy building"""
         enemy_building = self.controller.enemy_structures.not_flying.exclude_type(self.static_defence)
         if enemy_building:
-            self.controller.add_action(
-                unit.attack(enemy_building.closest_to(self.controller.furthest_townhall_to_center))
-            )
+            self.action(unit.attack(enemy_building.closest_to(self.controller.furthest_townhall_to_center)))
 
     def attack_start_location(self, unit):
         """It tell to attack the starting location"""
         if self.controller.enemy_start_locations and not self.controller.enemy_structures:
-            self.controller.add_action(unit.attack(self.controller.enemy_start_locations[0]))
+            self.action(unit.attack(self.controller.enemy_start_locations[0]))
             return True
         return False
 
@@ -189,7 +187,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
         """Logic for countering the floating buildings bm"""
         flying_buildings = self.controller.enemy_structures.flying
         if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and flying_buildings:
-            self.controller.add_action(unit.attack(flying_buildings.closest_to(self.unit_position)))
+            self.action(unit.attack(flying_buildings.closest_to(self.unit_position)))
             return True
         return False
 

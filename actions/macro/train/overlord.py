@@ -20,7 +20,7 @@ class TrainOverlord:
                     or (base_amount == 2 and not self.controller.pools)
                 ):
                     return self.controller.close_enemy_production
-                if (base_amount in (1, 2) and overlords_in_queue) or (overlords_in_queue >= 3):
+                if (base_amount in (1, 2) and overlords_in_queue) or (overlords_in_queue >= 3):  # try 2
                     return False
                 return True
             return False

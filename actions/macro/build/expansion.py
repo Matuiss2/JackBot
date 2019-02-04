@@ -47,12 +47,12 @@ class BuildExpansion:
             self.worker_to_first_base = True
             action(self.controller.drones.random.move(await self.controller.get_next_expansion()))
             return True
+        drones = self.controller.drones
         for expansion in self.controller.ordered_expansions:
             if await self.controller.can_place(HATCHERY, expansion):
                 enemy_units = self.controller.ground_enemies
                 if enemy_units and enemy_units.closer_than(15, expansion):
                     return False
-                drones = self.controller.drones
                 if drones:
                     action(drones.closest_to(expansion).build(HATCHERY, expansion))
                     return True

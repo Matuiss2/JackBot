@@ -22,4 +22,4 @@ class Drone:
             self.controller.add_action(scout.move(point, queue=True))
         if not self.rush_scout:
             self.rush_scout = True
-            self.controller.add_action(self.drones.random.move(expansion_locations[-1]))
+            self.controller.add_action(self.drones.random.move(self.controller.enemy_start_locations[0]))
