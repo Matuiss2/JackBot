@@ -19,7 +19,7 @@ class TrainZergling:
         ):
             return False
         zergling_quantity = len(self.controller.zerglings)
-        if self.controller.hydradens.ready and len(self.controller.hydras) * 3 <= zergling_quantity:
+        if self.controller.hydradens.ready and self.controller.hydra_amount * 3 <= zergling_quantity:
             return False
         if self.controller.floating_buildings_bm:
             if self.controller.supply_used > 150 or len(self.controller.mutalisks) * 10 <= zergling_quantity:

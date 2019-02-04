@@ -11,13 +11,14 @@ class OurStuffData(OurBuildingsData, OurUnitsData):
     def __init__(self):
         OurBuildingsData.__init__(self)
         OurUnitsData.__init__(self)
-        self.structures = self.hatcheries = self.lairs = self.hives = self.base_amount = None
+        self.structures = self.hatcheries = self.lairs = self.hives = self.base_amount = self.hydra_amount = None
 
     def initialize_our_stuff(self):
         """Initializes our stuff"""
         self.initialize_units()
         self.initialize_buildings()
         self.initialize_bases()
+        self.initialize_amounts()
 
     def initialize_units(self):
         """Initialize our units"""
@@ -37,4 +38,7 @@ class OurStuffData(OurBuildingsData, OurUnitsData):
         self.hatcheries = self.units(HATCHERY)
         self.lairs = self.units(LAIR)
         self.hives = self.units(HIVE)
+
+    def initialize_amounts(self):
         self.base_amount = len(self.townhalls)
+        self.hydra_amount = len(self.hydras)

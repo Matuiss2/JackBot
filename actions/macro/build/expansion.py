@@ -31,7 +31,7 @@ class BuildExpansion:
             if not hatcheries_in_progress:
                 if self.controller.base_amount <= 5:
                     if self.controller.base_amount == 4:
-                        return len(self.controller.hydras) > 9
+                        return self.controller.hydra_amount > 9
                     return (
                         len(self.controller.zerglings) > 17 or game_time >= 285
                         if self.controller.base_amount == 2
