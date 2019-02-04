@@ -14,9 +14,7 @@ class TrainZergling:
             not self.controller.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and self.controller.time < 145
         ) and not self.controller.close_enemy_production:
             return False
-        if not self.controller.can_train(ZERGLING, self.controller.pools.ready, hive_lock=True) or (
-            self.controller.hives and not self.controller.caverns
-        ):
+        if not self.controller.can_train(ZERGLING, self.controller.pools.ready, hive_lock=True, cavern_lock=True):
             return False
         zergling_quantity = self.controller.zergling_amount
         if self.controller.hydradens.ready and self.controller.hydra_amount * 3 <= zergling_quantity:
