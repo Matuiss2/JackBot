@@ -26,7 +26,8 @@ class BuildExpansion:
             if (
                 self.controller.minerals >= 1250
                 and hatcheries_in_progress < 2
-                and len(self.controller.townhalls) + hatcheries_in_progress < len(self.controller.expansion_locations)
+                and len(base) + hatcheries_in_progress < len(self.controller.expansion_locations)
+                and len(base) > 5
             ):
                 # Rare are the cases that this will trigger, it still untested
                 return True
