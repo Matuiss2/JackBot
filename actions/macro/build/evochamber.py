@@ -13,7 +13,7 @@ class BuildEvochamber:
         return (
             self.controller.building_requirement(EVOLUTIONCHAMBER, self.controller.pools.ready)
             and (
-                len(self.controller.townhalls) >= 3
+                self.controller.base_amount >= 3
                 or (self.controller.close_enemy_production and len(self.controller.spines.ready) >= 4)
             )
             and len(self.controller.evochambers) + self.controller.already_pending(EVOLUTIONCHAMBER) < 2

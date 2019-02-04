@@ -11,7 +11,7 @@ class BuildPit:
     async def should_handle(self):
         """Requirement to build the infestation pit, sometimes it creates a big gap on the bot,
         maybe we should raise the lock"""
-        return len(self.controller.townhalls) > 4 and self.controller.can_build_unique(
+        return self.controller.base_amount > 4 and self.controller.can_build_unique(
             INFESTATIONPIT, self.controller.pits
         )
 

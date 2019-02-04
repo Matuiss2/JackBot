@@ -15,7 +15,7 @@ class BuildLair:
         return (
             not (self.controller.lairs or self.controller.hives)
             and (
-                len(self.controller.townhalls) >= 3
+                self.controller.base_amount >= 3
                 or (self.controller.close_enemy_production and len(self.controller.evochambers.ready) >= 2)
             )
             and self.controller.can_build_unique(LAIR, self.controller.caverns, self.selected_hatchery, all_units=True)

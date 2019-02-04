@@ -13,14 +13,13 @@ class TrainOverlord:
         if self.controller.supply_cap <= 200 and self.controller.supply_left < (7 + self.controller.supply_used // 7):
             overlords_in_queue = self.controller.already_pending(OVERLORD)
             if self.controller.can_train(OVERLORD):
-                base_amount = len(self.controller.townhalls)
                 if (
                     len(self.controller.drones.ready) == 14
-                    or (len(self.controller.overlords) == 2 and base_amount == 1)
-                    or (base_amount == 2 and not self.controller.pools)
+                    or (len(self.controller.overlords) == 2 and self.controller.base_amount == 1)
+                    or (self.controller.base_amount == 2 and not self.controller.pools)
                 ):
                     return self.controller.close_enemy_production
-                if (base_amount in (1, 2) and overlords_in_queue) or (overlords_in_queue >= 3):
+                if (self.controller.base_amount in (1, 2) and overlords_in_queue) or (overlords_in_queue >= 3):
                     return False
                 return True
             return False

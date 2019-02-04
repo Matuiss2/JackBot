@@ -8,15 +8,12 @@ class BuildExpansion:
     def __init__(self, main):
         self.controller = main
         self.worker_to_first_base = False
-        self.base_amount = None
 
     async def should_handle(self):
         """Fourth base sometimes are not build at the expected time maybe reduce the lock for it,
          also maybe the 7th or more hatchery can be postponed for when extra mining patches or production are needed """
         base = self.controller.townhalls
-        self.base_amount = len(base)
         game_time = self.controller.time
-
         if (
             base
             and self.controller.can_afford(HATCHERY)
@@ -27,15 +24,19 @@ class BuildExpansion:
             if (
                 self.controller.minerals >= 1250
                 and hatcheries_in_progress < 2
-                and self.base_amount + hatcheries_in_progress < len(self.controller.expansion_locations)
-                and self.base_amount > 5
+                and self.controller.base_amount + hatcheries_in_progress < len(self.controller.expansion_locations)
+                and self.controller.base_amount > 5
             ):
                 return True
             if not hatcheries_in_progress:
-                if self.base_amount <= 5:
-                    if self.base_amount == 4:
-                        return len(self.controller.hydras) > 7
-                    return len(self.controller.zerglings) > 21 or game_time >= 285 if self.base_amount == 2 else True
+                if self.controller.base_amount <= 5:
+                    if self.controller.base_amount == 4:
+                        return len(self.controller.hydras) > 9
+                    return (
+                        len(self.controller.zerglings) > 17 or game_time >= 285
+                        if self.controller.base_amount == 2
+                        else True
+                    )
                 return self.controller.caverns
             return False
         return False
@@ -43,7 +44,7 @@ class BuildExpansion:
     async def handle(self):
         """Expands to the nearest expansion location using the nearest drone to it"""
         action = self.controller.add_action
-        if not self.worker_to_first_base and self.base_amount < 2 and self.controller.minerals > 225:
+        if not self.worker_to_first_base and self.controller.base_amount < 2 and self.controller.minerals > 225:
             self.worker_to_first_base = True
             action(self.controller.drones.random.move(await self.controller.get_next_expansion()))
             return True

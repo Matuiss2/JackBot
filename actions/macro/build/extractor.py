@@ -24,7 +24,7 @@ class BuildExtractor:
             if not self.drone or self.controller.already_pending(EXTRACTOR) or gas_amount > 10:
                 return False
             self.geyser = geyser
-            if (not gas_amount and self.controller.pools) or gas_amount < 3 <= len(self.controller.townhalls):
+            if (not gas_amount and self.controller.pools) or gas_amount < 3 <= self.controller.base_amount:
                 return True
             return (self.controller.time > 900 or self.controller.spires) or (
                 self.controller.hydradens and gas_amount < 8

@@ -18,7 +18,7 @@ class BuildHydraden:
             )
             and not self.controller.close_enemy_production
             and not self.controller.floating_buildings_bm
-            and len(self.controller.townhalls) >= 3
+            and self.controller.base_amount >= 3
         )
 
     async def handle(self):

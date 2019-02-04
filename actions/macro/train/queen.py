@@ -14,7 +14,7 @@ class TrainQueen:
         self.hatchery = self.controller.townhalls.exclude_type(LAIR).noqueue.ready
         return (
             self.hatchery
-            and len(self.controller.queens) <= len(self.hatchery)
+            and len(self.controller.queens) <= self.controller.base_amount
             and not self.controller.already_pending(QUEEN)
             and self.controller.can_train(QUEEN, self.controller.pools.ready, larva=False)
         )
