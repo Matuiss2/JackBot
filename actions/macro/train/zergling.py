@@ -18,7 +18,7 @@ class TrainZergling:
             self.controller.hives and not self.controller.caverns
         ):
             return False
-        zergling_quantity = len(self.controller.zerglings)
+        zergling_quantity = self.controller.zergling_amount
         if self.controller.hydradens.ready and self.controller.hydra_amount * 3 <= zergling_quantity:
             return False
         if self.controller.floating_buildings_bm:

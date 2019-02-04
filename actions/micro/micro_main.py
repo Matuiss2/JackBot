@@ -151,7 +151,7 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
             self.controller.close_enemy_production
             and spines
             and not spines.closer_than(2, unit)
-            and (self.controller.time <= 480 or len(self.controller.zerglings) <= 14)
+            and (self.controller.time <= 480 or self.controller.zergling_amount <= 14)
         )
 
     def attack_enemy_proxy_units(self, targets, unit):

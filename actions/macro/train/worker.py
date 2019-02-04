@@ -28,7 +28,7 @@ class TrainWorker:
             optimal_workers = min(
                 sum(x.ideal_harvesters * 1.35 for x in self.controller.townhalls | geysers), 94 - len(geysers)
             )
-            return workers_total + drones_in_queue < optimal_workers and len(self.controller.zerglings) > 15
+            return workers_total + drones_in_queue < optimal_workers and self.controller.zergling_amount > 15
         return False
 
     async def handle(self):
