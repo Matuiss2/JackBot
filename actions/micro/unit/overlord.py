@@ -24,11 +24,11 @@ class Overlord:
             self.first_ov_scout = True
             self.selected_ov = self.overlords.first
             self.scout_position = natural
-        elif not self.second_ov_scout and len(self.controller.overlords.ready) == 2:
+        elif not self.second_ov_scout and self.controller.ready_overlord_amount == 2:
             self.second_ov_scout = True
-            self.selected_ov = self.overlords.closest_to(self.controller.townhalls.furthest_to(map_center))
+            self.selected_ov = self.overlords.closest_to(self.controller.furthest_townhall_to_center)
             self.scout_position = natural.towards(map_center, 18)
-        elif self.second_ov_scout and not self.third_ov_scout and len(self.controller.overlords.ready) == 3:
+        elif self.second_ov_scout and not self.third_ov_scout and self.controller.ready_overlord_amount == 3:
             self.third_ov_scout = True
             self.selected_ov = self.overlords.closest_to(self.controller.townhalls.first)
             self.scout_position = map_center

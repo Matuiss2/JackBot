@@ -43,3 +43,4 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
     def initialize_all_amounts(self):
         self.initialize_building_amounts()
         self.initialize_unit_amounts()
+        self.initialize_completed_amounts()
