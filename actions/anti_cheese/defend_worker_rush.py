@@ -30,7 +30,7 @@ class DefendWorkerRush(Micro):
                 self.refill_defense_force(enemy_worker_force)
                 for drone in self.defenders:
                     if not self.save_lowhp_drone(drone, self.base):
-                        if drone.weapon_cooldown <= 0.60 * 22.4:  # 13.44
+                        if drone.weapon_cooldown <= 13.44:  # Wanted cd value * 22.4
                             self.attack_close_target(drone, close_workers)
                         elif not self.move_to_next_target(drone, close_workers):
                             self.move_lowhp(drone, close_workers)
