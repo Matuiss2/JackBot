@@ -41,6 +41,7 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
         self.hives = self.units(HIVE)
 
     def initialize_all_amounts(self):
+        """Initialize the amount of everything(repeated) on our possession"""
         self.initialize_building_amounts()
         self.initialize_unit_amounts()
         self.initialize_completed_amounts()
