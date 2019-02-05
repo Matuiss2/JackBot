@@ -6,23 +6,23 @@ class TrainOverseer:
     """Should be expanded a little, it needs at least one more to run alongside the offensive army"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
 
     async def should_handle(self):
         """Requirements to morph overseers"""
         return (
-            self.controller.building_requirement(OVERSEER, (self.controller.lairs or self.controller.hives))
-            and self.controller.overlords
-            and not self.controller.already_pending(OVERSEER, all_units=True)
-            and len(self.controller.overseers) < self.controller.ready_base_amount
+            self.main.building_requirement(OVERSEER, (self.main.lairs or self.main.hives))
+            and self.main.overlords
+            and not self.main.already_pending(OVERSEER, all_units=True)
+            and len(self.main.overseers) < self.main.ready_base_amount
         )
 
     async def handle(self):
         """Morph the overseer"""
-        selected_ov = self.controller.overlords.random
-        overseers = self.controller.overseers | self.controller.units(OVERLORDCOCOON)
+        selected_ov = self.main.overlords.random
+        overseers = self.main.overseers | self.main.units(OVERLORDCOCOON)
         if overseers:
             if selected_ov.distance_to(overseers.closest_to(selected_ov)) > 10:
-                self.controller.actions.append(selected_ov(MORPH_OVERSEER))
+                self.main.actions.append(selected_ov(MORPH_OVERSEER))
         else:
-            self.controller.actions.append(selected_ov(MORPH_OVERSEER))
+            self.main.actions.append(selected_ov(MORPH_OVERSEER))

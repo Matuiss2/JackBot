@@ -6,20 +6,20 @@ class TrainQueen:
     """It possibly can get better but it seems good enough for now"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
         self.hatchery = None
 
     async def should_handle(self):
         """Requirement for training the queens"""
-        self.hatchery = self.controller.townhalls.exclude_type(LAIR).noqueue.ready
+        self.hatchery = self.main.townhalls.exclude_type(LAIR).noqueue.ready
         return (
             self.hatchery
-            and len(self.controller.queens) <= self.controller.ready_base_amount
-            and not self.controller.already_pending(QUEEN)
-            and self.controller.can_train(QUEEN, self.controller.pools.ready, larva=False)
+            and len(self.main.queens) <= self.main.ready_base_amount
+            and not self.main.already_pending(QUEEN)
+            and self.main.can_train(QUEEN, self.main.pools.ready, larva=False)
         )
 
     async def handle(self):
         """Execute the action of training queens"""
-        self.controller.add_action(self.hatchery.random.train(QUEEN))
+        self.main.add_action(self.hatchery.random.train(QUEEN))
         return True

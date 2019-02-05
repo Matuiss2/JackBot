@@ -6,17 +6,17 @@ class BuildPool:
     """Ok for now"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
 
     async def should_handle(self):
         """Requirement for building the spawning pool"""
-        return self.controller.can_build_unique(SPAWNINGPOOL, self.controller.pools) and (
-            self.controller.base_amount >= 2 or self.controller.close_enemy_production or self.controller.time > 145
+        return self.main.can_build_unique(SPAWNINGPOOL, self.main.pools) and (
+            self.main.base_amount >= 2 or self.main.close_enemy_production or self.main.time > 145
         )
 
     async def handle(self):
         """Places the pool"""
-        build = await self.controller.place_building(SPAWNINGPOOL)
+        build = await self.main.place_building(SPAWNINGPOOL)
         if not build:
             return False
         return True

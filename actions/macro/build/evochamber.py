@@ -6,22 +6,19 @@ class BuildEvochamber:
     """Can maybe be improved"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
 
     async def should_handle(self):
         """Requirements for building the evolution chambers, maybe its to early can probably be improved"""
         return (
-            self.controller.building_requirement(EVOLUTIONCHAMBER, self.controller.pools.ready)
-            and (
-                self.controller.base_amount >= 3
-                or (self.controller.close_enemy_production and len(self.controller.spines.ready) >= 4)
-            )
-            and len(self.controller.evochambers) + self.controller.already_pending(EVOLUTIONCHAMBER) < 2
+            self.main.building_requirement(EVOLUTIONCHAMBER, self.main.pools.ready)
+            and (self.main.base_amount >= 3 or (self.main.close_enemy_production and len(self.main.spines.ready) >= 4))
+            and len(self.main.evochambers) + self.main.already_pending(EVOLUTIONCHAMBER) < 2
         )
 
     async def handle(self):
         """Build the evochamber"""
-        build = await self.controller.place_building(EVOLUTIONCHAMBER)
+        build = await self.main.place_building(EVOLUTIONCHAMBER)
         if not build:
             return False
         return True

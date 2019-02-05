@@ -1,4 +1,5 @@
 """Every helper for controlling units go here"""
+from sc2 import Race
 from sc2.constants import (
     DISRUPTORPHASED,
     # GUARDIANSHIELDPERSISTENT,
@@ -6,6 +7,7 @@ from sc2.constants import (
     # LIBERATORTARGETMORPHPERSISTENT,
     # SCANNERSWEEP,
     ULTRALISK,
+    ZERGLING,
 )
 from sc2.position import Point2
 
@@ -23,7 +25,7 @@ class Micro:
     # TODO - fix
     '''def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
-        if not self.controller.state.effects or unit.type_id == ULTRALISK:
+        if not self.main.state.effects or unit.type_id == ULTRALISK:
             return False
         excluded_effects = (
             SCANNERSWEEP,
@@ -31,14 +33,14 @@ class Micro:
             LIBERATORTARGETMORPHDELAYPERSISTENT,
             LIBERATORTARGETMORPHPERSISTENT,
         )  # Placeholder(must find better way to handle some of these)
-        for effect in self.controller.state.effects:
+        for effect in self.main.state.effects:
             if effect.id in excluded_effects:
                 continue
             danger_zone = effect.radius + unit.radius + 0.2
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
                 continue
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
-            self.controller.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
+            self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
         return False'''
 
@@ -52,13 +54,13 @@ class Micro:
             return True
         target = enemies.closest_to(unit)
         if target:
-            self.controller.add_action(unit.attack(target))
+            self.main.add_action(unit.attack(target))
             return True
         return None
 
     def attack_in_range(self, unit):
         """Attacks the lowest hp enemy in range of the unit"""
-        target_in_range = filter_in_attack_range_of(unit, self.controller.enemies)
+        target_in_range = filter_in_attack_range_of(unit, self.main.enemies)
         if target_in_range:
             self.attack_lowhp(unit, target_in_range)
             return True
@@ -74,11 +76,11 @@ class Micro:
 
     def move_lowhp(self, unit, enemies):
         """Move to enemy with lowest HP"""
-        self.controller.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
+        self.main.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
 
     def attack_lowhp(self, unit, enemies):
         """Attack enemy with lowest HP"""
-        self.controller.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
+        self.main.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
 
     @staticmethod
     def closest_lowest_hp(unit, enemies):
@@ -87,7 +89,7 @@ class Micro:
 
     def stutter_step(self, target, unit):
         """Attack when the unit can, run while it can't. We don't outrun the enemy."""
-        action = self.controller.add_action
+        action = self.main.add_action
         if not unit.weapon_cooldown:
             action(unit.attack(target))
             return True
@@ -107,22 +109,22 @@ class Micro:
             our_range += 1
         # Our unit should stay just outside enemy range, and inside our range.
         if enemy_range:
-            minimum_distance = enemy_range + unit.radius + 0.01
+            minimum_distance = enemy_range + unit.radius + 0.1
         else:
             minimum_distance = our_range - unit.radius
         if minimum_distance > our_range:  # Check to make sure this range isn't negative.
-            minimum_distance = our_range - unit.radius - 0.01
+            minimum_distance = our_range - unit.radius - 0.1
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
-        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 6.4:
-            self.controller.add_action(unit.attack(target))
+        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 6.5:
+            self.main.add_action(unit.attack(target))
             return True
         # If our unit is too close, or our weapon is on more than a quarter cooldown, run away.
         if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 3.4:
             retreat_point = self.find_retreat_point(target, unit)
-            self.controller.add_action(unit.move(retreat_point))
+            self.main.add_action(unit.move(retreat_point))
             return True
         pursuit_point = self.find_pursuit_point(target, unit)  # If our unit is too far, run towards.
-        self.controller.add_action(unit.move(pursuit_point))
+        self.main.add_action(unit.move(pursuit_point))
         return True
 
     @staticmethod
@@ -149,9 +151,42 @@ class Micro:
         """If the enemy has disruptor's, run a dodging code."""
         if unit.type_id == ULTRALISK:
             return False
-        for ball in self.controller.enemies.of_type(DISRUPTORPHASED):
+        for ball in self.main.enemies.of_type(DISRUPTORPHASED):
             if ball.distance_to(unit) < 4:
                 retreat_point = self.find_retreat_point(ball, unit)
-                self.controller.add_action(unit.move(retreat_point))
+                self.main.add_action(unit.move(retreat_point))
                 return True
         return None
+
+    def retreat_unit(self, unit, target):
+        """Tell the unit to retreat when overwhelmed"""
+        if self.bases.closer_than(15, unit) or self.main.counter_attack_vs_flying:
+            return False
+        if self.main.enemy_race == Race.Zerg:
+            enemy_value = self.enemy_value_zerg(unit, target)
+        elif self.main.enemy_race == Race.Terran:
+            enemy_value = self.enemy_value_terran(unit, target)
+        else:
+            enemy_value = self.enemy_value_protoss(unit, target)
+        if (
+            self.bases
+            and not self.main.close_enemies_to_base
+            and not self.main.structures.closer_than(7, unit.position)
+            and enemy_value >= self.battling_force_value(unit.position, 1, 5, 13)
+        ):
+            self.move_to_rallying_point(unit)
+            self.retreat_units.add(unit.tag)
+            return True
+        return False
+
+    async def handling_walls_and_attacking(self, unit, target):
+        """It micros normally if no wall, if there is one attack it
+        (can be improved, it does whats expected but its a regression overall when there is no walls)"""
+        closest_target = target.closest_to
+        if await self.main._client.query_pathing(unit, closest_target(unit).position):
+            if unit.type_id == ZERGLING:
+                return self.micro_zerglings(unit, target)
+            self.action(unit.attack(closest_target(unit.position)))
+            return True
+        self.action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
+        return True

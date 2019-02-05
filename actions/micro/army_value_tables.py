@@ -320,9 +320,9 @@ class EnemyArmyValue:
         return np.sum(
             np.array(
                 [
-                    len(self.controller.zerglings.closer_than(13, unit_position)),
-                    len(self.controller.hydras.closer_than(13, unit_position)),
-                    len(self.controller.ultralisks.closer_than(13, unit_position)),
+                    len(self.main.zerglings.closer_than(13, unit_position)),
+                    len(self.main.hydras.closer_than(13, unit_position)),
+                    len(self.main.ultralisks.closer_than(13, unit_position)),
                 ]
             )
             * np.array([zvalue, hvalue, uvalue])
@@ -331,12 +331,6 @@ class EnemyArmyValue:
     def gathering_force_value(self, zvalue, hvalue, uvalue):
         """Returns the right value for our army that is gathering"""
         return np.sum(
-            np.array(
-                [
-                    len(self.controller.zerglings.ready),
-                    len(self.controller.hydras.ready),
-                    len(self.controller.ultralisks.ready),
-                ]
-            )
+            np.array([len(self.main.zerglings.ready), len(self.main.hydras.ready), len(self.main.ultralisks.ready)])
             * np.array([zvalue, hvalue, uvalue])
         )

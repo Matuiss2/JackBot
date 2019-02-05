@@ -1,5 +1,5 @@
 """Everything related to controlling zerglings"""
-from sc2.constants import BANELING
+from sc2.constants import BANELING, ZERGLINGATTACKSPEED
 from actions.micro.micro_helpers import Micro
 
 
@@ -14,15 +14,15 @@ class ZerglingControl(Micro):
             return True
         if self.move_to_next_target(unit, targets):
             return True
-        self.controller.add_action(unit.attack(targets.closest_to(unit.position)))
+        self.main.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
     def baneling_dodge(self, unit, targets):
         """If the enemy has banelings, run baneling dodging code. It can be improved,
          its a little bugged and just avoid the baneling not pop it"""
-        action = self.controller.add_action
+        action = self.main.add_action
         self.handling_anti_banelings_group()
-        if self.controller.enemies.of_type(BANELING):
+        if self.main.enemies.of_type(BANELING):
             banelings = self.baneling_group(unit, targets)
             for baneling in banelings:
                 # Check for close banelings and if we've triggered any banelings
@@ -44,7 +44,7 @@ class ZerglingControl(Micro):
 
     def zergling_modifiers(self, unit, targets):
         """Modifiers for zerglings"""
-        if self.zergling_atk_speed:
+        if self.main.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1:
             if unit.weapon_cooldown <= 6.35:
                 return self.attack_close_target(unit, targets)
             return self.move_to_next_target(unit, targets)
@@ -62,14 +62,11 @@ class ZerglingControl(Micro):
     def handling_anti_banelings_group(self):
         """If the sacrificial zergling dies before the missions is over remove him from the group(needs to be fixed)"""
         for zergling in list(self.baneling_sacrifices):
-            if (
-                zergling not in self.controller.units()
-                or self.baneling_sacrifices[zergling] not in self.controller.enemies
-            ):
+            if zergling not in self.main.units() or self.baneling_sacrifices[zergling] not in self.main.enemies:
                 del self.baneling_sacrifices[zergling]
 
     def baneling_trigger(self, unit, baneling):
         """If we haven't triggered any banelings, trigger it."""
         self.baneling_sacrifices[unit] = baneling
-        self.controller.add_action(unit.attack(baneling))
+        self.main.add_action(unit.attack(baneling))
         return True

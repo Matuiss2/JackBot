@@ -6,17 +6,17 @@ class TrainHydralisk:
     """Ok for now"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
 
     async def should_handle(self):
         """Requirements to train the hydralisks"""
-        if not self.controller.can_train(HYDRALISK, self.controller.hydradens.ready, hive_lock=True, cavern_lock=True):
+        if not self.main.can_train(HYDRALISK, self.main.hydradens.ready, hive_lock=True, cavern_lock=True):
             return False
-        if self.controller.caverns.ready:
-            return len(self.controller.ultralisks) * 3.5 > self.controller.hydra_amount
-        return not self.controller.floating_buildings_bm
+        if self.main.caverns.ready:
+            return len(self.main.ultralisks) * 4 > self.main.hydra_amount
+        return not self.main.floating_buildings_bm
 
     async def handle(self):
         """Execute the action of training hydras"""
-        self.controller.add_action(self.controller.larvae.random.train(HYDRALISK))
+        self.main.add_action(self.main.larvae.random.train(HYDRALISK))
         return True
