@@ -6,20 +6,17 @@ class BuildHive:
     """Maybe can be improved"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
         self.selected_lairs = None
 
     async def should_handle(self):
         """Requirement to build the hive, maybe its too greedy maybe we should raise the lock for it"""
-        local_controller = self.controller
-        self.selected_lairs = local_controller.lairs.ready.idle
-        return (
-            self.selected_lairs
-            and local_controller.can_build_unique(HIVE, local_controller.caverns, local_controller.pits.ready)
-            and not local_controller.already_pending(HIVE, all_units=True)
+        self.selected_lairs = self.main.lairs.ready.idle
+        return self.selected_lairs and self.main.can_build_unique(
+            HIVE, self.main.caverns, self.main.pits.ready, all_units=True
         )
 
     async def handle(self):
         """Finishes the action of making the hive"""
-        self.controller.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
+        self.main.add_action(self.selected_lairs.first(UPGRADETOHIVE_HIVE))
         return True

@@ -6,27 +6,22 @@ class BuildLair:
     """Maybe can be improved, probably its a bit greedy it leaves a gap where the bot is vulnerable"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
         self.selected_hatchery = None
 
     async def should_handle(self):
         """Requirements to build the lair"""
-        local_controller = self.controller
-        self.selected_hatchery = local_controller.hatcheries.ready.idle
+        self.selected_hatchery = self.main.hatcheries.ready.idle
         return (
-            not (local_controller.lairs or local_controller.hives)
+            not (self.main.lairs or self.main.hives)
             and (
-                len(local_controller.townhalls) >= 3
-                or (local_controller.close_enemy_production and len(local_controller.evochambers.ready) >= 2)
+                self.main.base_amount >= 3
+                or (self.main.close_enemy_production and len(self.main.evochambers.ready) >= 2)
             )
-            and local_controller.can_build_unique(LAIR, local_controller.caverns, self.selected_hatchery)
-            and not local_controller.already_pending(LAIR, all_units=True)
+            and self.main.can_build_unique(LAIR, self.main.caverns, self.selected_hatchery, all_units=True)
         )
 
     async def handle(self):
         """Finishes the action of making the lair choosing the safest available base"""
-        local_controller = self.controller
-        local_controller.add_action(
-            local_controller.furthest_townhall_to_center(UPGRADETOLAIR_LAIR)
-        )
+        self.main.add_action(self.main.furthest_townhall_to_center(UPGRADETOLAIR_LAIR))
         return True

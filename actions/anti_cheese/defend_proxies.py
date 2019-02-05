@@ -17,21 +17,20 @@ class DefendProxies:
     """Needs improvements on the quantity, also on the follow up(its overly defensive)"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
         self.rush_buildings = None
 
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
-        local_controller = self.controller
-        if local_controller.townhalls:
-            self.rush_buildings = local_controller.enemy_structures.exclude_type(
-                {AUTOTURRET, BARRACKS, GATEWAY}
-            ).closer_than(50, local_controller.townhalls.furthest_to(local_controller.game_info.map_center))
+        if self.main.townhalls:
+            self.rush_buildings = self.main.enemy_structures.exclude_type({AUTOTURRET, BARRACKS, GATEWAY}).closer_than(
+                50, self.main.furthest_townhall_to_center
+            )
         return (
             self.rush_buildings
-            and local_controller.time <= 270
-            and len(local_controller.drones) >= 15
-            and not local_controller.ground_enemies
+            and self.main.time <= 270
+            and self.main.drone_amount >= 15
+            and not self.main.ground_enemies
         )
 
     def is_being_attacked(self, unit):
@@ -39,7 +38,7 @@ class DefendProxies:
         return len(
             [
                 "attacker"
-                for attacker in self.controller.units.filter(lambda x: x.is_attacking)
+                for attacker in self.main.units.filter(lambda x: x.is_attacking)
                 if attacker.order_target == unit.tag
             ]
         )
@@ -48,19 +47,18 @@ class DefendProxies:
         """Pull 3 drones to destroy the proxy building"""
         for target in mode:
             if self.is_being_attacked(target) < 3 and available:
-                self.controller.add_action(available.closest_to(target).attack(target))
+                self.main.add_action(available.closest_to(target).attack(target))
 
     async def handle(self):
         """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
          surface area possible when attacking the buildings"""
-        local_controller = self.controller
-        drones = local_controller.drones
+        drones = self.main.drones
         available = drones.filter(lambda x: x.is_collecting and not x.is_attacking)
-        for worker in local_controller.enemies.of_type({PROBE, DRONE, SCV}).filter(
-            lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in local_controller.structures)
+        for worker in self.main.enemies.of_type({PROBE, DRONE, SCV}).filter(
+            lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in self.main.structures)
         ):
             if not self.is_being_attacked(worker) and available:
-                local_controller.add_action(available.closest_to(worker).attack(worker))
+                self.main.add_action(available.closest_to(worker).attack(worker))
         attacking_buildings = self.rush_buildings.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:

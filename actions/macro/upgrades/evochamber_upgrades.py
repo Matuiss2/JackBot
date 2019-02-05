@@ -16,7 +16,7 @@ class UpgradesFromEvochamber:
     """Ok for now"""
 
     def __init__(self, main):
-        self.controller = main
+        self.main = main
         self.selected_evos = None
         self.upgrades_added = False
         self.upgrade_list = [
@@ -35,19 +35,17 @@ class UpgradesFromEvochamber:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from evochambers"""
-        self.selected_evos = self.controller.evochambers.ready.idle
+        self.selected_evos = self.main.evochambers.ready.idle
         return self.selected_evos
 
     async def handle(self):
         """Execute the action of upgrading armor, melee and ranged attacks"""
-        local_controller = self.controller
-        action = local_controller.add_action
-        if local_controller.hydradens and not self.upgrades_added:
+        if self.main.hydradens and not self.upgrades_added:
             self.upgrades_added = True
             self.upgrade_list.extend(self.ranged_upgrades)
         for evo in self.selected_evos:
-            for upgrade in await local_controller.get_available_abilities(evo):
-                if upgrade in self.upgrade_list and local_controller.can_afford(upgrade):
-                    action(evo(upgrade))
+            for upgrade in await self.main.get_available_abilities(evo):
+                if upgrade in self.upgrade_list and self.main.can_afford(upgrade):
+                    self.main.add_action(evo(upgrade))
                     return True
         return True
