@@ -10,7 +10,7 @@ class TrainHydralisk:
 
     async def should_handle(self):
         """Requirements to train the hydralisks"""
-        if not self.main.can_train(HYDRALISK, self.main.hydradens.ready, hive_lock=True, cavern_lock=True):
+        if not self.main.can_train(HYDRALISK, self.main.hydradens.ready):
             return False
         if self.main.caverns.ready:
             return len(self.main.ultralisks) * 4 > self.main.hydra_amount

@@ -141,11 +141,11 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
             if await command.should_handle():
                 await command.handle()
 
-    def can_train(self, unit_type, requirement=True, larva=True, hive_lock=False, cavern_lock=False):
+    def can_train(self, unit_type, requirement=True, larva=True):
         """Global requirements for creating an unit"""
-        if cavern_lock and self.hives and not self.caverns:
+        if self.hives and not self.caverns:
             return False
-        if hive_lock and self.pits.ready and not self.hives and not self.already_pending(HIVE, all_units=True):
+        if self.pits.ready and not self.hives and not self.already_pending(HIVE, all_units=True):
             return False
         return (not larva or self.larvae) and self.can_afford(unit_type) and requirement
 

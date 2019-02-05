@@ -14,7 +14,7 @@ class TrainZergling:
             not self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) and self.main.time < 145
         ) and not self.main.close_enemy_production:
             return False
-        if not self.main.can_train(ZERGLING, self.main.pools.ready, hive_lock=True, cavern_lock=True):
+        if not self.main.can_train(ZERGLING, self.main.pools.ready):
             return False
         zergling_quantity = self.main.zergling_amount
         if self.main.hydradens.ready and self.main.hydra_amount * 3 <= zergling_quantity:
