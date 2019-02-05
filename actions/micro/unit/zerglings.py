@@ -45,10 +45,10 @@ class ZerglingControl(Micro):
     def zergling_modifiers(self, unit, targets):
         """Modifiers for zerglings"""
         if self.zergling_atk_speed:
-            if unit.weapon_cooldown <= 6.4:
+            if unit.weapon_cooldown <= 6.35:
                 return self.attack_close_target(unit, targets)
             return self.move_to_next_target(unit, targets)
-        if unit.weapon_cooldown <= 8.9:
+        if unit.weapon_cooldown <= 8.85:
             return self.attack_close_target(unit, targets)
         return False
 
