@@ -23,6 +23,6 @@ class TrainOverseer:
         overseers = self.main.overseers | self.main.units(OVERLORDCOCOON)
         if overseers:
             if selected_ov.distance_to(overseers.closest_to(selected_ov)) > 10:
-                self.main.actions.append(selected_ov(MORPH_OVERSEER))
+                self.main.add_action(selected_ov(MORPH_OVERSEER))
         else:
-            self.main.actions.append(selected_ov(MORPH_OVERSEER))
+            self.main.add_action(selected_ov(MORPH_OVERSEER))

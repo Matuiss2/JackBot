@@ -49,6 +49,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
     def __init__(self):
         CreepControl.__init__(self)
         MainDataContainer.__init__(self)
+        BuildingPositioning.__init__(self)
         self.iteration = self.add_action = None
         self.unit_commands = (
             BlockExpansions(self),
@@ -94,7 +95,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
             UpgradesFromHydraden(self),
             UpgradesFromCavern(self),
         )
-        self.ordered_expansions, self.building_positions, self.locations, self.actions = [], [], [], []
+        self.ordered_expansions = []
 
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
@@ -120,10 +121,9 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         self.iteration = iteration
         self.prepare_data()
         self.set_game_step()
-        self.actions = []
-        self.add_action = self.actions.append
+        actions = []
+        self.add_action = actions.append
         if not iteration:
-            self.locations = list(self.expansion_locations.keys())
             await self.prepare_building_positions(self.townhalls.first)
             await self.prepare_expansions()
             self.split_workers()
@@ -131,8 +131,8 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         await self.run_commands(self.train_commands)
         await self.run_commands(self.build_commands)
         await self.run_commands(self.upgrade_commands)
-        if self.actions:
-            await self.do_actions(self.actions)
+        if actions:
+            await self.do_actions(actions)
 
     @staticmethod
     async def run_commands(commands):
@@ -184,7 +184,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
             for point in list(self.expansion_locations)
             if await self._client.query_pathing(start, point)
         ]  # remove all None values for pathing
-        # p1 is the expansion location - p0 is the pathing distance to the main base
+        # p1 is the expansion location - p0 is the pathing distance to the starting base
         self.ordered_expansions = [Point2((p[1])) for p in sorted(waypoints, key=lambda p: p[0])]
 
     def split_workers(self):

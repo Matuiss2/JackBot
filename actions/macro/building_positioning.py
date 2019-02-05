@@ -7,6 +7,9 @@ from sc2.position import Point2
 class BuildingPositioning:
     """Ok for now"""
 
+    def __init__(self):
+        self.building_positions = []
+
     async def prepare_building_positions(self, center):
         """Check all possible positions behind the mineral line when a hatchery is built"""
         mineral_field = self.state.mineral_field
