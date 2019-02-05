@@ -14,7 +14,7 @@ class TrainOverseer:
             self.controller.building_requirement(OVERSEER, (self.controller.lairs or self.controller.hives))
             and self.controller.overlords
             and not self.controller.already_pending(OVERSEER, all_units=True)
-            and len(self.controller.overseers) < len(self.controller.townhalls.ready)
+            and len(self.controller.overseers) < self.controller.ready_base_amount
         )
 
     async def handle(self):
