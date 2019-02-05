@@ -143,7 +143,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
 
     def can_train(self, unit_type, requirement=True, larva=True, hive_lock=False, cavern_lock=False):
         """Global requirements for creating an unit"""
-        if cavern_lock and (self.hives and not self.caverns):
+        if cavern_lock and self.hives and not self.caverns:
             return False
         if hive_lock and self.pits.ready and not self.hives and not self.already_pending(HIVE, all_units=True):
             return False

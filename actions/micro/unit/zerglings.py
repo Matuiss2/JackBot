@@ -1,6 +1,5 @@
 """Everything related to controlling zerglings"""
 from sc2.constants import BANELING
-
 from actions.micro.micro_helpers import Micro
 
 
@@ -46,10 +45,10 @@ class ZerglingControl(Micro):
     def zergling_modifiers(self, unit, targets):
         """Modifiers for zerglings"""
         if self.zergling_atk_speed:
-            if unit.weapon_cooldown <= 6.3:  # Wanted cd value * 22.4
+            if unit.weapon_cooldown <= 6.4:
                 return self.attack_close_target(unit, targets)
             return self.move_to_next_target(unit, targets)
-        if unit.weapon_cooldown <= 8.8:  # Wanted cd value * 22.4
+        if unit.weapon_cooldown <= 8.9:
             return self.attack_close_target(unit, targets)
         return False
 

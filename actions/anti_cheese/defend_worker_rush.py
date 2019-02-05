@@ -1,8 +1,6 @@
 """Everything related to defending a worker rush goes here"""
 import heapq
-
 from sc2.constants import DRONE, PROBE, SCV
-
 from actions.micro.micro_helpers import Micro
 
 

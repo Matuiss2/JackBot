@@ -205,9 +205,8 @@ class ArmyControl(ZerglingControl, HydraControl, Micro, EnemyArmyValue):
 
     def keep_attacking(self, unit, target):
         """It keeps the attack going if it meets the requirements no matter what"""
-        self.controller = self.controller
-        enemy_building = self.controller.enemy_structures
         if not self.retreat_units or self.controller.close_enemies_to_base:
+            enemy_building = self.controller.enemy_structures
             if enemy_building:
                 self.action(self.attack_command(enemy_building.closest_to(self.unit_position)))
                 return True

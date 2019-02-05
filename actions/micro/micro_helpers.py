@@ -98,35 +98,31 @@ class Micro:
     def hit_and_run(self, target, unit, range_upgrade=None):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
         # Only do this when our range > enemy range, our move speed > enemy move speed, and enemy is targeting us.
-        action = self.controller.add_action
-        unit_radius = unit.radius
         our_range = unit.ground_range
         partial_enemy_range = target.ground_range
-        if not partial_enemy_range:
+        if not partial_enemy_range:  # If target is melee it returns None so to avoid crashes we convert it to integer
             partial_enemy_range = 0
         enemy_range = partial_enemy_range + target.radius
         if range_upgrade:
             our_range += 1
         # Our unit should stay just outside enemy range, and inside our range.
         if enemy_range:
-            minimum_distance = enemy_range + unit_radius + 0.01
+            minimum_distance = enemy_range + unit.radius + 0.01
         else:
-            minimum_distance = our_range - unit_radius
+            minimum_distance = our_range - unit.radius
         if minimum_distance > our_range:  # Check to make sure this range isn't negative.
-            minimum_distance = our_range - unit_radius - 0.01
+            minimum_distance = our_range - unit.radius - 0.01
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
         if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 6.4:
-            # Wanted cd value * 22.4
-            action(unit.attack(target))
+            self.controller.add_action(unit.attack(target))
             return True
         # If our unit is too close, or our weapon is on more than a quarter cooldown, run away.
         if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 3.4:
-            # Wanted cd value * 22.4
             retreat_point = self.find_retreat_point(target, unit)
-            action(unit.move(retreat_point))
+            self.controller.add_action(unit.move(retreat_point))
             return True
         pursuit_point = self.find_pursuit_point(target, unit)  # If our unit is too far, run towards.
-        action(unit.move(pursuit_point))
+        self.controller.add_action(unit.move(pursuit_point))
         return True
 
     @staticmethod
