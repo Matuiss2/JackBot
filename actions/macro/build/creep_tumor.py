@@ -1,4 +1,4 @@
-"""Everything related to placing creep tumors goes here(maybe merging with creep_spread would be good)"""
+"""Everything related to placing creep tumors using tumors goes here"""
 
 
 class CreepTumor:
