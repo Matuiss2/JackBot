@@ -1,5 +1,5 @@
 """Everything related to distributing drones to the right resource goes here"""
-from sc2.constants import EXTRACTOR, HATCHERY, HIVE, LAIR, ZERGLINGMOVEMENTSPEED
+from sc2.constants import EXTRACTOR, ZERGLINGMOVEMENTSPEED
 
 
 class DistributeWorkers:
@@ -49,29 +49,26 @@ class DistributeWorkers:
                         moving_drone = self.main.drones.filter(
                             lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
                         )
-                    if moving_drone:
-                        workers_to_distribute.append(moving_drone.closest_to(mining_place))
+                    workers_to_distribute.append(moving_drone.closest_to(mining_place))
             elif difference < 0:
                 bases_deficit.append([mining_place, difference])
         return bases_deficit, workers_to_distribute
 
-    def mineral_fields_deficit(self, mineral_fields, bases_deficit):
+    def mineral_fields_deficit(self, bases_deficit):
         """Calculate how many workers are left to saturate the base"""
-        if bases_deficit:
-            return sorted(
-                [mf for mf in mineral_fields.closer_than(8, bases_deficit[0][0])],
-                key=lambda mineral_field: (
-                    mineral_field.tag not in {worker.order_target for worker in self.main.drones.collecting},
-                    mineral_field.mineral_contents,
-                ),
-            )
-        return []
+        return sorted(
+            [mf for mf in self.mineral_fields.closer_than(8, bases_deficit[0][0])],
+            key=lambda mineral_field: (
+                mineral_field.tag not in {worker.order_target for worker in self.main.drones.collecting},
+                mineral_field.mineral_contents,
+            ),
+        )
 
     def distribute_to_deficits(self):
         """Distribute workers so it saturates the bases"""
         bases_deficit = [x for x in self.bases_deficit if x[0].type_id != EXTRACTOR]
         if bases_deficit and self.workers_to_distribute:
-            mineral_fields_deficit = self.mineral_fields_deficit(self.mineral_fields, bases_deficit)
+            mineral_fields_deficit = self.mineral_fields_deficit(bases_deficit)
             extractors_deficit = [x for x in bases_deficit if x[0].type_id == EXTRACTOR]
             for worker in self.workers_to_distribute:
                 if self.mining_bases and bases_deficit and mineral_fields_deficit:
