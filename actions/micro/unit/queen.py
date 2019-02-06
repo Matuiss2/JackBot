@@ -31,7 +31,7 @@ class QueensAbilities:
                     continue
                 elif queen.energy >= 25:
                     await self.main.place_tumor(queen)
-            for base in self.bases.ready.noqueue:
+            for base in self.bases.ready.idle:
                 if not self.queens.closer_than(4, base):
                     for queen in self.queens.idle:
                         if not self.bases.closer_than(4, queen):

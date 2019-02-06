@@ -11,7 +11,7 @@ class TrainQueen:
 
     async def should_handle(self):
         """Requirement for training the queens"""
-        self.hatchery = self.main.townhalls.exclude_type(LAIR).noqueue.ready
+        self.hatchery = self.main.townhalls.exclude_type(LAIR).idle.ready
         return (
             self.hatchery
             and len(self.main.queens) <= self.main.ready_base_amount
