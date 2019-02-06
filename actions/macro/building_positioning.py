@@ -51,7 +51,7 @@ class BuildingPositioning:
         ]:
             if self.building_positions:
                 if all(
-                    abs(already_found.x - point.x) >= 3 or abs(already_found.y - point.y) >= 3
+                    max(abs(already_found.x - point.x), abs(already_found.y - point.y)) >= 3
                     for already_found in self.building_positions
                 ):
                     self.building_positions.append(point)
