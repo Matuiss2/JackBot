@@ -1,6 +1,5 @@
 """All data that are on our possession are here"""
 from sc2.constants import HATCHERY, HIVE, LAIR
-
 from data_containers.our_structures import OurBuildingsData
 from data_containers.our_units import OurUnitsData
 from data_containers.quantity_data import OurQuantityData
@@ -45,3 +44,4 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
         self.initialize_building_amounts()
         self.initialize_unit_amounts()
         self.initialize_completed_amounts()
+        self.initialize_pending_amounts()
