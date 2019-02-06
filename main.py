@@ -112,7 +112,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
         if unit.type_id == HATCHERY:
-            await self.prepare_building_positions(unit)
+            await self.prepare_building_positions(unit.position)
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
@@ -124,7 +124,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         actions = []
         self.add_action = actions.append
         if not iteration:
-            await self.prepare_building_positions(self.townhalls.first)
+            await self.prepare_building_positions(self.townhalls.first.position)
             await self.prepare_expansions()
             self.split_workers()
         await self.run_commands(self.unit_commands)
