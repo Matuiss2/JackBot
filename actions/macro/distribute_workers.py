@@ -11,7 +11,7 @@ class DistributeWorkers:
 
     async def should_handle(self):
         """Requirements to run handle"""
-        self.mining_bases = self.main.townhalls.ready.filter(lambda base: base.ideal_harvesters > 0)
+        self.mining_bases = self.main.ready_bases.filter(lambda base: base.ideal_harvesters > 0)
         self.mineral_fields = self.main.state.mineral_field.filter(
             lambda field: any(field.distance_to(base) <= 8 for base in self.mining_bases)
         )

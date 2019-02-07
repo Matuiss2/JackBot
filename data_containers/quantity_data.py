@@ -24,7 +24,7 @@ class OurQuantityData:
     def initialize_completed_amounts(self):
         """Defines the amount of units and buildings that are finished on our possession separating by type"""
         self.ready_overlord_amount = len(self.overlords.ready)
-        self.ready_base_amount = len(self.townhalls.ready)
+        self.ready_base_amount = len(self.ready_bases)
 
     def initialize_pending_amounts(self):
         """Defines the amount of units and buildings that are in progress on our possession separating by type"""
