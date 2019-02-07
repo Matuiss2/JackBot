@@ -35,21 +35,21 @@ class DistributeWorkers:
         """Calculate the ideal distribution for workers"""
         workers_to_distribute = self.main.drones.idle
         mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
-        extractor_tags = {ref.tag for ref in self.main.extractors}
+        geyser_tags = {ref.tag for ref in self.main.extractors}
         bases_deficit = []
         for mining_place in self.mining_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
             if difference > 0:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
-                        moving_drone = self.main.drones.filter(
-                            lambda x: x.order_target in extractor_tags and x not in workers_to_distribute
+                        moving_drones = self.main.drones.filter(
+                            lambda x: x.order_target in geyser_tags and x not in workers_to_distribute
                         )
                     else:
-                        moving_drone = self.main.drones.filter(
+                        moving_drones = self.main.drones.filter(
                             lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
                         )
-                    workers_to_distribute.append(moving_drone.closest_to(mining_place))
+                    workers_to_distribute.append(moving_drones.closest_to(mining_place))
             elif difference < 0:
                 bases_deficit.append([mining_place, difference])
         return bases_deficit, workers_to_distribute
