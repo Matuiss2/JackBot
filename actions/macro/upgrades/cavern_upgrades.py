@@ -12,7 +12,7 @@ class UpgradesFromCavern:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from caverns"""
-        self.selected_caverns = self.main.caverns.idle.noqueue
+        self.selected_caverns = self.main.caverns.idle
         if self.main.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.selected_caverns):
             self.selected_research = RESEARCH_CHITINOUSPLATING
             return True

@@ -10,6 +10,7 @@ class CreepControl:
 
     def __init__(self):
         self.used_tumors = []
+        self.valid_placements = self.unit_ability = None
 
     async def spread_creep(self):
         """ Iterate over all tumors to spread itself remove used creeps and creeps that failed in finding a placement"""
@@ -23,9 +24,9 @@ class CreepControl:
         # Make sure unit can make tumor and what ability it is
         abilities = await self.get_available_abilities(unit)
         if BUILD_CREEPTUMOR_QUEEN in abilities:
-            unit_ability = BUILD_CREEPTUMOR_QUEEN
+            self.unit_ability = BUILD_CREEPTUMOR_QUEEN
         elif BUILD_CREEPTUMOR_TUMOR in abilities:
-            unit_ability = BUILD_CREEPTUMOR_TUMOR
+            self.unit_ability = BUILD_CREEPTUMOR_TUMOR
         else:
             return None
         # defining vars
@@ -48,29 +49,27 @@ class CreepControl:
         )
         # filter valid results
         valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ActionResult.Success]
-        creep_destination = self.enemy_start_locations[0]
+        final_destiny = self.enemy_start_locations[0]
         if valid_placements:
-            tumors = self.tumors
-            if tumors:
-                valid_placements = sorted(
+            if self.tumors:
+                self.valid_placements = sorted(
                     valid_placements,
-                    key=lambda pos: pos.distance_to_closest(tumors) - pos.distance_to_point2(creep_destination),
+                    key=lambda pos: pos.distance_to_closest(self.tumors) - pos.distance_to_point2(final_destiny),
                     reverse=True,
                 )
             else:
-                valid_placements = sorted(valid_placements, key=lambda pos: pos.distance_to_point2(creep_destination))
-            # this is very expensive to the cpu, need optimization, keeps creep outside expansion locations
-            action = self.add_action
-            for c_location in valid_placements:
-                if all(c_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
-                    if not tumors:
-                        action(unit(unit_ability, c_location))
-                        break
-                    if unit_ability == BUILD_CREEPTUMOR_QUEEN:
-                        action(unit(unit_ability, c_location))
-                        break
-                    if c_location.distance_to_closest(tumors) >= 4:
-                        action(unit(unit_ability, c_location))
-                        break
-            if unit_ability == BUILD_CREEPTUMOR_TUMOR:
+                self.valid_placements = sorted(valid_placements, key=lambda pos: pos.distance_to_point2(final_destiny))
+            self.avoid_blocking_expansions(unit)
+            if self.unit_ability == BUILD_CREEPTUMOR_TUMOR:
                 self.used_tumors.append(unit.tag)
+
+    def avoid_blocking_expansions(self, unit):
+        """ This is very expensive to the cpu, need optimization, keeps creep outside expansion locations"""
+        for c_location in self.valid_placements:
+            if all(c_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
+                if self.unit_ability == BUILD_CREEPTUMOR_QUEEN or not self.tumors:
+                    self.add_action(unit(self.unit_ability, c_location))
+                    break
+                if c_location.distance_to_closest(self.tumors) >= 4:
+                    self.add_action(unit(self.unit_ability, c_location))
+                    break

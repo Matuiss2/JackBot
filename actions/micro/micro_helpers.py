@@ -160,7 +160,7 @@ class Micro:
 
     def retreat_unit(self, unit, target):
         """Tell the unit to retreat when overwhelmed"""
-        if self.bases.closer_than(15, unit) or self.main.counter_attack_vs_flying:
+        if self.main.townhalls.closer_than(15, unit) or self.main.counter_attack_vs_flying:
             return False
         if self.main.enemy_race == Race.Zerg:
             enemy_value = self.enemy_value_zerg(unit, target)
@@ -169,7 +169,7 @@ class Micro:
         else:
             enemy_value = self.enemy_value_protoss(unit, target)
         if (
-            self.bases
+            self.main.townhalls
             and not self.main.close_enemies_to_base
             and not self.main.structures.closer_than(7, unit.position)
             and enemy_value >= self.battling_force_value(unit.position, 1, 5, 13)
@@ -188,5 +188,5 @@ class Micro:
                 return self.micro_zerglings(unit, target)
             self.action(unit.attack(closest_target(unit.position)))
             return True
-        self.action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
+        self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
         return True

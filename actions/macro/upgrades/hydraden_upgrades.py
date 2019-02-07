@@ -11,7 +11,7 @@ class UpgradesFromHydraden:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from hydradens"""
-        self.selected_dens = self.main.hydradens.ready.noqueue.idle
+        self.selected_dens = self.main.hydradens.ready.idle
         if self.main.floating_buildings_bm:
             return False
         if self.main.can_upgrade(EVOLVEGROOVEDSPINES, RESEARCH_GROOVEDSPINES, self.selected_dens):
