@@ -190,3 +190,17 @@ class Micro:
             return True
         self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
         return True
+
+    def attack_start_location(self, unit):
+        """It tell to attack the starting location"""
+        if self.main.enemy_start_locations and not self.main.enemy_structures:
+            self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
+            return True
+        return False
+
+    def move_to_rallying_point(self, unit):
+        """Set the point where the units should gather"""
+        map_center = self.main.game_info.map_center
+        rally_point = self.main.ready_bases.closest_to(map_center).position.towards(map_center, 10)
+        if unit.position.distance_to_point2(rally_point) > 5 and self.main.ready_bases:
+            self.main.add_action(unit.move(rally_point))

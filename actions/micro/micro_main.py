@@ -28,7 +28,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         self.main = main
         self.retreat_units = set()
         self.baneling_sacrifices = {}
-        self.static_defence = self.targets = self.atk_force = self.hydra_targets = None
+        self.targets = self.atk_force = self.hydra_targets = None
 
     async def should_handle(self):
         """Requirements to run handle"""
@@ -65,13 +65,6 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 continue
             self.move_to_rallying_point(attacking_unit)
 
-    def move_to_rallying_point(self, unit):
-        """Set the point where the units should gather"""
-        map_center = self.main.game_info.map_center
-        rally_point = self.main.ready_bases.closest_to(map_center).position.towards(map_center, 10)
-        if unit.position.distance_to_point2(rally_point) > 5 and self.main.ready_bases:
-            self.main.add_action(unit.move(rally_point))
-
     def has_retreated(self, unit):
         """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
         if self.main.townhalls.closer_than(15, unit.position):
@@ -95,16 +88,9 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     def attack_closest_building(self, unit):
         """Attack the closest enemy building"""
-        enemy_building = self.main.enemy_structures.not_flying.exclude_type(self.static_defence)
+        enemy_building = self.main.enemy_structures.not_flying
         if enemy_building:
             self.main.add_action(unit.attack(enemy_building.closest_to(self.main.furthest_townhall_to_center)))
-
-    def attack_start_location(self, unit):
-        """It tell to attack the starting location"""
-        if self.main.enemy_start_locations and not self.main.enemy_structures:
-            self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
-            return True
-        return False
 
     def anti_proxy_trigger(self, unit):
         """Requirements for the anti-proxy logic"""
@@ -129,29 +115,27 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         if self.main.enemies:
             excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN}
             filtered_enemies = self.main.enemies.not_structure.exclude_type(excluded_units)
-            self.static_defence = self.main.enemy_structures.of_type(
+            static_defence = self.main.enemy_structures.of_type(
                 {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS, AUTOTURRET}
             )
-            self.targets = self.static_defence | filtered_enemies.not_flying
-            self.hydra_targets = self.static_defence | filtered_enemies
+            self.targets = static_defence | filtered_enemies.not_flying
+            self.hydra_targets = static_defence | filtered_enemies
         self.atk_force = self.main.zerglings | self.main.ultralisks | self.main.mutalisks | self.main.hydras
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
-        flying_buildings = self.main.enemy_structures.flying
-        if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and flying_buildings:
-            self.main.add_action(unit.attack(flying_buildings.closest_to(unit.position)))
+        if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and self.main.enemy_structures.flying:
+            self.main.add_action(unit.attack(self.main.enemy_structures.flying.closest_to(unit.position)))
             return True
         return False
 
     def keep_attacking(self, unit):
         """It keeps the attack going if it meets the requirements no matter what"""
         if not self.retreat_units or self.main.close_enemies_to_base:
-            enemy_building = self.main.enemy_structures
-            if enemy_building:
-                self.main.add_action(unit.attack(enemy_building.closest_to(unit.position)))
+            if self.main.enemy_structures:
+                self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
                 return True
             if self.targets:
                 self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
