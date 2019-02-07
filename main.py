@@ -1,6 +1,6 @@
 """SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
 import sc2
-from sc2.constants import HATCHERY, HIVE
+from sc2.constants import HATCHERY
 from sc2.position import Point2
 from actions.anti_cheese.defend_proxies import DefendProxies
 from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
@@ -41,9 +41,10 @@ from actions.macro.upgrades.evochamber_upgrades import UpgradesFromEvochamber
 from actions.macro.upgrades.hydraden_upgrades import UpgradesFromHydraden
 from actions.macro.upgrades.cavern_upgrades import UpgradesFromCavern
 from data_containers.data_container import MainDataContainer
+from global_helpers import Globals
 
 
-class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, BlockExpansions):
+class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, Globals):
     """It makes periodic attacks with zerglings early, it goes hydras mid-game and ultras end-game"""
 
     def __init__(self):
@@ -140,41 +141,6 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, B
         for command in commands:
             if await command.should_handle():
                 await command.handle()
-
-    def can_train(self, unit_type, requirement=True, larva=True):
-        """Global requirements for creating an unit"""
-        if self.hives and not self.caverns:
-            return False
-        if self.pits.ready and not self.hives and not self.already_pending(HIVE, all_units=True):
-            return False
-        return (not larva or self.larvae) and self.can_afford(unit_type) and requirement
-
-    def building_requirement(self, unit_type, requirement=True):
-        """Global requirements for building every structure"""
-        return requirement and self.can_afford(unit_type)
-
-    def can_build_unique(self, unit_type, building, requirement=True, all_units=False):
-        """Global requirements for building unique buildings"""
-        return (
-            not self.already_pending(unit_type, all_units=all_units)
-            and self.can_afford(unit_type)
-            and not building
-            and self.building_requirement(unit_type, requirement)
-        )
-
-    async def place_building(self, building):
-        """Build it behind the mineral line if there is space"""
-        position = await self.get_production_position()
-        if not position:
-            print("wanted position unavailable")
-            return None
-        selected_drone = self.select_build_worker(position)
-        if selected_drone:
-            self.add_action(selected_drone.build(building, position))
-
-    def can_upgrade(self, upgrade, research, host_building):
-        """Global requirements for upgrades"""
-        return not self.already_pending_upgrade(upgrade) and self.can_afford(research) and host_building
 
     async def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on pathing distance"""

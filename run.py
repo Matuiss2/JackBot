@@ -16,9 +16,7 @@ if __name__ == "__main__":
     else:
         # Local game
         print("Starting local game...")
-        RANDOM_MAP = random.choice(
-            ["AutomatonLE", "BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"]
-        )
+        RANDOM_MAP = random.choice(["AutomatonLE", "BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"])
         # 797 - 203 /
         sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Terran, Difficulty.CheatVision)], realtime=False)
         # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)
