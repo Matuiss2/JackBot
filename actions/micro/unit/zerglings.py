@@ -20,7 +20,6 @@ class ZerglingControl(Micro):
     def baneling_dodge(self, unit, targets):
         """If the enemy has banelings, run baneling dodging code. It can be improved,
          its a little bugged and just avoid the baneling not pop it"""
-        action = self.main.add_action
         self.handling_anti_banelings_group()
         if self.main.enemies.of_type(BANELING):
             banelings = self.baneling_group(unit, targets)
@@ -31,11 +30,11 @@ class ZerglingControl(Micro):
                     if baneling in self.baneling_sacrifices.values():
                         # And this zergling is targeting it, attack it
                         if unit in self.baneling_sacrifices and baneling == self.baneling_sacrifices[unit]:
-                            action(unit.attack(baneling))
+                            self.main.add_action(unit.attack(baneling))
                             return True
                         # Otherwise, run from it.
                         retreat_point = self.find_retreat_point(baneling, unit)
-                        action(unit.move(retreat_point))
+                        self.main.add_action(unit.move(retreat_point))
                         return True
                     # If this baneling is not targeted yet, trigger it.
                     return self.baneling_trigger(unit, baneling)
@@ -44,13 +43,11 @@ class ZerglingControl(Micro):
 
     def zergling_modifiers(self, unit, targets):
         """Modifiers for zerglings"""
-        if self.main.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1:
-            if unit.weapon_cooldown <= 6.35:
-                return self.attack_close_target(unit, targets)
-            return self.move_to_next_target(unit, targets)
-        if unit.weapon_cooldown <= 8.85:
+        if unit.weapon_cooldown <= 8.85 or (
+            unit.weapon_cooldown <= 6.35 and self.main.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+        ):
             return self.attack_close_target(unit, targets)
-        return False
+        return self.move_to_next_target(unit, targets)
 
     def baneling_group(self, unit, targets):
         """Put the banelings on one group"""
