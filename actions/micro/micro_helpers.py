@@ -186,7 +186,7 @@ class Micro:
         if await self.main._client.query_pathing(unit, closest_target(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(unit, target)
-            self.action(unit.attack(closest_target(unit.position)))
+            self.main.add_action(unit.attack(closest_target(unit.position)))
             return True
         self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
         return True
