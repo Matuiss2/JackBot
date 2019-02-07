@@ -38,8 +38,8 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
         self.set_unit_groups()
         for attacking_unit in self.atk_force:
-            """if self.dodge_effects(attacking_unit):
-                continue"""
+            # if self.dodge_effects(attacking_unit):
+            #    continue
             if self.disruptor_dodge(attacking_unit):
                 continue
             if self.anti_proxy_trigger(attacking_unit):
@@ -56,9 +56,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 continue
             if await self.specific_zergling_behavior(self.targets, attacking_unit):
                 continue
-            enemy_building = self.main.enemy_structures
-            if enemy_building.closer_than(30, attacking_unit.position):
-                self.main.add_action(attacking_unit.attack(enemy_building.closest_to(attacking_unit.position)))
+            if self.target_buildings(attacking_unit):
                 continue
             if not self.main.close_enemies_to_base:
                 self.idle_unit(attacking_unit)
@@ -159,4 +157,11 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
                 return True
             return self.attack_start_location(unit)
+        return False
+
+    def target_buildings(self, unit):
+        """Target close buildings if any other target is available"""
+        if self.main.enemy_structures.closer_than(30, unit.position):
+            self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
+            return True
         return False
