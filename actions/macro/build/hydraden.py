@@ -21,7 +21,5 @@ class BuildHydraden:
 
     async def handle(self):
         """Build the hydraden"""
-        build = await self.main.place_building(HYDRALISKDEN)
-        if not build:
-            return False
+        await self.main.place_building(HYDRALISKDEN)
         return True

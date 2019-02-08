@@ -16,7 +16,5 @@ class BuildPool:
 
     async def handle(self):
         """Places the pool"""
-        build = await self.main.place_building(SPAWNINGPOOL)
-        if not build:
-            return False
+        await self.main.place_building(SPAWNINGPOOL)
         return True
