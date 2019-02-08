@@ -44,11 +44,11 @@ class CreepControl:
             for alpha in range(location_attempts)
         ]
         # check if any of the positions are valid
-        valid_placements = await self._client.query_building_placement(
+        creep_mask = await self._client.query_building_placement(
             self._game_data.abilities[ZERGBUILD_CREEPTUMOR.value], positions
         )
         # filter valid results
-        valid_placements = [p for index, p in enumerate(positions) if valid_placements[index] == ActionResult.Success]
+        valid_placements = [p for idx, p in enumerate(positions) if creep_mask[idx] == ActionResult.Success]
         final_destiny = self.enemy_start_locations[0]
         if valid_placements:
             if self.tumors:

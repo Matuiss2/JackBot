@@ -49,7 +49,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 continue
             if self.anti_terran_bm(attacking_unit):
                 continue
-            if attacking_unit.tag in self.retreat_units and self.main.townhalls:
+            if attacking_unit.tag in self.retreat_units:
                 self.has_retreated(attacking_unit)
                 continue
             if self.specific_hydra_behavior(self.hydra_targets, attacking_unit):
