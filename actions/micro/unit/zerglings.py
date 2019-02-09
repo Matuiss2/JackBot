@@ -22,8 +22,7 @@ class ZerglingControl(Micro):
          its a little bugged and just avoid the baneling not pop it"""
         self.handling_anti_banelings_group()
         if self.main.enemies.of_type(BANELING):
-            banelings = self.baneling_group(unit, targets)
-            for baneling in banelings:
+            for baneling in self.baneling_group(unit, targets):
                 # Check for close banelings and if we've triggered any banelings
                 if baneling.distance_to(unit) < 4 and self.baneling_sacrifices:
                     # If we've triggered this specific baneling
@@ -33,8 +32,7 @@ class ZerglingControl(Micro):
                             self.main.add_action(unit.attack(baneling))
                             return True
                         # Otherwise, run from it.
-                        retreat_point = self.find_retreat_point(baneling, unit)
-                        self.main.add_action(unit.move(retreat_point))
+                        self.main.add_action(unit.move(self.find_retreat_point(baneling, unit)))
                         return True
                     # If this baneling is not targeted yet, trigger it.
                     return self.baneling_trigger(unit, baneling)
@@ -51,8 +49,7 @@ class ZerglingControl(Micro):
 
     def baneling_group(self, unit, targets):
         """Put the banelings on one group"""
-        threats = self.trigger_threats(targets, unit, 5)
-        for threat in threats:
+        for threat in self.trigger_threats(targets, unit, 5):
             if threat.type_id == BANELING:
                 yield threat
 
