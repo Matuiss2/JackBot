@@ -100,14 +100,13 @@ class DistributeWorkers:
             for extractor in self.main.extractors:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
                 if 0 < required_drones < self.main.drone_amount:
-                    for drone in self.main.drones.random_group_of(required_drones):
+                    for drone in self.main.drones.gathering.prefer_close_to(extractor).take(required_drones):
                         self.main.add_action(drone.gather(extractor))
 
     def gather_minerals(self):
-        if self.main.vespene > self.main.minerals * 3:
-            for drone in self.main.drones.filter(lambda x: x.order_target in self.geyser_tags):
+        if self.main.vespene > self.main.minerals * 3 and self.main.minerals >= 125:
+            for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
                 self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
-
 
     @property
     def require_gas(self):
