@@ -23,7 +23,7 @@ class DistributeWorkers:
         """Groups the resulting actions from all functions below"""
         self.distribute_idle_workers()
         self.gather_gas()
-        self.gather_minerals()
+        self.transfer_to_minerals()
         self.distribute_to_deficits()
         return True
 
@@ -103,7 +103,7 @@ class DistributeWorkers:
                     for drone in self.main.drones.gathering.prefer_close_to(extractor).take(required_drones):
                         self.main.add_action(drone.gather(extractor))
 
-    def gather_minerals(self):
+    def transfer_to_minerals(self):
         if self.main.vespene > self.main.minerals * 3 and self.main.minerals >= 125:
             for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
                 self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
