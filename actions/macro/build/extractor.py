@@ -24,8 +24,7 @@ class BuildExtractor:
         if (
             not self.main.extractors
             and self.main.pools
-            or len(self.main.extractors) < 2
-            and self.main.base_amount == 3
+            or len(self.main.extractors) < 3 <= self.main.base_amount
             or self.main.base_amount > 3
         ):
             for geyser in self.main.state.vespene_geyser.closer_than(10, self.main.ready_bases.random):
