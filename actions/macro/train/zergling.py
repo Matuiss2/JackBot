@@ -19,7 +19,7 @@ class TrainZergling:
         if self.main.hydradens.ready and self.main.hydra_amount * 3 <= self.main.zergling_amount:
             return False
         if self.main.floating_buildings_bm:
-            return not(self.main.supply_used > 150 or len(self.main.mutalisks) * 10 <= self.main.zergling_amount)
+            return not (self.main.supply_used > 150 or len(self.main.mutalisks) * 10 <= self.main.zergling_amount)
         return True
 
     async def handle(self):
