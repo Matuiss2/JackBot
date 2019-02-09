@@ -8,6 +8,7 @@ class DistributeWorkers:
     def __init__(self, main):
         self.main = main
         self.mining_bases = self.mineral_fields = self.bases_deficit = self.workers_to_distribute = None
+        self.geyser_tags = None
 
     async def should_handle(self):
         """Requirements to run handle"""
@@ -22,6 +23,7 @@ class DistributeWorkers:
         """Groups the resulting actions from all functions below"""
         self.distribute_idle_workers()
         self.gather_gas()
+        self.gather_minerals()
         self.distribute_to_deficits()
         return True
 
@@ -35,7 +37,7 @@ class DistributeWorkers:
         """Calculate the ideal distribution for workers"""
         workers_to_distribute = self.main.drones.idle
         mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
-        geyser_tags = {ref.tag for ref in self.main.extractors}
+        self.geyser_tags = {ref.tag for ref in self.main.extractors}
         bases_deficit = []
         for mining_place in self.mining_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
@@ -43,7 +45,7 @@ class DistributeWorkers:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
                         moving_drones = self.main.drones.filter(
-                            lambda x: x.order_target in geyser_tags and x not in workers_to_distribute
+                            lambda x: x.order_target in self.geyser_tags and x not in workers_to_distribute
                         )
                     else:
                         moving_drones = self.main.drones.filter(
@@ -100,6 +102,12 @@ class DistributeWorkers:
                 if 0 < required_drones < self.main.drone_amount:
                     for drone in self.main.drones.random_group_of(required_drones):
                         self.main.add_action(drone.gather(extractor))
+
+    def gather_minerals(self):
+        if self.main.vespene > self.main.minerals * 3:
+            for drone in self.main.drones.filter(lambda x: x.order_target in self.geyser_tags):
+                self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
+
 
     @property
     def require_gas(self):

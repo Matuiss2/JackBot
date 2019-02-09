@@ -19,7 +19,7 @@ from actions.macro.build.spines import BuildSpines
 from actions.macro.build.spire import BuildSpire
 from actions.macro.build.spores import BuildSpores
 from actions.macro.building_positioning import BuildingPositioning
-from actions.macro.cancel_building import Buildings
+from actions.micro.cancel_building import Buildings
 from actions.macro.distribute_workers import DistributeWorkers
 from actions.micro.block_expansions import BlockExpansions
 from actions.micro.micro_main import ArmyControl
