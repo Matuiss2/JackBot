@@ -13,7 +13,8 @@ class TrainQueen:
         """Requirement for training the queens"""
         self.hatchery = self.main.townhalls.exclude_type(LAIR).idle.ready
         return (
-            self.hatchery
+            not self.main.close_enemies_to_base
+            and self.hatchery
             and len(self.main.queens) <= self.main.ready_base_amount
             and not self.main.already_pending(QUEEN)
             and self.main.can_train(QUEEN, self.main.pools.ready, larva=False)
