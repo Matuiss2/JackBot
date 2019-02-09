@@ -22,7 +22,7 @@ class TrainWorker:
             if workers_total in (13, 14, 15) and self.main.overlord_amount + self.main.ovs_in_queue > 1:
                 return True
             optimal_workers = min(
-                sum(x.ideal_harvesters * 1.2 for x in self.main.townhalls | geysers), 88 - len(geysers)
+                sum(x.ideal_harvesters * 1.15 for x in self.main.townhalls | geysers), 88 - len(geysers)
             )
             return workers_total + self.main.drones_in_queue < optimal_workers and self.main.zergling_amount > 15
         return False

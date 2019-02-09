@@ -18,7 +18,5 @@ class BuildEvochamber:
 
     async def handle(self):
         """Build the evochamber"""
-        build = await self.main.place_building(EVOLUTIONCHAMBER)
-        if not build:
-            return False
+        await self.main.place_building(EVOLUTIONCHAMBER)
         return True

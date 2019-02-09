@@ -15,7 +15,5 @@ class BuildPit:
 
     async def handle(self):
         """Places the pit"""
-        build = await self.main.place_building(INFESTATIONPIT)
-        if not build:
-            return False
+        await self.main.place_building(INFESTATIONPIT)
         return True

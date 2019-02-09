@@ -27,19 +27,17 @@ class BuildExpansion:
 
     async def handle(self):
         """Expands to the nearest expansion location using the nearest drone to it"""
-        action = self.main.add_action
         if not self.worker_to_first_base and self.main.base_amount < 2 and self.main.minerals > 225:
             self.worker_to_first_base = True
-            action(self.main.drones.random.move(await self.main.get_next_expansion()))
+            self.main.add_action(self.main.drones.random.move(await self.main.get_next_expansion()))
             return True
         drones = self.main.drones
         for expansion in self.main.ordered_expansions:
             if await self.main.can_place(HATCHERY, expansion):
-                enemy_units = self.main.ground_enemies
-                if enemy_units and enemy_units.closer_than(15, expansion):
+                if self.main.ground_enemies.closer_than(15, expansion):
                     return False
                 if drones:
-                    action(drones.closest_to(expansion).build(HATCHERY, expansion))
+                    self.main.add_action(drones.closest_to(expansion).build(HATCHERY, expansion))
                     return True
         return False
 

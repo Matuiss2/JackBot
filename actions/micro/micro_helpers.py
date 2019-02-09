@@ -89,12 +89,10 @@ class Micro:
 
     def stutter_step(self, target, unit):
         """Attack when the unit can, run while it can't. We don't outrun the enemy."""
-        action = self.main.add_action
         if not unit.weapon_cooldown:
-            action(unit.attack(target))
+            self.main.add_action(unit.attack(target))
             return True
-        retreat_point = self.find_retreat_point(target, unit)
-        action(unit.move(retreat_point))
+        self.main.add_action(unit.move(self.find_retreat_point(target, unit)))
         return True
 
     def hit_and_run(self, target, unit, range_upgrade=None):
@@ -115,24 +113,21 @@ class Micro:
         if minimum_distance > our_range:  # Check to make sure this range isn't negative.
             minimum_distance = our_range - unit.radius - 0.01
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
-        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 6.4:
+        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 6.45:
             self.main.add_action(unit.attack(target))
             return True
         # If our unit is too close, or our weapon is on more than a quarter cooldown, run away.
-        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 3.4:
-            retreat_point = self.find_retreat_point(target, unit)
-            self.main.add_action(unit.move(retreat_point))
+        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 3.35:
+            self.main.add_action(unit.move(self.find_retreat_point(target, unit)))
             return True
-        pursuit_point = self.find_pursuit_point(target, unit)  # If our unit is too far, run towards.
-        self.main.add_action(unit.move(pursuit_point))
+        self.main.add_action(unit.move(self.find_pursuit_point(target, unit)))  # If our unit is too far, run towards.
         return True
 
     @staticmethod
     def find_pursuit_point(target, unit) -> Point2:
         """Find a point towards the enemy unit"""
-        unit_position = unit.position
-        difference = unit_position - target.position
-        return Point2((unit_position.x + (difference.x / 2) * -1, unit_position.y + (difference.y / 2) * -1))
+        difference = unit.position - target.position
+        return Point2((unit.position.x + (difference.x / 2) * -1, unit.position.y + (difference.y / 2) * -1))
 
     @staticmethod
     def find_retreat_point(target, unit) -> Point2:
@@ -152,7 +147,7 @@ class Micro:
         if unit.type_id == ULTRALISK:
             return False
         for ball in self.main.enemies.of_type(DISRUPTORPHASED):
-            if ball.distance_to(unit) < 4:
+            if ball.distance_to(unit) < 5:
                 retreat_point = self.find_retreat_point(ball, unit)
                 self.main.add_action(unit.move(retreat_point))
                 return True
@@ -182,11 +177,25 @@ class Micro:
     async def handling_walls_and_attacking(self, unit, target):
         """It micros normally if no wall, if there is one attack it
         (can be improved, it does whats expected but its a regression overall when there is no walls)"""
-        closest_target = target.closest_to
-        if await self.main._client.query_pathing(unit, closest_target(unit).position):
+        if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(unit, target)
-            self.action(unit.attack(closest_target(unit.position)))
+            self.main.add_action(unit.attack(target.closest_to(unit.position)))
             return True
         self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
         return True
+
+    def attack_start_location(self, unit):
+        """It tell to attack the starting location"""
+        if self.main.enemy_start_locations and not self.main.enemy_structures:
+            self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
+            return True
+        return False
+
+    def move_to_rallying_point(self, unit):
+        """Set the point where the units should gather"""
+        map_center = self.main.game_info.map_center
+        if self.main.ready_bases:
+            rally_point = self.main.ready_bases.closest_to(map_center).position.towards(map_center, 10)
+            if unit.position.distance_to_point2(rally_point) > 5:
+                self.main.add_action(unit.move(rally_point))

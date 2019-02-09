@@ -8,21 +8,20 @@ class UpgradesFromCavern:
 
     def __init__(self, main):
         self.main = main
-        self.selected_caverns = self.selected_research = None
+        self.selected_research = None
 
     async def should_handle(self):
         """Requirements to upgrade stuff from caverns"""
-        self.selected_caverns = self.main.caverns.idle
-        if self.main.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.selected_caverns):
+        if self.main.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.main.caverns.idle):
             self.selected_research = RESEARCH_CHITINOUSPLATING
             return True
         if self.main.can_upgrade(
-            ANABOLICSYNTHESIS, ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2, self.selected_caverns
+            ANABOLICSYNTHESIS, ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2, self.main.caverns.idle
         ):
             self.selected_research = ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2
             return True
 
     async def handle(self):
         """Execute the action of upgrading ultra armor and speed"""
-        self.main.add_action(self.selected_caverns.first(self.selected_research))
+        self.main.add_action(self.main.caverns.idle.first(self.selected_research))
         return True

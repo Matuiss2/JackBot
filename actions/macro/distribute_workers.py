@@ -35,21 +35,21 @@ class DistributeWorkers:
         """Calculate the ideal distribution for workers"""
         workers_to_distribute = self.main.drones.idle
         mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
-        extractor_tags = {ref.tag for ref in self.main.extractors}
+        geyser_tags = {ref.tag for ref in self.main.extractors}
         bases_deficit = []
         for mining_place in self.mining_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
             if difference > 0:
                 for _ in range(difference):
                     if mining_place.name == "Extractor":
-                        moving_drone = self.main.drones.filter(
-                            lambda x: x.order_target in extractor_tags and x not in workers_to_distribute
+                        moving_drones = self.main.drones.filter(
+                            lambda x: x.order_target in geyser_tags and x not in workers_to_distribute
                         )
                     else:
-                        moving_drone = self.main.drones.filter(
+                        moving_drones = self.main.drones.filter(
                             lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
                         )
-                    workers_to_distribute.append(moving_drone.closest_to(mining_place))
+                    workers_to_distribute.append(moving_drones.closest_to(mining_place))
             elif difference < 0:
                 bases_deficit.append([mining_place, difference])
         return bases_deficit, workers_to_distribute
@@ -71,26 +71,26 @@ class DistributeWorkers:
             mineral_fields_deficit = self.mineral_fields_deficit(bases_deficit)
             extractors_deficit = [x for x in bases_deficit if x[0].type_id == EXTRACTOR]
             for worker in self.workers_to_distribute:
-                if self.mining_bases and bases_deficit and mineral_fields_deficit:
-                    self.distribute_to_mineral_field(mineral_fields_deficit, worker, bases_deficit)
-                if self.main.extractors.ready and extractors_deficit and self.require_gas:
-                    self.distribute_to_extractor(extractors_deficit, worker)
+                self.distribute_to_mineral_field(mineral_fields_deficit, worker, bases_deficit)
+                self.distribute_to_extractor(extractors_deficit, worker)
 
     def distribute_to_extractor(self, extractors_deficit, worker):
         """Check vespene actual saturation and when the requirement are filled saturate the geyser"""
-        self.main.add_action(worker.gather(extractors_deficit[0][0]))
-        extractors_deficit[0][1] += 1
-        if not extractors_deficit[0][1]:
-            del extractors_deficit[0]
+        if self.main.extractors.ready and extractors_deficit and self.require_gas:
+            self.main.add_action(worker.gather(extractors_deficit[0][0]))
+            extractors_deficit[0][1] += 1
+            if not extractors_deficit[0][1]:
+                del extractors_deficit[0]
 
-    def distribute_to_mineral_field(self, mineral_fields_deficit, worker, deficit_bases):
+    def distribute_to_mineral_field(self, mineral_fields_deficit, worker, bases_deficit):
         """Check base actual saturation and then saturate it"""
-        if len(mineral_fields_deficit) >= 2:
-            del mineral_fields_deficit[0]
-        self.main.add_action(worker.gather(mineral_fields_deficit[0]))
-        deficit_bases[0][1] += 1
-        if not deficit_bases[0][1]:
-            del deficit_bases[0]
+        if bases_deficit and mineral_fields_deficit:
+            if len(mineral_fields_deficit) >= 2:
+                del mineral_fields_deficit[0]
+            self.main.add_action(worker.gather(mineral_fields_deficit[0]))
+            bases_deficit[0][1] += 1
+            if not bases_deficit[0][1]:
+                del bases_deficit[0]
 
     def gather_gas(self):
         """Performs the action of sending drones to geysers"""

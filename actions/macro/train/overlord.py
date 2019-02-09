@@ -10,7 +10,7 @@ class TrainOverlord:
 
     async def should_handle(self):
         """We still get supply blocked sometimes, can be improved a lot still"""
-        if self.main.supply_cap <= 200 and self.main.supply_left < (7 + self.main.supply_used // 7):
+        if self.main.supply_cap < 200 and self.main.supply_left < (8 + self.main.supply_used // 7):
             if self.main.can_train(OVERLORD):
                 if (
                     len(self.main.drones.ready) == 14

@@ -13,19 +13,23 @@ class BuildExtractor:
     async def should_handle(self):
         """Couldn't find another way to build the geysers its heavily based on Burny's approach,
          still trying to find the optimal number"""
-        if (self.main.vespene * 1.25 > self.main.minerals) or (
-            not self.main.building_requirement(EXTRACTOR, self.main.ready_bases)
+
+        if (
+            self.main.vespene * 1.25 > self.main.minerals
+            or not self.main.building_requirement(EXTRACTOR, self.main.ready_bases)
+            or self.main.already_pending(EXTRACTOR)
+            or len(self.main.extractors) >= 7
         ):
             return False
-        gas_amount = len(self.main.extractors)
+
         for geyser in self.main.state.vespene_geyser.closer_than(10, self.main.ready_bases.random):
             self.drone = self.main.select_build_worker(geyser.position)
-            if not self.drone or self.main.already_pending(EXTRACTOR) or gas_amount > 10:
+            if not self.drone:
                 return False
             self.geyser = geyser
-            if (not gas_amount and self.main.pools) or gas_amount < 3 <= self.main.base_amount:
+            if not self.main.extractors and self.main.pools or len(self.main.extractors) < 3 <= self.main.base_amount:
                 return True
-            return (self.main.time > 900 or self.main.spires) or (self.main.hydradens and gas_amount < 7)
+            return self.main.spires or self.main.hydradens
 
     async def handle(self):
         """Just finish the action of building the extractor"""

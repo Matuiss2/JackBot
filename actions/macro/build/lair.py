@@ -7,18 +7,16 @@ class BuildLair:
 
     def __init__(self, main):
         self.main = main
-        self.selected_hatchery = None
 
     async def should_handle(self):
         """Requirements to build the lair"""
-        self.selected_hatchery = self.main.hatcheries.ready.idle
         return (
             not (self.main.lairs or self.main.hives)
             and (
                 self.main.base_amount >= 3
                 or (self.main.close_enemy_production and len(self.main.evochambers.ready) >= 2)
             )
-            and self.main.can_build_unique(LAIR, self.main.caverns, self.selected_hatchery, all_units=True)
+            and self.main.can_build_unique(LAIR, self.main.caverns, self.main.hatcheries.ready.idle, all_units=True)
         )
 
     async def handle(self):
