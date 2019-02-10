@@ -21,6 +21,8 @@ class BuildExtractor:
             or len(self.main.extractors) >= 8
         ):
             return False
+        if not self.main.hives and len(self.main.extractors) >= 6:
+            return False
         if (
             not self.main.extractors
             and self.main.pools

@@ -104,7 +104,7 @@ class DistributeWorkers:
                         self.main.add_action(drone.gather(extractor))
 
     def transfer_to_minerals(self):
-        if self.main.vespene > self.main.minerals * 3 and self.main.minerals >= 125:
+        if self.main.vespene > self.main.minerals * 4 and self.main.minerals >= 100:
             for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
                 self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
 
