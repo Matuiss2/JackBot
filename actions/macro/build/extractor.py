@@ -18,7 +18,7 @@ class BuildExtractor:
             self.main.vespene > self.main.minerals
             or not self.main.building_requirement(EXTRACTOR, self.main.ready_bases)
             or self.main.already_pending(EXTRACTOR)
-            or len(self.main.extractors) >= 8
+            or len(self.main.extractors) >= 9
         ):
             return False
         if not self.main.hives and len(self.main.extractors) >= 6:
