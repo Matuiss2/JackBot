@@ -128,9 +128,9 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
             await self.prepare_building_positions(self.townhalls.first.position)
             await self.prepare_expansions()
             self.split_workers()
-        await self.run_commands(self.unit_commands)
         if self.minerals >= 25:
             await self.run_commands(self.train_commands)
+        await self.run_commands(self.unit_commands)
         await self.run_commands(self.build_commands)
         await self.run_commands(self.upgrade_commands)
         if actions:
