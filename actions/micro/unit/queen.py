@@ -24,7 +24,7 @@ class QueensAbilities:
                     continue
                 elif queen.energy >= 25:
                     await self.main.place_tumor(queen)
-            for base in self.main.townhalls.ready:
+            for base in self.main.townhalls.ready.idle:
                 if not self.main.queens.closer_than(4, base):
                     for queen in self.main.queens:
                         if self.main.enemies.not_structure.closer_than(10, queen.position):
