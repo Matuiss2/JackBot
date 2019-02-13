@@ -68,9 +68,9 @@ class Micro:
 
     def move_to_next_target(self, unit, enemies):
         """It helps on the targeting and positioning on the attack"""
-        targets_in_range_1 = enemies.closer_than(1, unit)
-        if targets_in_range_1:
-            self.move_lowhp(unit, targets_in_range_1)
+        targets_in_melee_range = enemies.closer_than(1, unit)
+        if targets_in_melee_range:
+            self.move_lowhp(unit, targets_in_melee_range)
             return True
         return None
 
@@ -194,8 +194,8 @@ class Micro:
 
     def move_to_rallying_point(self, unit):
         """Set the point where the units should gather"""
-        map_center = self.main.game_info.map_center
         if self.main.ready_bases:
+            map_center = self.main.game_info.map_center
             rally_point = self.main.ready_bases.closest_to(map_center).position.towards(map_center, 10)
             if unit.position.distance_to_point2(rally_point) > 5:
                 self.main.add_action(unit.move(rally_point))
