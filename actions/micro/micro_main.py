@@ -33,7 +33,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     async def should_handle(self):
         """Requirements to run handle"""
-        return bool(self.main.zerglings | self.main.ultralisks | self.main.mutalisks | self.main.hydras)
+        return self.main.units.of_type({ZERGLING, HYDRALISK, MUTALISK, ULTRALISK})
 
     async def handle(self):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
@@ -121,7 +121,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             )
             self.targets = static_defence | filtered_enemies.not_flying
             self.hydra_targets = static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot)
-        self.atk_force = self.main.units.of_type({ZERGLING, HYDRALISK, MUTALISK, ULTRALISK})
+        self.atk_force = self.main.units.of_type({HYDRALISK, MUTALISK, ULTRALISK}) | self.main.zerglings
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
