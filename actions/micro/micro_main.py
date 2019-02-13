@@ -14,6 +14,7 @@ from sc2.constants import (
     PLANETARYFORTRESS,
     QUEEN,
     SPINECRAWLER,
+    ULTRALISK,
     ZERGLING,
 )
 from actions.micro.army_value_tables import EnemyArmyValue
@@ -73,10 +74,10 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
     def idle_unit(self, unit):
         """Control the idle units, by gathering then or telling then to attack"""
         if (
-            self.gathering_force_value(1, 2, 4) < 42
-            and self.main.townhalls
-            and self.retreat_units
+            self.main.townhalls
             and not self.main.counter_attack_vs_flying
+            and self.gathering_force_value(1, 2, 4) < 42
+            and self.retreat_units
         ):
             self.move_to_rallying_point(unit)
             return True
@@ -97,16 +98,16 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         return (
             self.main.close_enemy_production
             and self.main.spines
-            and not self.main.spines.closer_than(2, unit)
             and (self.main.time <= 480 or self.main.zergling_amount <= 14)
+            and not self.main.spines.closer_than(2, unit)
         )
 
     def attack_enemy_proxy_units(self, unit):
         """Requirements to attack the proxy army if it gets too close to the ramp"""
         return (
             self.targets
-            and self.targets.closer_than(5, unit)
             and unit.type_id == ZERGLING
+            and self.targets.closer_than(5, unit)
             and self.micro_zerglings(unit, self.targets)
         )
 
@@ -120,7 +121,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             )
             self.targets = static_defence | filtered_enemies.not_flying
             self.hydra_targets = static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot)
-        self.atk_force = self.main.zerglings | self.main.ultralisks | self.main.mutalisks | self.main.hydras
+        self.atk_force = self.main.units.of_type({ZERGLING, HYDRALISK, MUTALISK, ULTRALISK})
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
