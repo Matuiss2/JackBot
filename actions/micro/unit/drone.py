@@ -14,10 +14,9 @@ class Drone:
 
     async def handle(self):
         """It sends 2 drones to scout the map, for rushes or proxies"""
-        scout = self.main.drones.closest_to(self.main.start_location)
-        expansion_locations = self.main.ordered_expansions
-        for point in expansion_locations[2:]:
-            self.main.add_action(scout.move(point, queue=True))
+        for point in self.main.ordered_expansions[2: 6]:
+            self.main.add_action(self.main.drones.closest_to(self.main.start_location).move(point, queue=True))
         if not self.rush_scout:
             self.rush_scout = True
-            self.main.add_action(self.main.drones.random.move(self.main.enemy_start_locations[0]))
+            for point in self.main.enemy_start_locations:
+                self.main.add_action(self.main.drones.random.move(point, queue=True))
