@@ -119,7 +119,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS, AUTOTURRET}
             )
             self.targets = static_defence | filtered_enemies.not_flying
-            self.hydra_targets = static_defence | filtered_enemies
+            self.hydra_targets = static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot)
         self.atk_force = self.main.zerglings | self.main.ultralisks | self.main.mutalisks | self.main.hydras
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
