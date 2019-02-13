@@ -1,4 +1,5 @@
 """SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
+import sys
 import sc2
 from sc2.constants import HATCHERY
 from sc2.position import Point2
@@ -112,6 +113,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
 
     def on_end(self, game_result):
         print(game_result)
+        sys.exit()
 
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
