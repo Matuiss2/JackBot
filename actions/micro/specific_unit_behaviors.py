@@ -9,9 +9,9 @@ class UnitsBehavior(HydraControl, Micro):
 
     def specific_hydra_behavior(self, hydra_targets, unit):
         """Group everything related to hydras behavior on attack"""
-        if hydra_targets:
+        if hydra_targets and unit.type_id == HYDRALISK:
             close_hydra_targets = hydra_targets.closer_than(20, unit.position)
-            if unit.type_id == HYDRALISK and close_hydra_targets:
+            if close_hydra_targets:
                 if self.retreat_unit(unit, close_hydra_targets):
                     return True
                 if self.micro_hydras(hydra_targets, unit):
