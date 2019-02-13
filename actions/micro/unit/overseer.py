@@ -17,5 +17,4 @@ class Overseer:
         """It sends the overseers at the closest bases, can be improved a lot"""
         for overseer in (ovs for ovs in self.overseers if ovs.distance_to(self.main.ready_bases.closest_to(ovs)) > 5):
             for base in (th for th in self.main.ready_bases if th.distance_to(self.overseers.closest_to(th)) > 5):
-                if not self.overseers.closer_than(5, base):
-                    self.main.add_action(overseer.move(base))
+                self.main.add_action(overseer.move(base))
