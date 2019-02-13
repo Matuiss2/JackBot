@@ -19,10 +19,10 @@ class QueensAbilities:
         if not (self.main.floating_buildings_bm and self.main.supply_used >= 199):
             for queen in self.main.queens.idle:
                 selected_base = self.main.townhalls.closest_to(queen.position)
-                if queen.energy >= 25 and not selected_base.has_buff(QUEENSPAWNLARVATIMER):
-                    actions(queen(EFFECT_INJECTLARVA, selected_base))
-                    continue
-                elif queen.energy >= 25:
+                if queen.energy >= 25:
+                    if not selected_base.has_buff(QUEENSPAWNLARVATIMER):
+                        actions(queen(EFFECT_INJECTLARVA, selected_base))
+                        continue
                     await self.main.place_tumor(queen)
             for base in self.main.townhalls.ready.idle:
                 if not self.main.queens.closer_than(5, base):
