@@ -21,9 +21,9 @@ class BlockExpansions:
         """Take the 4 'safest' zerglings and send them to the furthest enemy expansion locations,
         excluding the main and the natural, to block it, need to fix the mentioned bug"""
         self.main.burrowed_lings = [
-            unit.tag for unit in self.main.zerglings.idle.sorted_by_distance_to(self.main.ordered_expansions[0])[:4]
+            unit.tag for unit in self.main.zerglings.sorted_by_distance_to(self.main.ordered_expansions[0])[:4]
         ]
-        for list_index, zergling in enumerate(self.main.zerglings.idle.tags_in(self.main.burrowed_lings)):
+        for list_index, zergling in enumerate(self.main.zerglings.tags_in(self.main.burrowed_lings)):
             location = self.main.ordered_expansions[:-1][-list_index - 1]
             self.main.add_action(zergling.move(location))
             self.main.add_action(zergling(BURROWDOWN_ZERGLING, queue=True))
