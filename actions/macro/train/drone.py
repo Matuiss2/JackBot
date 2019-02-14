@@ -2,7 +2,7 @@
 from sc2.constants import DRONE
 
 
-class TrainWorker:
+class TrainDrone:
     """Needs improvements, its very greedy sometimes"""
 
     def __init__(self, main):

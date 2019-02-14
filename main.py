@@ -34,7 +34,7 @@ from actions.macro.train.overlord import TrainOverlord
 from actions.macro.train.overseer import TrainOverseer
 from actions.macro.train.queen import TrainQueen
 from actions.macro.train.ultralisk import TrainUltralisk
-from actions.macro.train.worker import TrainWorker
+from actions.macro.train.drone import TrainDrone
 from actions.macro.train.zergling import TrainZergling
 from actions.macro.upgrades.spawning_pool_upgrades import UpgradesFromSpawningPool
 from actions.macro.upgrades.base_upgrades import UpgradesFromBases
@@ -68,7 +68,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         )
         self.train_commands = (
             TrainOverlord(self),
-            TrainWorker(self),
+            TrainDrone(self),
             TrainQueen(self),
             TrainUltralisk(self),
             TrainZergling(self),
