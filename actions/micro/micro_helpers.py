@@ -95,7 +95,7 @@ class Micro:
         self.main.add_action(unit.move(self.find_retreat_point(target, unit)))
         return True
 
-    def hit_and_run(self, target, unit, range_upgrade=None):
+    def hit_and_run(self, target, unit, attack_trigger, run_trigger):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
         # Only do this when our range > enemy range, our move speed > enemy move speed, and enemy is targeting us.
         our_range = unit.ground_range
@@ -103,8 +103,6 @@ class Micro:
         if not partial_enemy_range:  # If target is melee it returns None so to avoid crashes we convert it to integer
             partial_enemy_range = 0
         enemy_range = partial_enemy_range + target.radius
-        if range_upgrade:
-            our_range += 1
         # Our unit should stay just outside enemy range, and inside our range.
         if enemy_range:
             minimum_distance = enemy_range + unit.radius + 0.01
@@ -113,11 +111,11 @@ class Micro:
         if minimum_distance > our_range:  # Check to make sure this range isn't negative.
             minimum_distance = our_range - unit.radius - 0.01
         # If our unit is in that range, and our attack is at least halfway off cooldown, attack.
-        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= 6.45:
+        if minimum_distance <= unit.distance_to(target) <= our_range and unit.weapon_cooldown <= attack_trigger:
             self.main.add_action(unit.attack(target))
             return True
         # If our unit is too close, or our weapon is on more than a quarter cooldown, run away.
-        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > 3.35:
+        if unit.distance_to(target) < minimum_distance or unit.weapon_cooldown > run_trigger:
             self.main.add_action(unit.move(self.find_retreat_point(target, unit)))
             return True
         self.main.add_action(unit.move(self.find_pursuit_point(target, unit)))  # If our unit is too far, run towards.
@@ -182,8 +180,9 @@ class Micro:
                 return self.micro_zerglings(unit, target)
             self.main.add_action(unit.attack(target.closest_to(unit.position)))
             return True
-        self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
-        return True
+        if self.main.enemies.not_flying:
+            self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
+            return True
 
     def attack_start_location(self, unit):
         """It tell to attack the starting location"""
