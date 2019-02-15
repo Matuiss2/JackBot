@@ -36,12 +36,15 @@ class DistributeWorkers:
     def calculate_distribution(self):
         """Calculate the ideal distribution for workers"""
         workers_to_distribute = self.main.drones.idle
-        mineral_tags = {
-            mf.tag for mf in self.main.state.mineral_field if mf.distance_to(self.main.townhalls.closest_to(mf)) < 10
-        }
-        self.geyser_tags = {
-            ref.tag for ref in self.main.extractors if ref.distance_to(self.main.townhalls.closest_to(ref)) < 10
-        }
+        if self.main.townhalls:
+            mineral_tags = {
+                mf.tag
+                for mf in self.main.state.mineral_field
+                if mf.distance_to(self.main.townhalls.closest_to(mf)) < 10
+            }
+            self.geyser_tags = {
+                ref.tag for ref in self.main.extractors if ref.distance_to(self.main.townhalls.closest_to(ref)) < 10
+            }
         bases_deficit = []
         for mining_place in self.mining_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
