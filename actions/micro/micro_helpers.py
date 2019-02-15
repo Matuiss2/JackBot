@@ -200,4 +200,3 @@ class Micro:
                 self.main.add_action(unit.move(rally_point))
         elif targets:
             self.main.add_action(unit.attack(targets.closest_to(unit.position)))
-
