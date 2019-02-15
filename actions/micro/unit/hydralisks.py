@@ -21,7 +21,7 @@ class HydraControl(Micro):
             if not enemy_range:
                 enemy_range = 0
             if our_range > enemy_range + closest_threat.radius and our_move_speed > closest_threat.movement_speed:
-                return self.hit_and_run(closest_threat, unit, our_range)
+                return self.hit_and_run(closest_threat, unit, 6.45, 3.35)
             return self.stutter_step(closest_threat, unit)
         return self.attack_close_target(unit, targets)  # If there isn't a close enemy that does damage
 

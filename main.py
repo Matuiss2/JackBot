@@ -1,4 +1,5 @@
 """SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
+import sys
 import sc2
 from sc2.constants import HATCHERY
 from sc2.position import Point2
@@ -19,7 +20,7 @@ from actions.macro.build.spines import BuildSpines
 from actions.macro.build.spire import BuildSpire
 from actions.macro.build.spores import BuildSpores
 from actions.macro.building_positioning import BuildingPositioning
-from actions.macro.cancel_building import Buildings
+from actions.micro.cancel_building import Buildings
 from actions.macro.distribute_workers import DistributeWorkers
 from actions.micro.block_expansions import BlockExpansions
 from actions.micro.micro_main import ArmyControl
@@ -33,7 +34,7 @@ from actions.macro.train.overlord import TrainOverlord
 from actions.macro.train.overseer import TrainOverseer
 from actions.macro.train.queen import TrainQueen
 from actions.macro.train.ultralisk import TrainUltralisk
-from actions.macro.train.worker import TrainWorker
+from actions.macro.train.drone import TrainDrone
 from actions.macro.train.zergling import TrainZergling
 from actions.macro.upgrades.spawning_pool_upgrades import UpgradesFromSpawningPool
 from actions.macro.upgrades.base_upgrades import UpgradesFromBases
@@ -67,7 +68,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         )
         self.train_commands = (
             TrainOverlord(self),
-            TrainWorker(self),
+            TrainDrone(self),
             TrainQueen(self),
             TrainUltralisk(self),
             TrainZergling(self),
@@ -110,6 +111,10 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         else:
             self._client.game_step = 8
 
+    def on_end(self, game_result):
+        print(game_result)
+        sys.exit()
+
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
         if unit.type_id == HATCHERY:
@@ -128,9 +133,9 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
             await self.prepare_building_positions(self.townhalls.first.position)
             await self.prepare_expansions()
             self.split_workers()
-        await self.run_commands(self.unit_commands)
         if self.minerals >= 25:
             await self.run_commands(self.train_commands)
+        await self.run_commands(self.unit_commands)
         await self.run_commands(self.build_commands)
         await self.run_commands(self.upgrade_commands)
         if actions:

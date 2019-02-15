@@ -18,8 +18,6 @@ class BuildExpansion:
             if not self.main.hatcheries_in_queue:  # This is a mess and surely can be simplified
                 base_amount = self.main.base_amount  # added to save lines
                 if base_amount <= 5:
-                    if base_amount == 4:
-                        return self.main.hydra_amount > 9
                     return self.main.zergling_amount > 17 or self.main.time >= 285 if base_amount == 2 else True
                 return self.main.caverns
             return False
@@ -31,7 +29,7 @@ class BuildExpansion:
             self.worker_to_first_base = True
             self.main.add_action(self.main.drones.random.move(await self.main.get_next_expansion()))
             return True
-        drones = self.main.drones
+        drones = self.main.drones.gathering
         for expansion in self.main.ordered_expansions:
             if await self.main.can_place(HATCHERY, expansion):
                 if self.main.ground_enemies.closer_than(15, expansion):
@@ -44,7 +42,7 @@ class BuildExpansion:
     def mineral_overflow_logic(self):
         """ When overflowing with minerals run this condition check"""
         return (
-            self.main.minerals >= 1250
+            self.main.minerals >= 1000
             and self.main.hatcheries_in_queue < 2
             and self.main.base_amount + self.main.hatcheries_in_queue < len(self.main.expansion_locations)
             and self.main.base_amount > 5

@@ -13,7 +13,7 @@ class TrainHydralisk:
         if not self.main.can_train(HYDRALISK, self.main.hydradens.ready):
             return False
         if self.main.caverns.ready:
-            return len(self.main.ultralisks) * 4 > self.main.hydra_amount
+            return len(self.main.ultralisks) * 4.5 > self.main.hydra_amount
         return not self.main.floating_buildings_bm
 
     async def handle(self):
