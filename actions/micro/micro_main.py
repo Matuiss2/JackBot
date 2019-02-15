@@ -64,7 +64,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 continue
             if self.keep_attacking(attacking_unit):
                 continue
-            self.move_to_rallying_point(attacking_unit)
+            self.move_to_rallying_point(self.targets, attacking_unit)
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
@@ -79,7 +79,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             and self.gathering_force_value(1, 2, 4) < 42
             and self.retreat_units
         ):
-            self.move_to_rallying_point(unit)
+            self.move_to_rallying_point(self.targets, unit)
             return True
         if not self.main.close_enemy_production or self.main.time >= 480:
             if self.main.townhalls:
@@ -141,7 +141,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             if self.targets:
                 self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
                 return True
-            return self.attack_start_location(unit)
+            return False
         return False
 
     def target_buildings(self, unit):

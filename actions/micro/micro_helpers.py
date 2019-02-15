@@ -167,7 +167,7 @@ class Micro:
             and not self.main.structures.closer_than(7, unit.position)
             and enemy_value >= self.battling_force_value(unit.position, 1, 5, 13)
         ):
-            self.move_to_rallying_point(unit)
+            self.move_to_rallying_point(target, unit)
             self.retreat_units.add(unit.tag)
             return True
         return False
@@ -191,10 +191,13 @@ class Micro:
             return True
         return False
 
-    def move_to_rallying_point(self, unit):
+    def move_to_rallying_point(self, targets, unit):
         """Set the point where the units should gather"""
         if self.main.ready_bases:
             map_center = self.main.game_info.map_center
             rally_point = self.main.ready_bases.closest_to(map_center).position.towards(map_center, 10)
             if unit.position.distance_to_point2(rally_point) > 5:
                 self.main.add_action(unit.move(rally_point))
+        elif targets:
+            self.main.add_action(unit.attack(targets.closest_to(unit.position)))
+
