@@ -11,9 +11,10 @@ class TrainOverseer:
     async def should_handle(self):
         """Requirements to morph overseers"""
         return (
-            self.main.building_requirement(OVERSEER, (self.main.lairs or self.main.hives))
+            self.main.building_requirement(
+                OVERSEER, (self.main.lairs or self.main.hives), one_at_time=True, morphing=True
+            )
             and self.main.overlords
-            and not self.main.already_pending(OVERSEER, all_units=True)
             and len(self.main.overseers) < self.main.ready_base_amount
         )
 
