@@ -16,10 +16,9 @@ class Globals:
     def can_build_unique(self, unit_type, building, requirement=True, all_units=False):
         """Global requirements for building unique buildings"""
         return (
-            not self.already_pending(unit_type, all_units=all_units)
-            and self.can_afford(unit_type)
+            self.can_afford(unit_type)
             and not building
-            and self.building_requirement(unit_type, requirement)
+            and self.building_requirement(unit_type, requirement, one_at_time=True, morphing=all_units)
         )
 
     async def place_building(self, building):
@@ -36,6 +35,8 @@ class Globals:
         """Global requirements for upgrades"""
         return not self.already_pending_upgrade(upgrade) and self.can_afford(research) and host_building
 
-    def building_requirement(self, unit_type, requirement=True):
+    def building_requirement(self, unit_type, requirement=True, one_at_time=False, morphing=False):
         """Global requirements for building every structure"""
+        if one_at_time and self.already_pending(unit_type, all_units=morphing):
+            return False
         return requirement and self.can_afford(unit_type)

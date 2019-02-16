@@ -19,7 +19,6 @@ class BuildSpores:
             return (
                 (spore_building_trigger or self.main.time >= 420)
                 and not self.main.already_pending(SPORECRAWLER)
-                and not self.main.spores.closer_than(15, self.main.ready_bases.random)
                 and self.main.building_requirement(SPORECRAWLER, self.main.pools.ready)
             )
 
