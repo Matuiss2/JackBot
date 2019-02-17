@@ -43,10 +43,10 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             #    continue
             if self.disruptor_dodge(attacking_unit):
                 continue
-            if self.anti_proxy_trigger(attacking_unit):
+            if self.anti_proxy_trigger():
                 if self.attack_enemy_proxy_units(attacking_unit):
                     continue
-                self.main.add_action(attacking_unit.move(self.main.spines.closest_to(attacking_unit)))
+                self.move_to_rallying_point(self.targets, attacking_unit)
                 continue
             if self.anti_terran_bm(attacking_unit):
                 continue
@@ -93,13 +93,12 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         if enemy_building:
             self.main.add_action(unit.attack(enemy_building.closest_to(self.main.furthest_townhall_to_center)))
 
-    def anti_proxy_trigger(self, unit):
+    def anti_proxy_trigger(self):
         """Requirements for the anti-proxy logic"""
         return (
             self.main.close_enemy_production
             and self.main.spines
             and (self.main.time <= 480 or self.main.zergling_amount <= 14)
-            and not self.main.spines.closer_than(2, unit)
         )
 
     def attack_enemy_proxy_units(self, unit):

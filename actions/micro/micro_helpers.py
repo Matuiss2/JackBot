@@ -196,6 +196,8 @@ class Micro:
         if self.main.ready_bases:
             map_center = self.main.game_info.map_center
             rally_point = self.main.ready_bases.closest_to(map_center).position.towards(map_center, 10)
+            if self.main.spines and self.main.close_enemies_to_base:
+                rally_point = self.main.spines.closest_to(map_center).position.towards(map_center, 2)
             if unit.position.distance_to_point2(rally_point) > 5:
                 self.main.add_action(unit.move(rally_point))
         elif targets:
