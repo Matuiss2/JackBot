@@ -27,8 +27,8 @@ class Globals:
         if not position:
             print("Wanted position unavailable")
             return None
-        if position.closer_than(15, self.enemies.closest_to(position)):
-            print("Enemies close")
+        if any(enemy.distance_to(position) < 15 for enemy in self.enemies):
+            print("Enemies close, don't place it")
             return None
         selected_drone = self.select_build_worker(position)
         if selected_drone:
