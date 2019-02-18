@@ -13,7 +13,7 @@ class BlockExpansions:
         return (
             self.main.zerglings.idle
             and not self.main.burrowed_lings
-            and len(self.main.zerglings.idle) >= 4
+            and len(self.main.zerglings) >= 4
             and self.main.already_pending_upgrade(BURROW) == 1
         )
 
