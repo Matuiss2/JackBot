@@ -194,8 +194,8 @@ class Micro:
     def move_to_rallying_point(self, targets, unit):
         """Set the point where the units should gather"""
         if self.main.ready_bases:
-            map_center = self.main.game_info.map_center
-            rally_point = self.main.ready_bases.closest_to(map_center).position.towards(map_center, 10)
+            enemy_base = self.main.enemy_start_locations[0]
+            rally_point = self.main.ready_bases.closest_to(enemy_base).position.towards(enemy_base, 10)
             if unit.position.distance_to_point2(rally_point) > 5:
                 self.main.add_action(unit.move(rally_point))
         elif targets:
