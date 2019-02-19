@@ -100,7 +100,7 @@ class DistributeWorkers:
             for extractor in self.main.extractors:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
                 if 0 < required_drones < len(self.main.drones.gathering):
-                    for drone in self.main.drones.gathering.prefer_close_to(extractor).take(required_drones):
+                    for drone in self.main.drones.gathering.sorted_by_distance_to(extractor).take(required_drones):
                         self.main.add_action(drone.gather(extractor))
 
     def transfer_to_minerals(self):
