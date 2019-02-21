@@ -21,7 +21,7 @@ class BuildSpines:
     async def handle(self):
         """Build the spines on the first base near the ramp in case there is a proxy"""
         position = self.main.furthest_townhall_to_center.position.towards(self.main.main_base_ramp.depot_in_middle, 14)
-        if any(enemy.distance_to(position) < 15 for enemy in self.main.enemies):
+        if any(enemy.distance_to(position) < 10 for enemy in self.main.enemies):
             return False
         await self.main.build(SPINECRAWLER, near=position)
         return True
