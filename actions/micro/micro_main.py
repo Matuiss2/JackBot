@@ -38,6 +38,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
     async def handle(self):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
         self.set_unit_groups()
+        self.hail_mary()
         for attacking_unit in self.atk_force:
             # if self.dodge_effects(attacking_unit):
             #    continue
@@ -149,3 +150,9 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
             return True
         return False
+
+    def hail_mary(self):
+        """Just something to stop it going idle, attack with everything if nothing else can be done"""
+        if self.main.minerals < 300 and not self.main.townhalls:
+            for unit in self.atk_force | self.main.drones:
+                self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
