@@ -153,6 +153,6 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     def hail_mary(self):
         """Just something to stop it going idle, attack with everything if nothing else can be done"""
-        if self.main.minerals < 300 and not self.main.townhalls:
+        if not self.main.townhalls and self.main.minerals < 300:
             for unit in self.atk_force | self.main.drones:
                 self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
