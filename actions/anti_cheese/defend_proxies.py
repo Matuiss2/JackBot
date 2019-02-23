@@ -33,27 +33,10 @@ class DefendProxies:
             and not self.main.ground_enemies
         )
 
-    def is_being_attacked(self, unit):
-        """Returns how often our units are attacking the given enemy unit"""
-        return len(
-            [
-                "attacker"
-                for attacker in self.main.units.filter(lambda x: x.is_attacking)
-                if attacker.order_target == unit.tag
-            ]
-        )
-
-    def pull_drones(self, mode, available):
-        """Pull 3 drones to destroy the proxy building"""
-        for target in mode:
-            if self.is_being_attacked(target) < 3 and available:
-                self.main.add_action(available.closest_to(target).attack(target))
-
     async def handle(self):
         """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
          surface area possible when attacking the buildings"""
-        drones = self.main.drones
-        available = drones.filter(lambda x: x.is_collecting and not x.is_attacking)
+        available = self.main.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
         for worker in self.main.enemies.of_type({PROBE, DRONE, SCV}).filter(
             lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in self.main.structures)
         ):
@@ -62,7 +45,19 @@ class DefendProxies:
         attacking_buildings = self.rush_buildings.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:
-            available = drones.filter(lambda x: x.order_target not in [y.tag for y in attacking_buildings])
+            available = self.main.drones.filter(lambda x: x.order_target not in [y.tag for y in attacking_buildings])
             self.pull_drones(attacking_buildings, available)
         if not_attacking_buildings:
             self.pull_drones(not_attacking_buildings, available)
+
+    def is_being_attacked(self, unit):
+        """Returns how often our units are attacking the given enemy unit"""
+        return len(
+            [1 for attacker in self.main.units.filter(lambda x: x.is_attacking) if attacker.order_target == unit.tag]
+        )
+
+    def pull_drones(self, mode, available):
+        """Pull 3 drones to destroy the proxy building"""
+        for target in mode:
+            if self.is_being_attacked(target) < 3 and available:
+                self.main.add_action(available.closest_to(target).attack(target))
