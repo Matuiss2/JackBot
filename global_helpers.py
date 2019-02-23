@@ -25,7 +25,10 @@ class Globals:
         """Build it behind the mineral line if there is space"""
         position = await self.get_production_position()
         if not position:
-            print("wanted position unavailable")
+            print("Wanted position unavailable")
+            return None
+        if any(enemy.distance_to(position) < 10 for enemy in self.enemies) and not self.close_enemy_production:
+            print("Enemies close, don't place it")
             return None
         selected_drone = self.select_build_worker(position)
         if selected_drone:

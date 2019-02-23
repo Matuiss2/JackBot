@@ -10,18 +10,18 @@ class BuildSpines:
 
     async def should_handle(self):
         """Requirements to build the spines"""
-        return (
-            self.main.building_requirement(SPINECRAWLER, self.main.pools.ready)
-            and self.main.townhalls
-            and self.main.close_enemy_production
-            and len(self.main.spines) < 4
+        if (
+            len(self.main.spines) < 4
             and self.main.already_pending(SPINECRAWLER) < 2
-        )
+            and self.main.building_requirement(SPINECRAWLER, self.main.pools.ready)
+            and self.main.townhalls
+        ):
+            return self.main.close_enemy_production or self.main.close_enemies_to_base
 
     async def handle(self):
         """Build the spines on the first base near the ramp in case there is a proxy"""
-        await self.main.build(
-            SPINECRAWLER,
-            near=self.main.furthest_townhall_to_center.position.towards(self.main.main_base_ramp.depot_in_middle, 14),
-        )
+        position = self.main.furthest_townhall_to_center.position.towards(self.main.main_base_ramp.depot_in_middle, 14)
+        if any(enemy.distance_to(position) < 10 for enemy in self.main.enemies):
+            return False
+        await self.main.build(SPINECRAWLER, near=position)
         return True
