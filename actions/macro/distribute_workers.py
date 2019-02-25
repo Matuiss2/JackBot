@@ -27,12 +27,6 @@ class DistributeWorkers:
         self.distribute_to_deficits()
         return True
 
-    def distribute_idle_workers(self):
-        """If the worker is idle send to the closest mineral"""
-        if self.mineral_fields:
-            for drone in self.main.drones.idle:
-                self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
-
     def calculate_distribution(self):
         """Calculate the ideal distribution for workers"""
         workers_to_distribute = self.main.drones.idle
@@ -56,15 +50,11 @@ class DistributeWorkers:
                 bases_deficit.append([mining_place, difference])
         return bases_deficit, workers_to_distribute
 
-    def mineral_fields_deficit(self, bases_deficit):
-        """Calculate how many workers are left to saturate the base"""
-        return sorted(
-            [mf for mf in self.mineral_fields.closer_than(8, bases_deficit[0][0])],
-            key=lambda mineral_field: (
-                mineral_field.tag not in {worker.order_target for worker in self.main.drones.collecting},
-                mineral_field.mineral_contents,
-            ),
-        )
+    def distribute_idle_workers(self):
+        """If the worker is idle send to the closest mineral"""
+        if self.mineral_fields:
+            for drone in self.main.drones.idle:
+                self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
 
     def distribute_to_deficits(self):
         """Distribute workers so it saturates the bases"""
@@ -103,11 +93,15 @@ class DistributeWorkers:
                     for drone in self.main.drones.gathering.sorted_by_distance_to(extractor).take(required_drones):
                         self.main.add_action(drone.gather(extractor))
 
-    def transfer_to_minerals(self):
-        """ Transfer drones from vespene to minerals when vespene count is way to high"""
-        if self.main.vespene > self.main.minerals * 4 and self.main.minerals >= 100:
-            for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
-                self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
+    def mineral_fields_deficit(self, bases_deficit):
+        """Calculate how many workers are left to saturate the base"""
+        return sorted(
+            [mf for mf in self.mineral_fields.closer_than(8, bases_deficit[0][0])],
+            key=lambda mineral_field: (
+                mineral_field.tag not in {worker.order_target for worker in self.main.drones.collecting},
+                mineral_field.mineral_contents,
+            ),
+        )
 
     @property
     def require_gas(self):
@@ -122,3 +116,9 @@ class DistributeWorkers:
             and not self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
             and self.main.vespene < 100
         )
+
+    def transfer_to_minerals(self):
+        """ Transfer drones from vespene to minerals when vespene count is way to high"""
+        if self.main.vespene > self.main.minerals * 4 and self.main.minerals >= 100:
+            for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
+                self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
