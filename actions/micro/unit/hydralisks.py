@@ -7,6 +7,23 @@ from actions.micro.micro_helpers import Micro
 class HydraControl(Micro):
     """Some mistakes mostly due to values I believe, can be improved"""
 
+    def hydra_modifiers(self, unit):
+        """Modifiers for hydras"""
+        our_move_speed = unit.movement_speed
+        our_range = unit.ground_range + unit.radius
+        if self.main.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1:
+            our_range += 1  # If we've researched grooved spines, hydras gets 1 more range.
+        if self.main.already_pending_upgrade(EVOLVEMUSCULARAUGMENTS) == 1:
+            our_move_speed *= 1.25  # If we've researched muscular augments, our move speed is 25% more.
+        if self.main.has_creep(unit):
+            our_move_speed *= 1.30  # If we're on creep, it's 30% more.
+        if unit.has_buff(SLOW):
+            our_move_speed *= 0.5  # If we've been hit with concussive shells, our move speed is half.
+        if unit.has_buff(FUNGALGROWTH):
+            our_move_speed *= 0.25  # If we've been hit with fungal growth, our move speed is a quarter.
+        # movement_speed returns the speed on normal speed not fastest so x 1.4 is necessary
+        return our_move_speed * 1.4, our_range
+
     def micro_hydras(self, targets, unit):
         """Control the hydras"""
         our_move_speed, our_range = self.hydra_modifiers(unit)
@@ -24,20 +41,3 @@ class HydraControl(Micro):
                 return self.hit_and_run(closest_threat, unit, 6.45, 3.35)
             return self.stutter_step(closest_threat, unit)
         return self.attack_close_target(unit, targets)  # If there isn't a close enemy that does damage
-
-    def hydra_modifiers(self, unit):
-        """Modifiers for hydras"""
-        our_move_speed = unit.movement_speed
-        our_range = unit.ground_range + unit.radius
-        if self.main.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1:
-            our_range += 1  # If we've researched grooved spines, hydras gets 1 more range.
-        if self.main.already_pending_upgrade(EVOLVEMUSCULARAUGMENTS) == 1:
-            our_move_speed *= 1.25  # If we've researched muscular augments, our move speed is 25% more.
-        if self.main.has_creep(unit):
-            our_move_speed *= 1.30  # If we're on creep, it's 30% more.
-        if unit.has_buff(SLOW):
-            our_move_speed *= 0.5  # If we've been hit with concussive shells, our move speed is half.
-        if unit.has_buff(FUNGALGROWTH):
-            our_move_speed *= 0.25  # If we've been hit with fungal growth, our move speed is a quarter.
-        # movement_speed returns the speed on normal speed not fastest so x 1.4 is necessary
-        return our_move_speed * 1.4, our_range

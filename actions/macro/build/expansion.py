@@ -39,15 +39,6 @@ class BuildExpansion:
                     return True
         return False
 
-    def mineral_overflow_logic(self):
-        """ When overflowing with minerals run this condition check"""
-        return (
-            self.main.minerals >= 1000
-            and self.main.hatcheries_in_queue < 2
-            and self.main.base_amount + self.main.hatcheries_in_queue < len(self.main.expansion_locations)
-            and self.main.base_amount > 5
-        )
-
     def expansion_lock(self):
         """ Check if its safe to expand and if we have the necessary minerals
          if its not don't even run the remaining expansion logic"""
@@ -56,4 +47,13 @@ class BuildExpansion:
             and self.main.can_afford(HATCHERY)
             and not self.main.close_enemies_to_base
             and (not self.main.close_enemy_production or self.main.time > 690)
+        )
+
+    def mineral_overflow_logic(self):
+        """ When overflowing with minerals run this condition check"""
+        return (
+            self.main.minerals >= 1000
+            and self.main.hatcheries_in_queue < 2
+            and self.main.base_amount + self.main.hatcheries_in_queue < len(self.main.expansion_locations)
+            and self.main.base_amount > 5
         )
