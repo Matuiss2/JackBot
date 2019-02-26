@@ -32,11 +32,11 @@ class OurBuildingsData:
         self.spores = self.units(SPORECRAWLER)
         self.spires = self.units(SPIRE)
 
+    def initialize_hive_buildings(self):
+        """Initialize all our buildings (hive tech)"""
+        self.caverns = self.units(ULTRALISKCAVERN)
+
     def initialize_lair_buildings(self):
         """Initialize all our buildings(lair tech)"""
         self.hydradens = self.units(HYDRALISKDEN)
         self.pits = self.units(INFESTATIONPIT)
-
-    def initialize_hive_buildings(self):
-        """Initialize all our buildings (hive tech)"""
-        self.caverns = self.units(ULTRALISKCAVERN)

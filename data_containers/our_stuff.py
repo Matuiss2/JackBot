@@ -13,6 +13,27 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
         OurUnitsData.__init__(self)
         self.structures = self.hatcheries = self.lairs = self.hives = self.ready_bases = None
 
+    def initialize_all_amounts(self):
+        """Initialize the amount of everything(repeated) on our possession"""
+        self.initialize_building_amounts()
+        self.initialize_unit_amounts()
+        self.initialize_completed_amounts()
+        self.initialize_pending_amounts()
+
+    def initialize_bases(self):
+        """Initialize our bases"""
+        self.hatcheries = self.units(HATCHERY)
+        self.lairs = self.units(LAIR)
+        self.hives = self.units(HIVE)
+        self.ready_bases = self.townhalls.ready
+
+    def initialize_buildings(self):
+        """Initialize all our buildings"""
+        self.structures = self.units.structure
+        self.initialize_hatchery_buildings()
+        self.initialize_lair_buildings()
+        self.initialize_hive_buildings()
+
     def initialize_our_stuff(self):
         """Initializes our stuff"""
         self.initialize_units()
@@ -25,24 +46,3 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
         self.initialize_hatchery_units()
         self.initialize_lair_units()
         self.initialize_hive_units()
-
-    def initialize_buildings(self):
-        """Initialize all our buildings"""
-        self.structures = self.units.structure
-        self.initialize_hatchery_buildings()
-        self.initialize_lair_buildings()
-        self.initialize_hive_buildings()
-
-    def initialize_bases(self):
-        """Initialize our bases"""
-        self.hatcheries = self.units(HATCHERY)
-        self.lairs = self.units(LAIR)
-        self.hives = self.units(HIVE)
-        self.ready_bases = self.townhalls.ready
-
-    def initialize_all_amounts(self):
-        """Initialize the amount of everything(repeated) on our possession"""
-        self.initialize_building_amounts()
-        self.initialize_unit_amounts()
-        self.initialize_completed_amounts()
-        self.initialize_pending_amounts()

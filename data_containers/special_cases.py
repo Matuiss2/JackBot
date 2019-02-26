@@ -29,6 +29,30 @@ class SituationalData:
     def __init__(self):
         self.close_enemies_to_base = self.counter_attack_vs_flying = False
 
+    def check_for_floating_buildings(self) -> bool:
+        """Check if some terran wants to be funny with lifting up"""
+        return bool(
+            self.enemy_structures.flying
+            and len(self.enemy_structures) == len(self.enemy_structures.flying)
+            and self.time > 300
+        )
+
+    def check_for_proxy_buildings(self) -> bool:
+        """Check if there are any proxy buildings"""
+        return bool(self.enemy_structures.of_type({BARRACKS, GATEWAY, HATCHERY}).closer_than(75, self.start_location))
+
+    def check_for_rushes(self):
+        """Got and adapted from SeeBot"""
+        if self.enemy_race is Race.Terran:
+            return (
+                len(self.enemy_structures.of_type(BARRACKS)) > 2 or not self.enemy_structures.of_type(REFINERY)
+            ) and len(self.enemy_structures.of_type(COMMANDCENTER)) == 1
+        if self.enemy_race is Race.Protoss:
+            return (
+                len(self.enemy_structures.of_type(GATEWAY)) != 1 or not self.enemy_structures.of_type(ASSIMILATOR)
+            ) and len(self.enemy_structures.of_type(NEXUS)) == 1
+        return None
+
     def check_for_second_bases(self) -> bool:
         """Check if its a one base play"""
         return bool(
@@ -38,18 +62,6 @@ class SituationalData:
             )
             and self.time > 165
             and not self.check_for_proxy_buildings
-        )
-
-    def check_for_proxy_buildings(self) -> bool:
-        """Check if there are any proxy buildings"""
-        return bool(self.enemy_structures.of_type({BARRACKS, GATEWAY, HATCHERY}).closer_than(75, self.start_location))
-
-    def check_for_floating_buildings(self) -> bool:
-        """Check if some terran wants to be funny with lifting up"""
-        return bool(
-            self.enemy_structures.flying
-            and len(self.enemy_structures) == len(self.enemy_structures.flying)
-            and self.time > 300
         )
 
     def prepare_enemy_data_points(self):
@@ -77,15 +89,3 @@ class SituationalData:
                     self.close_enemies_to_base = True
                 if close_enemy_flying and not self.counter_attack_vs_flying:
                     self.counter_attack_vs_flying = True
-
-    def check_for_rushes(self):
-        """Got and adapted from SeeBot"""
-        if self.enemy_race is Race.Terran:
-            return (
-                len(self.enemy_structures.of_type(BARRACKS)) > 2 or not self.enemy_structures.of_type(REFINERY)
-            ) and len(self.enemy_structures.of_type(COMMANDCENTER)) == 1
-        if self.enemy_race is Race.Protoss:
-            return (
-                len(self.enemy_structures.of_type(GATEWAY)) != 1 or not self.enemy_structures.of_type(ASSIMILATOR)
-            ) and len(self.enemy_structures.of_type(NEXUS)) == 1
-        return None
