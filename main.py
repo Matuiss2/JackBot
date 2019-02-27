@@ -99,26 +99,14 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         )
         self.ordered_expansions = []
 
-    def set_game_step(self):
-        """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
-        if self.ground_enemies:
-            if len(self.ground_enemies) >= 15:
-                self._client.game_step = 2
-            elif len(self.ground_enemies) >= 5:
-                self._client.game_step = 4
-            else:
-                self._client.game_step = 6
-        else:
-            self._client.game_step = 8
-
-    def on_end(self, game_result):
-        print(game_result)
-        sys.exit()
-
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
         if unit.type_id == HATCHERY:
             await self.prepare_building_positions(unit.position)
+
+    def on_end(self, game_result):
+        print(game_result)
+        sys.exit()
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
@@ -141,13 +129,6 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         if actions:
             await self.do_actions(actions)
 
-    @staticmethod
-    async def run_commands(commands):
-        """Group all requirements and execution for a class logic"""
-        for command in commands:
-            if await command.should_handle():
-                await command.handle()
-
     async def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on pathing distance"""
         start = self.start_location
@@ -158,6 +139,25 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         ]  # remove all None values for pathing
         # p1 is the expansion location - p0 is the pathing distance to the starting base
         self.ordered_expansions = [Point2((p[1])) for p in sorted(waypoints, key=lambda p: p[0])]
+
+    @staticmethod
+    async def run_commands(commands):
+        """Group all requirements and execution for a class logic"""
+        for command in commands:
+            if await command.should_handle():
+                await command.handle()
+
+    def set_game_step(self):
+        """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
+        if self.ground_enemies:
+            if len(self.ground_enemies) >= 15:
+                self._client.game_step = 2
+            elif len(self.ground_enemies) >= 5:
+                self._client.game_step = 4
+            else:
+                self._client.game_step = 6
+        else:
+            self._client.game_step = 8
 
     def split_workers(self):
         """Split the workers on the beginning """
