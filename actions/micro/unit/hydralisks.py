@@ -7,24 +7,6 @@ from actions.micro.micro_helpers import Micro
 class HydraControl(Micro):
     """Some mistakes mostly due to values I believe, can be improved"""
 
-    def micro_hydras(self, targets, unit):
-        """Control the hydras"""
-        our_move_speed, our_range = self.hydra_modifiers(unit)
-        closest_threat = None  # Find the closest threat.
-        closest_threat_distance = math.inf
-        for threat in self.trigger_threats(targets, unit, 14):
-            if threat.distance_to(unit) < closest_threat_distance:
-                closest_threat = threat
-                closest_threat_distance = threat.distance_to(unit)
-        if closest_threat:
-            enemy_range = closest_threat.ground_range
-            if not enemy_range:
-                enemy_range = 0
-            if our_range > enemy_range + closest_threat.radius and our_move_speed > closest_threat.movement_speed:
-                return self.hit_and_run(closest_threat, unit, 6.45, 3.35)
-            return self.stutter_step(closest_threat, unit)
-        return self.attack_close_target(unit, targets)  # If there isn't a close enemy that does damage
-
     def hydra_modifiers(self, unit):
         """Modifiers for hydras"""
         our_move_speed = unit.movement_speed
@@ -39,4 +21,23 @@ class HydraControl(Micro):
             our_move_speed *= 0.5  # If we've been hit with concussive shells, our move speed is half.
         if unit.has_buff(FUNGALGROWTH):
             our_move_speed *= 0.25  # If we've been hit with fungal growth, our move speed is a quarter.
-        return our_move_speed, our_range
+        # movement_speed returns the speed on normal speed not fastest so x 1.4 is necessary
+        return our_move_speed * 1.4, our_range
+
+    def micro_hydras(self, targets, unit):
+        """Control the hydras"""
+        our_move_speed, our_range = self.hydra_modifiers(unit)
+        closest_threat = None  # Find the closest threat.
+        closest_threat_distance = math.inf
+        for threat in self.trigger_threats(targets, unit, 14):
+            if threat.distance_to(unit) < closest_threat_distance:
+                closest_threat = threat
+                closest_threat_distance = threat.distance_to(unit)
+        if closest_threat:
+            enemy_range = closest_threat.ground_range
+            if not enemy_range:
+                enemy_range = 0
+            if our_range > enemy_range + closest_threat.radius and our_move_speed > closest_threat.movement_speed * 1.4:
+                return self.hit_and_run(closest_threat, unit, 6.45, 3.35)
+            return self.stutter_step(closest_threat, unit)
+        return self.attack_close_target(unit, targets)  # If there isn't a close enemy that does damage

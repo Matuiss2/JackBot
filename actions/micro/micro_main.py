@@ -67,6 +67,46 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 continue
             self.move_to_rallying_point(self.targets, attacking_unit)
 
+    def anti_proxy_trigger(self):
+        """Requirements for the anti-proxy logic"""
+        return (
+            self.main.close_enemy_production
+            and self.main.spines
+            and (self.main.time <= 480 or self.main.zergling_amount <= 14)
+        )
+
+    def anti_terran_bm(self, unit):
+        """Logic for countering the floating buildings bm"""
+        if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and self.main.enemy_structures.flying:
+            self.main.add_action(unit.attack(self.main.enemy_structures.flying.closest_to(unit.position)))
+            return True
+        return False
+
+    def attack_closest_building(self, unit):
+        """Attack the closest enemy building"""
+        enemy_building = self.main.enemy_structures.not_flying
+        if enemy_building:
+            self.main.add_action(unit.attack(enemy_building.closest_to(self.main.furthest_townhall_to_center)))
+
+    def attack_enemy_proxy_units(self, unit):
+        """Requirements to attack the proxy army if it gets too close to the ramp"""
+        return (
+            self.targets
+            and unit.type_id == ZERGLING
+            and self.targets.closer_than(5, unit)
+            and self.micro_zerglings(unit, self.targets)
+        )
+
+    async def hail_mary_rebuild_main(self):
+        """Just something to stop it going idle, attack with everything if nothing else can be done,
+         or rebuild the main if we can, probably won't make much difference since its very different"""
+        if not self.main.townhalls.ready:
+            if self.main.minerals < 300:
+                for unit in self.atk_force | self.main.drones:
+                    self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
+            else:
+                await self.main.expand_now()
+
     def has_retreated(self, unit):
         """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
         if self.main.townhalls.closer_than(15, unit.position):
@@ -88,28 +128,17 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             return self.attack_start_location(unit)
         return False
 
-    def attack_closest_building(self, unit):
-        """Attack the closest enemy building"""
-        enemy_building = self.main.enemy_structures.not_flying
-        if enemy_building:
-            self.main.add_action(unit.attack(enemy_building.closest_to(self.main.furthest_townhall_to_center)))
-
-    def anti_proxy_trigger(self):
-        """Requirements for the anti-proxy logic"""
-        return (
-            self.main.close_enemy_production
-            and self.main.spines
-            and (self.main.time <= 480 or self.main.zergling_amount <= 14)
-        )
-
-    def attack_enemy_proxy_units(self, unit):
-        """Requirements to attack the proxy army if it gets too close to the ramp"""
-        return (
-            self.targets
-            and unit.type_id == ZERGLING
-            and self.targets.closer_than(5, unit)
-            and self.micro_zerglings(unit, self.targets)
-        )
+    def keep_attacking(self, unit):
+        """It keeps the attack going if it meets the requirements no matter what"""
+        if not self.retreat_units or self.main.close_enemies_to_base:
+            if self.main.enemy_structures:
+                self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
+                return True
+            if self.targets:
+                self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
+                return True
+            return False
+        return False
 
     def set_unit_groups(self):
         """Set the targets and atk_force, separating then by type"""
@@ -125,38 +154,9 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
-    def anti_terran_bm(self, unit):
-        """Logic for countering the floating buildings bm"""
-        if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and self.main.enemy_structures.flying:
-            self.main.add_action(unit.attack(self.main.enemy_structures.flying.closest_to(unit.position)))
-            return True
-        return False
-
-    def keep_attacking(self, unit):
-        """It keeps the attack going if it meets the requirements no matter what"""
-        if not self.retreat_units or self.main.close_enemies_to_base:
-            if self.main.enemy_structures:
-                self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
-                return True
-            if self.targets:
-                self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
-                return True
-            return False
-        return False
-
     def target_buildings(self, unit):
         """Target close buildings if any other target is available"""
         if self.main.enemy_structures.closer_than(30, unit.position):
             self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
             return True
         return False
-
-    async def hail_mary_rebuild_main(self):
-        """Just something to stop it going idle, attack with everything if nothing else can be done,
-         or rebuild the main if we can, probably won't make much difference since its very different"""
-        if not self.main.townhalls.ready:
-            if self.main.minerals < 300:
-                for unit in self.atk_force | self.main.drones:
-                    self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
-            else:
-                await self.main.expand_now()

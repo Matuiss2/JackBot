@@ -20,12 +20,12 @@ class OurUnitsData:
         )
         self.larvae = self.units(LARVA)
 
+    def initialize_hive_units(self):
+        """Initialize all our buildings (hive tech)"""
+        self.ultralisks = self.units(ULTRALISK)
+
     def initialize_lair_units(self):
         """Initialize all our buildings(lair tech)"""
         self.overseers = self.units(OVERSEER)
         self.mutalisks = self.units(MUTALISK)
         self.hydras = self.units(HYDRALISK)
-
-    def initialize_hive_units(self):
-        """Initialize all our buildings (hive tech)"""
-        self.ultralisks = self.units(ULTRALISK)

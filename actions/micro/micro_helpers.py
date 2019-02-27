@@ -66,34 +66,56 @@ class Micro:
             return True
         return False
 
-    def move_to_next_target(self, unit, enemies):
-        """It helps on the targeting and positioning on the attack"""
-        targets_in_melee_range = enemies.closer_than(1, unit)
-        if targets_in_melee_range:
-            self.move_lowhp(unit, targets_in_melee_range)
-            return True
-        return None
-
-    def move_lowhp(self, unit, enemies):
-        """Move to enemy with lowest HP"""
-        self.main.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
-
     def attack_lowhp(self, unit, enemies):
         """Attack enemy with lowest HP"""
         self.main.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
+
+    def attack_start_location(self, unit):
+        """It tell to attack the starting location"""
+        if self.main.enemy_start_locations and not self.main.enemy_structures:
+            self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
+            return True
+        return False
 
     @staticmethod
     def closest_lowest_hp(unit, enemies):
         """Find the closest within the lowest hp enemies"""
         return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
-    def stutter_step(self, target, unit):
-        """Attack when the unit can, run while it can't. We don't outrun the enemy."""
-        if not unit.weapon_cooldown:
-            self.main.add_action(unit.attack(target))
+    def disruptor_dodge(self, unit):
+        """If the enemy has disruptor's, run a dodging code."""
+        if unit.type_id == ULTRALISK:
+            return False
+        for ball in self.main.enemies.of_type(DISRUPTORPHASED):
+            if ball.distance_to(unit) < 5:
+                retreat_point = self.find_retreat_point(ball, unit)
+                self.main.add_action(unit.move(retreat_point))
+                return True
+        return None
+
+    @staticmethod
+    def find_pursuit_point(target, unit) -> Point2:
+        """Find a point towards the enemy unit"""
+        difference = unit.position - target.position
+        return Point2((unit.position.x + (difference.x / 2) * -1, unit.position.y + (difference.y / 2) * -1))
+
+    @staticmethod
+    def find_retreat_point(target, unit) -> Point2:
+        """Find a point away from the enemy unit"""
+        difference = unit.position - target.position
+        return Point2((unit.position.x + (difference.x / 2), unit.position.y + (difference.y / 2)))
+
+    async def handling_walls_and_attacking(self, unit, target):
+        """It micros normally if no wall, if there is one attack it
+        (can be improved, it does whats expected but its a regression overall when there is no walls)"""
+        if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
+            if unit.type_id == ZERGLING:
+                return self.micro_zerglings(unit, target)
+            self.main.add_action(unit.attack(target.closest_to(unit.position)))
             return True
-        self.main.add_action(unit.move(self.find_retreat_point(target, unit)))
-        return True
+        if self.main.enemies.not_flying:
+            self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
+            return True
 
     def hit_and_run(self, target, unit, attack_trigger, run_trigger):
         """Attack when the unit can, run while it can't. We outrun the enemy."""
@@ -121,35 +143,27 @@ class Micro:
         self.main.add_action(unit.move(self.find_pursuit_point(target, unit)))  # If our unit is too far, run towards.
         return True
 
-    @staticmethod
-    def find_pursuit_point(target, unit) -> Point2:
-        """Find a point towards the enemy unit"""
-        difference = unit.position - target.position
-        return Point2((unit.position.x + (difference.x / 2) * -1, unit.position.y + (difference.y / 2) * -1))
+    def move_lowhp(self, unit, enemies):
+        """Move to enemy with lowest HP"""
+        self.main.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
 
-    @staticmethod
-    def find_retreat_point(target, unit) -> Point2:
-        """Find a point away from the enemy unit"""
-        difference = unit.position - target.position
-        return Point2((unit.position.x + (difference.x / 2), unit.position.y + (difference.y / 2)))
-
-    @staticmethod
-    def trigger_threats(targets, unit, trigger_range):
-        """Identify threats based on range"""
-        for enemy in targets:
-            if enemy.distance_to(unit) < trigger_range:
-                yield enemy
-
-    def disruptor_dodge(self, unit):
-        """If the enemy has disruptor's, run a dodging code."""
-        if unit.type_id == ULTRALISK:
-            return False
-        for ball in self.main.enemies.of_type(DISRUPTORPHASED):
-            if ball.distance_to(unit) < 5:
-                retreat_point = self.find_retreat_point(ball, unit)
-                self.main.add_action(unit.move(retreat_point))
-                return True
+    def move_to_next_target(self, unit, enemies):
+        """It helps on the targeting and positioning on the attack"""
+        targets_in_melee_range = enemies.closer_than(1, unit)
+        if targets_in_melee_range:
+            self.move_lowhp(unit, targets_in_melee_range)
+            return True
         return None
+
+    def move_to_rallying_point(self, targets, unit):
+        """Set the point where the units should gather"""
+        if self.main.ready_bases:
+            enemy_base = self.main.enemy_start_locations[0]
+            rally_point = self.main.ready_bases.closest_to(enemy_base).position.towards(enemy_base, 10)
+            if unit.position.distance_to_point2(rally_point) > 5:
+                self.main.add_action(unit.move(rally_point))
+        elif targets:
+            self.main.add_action(unit.attack(targets.closest_to(unit.position)))
 
     def retreat_unit(self, unit, target):
         """Tell the unit to retreat when overwhelmed"""
@@ -172,31 +186,17 @@ class Micro:
             return True
         return False
 
-    async def handling_walls_and_attacking(self, unit, target):
-        """It micros normally if no wall, if there is one attack it
-        (can be improved, it does whats expected but its a regression overall when there is no walls)"""
-        if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
-            if unit.type_id == ZERGLING:
-                return self.micro_zerglings(unit, target)
-            self.main.add_action(unit.attack(target.closest_to(unit.position)))
+    def stutter_step(self, target, unit):
+        """Attack when the unit can, run while it can't. We don't outrun the enemy."""
+        if not unit.weapon_cooldown:
+            self.main.add_action(unit.attack(target))
             return True
-        if self.main.enemies.not_flying:
-            self.main.add_action(unit.attack(self.main.enemies.not_flying.closest_to(unit.position)))
-            return True
+        self.main.add_action(unit.move(self.find_retreat_point(target, unit)))
+        return True
 
-    def attack_start_location(self, unit):
-        """It tell to attack the starting location"""
-        if self.main.enemy_start_locations and not self.main.enemy_structures:
-            self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
-            return True
-        return False
-
-    def move_to_rallying_point(self, targets, unit):
-        """Set the point where the units should gather"""
-        if self.main.ready_bases:
-            enemy_base = self.main.enemy_start_locations[0]
-            rally_point = self.main.ready_bases.closest_to(enemy_base).position.towards(enemy_base, 10)
-            if unit.position.distance_to_point2(rally_point) > 5:
-                self.main.add_action(unit.move(rally_point))
-        elif targets:
-            self.main.add_action(unit.attack(targets.closest_to(unit.position)))
+    @staticmethod
+    def trigger_threats(targets, unit, trigger_range):
+        """Identify threats based on range"""
+        for enemy in targets:
+            if enemy.distance_to(unit) < trigger_range:
+                yield enemy
