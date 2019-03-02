@@ -149,11 +149,11 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         True and the action(just attack the closest structure or closest enemy) if it meets the conditions
         """
         if not self.retreat_units or self.main.close_enemies_to_base:
-            if self.targets:
-                self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
-                return True
             if self.main.enemy_structures:
                 self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
+                return True
+            if self.targets:
+                self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
                 return True
             return False
         return False
