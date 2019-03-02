@@ -51,7 +51,18 @@ class DefendProxies:
             self.pull_drones(not_attacking_buildings, available)
 
     def is_being_attacked(self, unit):
-        """Returns how often our units are attacking the given enemy unit"""
+        """
+        Calculates how often our units are attacking the given enemy unit
+
+        Parameters
+        ----------
+        unit: Enemy unit that is being targeted
+
+        Returns
+        -------
+        An integer value that corresponds to how many of our units are attacking the given target
+        """
+
         return len(
             [1 for attacker in self.main.units.filter(lambda x: x.is_attacking) if attacker.order_target == unit.tag]
         )

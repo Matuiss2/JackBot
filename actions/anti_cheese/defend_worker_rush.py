@@ -46,7 +46,16 @@ class DefendWorkerRush(Micro):
             self.defenders = None
 
     def defense_force(self, count):
-        """Put all drones needed on the defenders force - Order the drones based on health(highest first)"""
+        """
+        Select all drones needed on the defenders force
+        Parameters
+        ----------
+        count: The needed amount of drones to fill the defense force
+
+        Returns
+        -------
+        A list with all drones that are part of the defense force, ordered by health(highest one prioritized)
+        """
         return [unit.tag for unit in heapq.nlargest(count, self.main.drones.collecting, key=lambda dr: dr.health)]
 
     def refill_defense_force(self):
@@ -57,7 +66,17 @@ class DefendWorkerRush(Micro):
             self.defender_tags += self.defense_force(defender_deficit)
 
     def save_lowhp_drone(self, drone):
-        """Remove drones with less 6 hp(one worker hit) from the defending force"""
+        """
+        Remove drones with less 6 hp(one worker hit) from the defending force
+        Parameters
+        ----------
+        drone: A drone from the defenders force
+
+        Returns
+        -------
+        True if the drone got removed from the force, False if the drone doesn't need to be removed
+        """
+
         if drone.health <= 6:
             if not drone.is_collecting:
                 self.main.add_action(drone.gather(self.main.state.mineral_field.closest_to(self.base.first.position)))

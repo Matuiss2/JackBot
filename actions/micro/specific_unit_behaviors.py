@@ -8,7 +8,17 @@ class UnitsBehavior(HydraControl, Micro):
     """Ok for now"""
 
     def specific_hydra_behavior(self, hydra_targets, unit):
-        """Group everything related to hydras behavior on attack"""
+        """
+        Group everything related to hydras behavior on attack
+        Parameters
+        ----------
+        hydra_targets: Targets that hydras can reach(almost everything)
+        unit: One hydra from the attacking force
+
+        Returns
+        -------
+        Actions(micro or retreat) if conditions are met False if not
+        """
         if hydra_targets and unit.type_id == HYDRALISK:
             close_hydra_targets = hydra_targets.closer_than(20, unit.position)
             if close_hydra_targets:
@@ -19,7 +29,17 @@ class UnitsBehavior(HydraControl, Micro):
         return False
 
     async def specific_zergling_behavior(self, targets, unit):
-        """Group everything related to zergling behavior on attack"""
+        """
+        Group everything related to zergling behavior on attack
+        Parameters
+        ----------
+        targets: Targets that zerglings can reach(ground units mostly)
+        unit: One zergling from the attacking force
+
+        Returns
+        -------
+        Actions(micro or retreat) if conditions are met False if not
+        """
         if targets:
             close_targets = targets.closer_than(20, unit.position)
             if close_targets:

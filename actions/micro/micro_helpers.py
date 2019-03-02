@@ -15,7 +15,17 @@ from sc2.position import Point2
 
 
 def filter_in_attack_range_of(unit, targets):
-    """filter targets who are in attack range of the unit"""
+    """
+    Filter targets who are in attack range of the unit
+    Parameters
+    ----------
+    unit: Unit from the attacking force
+    targets: All enemy targets
+
+    Returns
+    -------
+    A subgroup from all the targets select only the ones that are in range
+    """
     return targets.subgroup(target for target in targets if unit.target_in_range(target))
 
 
@@ -45,7 +55,17 @@ class Micro:
         return False'''
 
     def attack_close_target(self, unit, enemies):
-        """It targets lowest hp units on its range, if there is any attack the closest"""
+        """
+        It targets lowest hp units on its range, if there is any attack the closest
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        enemies: All enemy targets
+
+        Returns
+        -------
+        True and the action(attack low hp enemy or any in range) if it meets the conditions
+        """
         targets_close = filter_in_attack_range_of(unit, enemies)
         if targets_close:
             self.attack_lowhp(unit, targets_close)
@@ -59,7 +79,16 @@ class Micro:
         return None
 
     def attack_in_range(self, unit):
-        """Attacks the lowest hp enemy in range of the unit"""
+        """
+        Attacks the lowest hp enemy in range of the unit
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(attack low hp enemy) if it meets the conditions
+        """
         target_in_range = filter_in_attack_range_of(unit, self.main.enemies)
         if target_in_range:
             self.attack_lowhp(unit, target_in_range)
@@ -67,11 +96,20 @@ class Micro:
         return False
 
     def attack_lowhp(self, unit, enemies):
-        """Attack enemy with lowest HP"""
+        """Attack close enemy with lowest HP"""
         self.main.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
 
     def attack_start_location(self, unit):
-        """It tell to attack the starting location"""
+        """
+        It tell to attack the starting location
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(attack the starting enemy location) if it meets the conditions
+        """
         if self.main.enemy_start_locations and not self.main.enemy_structures:
             self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
             return True
@@ -83,7 +121,16 @@ class Micro:
         return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
     def disruptor_dodge(self, unit):
-        """If the enemy has disruptor's, run a dodging code."""
+        """
+        If the enemy has disruptor's, run a dodging code. Exclude ultralisks
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(dodge the shot) if it meets the conditions
+        """
         if unit.type_id == ULTRALISK:
             return False
         for ball in self.main.enemies.of_type(DISRUPTORPHASED):
@@ -95,19 +142,49 @@ class Micro:
 
     @staticmethod
     def find_pursuit_point(target, unit) -> Point2:
-        """Find a point towards the enemy unit"""
+        """
+        Find a point towards the enemy unit
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        target: All enemy targets
+
+        Returns
+        -------
+        A point that is close to the target
+        """
         difference = unit.position - target.position
         return Point2((unit.position.x + (difference.x / 2) * -1, unit.position.y + (difference.y / 2) * -1))
 
     @staticmethod
     def find_retreat_point(target, unit) -> Point2:
-        """Find a point away from the enemy unit"""
+        """
+        Find a point away from the enemy unit
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        target: All enemy targets
+
+        Returns
+        -------
+        A point that is far from the target
+        """
         difference = unit.position - target.position
         return Point2((unit.position.x + (difference.x / 2), unit.position.y + (difference.y / 2)))
 
     async def handling_walls_and_attacking(self, unit, target):
-        """It micros normally if no wall, if there is one attack it
-        (can be improved, it does whats expected but its a regression overall when there is no walls)"""
+        """
+        It micros normally if no wall, if there is one attack it
+        (can be improved, it does whats expected but its a regression overall when there is no walls)
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        target: All enemy targets
+
+        Returns
+        -------
+        True and the action(attack closest or overall micro logic) if it meets the conditions
+        """
         if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
             if unit.type_id == ZERGLING:
                 return self.micro_zerglings(unit, target)
@@ -118,7 +195,19 @@ class Micro:
             return True
 
     def hit_and_run(self, target, unit, attack_trigger, run_trigger):
-        """Attack when the unit can, run while it can't. We outrun the enemy."""
+        """
+        Attack when the unit can, run while it can't. We outrun the enemy.
+        Parameters
+        ----------
+        target: All enemy targets
+        unit: Unit from the attacking force
+        attack_trigger: Weapon cooldown trigger value for attacking
+        run_trigger: Weapon cooldown trigger value for running away
+
+        Returns
+        -------
+        True always, along side the actions to attack or to run
+        """
         # Only do this when our range > enemy range, our move speed > enemy move speed, and enemy is targeting us.
         our_range = unit.ground_range
         partial_enemy_range = target.ground_range
@@ -148,7 +237,17 @@ class Micro:
         self.main.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
 
     def move_to_next_target(self, unit, enemies):
-        """It helps on the targeting and positioning on the attack"""
+        """
+        It helps on the targeting and positioning on the attack
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        enemies: All enemy targets
+
+        Returns
+        -------
+        True and the action(move to the closest low hp enemy) if it meets the conditions
+        """
         targets_in_melee_range = enemies.closer_than(1, unit)
         if targets_in_melee_range:
             self.move_lowhp(unit, targets_in_melee_range)
@@ -166,7 +265,18 @@ class Micro:
             self.main.add_action(unit.attack(targets.closest_to(unit.position)))
 
     def retreat_unit(self, unit, target):
-        """Tell the unit to retreat when overwhelmed"""
+        """
+        Tell the unit to retreat when overwhelmed
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        target: Enemy target
+
+        Returns
+        -------
+        True and the action(retreat to rally point) if it meets the conditions, False always when suffering air harass
+        or if we being attacked(base trade logic)
+        """
         if self.main.townhalls.closer_than(15, unit) or self.main.counter_attack_vs_flying:
             return False
         if self.main.enemy_race == Race.Zerg:
@@ -187,7 +297,17 @@ class Micro:
         return False
 
     def stutter_step(self, target, unit):
-        """Attack when the unit can, run while it can't. We don't outrun the enemy."""
+        """
+        Attack when the unit can, run while it can't(We don't outrun the enemy)
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        target: Enemy target
+
+        Returns
+        -------
+        True always and the action(attack or retreat, its different from hit and run) if it meets the conditions
+        """
         if not unit.weapon_cooldown:
             self.main.add_action(unit.attack(target))
             return True
@@ -196,7 +316,18 @@ class Micro:
 
     @staticmethod
     def trigger_threats(targets, unit, trigger_range):
-        """Identify threats based on range"""
+        """
+        Identify threats based on given range
+        Parameters
+        ----------
+        targets: All enemy targets
+        unit: Unit from the attacking force
+        trigger_range: The range from the given unit as center to check for threats within the circle
+
+        Returns
+        -------
+        A generator with all threats within the range
+        """
         for enemy in targets:
             if enemy.distance_to(unit) < trigger_range:
                 yield enemy

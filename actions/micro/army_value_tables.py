@@ -67,7 +67,17 @@ from sc2.constants import (
 
 
 def general_calculation(table, targets):
-    """Returns the sum of all targets unit values, if the id is unknown, add it as value 1"""
+    """
+    Returns the sum of all targets unit values, if the id is unknown, add it as value 1
+    Parameters
+    ----------
+    table: Value table based on our unit type and their race
+    targets: Close enemy threats
+
+    Returns
+    -------
+    The final enemy army value
+    """
     total = 0
     for enemy in targets:
         table.setdefault(enemy.type_id, 1)
@@ -88,7 +98,19 @@ class EnemyArmyValue:
     worker = 0.01
 
     def battling_force_value(self, unit_position, zvalue, hvalue, uvalue):
-        """Returns the right value for our army that is in battle"""
+        """
+        Calculate value for our army that is in battle
+        Parameters
+        ----------
+        unit_position: The position of the unit in question
+        zvalue: Chosen zergling value
+        hvalue: Chosen hydras value
+        uvalue: Chosen ultras value
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values)
+        """
         return np.sum(
             np.array(
                 [
@@ -101,7 +123,18 @@ class EnemyArmyValue:
         )
 
     def enemy_value_protoss(self, unit, target_group):
-        """Returns the right enemy value based on the unit vs protoss"""
+        """
+        Calculates the right enemy value based on our unit type vs protoss
+        Parameters
+        ----------
+        unit: Our units
+        target_group: Our targets
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values) based on our unit type
+        """
+        """"""
         if unit.type_id == ZERGLING:
             return self.protoss_value_for_zerglings(target_group)
         if unit.type_id == HYDRALISK:
@@ -109,7 +142,17 @@ class EnemyArmyValue:
         return self.protoss_value_for_ultralisks(target_group)
 
     def enemy_value_terran(self, unit, target_group):
-        """Returns the right enemy value based on the unit vs terran"""
+        """
+        Calculates the right enemy value based on our unit type vs terran
+        Parameters
+        ----------
+        unit: Our units
+        target_group: Our targets
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values) based on our unit type
+        """
         if unit.type_id == ZERGLING:
             return self.terran_value_for_zerglings(target_group)
         if unit.type_id == HYDRALISK:
@@ -117,7 +160,17 @@ class EnemyArmyValue:
         return self.terran_value_for_ultralisks(target_group)
 
     def enemy_value_zerg(self, unit, target_group):
-        """Returns the right enemy value based on the unit vs zerg"""
+        """
+        Calculates the right enemy value based on our unit type vs zerg
+        Parameters
+        ----------
+        unit: Our units
+        target_group: Our targets
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values) based on our unit type
+        """
         if unit.type_id == ZERGLING:
             return self.zerg_value_for_zerglings(target_group)
         if unit.type_id == HYDRALISK:
@@ -125,14 +178,34 @@ class EnemyArmyValue:
         return self.zerg_value_for_ultralisks(target_group)
 
     def gathering_force_value(self, zvalue, hvalue, uvalue):
-        """Returns the right value for our army that is gathering"""
+        """
+        Calculate value for our army that is gathering on the rally point
+        Parameters
+        ----------
+        zvalue: Chosen zergling value
+        hvalue: Chosen hydras value
+        uvalue: Chosen ultras value
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values)
+        """
         return np.sum(
             np.array([len(self.main.zerglings.ready), len(self.main.hydras.ready), len(self.main.ultralisks.ready)])
             * np.array([zvalue, hvalue, uvalue])
         )
 
     def protoss_value_for_hydralisks(self, combined_enemies):
-        """Calculate the enemy army value for hydralisks vs protoss"""
+        """
+        Calculate the enemy army value for hydralisks vs protoss
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for hydralisks vs protoss after the calculations
+        """
         protoss_as_hydralisks_table = {
             PHOENIX: self.countered,
             ORACLE: self.countered,
@@ -156,7 +229,16 @@ class EnemyArmyValue:
         return general_calculation(protoss_as_hydralisks_table, combined_enemies)
 
     def protoss_value_for_ultralisks(self, combined_enemies):
-        """Calculate the enemy army value for ultralisks vs protoss"""
+        """
+        Calculate the enemy army value for ultralisks vs protoss
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for ultralisks vs protoss after the calculations
+        """
         protoss_as_ultralisks_table = {
             COLOSSUS: self.countered,
             ADEPT: self.countered,
@@ -174,7 +256,16 @@ class EnemyArmyValue:
         return general_calculation(protoss_as_ultralisks_table, combined_enemies)
 
     def protoss_value_for_zerglings(self, combined_enemies):
-        """Calculate the enemy army value for zerglings vs protoss"""
+        """
+        Calculate the enemy army value for zerglings vs protoss
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for zerglings vs protoss after the calculations
+        """
         protoss_as_zergling_table = {
             COLOSSUS: self.massive_counter,
             ADEPT: self.advantage,
@@ -192,7 +283,16 @@ class EnemyArmyValue:
         return general_calculation(protoss_as_zergling_table, combined_enemies)
 
     def terran_value_for_hydralisks(self, combined_enemies):
-        """Calculate the enemy army value for hydralisks vs terran"""
+        """
+        Calculate the enemy army value for hydralisks vs terran
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for hydralisks vs terran after the calculations
+        """
         terran_as_hydralisk_table = {
             AUTOTURRET: self.advantage,
             BUNKER: self.normal,
@@ -217,7 +317,16 @@ class EnemyArmyValue:
         return general_calculation(terran_as_hydralisk_table, combined_enemies)
 
     def terran_value_for_ultralisks(self, combined_enemies):
-        """Calculate the enemy army value for ultralisks vs terran"""
+        """
+        Calculate the enemy army value for ultralisks vs terran
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for ultralisks vs terran after the calculations
+        """
         terran_as_ultralisk_table = {
             AUTOTURRET: self.countered,
             BUNKER: self.countered,
@@ -237,7 +346,16 @@ class EnemyArmyValue:
         return general_calculation(terran_as_ultralisk_table, combined_enemies)
 
     def terran_value_for_zerglings(self, combined_enemies):
-        """Calculate the enemy army value for zerglings vs terran"""
+        """
+        Calculate the enemy army value for zerglings vs terran
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for zerglings vs terran after the calculations
+        """
         terran_as_zergling_table = {
             AUTOTURRET: self.counter,
             BUNKER: self.counter,
@@ -257,7 +375,16 @@ class EnemyArmyValue:
         return general_calculation(terran_as_zergling_table, combined_enemies)
 
     def zerg_value_for_hydralisk(self, combined_enemies):
-        """Calculate the enemy army value for hydralisks vs zerg"""
+        """
+        Calculate the enemy army value for hydralisks vs zerg
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for hydralisks vs zerg after the calculations
+        """
         zerg_as_hydralisk_table = {
             LARVA: 0,
             QUEEN: self.normal,
@@ -288,7 +415,16 @@ class EnemyArmyValue:
         return general_calculation(zerg_as_hydralisk_table, combined_enemies)
 
     def zerg_value_for_ultralisks(self, combined_enemies):
-        """Calculate the enemy army value for ultralisks vs zerg"""
+        """
+        Calculate the enemy army value for ultralisks vs zerg
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for ultralisks vs zerg after the calculations
+        """
         zerg_as_ultralisk_table = {
             LARVA: 0,
             QUEEN: self.countered,
@@ -312,7 +448,16 @@ class EnemyArmyValue:
         return general_calculation(zerg_as_ultralisk_table, combined_enemies)
 
     def zerg_value_for_zerglings(self, combined_enemies):
-        """Calculate the enemy army value for zerglings vs zerg"""
+        """
+        Calculate the enemy army value for zerglings vs zerg
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for zerglings vs zerg after the calculations
+        """
         zerg_as_zergling_table = {
             LARVA: 0,
             QUEEN: self.normal,

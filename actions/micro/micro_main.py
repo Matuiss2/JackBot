@@ -113,7 +113,16 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             self.retreat_units.remove(unit.tag)
 
     def idle_unit(self, unit):
-        """Control the idle units, by gathering then or telling then to attack"""
+        """
+        Control the idle units, by gathering then or telling then to attack
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(attack starting enemy location or retreat) if it meets the conditions
+        """
         if (
             self.main.townhalls
             and not self.main.counter_attack_vs_flying
@@ -129,13 +138,22 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         return False
 
     def keep_attacking(self, unit):
-        """It keeps the attack going if it meets the requirements no matter what"""
+        """
+        It keeps the attack going if it meets the requirements no matter what
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(just attack the closest structure or closest enemy) if it meets the conditions
+        """
         if not self.retreat_units or self.main.close_enemies_to_base:
-            if self.main.enemy_structures:
-                self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
-                return True
             if self.targets:
                 self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
+                return True
+            if self.main.enemy_structures:
+                self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
                 return True
             return False
         return False
@@ -155,7 +173,16 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             self.atk_force = self.atk_force | self.main.queens
 
     def target_buildings(self, unit):
-        """Target close buildings if any other target is available"""
+        """
+        Target close buildings if no other target is available
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(just attack closer structures) if it meets the conditions
+        """
         if self.main.enemy_structures.closer_than(30, unit.position):
             self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
             return True

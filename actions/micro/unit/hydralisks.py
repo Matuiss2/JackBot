@@ -8,7 +8,16 @@ class HydraControl(Micro):
     """Some mistakes mostly due to values I believe, can be improved"""
 
     def hydra_modifiers(self, unit):
-        """Modifiers for hydras"""
+        """
+        Modifiers for hydras
+        Parameters
+        ----------
+        unit: One hydra from the attacking force
+
+        Returns
+        -------
+        The speed and range of the hydras after the modifiers
+        """
         our_move_speed = unit.movement_speed
         our_range = unit.ground_range + unit.radius
         if self.main.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1:
@@ -25,7 +34,17 @@ class HydraControl(Micro):
         return our_move_speed * 1.4, our_range
 
     def micro_hydras(self, targets, unit):
-        """Control the hydras"""
+        """
+        Control the hydras
+        Parameters
+        ----------
+        targets: The enemy hydra targets, it groups almost every enemy unit
+        unit: One hydra from the attacking force
+
+        Returns
+        -------
+        Choose which action is better for which situation(hit and run, stutter_step or attacking the closest target)
+        """
         our_move_speed, our_range = self.hydra_modifiers(unit)
         closest_threat = None  # Find the closest threat.
         closest_threat_distance = math.inf
