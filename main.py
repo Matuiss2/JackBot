@@ -150,8 +150,10 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
     def set_game_step(self):
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
         if self.ground_enemies:
-            if len(self.ground_enemies) >= 20:
+            if len(self.ground_enemies) >= 30:
                 self._client.game_step = 1
+            elif len(self.ground_enemies) >= 15:
+                self._client.game_step = 2
             elif len(self.ground_enemies) >= 5:
                 self._client.game_step = 3
             else:
