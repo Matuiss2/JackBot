@@ -22,7 +22,7 @@ class DefendWorkerRush(Micro):
     async def handle(self):
         """It destroys every worker rush without losing more than 2 workers"""
         close_workers = self.enemy_units_close
-        self.pulling_force = len(close_workers) * 2
+        self.pulling_force = int(len(close_workers) * 1.25)
         if self.defender_tags:
             if close_workers:
                 self.refill_defense_force()
