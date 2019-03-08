@@ -16,7 +16,7 @@ class BuildSpines:
             and self.main.building_requirement(SPINECRAWLER, self.main.pools.ready)
             and self.main.townhalls
         ):
-            return self.main.close_enemy_production or self.main.close_enemies_to_base
+            return self.main.close_enemy_production or self.main.close_enemies_to_base and len(self.main.spines) < 2
 
     async def handle(self):
         """Build the spines on the first base near the ramp in case there is a proxy"""
