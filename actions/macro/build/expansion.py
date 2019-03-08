@@ -7,7 +7,6 @@ class BuildExpansion:
 
     def __init__(self, main):
         self.main = main
-        self.worker_to_first_base = False
 
     async def should_handle(self):
         """Fourth base sometimes are not build at the expected time maybe reduce the lock for it,
@@ -25,10 +24,6 @@ class BuildExpansion:
 
     async def handle(self):
         """Expands to the nearest expansion location using the nearest drone to it"""
-        if not self.worker_to_first_base and self.main.base_amount < 2 and self.main.minerals > 225:
-            self.worker_to_first_base = True
-            self.main.add_action(self.main.drones.random.move(await self.main.get_next_expansion()))
-            return True
         drones = self.main.drones.gathering
         for expansion in self.main.ordered_expansions:
             if await self.main.can_place(HATCHERY, expansion):
