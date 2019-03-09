@@ -17,7 +17,7 @@ class BuildExpansion:
             if not self.main.hatcheries_in_queue:  # This is a mess and surely can be simplified
                 base_amount = self.main.base_amount  # added to save lines
                 if base_amount <= 5:
-                    return self.main.zergling_amount >= 18 or self.main.time >= 285 if base_amount == 2 else True
+                    return self.main.zergling_amount >= 22 or self.main.time >= 285 if base_amount == 2 else True
                 return self.main.caverns
             return False
         return False
