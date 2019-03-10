@@ -106,7 +106,11 @@ class DistributeWorkers:
     @property
     def require_gas(self):
         """One of the requirements for gas collecting"""
-        return self.require_gas_for_speedlings or self.main.vespene * 1.5 < self.main.minerals
+        return (
+            self.require_gas_for_speedlings
+            or self.main.vespene * 1.5 < self.main.minerals
+            and self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) in (0, 1)
+        )
 
     @property
     def require_gas_for_speedlings(self):
@@ -118,7 +122,12 @@ class DistributeWorkers:
         )
 
     def transfer_to_minerals(self):
-        """ Transfer drones from vespene to minerals when vespene count is way to high"""
-        if self.main.vespene > self.main.minerals * 4 and self.main.minerals >= 100:
+        """ Transfer drones from vespene to minerals when vespene count is way to high
+         or early when zergling speed is being upgraded"""
+        if (
+            self.main.vespene > self.main.minerals * 4
+            and self.main.minerals >= 100
+            or self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) not in (0, 1)
+        ):
             for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
                 self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
