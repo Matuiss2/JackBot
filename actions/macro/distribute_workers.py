@@ -126,7 +126,7 @@ class DistributeWorkers:
          or early when zergling speed is being upgraded"""
         if (
             self.main.vespene > self.main.minerals * 4
-            and self.main.minerals >= 100
+            and self.main.minerals >= 75
             or self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) not in (0, 1)
         ):
             for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
