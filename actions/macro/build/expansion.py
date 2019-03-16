@@ -47,8 +47,8 @@ class BuildExpansion:
     def mineral_overflow_logic(self):
         """ When overflowing with minerals run this condition check"""
         return (
-            self.main.minerals >= 1000
+            self.main.minerals >= 900
             and self.main.hatcheries_in_queue < 2
             and self.main.base_amount + self.main.hatcheries_in_queue < len(self.main.expansion_locations)
-            and self.main.base_amount > 5
+            and self.main.base_amount > 4
         )
