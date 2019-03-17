@@ -15,7 +15,7 @@ class BuildExtractor:
          still trying to find the optimal number"""
         if (
             self.main.vespene > self.main.minerals
-            or not self.main.building_requirement(EXTRACTOR, self.main.ready_bases, one_at_time=True)
+            or not self.main.building_requirement(EXTRACTOR, self.main.ready_bases)
             or len(self.main.extractors) >= 10
         ):
             return False

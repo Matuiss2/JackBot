@@ -10,11 +10,13 @@ class BuildEvochamber:
 
     async def should_handle(self):
         """Requirements for building the evolution chambers, maybe its to early can probably be improved"""
-        return (
-            self.main.building_requirement(EVOLUTIONCHAMBER, self.main.pools.ready)
-            and (self.main.base_amount >= 3 or (self.main.close_enemy_production and len(self.main.spines.ready) >= 4))
-            and len(self.main.evochambers.ready) + self.main.already_pending(EVOLUTIONCHAMBER) < 2
-        )
+        if (
+            self.main.building_requirement(EVOLUTIONCHAMBER, self.main.pools.ready, one_at_time=True)
+            and len(self.main.evochambers) < 2
+        ):
+            if not self.main.evochambers.ready:
+                return self.main.base_amount >= 3
+            return self.main.ready_base_amount >= 3
 
     async def handle(self):
         """Build the evochamber"""
