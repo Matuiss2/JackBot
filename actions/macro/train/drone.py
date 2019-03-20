@@ -24,7 +24,7 @@ class TrainDrone:
             optimal_workers = min(
                 sum(x.ideal_harvesters * 1.15 for x in self.main.townhalls | geysers), 91 - len(geysers)
             )
-            return workers_total + self.main.drones_in_queue < optimal_workers and self.main.zergling_amount >= 18
+            return workers_total + self.main.drones_in_queue < optimal_workers and self.main.zergling_amount >= 20
         return False
 
     async def handle(self):
