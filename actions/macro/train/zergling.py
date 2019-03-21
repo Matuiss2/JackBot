@@ -14,9 +14,9 @@ class TrainZergling:
             return False
         if not self.main.can_train(ZERGLING, self.main.pools.ready):
             return False
-        if self.main.hydradens.ready and self.main.hydra_amount * 2.5 <= self.main.zergling_amount:
+        if self.main.hydradens.ready and self.main.hydra_amount * 3 <= self.main.zergling_amount:
             return False
-        if self.main.caverns.ready and len(self.main.ultralisks) * 9 <= self.main.zergling_amount:
+        if self.main.caverns.ready and len(self.main.ultralisks) * 8.5 <= self.main.zergling_amount:
             return False
         if self.main.floating_buildings_bm:
             return not (self.main.supply_used > 150 or len(self.main.mutalisks) * 10 <= self.main.zergling_amount)
