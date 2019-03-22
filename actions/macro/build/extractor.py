@@ -8,7 +8,6 @@ class BuildExtractor:
 
     def __init__(self, main):
         self.main = main
-        self.drone = self.geyser = None
 
     async def should_handle(self):
         """Couldn't find another way to build the geysers its heavily based on Burny's approach,
@@ -19,7 +18,7 @@ class BuildExtractor:
             or len(self.main.extractors) >= 10
         ):
             return False
-        if not self.main.hives and len(self.main.extractors) >= 6:
+        if not self.main.hives and len(self.main.extractors) >= 6 or self.main.already_pending(EXTRACTOR) >= 2:
             return False
         if (
             not self.main.extractors
@@ -27,14 +26,14 @@ class BuildExtractor:
             or len(self.main.extractors) < 3 <= self.main.ready_base_amount
             or self.main.ready_base_amount > 3
         ):
-            for geyser in self.main.state.vespene_geyser.closer_than(10, self.main.ready_bases.random):
-                self.drone = self.main.select_build_worker(geyser.position)
-                if not self.drone:
-                    return False
-                self.geyser = geyser
-                return True
+            return True
 
     async def handle(self):
         """Just finish the action of building the extractor"""
-        self.main.add_action(self.drone.build(EXTRACTOR, self.geyser))
-        return True
+        for geyser in self.main.state.vespene_geyser.closer_than(10, self.main.ready_bases.random):
+            drone = self.main.select_build_worker(geyser.position)
+            if not drone:
+                continue
+            self.main.add_action(drone.build(EXTRACTOR, geyser))
+            return True
+        return False
