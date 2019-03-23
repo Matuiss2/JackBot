@@ -22,7 +22,6 @@ from actions.macro.build.spores import BuildSpores
 from actions.macro.building_positioning import BuildingPositioning
 from actions.micro.cancel_building import Buildings
 from actions.macro.distribute_workers import DistributeWorkers
-from actions.micro.block_expansions import BlockExpansions
 from actions.micro.micro_main import ArmyControl
 from actions.micro.unit.drone import Drone
 from actions.micro.unit.overlord import Overlord
@@ -37,7 +36,6 @@ from actions.macro.train.ultralisk import TrainUltralisk
 from actions.macro.train.drone import TrainDrone
 from actions.macro.train.zergling import TrainZergling
 from actions.macro.upgrades.spawning_pool_upgrades import UpgradesFromSpawningPool
-from actions.macro.upgrades.base_upgrades import UpgradesFromBases
 from actions.macro.upgrades.evochamber_upgrades import UpgradesFromEvochamber
 from actions.macro.upgrades.hydraden_upgrades import UpgradesFromHydraden
 from actions.macro.upgrades.cavern_upgrades import UpgradesFromCavern
@@ -54,7 +52,6 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         BuildingPositioning.__init__(self)
         self.iteration = self.add_action = None
         self.unit_commands = (
-            BlockExpansions(self),
             DefendWorkerRush(self),
             DefendProxies(self),
             DistributeWorkers(self),
@@ -93,7 +90,6 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         self.upgrade_commands = (
             UpgradesFromSpawningPool(self),
             UpgradesFromEvochamber(self),
-            UpgradesFromBases(self),
             UpgradesFromHydraden(self),
             UpgradesFromCavern(self),
         )
