@@ -18,13 +18,14 @@ class BuildExtractor:
             or len(self.main.extractors) >= 10
         ):
             return False
-        if not self.main.hives and len(self.main.extractors) >= 6 or self.main.already_pending(EXTRACTOR) >= 2:
+        if not self.main.hives and len(self.main.extractors) >= 6:
             return False
         if (
             not self.main.extractors
             and self.main.pools
             or len(self.main.extractors) < 3 <= self.main.ready_base_amount
             or self.main.ready_base_amount > 3
+            or self.main.already_pending(EXTRACTOR) >= 2
         ):
             return True
 
