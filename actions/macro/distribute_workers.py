@@ -25,7 +25,6 @@ class DistributeWorkers:
         self.gather_gas()
         self.transfer_to_minerals()
         self.distribute_to_deficits()
-        return True
 
     def calculate_distribution(self):
         """Calculate the ideal distribution for workers"""

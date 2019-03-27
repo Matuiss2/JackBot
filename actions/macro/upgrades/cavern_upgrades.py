@@ -24,4 +24,3 @@ class UpgradesFromCavern:
     async def handle(self):
         """Execute the action of upgrading ultra armor and speed"""
         self.main.add_action(self.main.caverns.idle.first(self.selected_research))
-        return True

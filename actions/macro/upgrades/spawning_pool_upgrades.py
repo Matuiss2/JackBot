@@ -29,4 +29,3 @@ class UpgradesFromSpawningPool:
     async def handle(self):
         """Execute the action of upgrading zergling atk-speed and speed"""
         self.main.add_action(self.main.pools.ready.idle.first(self.selected_research))
-        return True

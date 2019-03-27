@@ -18,7 +18,6 @@ class QueensAbilities:
         if not (self.main.floating_buildings_bm and self.main.supply_used >= 199):
             await self.handle_queen_abilities()
             self.handle_queen_distribution()
-            return True
 
     async def handle_queen_abilities(self):
         """Logic for queen abilities"""

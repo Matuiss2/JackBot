@@ -45,5 +45,3 @@ class UpgradesFromEvochamber:
             for upgrade in await self.main.get_available_abilities(evo):
                 if upgrade in self.upgrade_list and self.main.can_afford(upgrade):
                     self.main.add_action(evo(upgrade))
-                    return True
-        return True

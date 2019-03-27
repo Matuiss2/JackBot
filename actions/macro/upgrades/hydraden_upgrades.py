@@ -26,4 +26,3 @@ class UpgradesFromHydraden:
     async def handle(self):
         """Execute the action of upgrading hydras speed and range"""
         self.main.add_action(self.main.hydradens.ready.idle.first(self.selected_research))
-        return True
