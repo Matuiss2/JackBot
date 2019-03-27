@@ -30,4 +30,3 @@ class TrainDrone:
     async def handle(self):
         """Execute the action of training drones"""
         self.main.add_action(self.main.larvae.random.train(DRONE))
-        return True

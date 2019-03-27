@@ -19,4 +19,3 @@ class TrainHydralisk:
     async def handle(self):
         """Execute the action of training hydras"""
         self.main.add_action(self.main.larvae.random.train(HYDRALISK))
-        return True

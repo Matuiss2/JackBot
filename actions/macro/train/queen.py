@@ -23,4 +23,3 @@ class TrainQueen:
     async def handle(self):
         """Execute the action of training queens"""
         self.main.add_action(self.hatchery.random.train(QUEEN))
-        return True

@@ -23,7 +23,6 @@ class TrainOverlord:
     async def handle(self):
         """Execute the action of training overlords"""
         self.main.add_action(self.main.larvae.random.train(OVERLORD))
-        return True
 
     def game_beginning_lock(self):
         """ Few locks for overlords on the early game, could be replaced for a hardcoded build order list"""
