@@ -22,4 +22,3 @@ class BuildLair:
     async def handle(self):
         """Finishes the action of making the lair choosing the safest available base"""
         self.main.add_action(self.main.furthest_townhall_to_center(UPGRADETOLAIR_LAIR))
-        return True

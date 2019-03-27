@@ -15,4 +15,3 @@ class BuildCavern:
     async def handle(self):
         """Build the cavern on the decided placement"""
         await self.main.place_building(ULTRALISKCAVERN)
-        return True

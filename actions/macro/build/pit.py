@@ -16,4 +16,3 @@ class BuildPit:
     async def handle(self):
         """Places the pit"""
         await self.main.place_building(INFESTATIONPIT)
-        return True

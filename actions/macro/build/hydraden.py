@@ -20,4 +20,3 @@ class BuildHydraden:
     async def handle(self):
         """Build the hydraden"""
         await self.main.place_building(HYDRALISKDEN)
-        return True

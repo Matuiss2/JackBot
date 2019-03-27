@@ -33,8 +33,5 @@ class BuildExtractor:
         """Just finish the action of building the extractor"""
         for geyser in self.main.state.vespene_geyser.closer_than(10, self.main.ready_bases.random):
             drone = self.main.select_build_worker(geyser.position)
-            if not drone:
-                continue
-            self.main.add_action(drone.build(EXTRACTOR, geyser))
-            return True
-        return False
+            if drone:
+                self.main.add_action(drone.build(EXTRACTOR, geyser))

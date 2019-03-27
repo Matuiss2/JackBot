@@ -27,12 +27,8 @@ class BuildExpansion:
         drones = self.main.drones.gathering
         for expansion in self.main.ordered_expansions:
             if await self.main.can_place(HATCHERY, expansion):
-                if self.main.ground_enemies.closer_than(15, expansion):
-                    return False
-                if drones:
+                if not self.main.ground_enemies.closer_than(15, expansion) and drones:
                     self.main.add_action(drones.closest_to(expansion).build(HATCHERY, expansion))
-                    return True
-        return False
 
     def expansion_lock(self):
         """ Check if its safe to expand and if we have the necessary minerals

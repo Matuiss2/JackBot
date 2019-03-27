@@ -19,4 +19,3 @@ class BuildSpire:
     async def handle(self):
         """Places the spire"""
         await self.main.place_building(SPIRE)
-        return True

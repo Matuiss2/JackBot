@@ -17,4 +17,3 @@ class BuildPool:
     async def handle(self):
         """Places the pool"""
         await self.main.place_building(SPAWNINGPOOL)
-        return True

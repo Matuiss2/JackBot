@@ -34,4 +34,3 @@ class BuildSpores:
                 and not self.main.spores.closer_than(15, spore_position)
             ):
                 self.main.add_action(selected_drone.build(SPORECRAWLER, spore_position))
-                return True
