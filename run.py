@@ -20,7 +20,3 @@ if __name__ == "__main__":
         # 797 - 203 / 782 - 218 / 795 - 205 / 820 - 180
         # 658 - 342 /
         sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Protoss, Difficulty.CheatMoney)], realtime=False)
-        # sc2.run_game(sc2.maps.get("drone_worker_defense"), [bot], realtime=True)
-        # sc2.run_game(sc2.maps.get("drone_scout_defense"), [bot], realtime=True)
-        # sc2.run_game(sc2.maps.get("test_anti_colossus"),[bot, Computer(Race.Protoss,
-        #                                                    Difficulty.CheatInsane)],realtime=True)
