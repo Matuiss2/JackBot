@@ -1,5 +1,5 @@
 """Everything related to building logic for the spores goes here"""
-from sc2.constants import SPORECRAWLER
+from sc2.constants import UnitTypeId
 
 
 class BuildSpores:
@@ -18,8 +18,8 @@ class BuildSpores:
         if self.main.ready_bases:
             return (
                 (spore_building_trigger or self.main.time >= 420)
-                and not self.main.already_pending(SPORECRAWLER)
-                and self.main.building_requirement(SPORECRAWLER, self.main.pools.ready)
+                and not self.main.already_pending(UnitTypeId.SPORECRAWLER)
+                and self.main.building_requirement(UnitTypeId.SPORECRAWLER, self.main.pools.ready)
             )
 
     async def handle(self):
@@ -33,4 +33,4 @@ class BuildSpores:
                 and selected_drone
                 and not self.main.spores.closer_than(15, spore_position)
             ):
-                self.main.add_action(selected_drone.build(SPORECRAWLER, spore_position))
+                self.main.add_action(selected_drone.build(UnitTypeId.SPORECRAWLER, spore_position))
