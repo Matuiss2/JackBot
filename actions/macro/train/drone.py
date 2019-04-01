@@ -1,5 +1,5 @@
 """Everything related to training drones goes here"""
-from sc2.constants import DRONE
+from sc2.constants import UnitTypeId
 
 
 class TrainDrone:
@@ -14,7 +14,7 @@ class TrainDrone:
         geysers = self.main.extractors
         if (
             not self.main.close_enemies_to_base
-            and self.main.can_train(DRONE)
+            and self.main.can_train(UnitTypeId.DRONE)
             and not self.main.counter_attack_vs_flying
         ):
             if workers_total == 12 and not self.main.drones_in_queue:
@@ -29,4 +29,4 @@ class TrainDrone:
 
     async def handle(self):
         """Execute the action of training drones"""
-        self.main.add_action(self.main.larvae.random.train(DRONE))
+        self.main.add_action(self.main.larvae.random.train(UnitTypeId.DRONE))
