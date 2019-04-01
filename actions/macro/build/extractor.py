@@ -1,5 +1,5 @@
 """Everything related to building logic for the extractors goes here"""
-from sc2.constants import EXTRACTOR
+from sc2.constants import UnitTypeId
 
 
 class BuildExtractor:
@@ -14,7 +14,7 @@ class BuildExtractor:
          still trying to find the optimal number"""
         if (
             self.main.vespene > self.main.minerals
-            or not self.main.building_requirement(EXTRACTOR, self.main.ready_bases, one_at_time=True)
+            or not self.main.building_requirement(UnitTypeId.EXTRACTOR, self.main.ready_bases, one_at_time=True)
             or len(self.main.extractors) >= 10
         ):
             return False
@@ -33,4 +33,4 @@ class BuildExtractor:
         for geyser in self.main.state.vespene_geyser.closer_than(10, self.main.ready_bases.random):
             drone = self.main.select_build_worker(geyser.position)
             if drone:
-                self.main.add_action(drone.build(EXTRACTOR, geyser))
+                self.main.add_action(drone.build(UnitTypeId.EXTRACTOR, geyser))
