@@ -1,5 +1,5 @@
 """Everything related to the expansion logic goes here"""
-from sc2.constants import HATCHERY
+from sc2.constants import UnitTypeId
 
 
 class BuildExpansion:
@@ -26,9 +26,9 @@ class BuildExpansion:
         """Expands to the nearest expansion location using the nearest drone to it"""
         drones = self.main.drones.gathering
         for expansion in self.main.ordered_expansions:
-            if await self.main.can_place(HATCHERY, expansion):
+            if await self.main.can_place(UnitTypeId.HATCHERY, expansion):
                 if not self.main.ground_enemies.closer_than(15, expansion) and drones:
-                    self.main.add_action(drones.closest_to(expansion).build(HATCHERY, expansion))
+                    self.main.add_action(drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
                     break
 
     def expansion_lock(self):
@@ -36,7 +36,7 @@ class BuildExpansion:
          if its not don't even run the remaining expansion logic"""
         return (
             self.main.townhalls
-            and self.main.can_afford(HATCHERY)
+            and self.main.can_afford(UnitTypeId.HATCHERY)
             and not self.main.close_enemies_to_base
             and (not self.main.close_enemy_production or self.main.time > 690)
         )
