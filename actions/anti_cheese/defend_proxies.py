@@ -1,16 +1,5 @@
 """Everything related to handling proxies are here"""
-from sc2.constants import (
-    AUTOTURRET,
-    BARRACKS,
-    BUNKER,
-    DRONE,
-    GATEWAY,
-    PHOTONCANNON,
-    PLANETARYFORTRESS,
-    PROBE,
-    SCV,
-    SPINECRAWLER,
-)
+from sc2.constants import UnitTypeId
 
 
 class DefendProxies:
@@ -23,9 +12,9 @@ class DefendProxies:
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
         if self.main.townhalls:
-            self.rush_buildings = self.main.enemy_structures.exclude_type({AUTOTURRET, BARRACKS, GATEWAY}).closer_than(
-                50, self.main.furthest_townhall_to_center
-            )
+            self.rush_buildings = self.main.enemy_structures.exclude_type(
+                {UnitTypeId.AUTOTURRET, UnitTypeId.BARRACKS, UnitTypeId.GATEWAY}
+            ).closer_than(50, self.main.furthest_townhall_to_center)
         return (
             self.rush_buildings
             and self.main.time <= 270
@@ -37,12 +26,14 @@ class DefendProxies:
         """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
          surface area possible when attacking the buildings"""
         available = self.main.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
-        for worker in self.main.enemies.of_type({PROBE, DRONE, SCV}).filter(
+        for worker in self.main.enemies.of_type({UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}).filter(
             lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in self.main.structures)
         ):
             if not self.is_being_attacked(worker) and available:
                 self.main.add_action(available.closest_to(worker).attack(worker))
-        attacking_buildings = self.rush_buildings.of_type({SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS})
+        attacking_buildings = self.rush_buildings.of_type(
+            {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
+        )
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:
             available = self.main.drones.filter(lambda x: x.order_target not in [y.tag for y in attacking_buildings])
