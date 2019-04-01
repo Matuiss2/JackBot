@@ -1,6 +1,6 @@
 """Everything related to defending a worker rush goes here"""
 import heapq
-from sc2.constants import DRONE, PROBE, SCV
+from sc2.constants import UnitTypeId
 from actions.micro.micro_helpers import Micro
 
 
@@ -16,7 +16,9 @@ class DefendWorkerRush(Micro):
         self.base = self.main.hatcheries.ready
         if not self.base:
             return False
-        self.enemy_units_close = self.main.enemies.closer_than(8, self.base.first).of_type({PROBE, DRONE, SCV})
+        self.enemy_units_close = self.main.enemies.closer_than(8, self.base.first).of_type(
+            {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
+        )
         return self.enemy_units_close or self.defender_tags
 
     async def handle(self):
