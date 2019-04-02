@@ -1,5 +1,5 @@
 """Everything related to training overlords goes here"""
-from sc2.constants import OVERLORD
+from sc2.constants import UnitTypeId
 
 
 class TrainOverlord:
@@ -11,7 +11,7 @@ class TrainOverlord:
     async def should_handle(self):
         """We still get supply blocked sometimes, can be improved a lot still"""
         if self.main.supply_cap < 200 and self.main.supply_left < (8 + self.main.supply_used // 7):
-            if self.main.can_train(OVERLORD):
+            if self.main.can_train(UnitTypeId.OVERLORD):
                 if self.game_beginning_lock():
                     return self.main.close_enemy_production
                 if (self.main.base_amount in (1, 2) and self.main.ovs_in_queue) or (self.main.ovs_in_queue >= 3):
@@ -22,7 +22,7 @@ class TrainOverlord:
 
     async def handle(self):
         """Execute the action of training overlords"""
-        self.main.add_action(self.main.larvae.random.train(OVERLORD))
+        self.main.add_action(self.main.larvae.random.train(UnitTypeId.OVERLORD))
 
     def game_beginning_lock(self):
         """ Few locks for overlords on the early game, could be replaced for a hardcoded build order list"""
