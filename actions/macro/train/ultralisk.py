@@ -1,5 +1,5 @@
 """Everything related to training ultralisks goes here"""
-from sc2.constants import ULTRALISK
+from sc2.constants import UnitTypeId
 
 
 class TrainUltralisk:
@@ -10,8 +10,8 @@ class TrainUltralisk:
 
     async def should_handle(self):
         """Requirement for training ultralisks"""
-        return self.main.can_train(ULTRALISK, self.main.caverns.ready)
+        return self.main.can_train(UnitTypeId.ULTRALISK, self.main.caverns.ready)
 
     async def handle(self):
         """Execute the action of training ultralisks"""
-        self.main.add_action(self.main.larvae.random.train(ULTRALISK))
+        self.main.add_action(self.main.larvae.random.train(UnitTypeId.ULTRALISK))
