@@ -1,10 +1,5 @@
 """Upgrading zerglings atk-speed and speed"""
-from sc2.constants import (
-    RESEARCH_ZERGLINGADRENALGLANDS,
-    RESEARCH_ZERGLINGMETABOLICBOOST,
-    ZERGLINGATTACKSPEED,
-    ZERGLINGMOVEMENTSPEED,
-)
+from sc2.constants import AbilityId, UpgradeId
 
 
 class UpgradesFromSpawningPool:
@@ -16,14 +11,18 @@ class UpgradesFromSpawningPool:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from pools"""
-        if self.main.can_upgrade(ZERGLINGMOVEMENTSPEED, RESEARCH_ZERGLINGMETABOLICBOOST, self.main.pools.ready.idle):
-            self.selected_research = RESEARCH_ZERGLINGMETABOLICBOOST
+        if self.main.can_upgrade(
+            UpgradeId.ZERGLINGMOVEMENTSPEED, AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST, self.main.pools.ready.idle
+        ):
+            self.selected_research = AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST
             return True
         if (
-            self.main.can_upgrade(ZERGLINGATTACKSPEED, RESEARCH_ZERGLINGADRENALGLANDS, self.main.pools.ready.idle)
+            self.main.can_upgrade(
+                UpgradeId.ZERGLINGATTACKSPEED, AbilityId.RESEARCH_ZERGLINGADRENALGLANDS, self.main.pools.ready.idle
+            )
             and self.main.hives
         ):
-            self.selected_research = RESEARCH_ZERGLINGADRENALGLANDS
+            self.selected_research = AbilityId.RESEARCH_ZERGLINGADRENALGLANDS
             return True
 
     async def handle(self):

@@ -1,6 +1,5 @@
 """Upgrading ultras special armor and speed"""
-from sc2.constants import CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING
-from sc2.constants import ANABOLICSYNTHESIS, ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2
+from sc2.constants import AbilityId, UpgradeId
 
 
 class UpgradesFromCavern:
@@ -12,13 +11,17 @@ class UpgradesFromCavern:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from caverns"""
-        if self.main.can_upgrade(CHITINOUSPLATING, RESEARCH_CHITINOUSPLATING, self.main.caverns.idle):
-            self.selected_research = RESEARCH_CHITINOUSPLATING
+        if self.main.can_upgrade(
+            UpgradeId.CHITINOUSPLATING, AbilityId.RESEARCH_CHITINOUSPLATING, self.main.caverns.idle
+        ):
+            self.selected_research = AbilityId.RESEARCH_CHITINOUSPLATING
             return True
         if self.main.can_upgrade(
-            ANABOLICSYNTHESIS, ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2, self.main.caverns.idle
+            UpgradeId.ANABOLICSYNTHESIS,
+            AbilityId.ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2,
+            self.main.caverns.idle,
         ):
-            self.selected_research = ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2
+            self.selected_research = AbilityId.ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2
             return True
 
     async def handle(self):

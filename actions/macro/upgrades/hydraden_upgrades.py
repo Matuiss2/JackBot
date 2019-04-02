@@ -1,5 +1,5 @@
 """Upgrading hydras speed and range"""
-from sc2.constants import EVOLVEGROOVEDSPINES, EVOLVEMUSCULARAUGMENTS, RESEARCH_GROOVEDSPINES, RESEARCH_MUSCULARAUGMENTS
+from sc2.constants import AbilityId, UpgradeId
 
 
 class UpgradesFromHydraden:
@@ -13,14 +13,18 @@ class UpgradesFromHydraden:
         """Requirements to upgrade stuff from hydradens"""
         if self.main.floating_buildings_bm:
             return False
-        if self.main.can_upgrade(EVOLVEGROOVEDSPINES, RESEARCH_GROOVEDSPINES, self.main.hydradens.ready.idle):
-            self.selected_research = RESEARCH_GROOVEDSPINES
+        if self.main.can_upgrade(
+            UpgradeId.EVOLVEGROOVEDSPINES, AbilityId.RESEARCH_GROOVEDSPINES, self.main.hydradens.ready.idle
+        ):
+            self.selected_research = AbilityId.RESEARCH_GROOVEDSPINES
             return True
         if (
-            self.main.can_upgrade(EVOLVEMUSCULARAUGMENTS, RESEARCH_MUSCULARAUGMENTS, self.main.hydradens.ready.idle)
-            and self.main.already_pending_upgrade(EVOLVEGROOVEDSPINES) == 1
+            self.main.can_upgrade(
+                UpgradeId.EVOLVEMUSCULARAUGMENTS, AbilityId.RESEARCH_MUSCULARAUGMENTS, self.main.hydradens.ready.idle
+            )
+            and self.main.already_pending_upgrade(UpgradeId.EVOLVEGROOVEDSPINES) == 1
         ):
-            self.selected_research = RESEARCH_MUSCULARAUGMENTS
+            self.selected_research = AbilityId.RESEARCH_MUSCULARAUGMENTS
             return True
 
     async def handle(self):
