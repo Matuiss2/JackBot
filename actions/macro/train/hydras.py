@@ -1,5 +1,5 @@
 """Everything related to training hydralisks goes here"""
-from sc2.constants import HYDRALISK
+from sc2.constants import UnitTypeId
 
 
 class TrainHydralisk:
@@ -10,7 +10,7 @@ class TrainHydralisk:
 
     async def should_handle(self):
         """Requirements to train the hydralisks"""
-        if not self.main.can_train(HYDRALISK, self.main.hydradens.ready):
+        if not self.main.can_train(UnitTypeId.HYDRALISK, self.main.hydradens.ready):
             return False
         if self.main.caverns.ready:
             return len(self.main.ultralisks) * 4 > self.main.hydra_amount
@@ -18,4 +18,4 @@ class TrainHydralisk:
 
     async def handle(self):
         """Execute the action of training hydras"""
-        self.main.add_action(self.main.larvae.random.train(HYDRALISK))
+        self.main.add_action(self.main.larvae.random.train(UnitTypeId.HYDRALISK))
