@@ -1,7 +1,7 @@
 """SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
 import sys
 import sc2
-from sc2.constants import HATCHERY
+from sc2.constants import UnitTypeId
 from sc2.position import Point2
 from actions.anti_cheese.defend_proxies import DefendProxies
 from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
@@ -97,7 +97,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
 
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
-        if unit.type_id == HATCHERY:
+        if unit.type_id == UnitTypeId.HATCHERY:
             await self.prepare_building_positions(unit.position)
 
     def on_end(self, game_result):

@@ -1,5 +1,5 @@
 """All data that are related to units on our possession are here"""
-from sc2.constants import DRONE, HYDRALISK, LARVA, MUTALISK, OVERLORD, OVERSEER, QUEEN, ULTRALISK, ZERGLING
+from sc2.constants import UnitTypeId
 
 
 class OurUnitsData:
@@ -12,20 +12,22 @@ class OurUnitsData:
 
     def initialize_hatchery_units(self):
         """Initialize all our buildings(hatchery tech)"""
-        self.overlords = self.units(OVERLORD)
-        self.drones = self.units(DRONE)
-        self.queens = self.units(QUEEN)
+        self.overlords = self.units(UnitTypeId.OVERLORD)
+        self.drones = self.units(UnitTypeId.DRONE)
+        self.queens = self.units(UnitTypeId.QUEEN)
         self.zerglings = (
-            self.units(ZERGLING).tags_not_in(self.burrowed_lings) if self.burrowed_lings else self.units(ZERGLING)
+            self.units(UnitTypeId.ZERGLING).tags_not_in(self.burrowed_lings)
+            if self.burrowed_lings
+            else self.units(UnitTypeId.ZERGLING)
         )
-        self.larvae = self.units(LARVA)
+        self.larvae = self.units(UnitTypeId.LARVA)
 
     def initialize_hive_units(self):
         """Initialize all our buildings (hive tech)"""
-        self.ultralisks = self.units(ULTRALISK)
+        self.ultralisks = self.units(UnitTypeId.ULTRALISK)
 
     def initialize_lair_units(self):
         """Initialize all our buildings(lair tech)"""
-        self.overseers = self.units(OVERSEER)
-        self.mutalisks = self.units(MUTALISK)
-        self.hydras = self.units(HYDRALISK)
+        self.overseers = self.units(UnitTypeId.OVERSEER)
+        self.mutalisks = self.units(UnitTypeId.MUTALISK)
+        self.hydras = self.units(UnitTypeId.HYDRALISK)

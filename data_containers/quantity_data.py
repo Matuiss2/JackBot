@@ -1,5 +1,5 @@
 """All data that are related to quantity of the stuff on our possession are here"""
-from sc2.constants import DRONE, HATCHERY, OVERLORD
+from sc2.constants import UnitTypeId
 
 
 class OurQuantityData:
@@ -21,9 +21,9 @@ class OurQuantityData:
 
     def initialize_pending_amounts(self):
         """Defines the amount of units and buildings that are in progress on our possession separating by type"""
-        self.hatcheries_in_queue = self.already_pending(HATCHERY)
-        self.ovs_in_queue = self.already_pending(OVERLORD)
-        self.drones_in_queue = self.already_pending(DRONE)
+        self.hatcheries_in_queue = self.already_pending(UnitTypeId.HATCHERY)
+        self.ovs_in_queue = self.already_pending(UnitTypeId.OVERLORD)
+        self.drones_in_queue = self.already_pending(UnitTypeId.DRONE)
 
     def initialize_unit_amounts(self):
         """Defines the amount of units on our possession separating by type"""

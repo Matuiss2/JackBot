@@ -1,5 +1,5 @@
 """All data that couldn't be grouped(yet) are here"""
-from sc2.constants import DRONE, PROBE, SCV
+from sc2.constants import UnitTypeId
 
 
 class OtherData:
@@ -13,7 +13,9 @@ class OtherData:
         """Initialize everything related to enemies"""
         self.enemies = self.known_enemy_units
         self.flying_enemies = self.enemies.flying
-        self.ground_enemies = self.enemies.not_flying.not_structure.exclude_type({DRONE, SCV, PROBE})
+        self.ground_enemies = self.enemies.not_flying.not_structure.exclude_type(
+            {UnitTypeId.DRONE, UnitTypeId.SCV, UnitTypeId.PROBE}
+        )
         self.enemy_structures = self.known_enemy_structures
 
     def prepare_bases_data(self):
