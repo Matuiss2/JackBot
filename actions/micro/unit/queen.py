@@ -1,5 +1,5 @@
 """Everything related to queen abilities and distribution goes here"""
-from sc2.constants import EFFECT_INJECTLARVA, QUEENSPAWNLARVATIMER
+from sc2.constants import AbilityId, BuffId
 
 
 class QueensAbilities:
@@ -24,8 +24,8 @@ class QueensAbilities:
         for queen in self.main.queens.idle:
             selected_base = self.main.townhalls.closest_to(queen.position)
             if queen.energy >= 25:
-                if not selected_base.has_buff(QUEENSPAWNLARVATIMER):
-                    self.main.add_action(queen(EFFECT_INJECTLARVA, selected_base))
+                if not selected_base.has_buff(BuffId.QUEENSPAWNLARVATIMER):
+                    self.main.add_action(queen(AbilityId.EFFECT_INJECTLARVA, selected_base))
                     continue
                 await self.main.place_tumor(queen)
 
