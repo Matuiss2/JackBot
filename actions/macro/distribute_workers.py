@@ -1,5 +1,5 @@
 """Everything related to distributing drones to the right resource goes here"""
-from sc2.constants import EXTRACTOR, ZERGLINGMOVEMENTSPEED
+from sc2.constants import UnitTypeId, UpgradeId
 
 
 class DistributeWorkers:
@@ -57,10 +57,10 @@ class DistributeWorkers:
 
     def distribute_to_deficits(self):
         """Distribute workers so it saturates the bases"""
-        bases_deficit = [x for x in self.bases_deficit if x[0].type_id != EXTRACTOR]
+        bases_deficit = [x for x in self.bases_deficit if x[0].type_id != UnitTypeId.EXTRACTOR]
         if bases_deficit and self.workers_to_distribute:
             mineral_fields_deficit = self.mineral_fields_deficit(bases_deficit)
-            extractors_deficit = [x for x in bases_deficit if x[0].type_id == EXTRACTOR]
+            extractors_deficit = [x for x in bases_deficit if x[0].type_id == UnitTypeId.EXTRACTOR]
             for worker in self.workers_to_distribute:
                 self.distribute_to_mineral_field(mineral_fields_deficit, worker, bases_deficit)
                 self.distribute_to_extractor(extractors_deficit, worker)
@@ -108,7 +108,7 @@ class DistributeWorkers:
         return (
             self.require_gas_for_speedlings
             or self.main.vespene * 1.5 < self.main.minerals
-            and self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) in (0, 1)
+            and self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED) in (0, 1)
         )
 
     @property
@@ -116,7 +116,7 @@ class DistributeWorkers:
         """Gas collecting on the beginning so it research zergling speed fast"""
         return (
             len(self.main.extractors.ready) == 1
-            and not self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED)
+            and not self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED)
             and self.main.vespene < 100
         )
 
@@ -126,7 +126,7 @@ class DistributeWorkers:
         if (
             self.main.vespene > self.main.minerals * 4
             and self.main.minerals >= 75
-            or self.main.already_pending_upgrade(ZERGLINGMOVEMENTSPEED) not in (0, 1)
+            or self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED) not in (0, 1)
         ):
             for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
                 self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
