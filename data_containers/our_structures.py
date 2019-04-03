@@ -1,18 +1,5 @@
 """All data that are related to structures on our possession are here"""
-from sc2.constants import (
-    CREEPTUMOR,
-    CREEPTUMORBURROWED,
-    CREEPTUMORQUEEN,
-    EVOLUTIONCHAMBER,
-    EXTRACTOR,
-    HYDRALISKDEN,
-    INFESTATIONPIT,
-    SPAWNINGPOOL,
-    SPINECRAWLER,
-    SPIRE,
-    SPORECRAWLER,
-    ULTRALISKCAVERN,
-)
+from sc2.constants import UnitTypeId
 
 
 class OurBuildingsData:
@@ -24,19 +11,21 @@ class OurBuildingsData:
 
     def initialize_hatchery_buildings(self):
         """Initialize all our buildings(hatchery tech)"""
-        self.evochambers = self.units(EVOLUTIONCHAMBER)
-        self.pools = self.units(SPAWNINGPOOL)
-        self.spines = self.units(SPINECRAWLER)
-        self.tumors = self.units.of_type({CREEPTUMORQUEEN, CREEPTUMOR, CREEPTUMORBURROWED})
-        self.extractors = self.units(EXTRACTOR)
-        self.spores = self.units(SPORECRAWLER)
-        self.spires = self.units(SPIRE)
+        self.evochambers = self.units(UnitTypeId.EVOLUTIONCHAMBER)
+        self.pools = self.units(UnitTypeId.SPAWNINGPOOL)
+        self.spines = self.units(UnitTypeId.SPINECRAWLER)
+        self.tumors = self.units.of_type(
+            {UnitTypeId.CREEPTUMORQUEEN, UnitTypeId.CREEPTUMOR, UnitTypeId.CREEPTUMORBURROWED}
+        )
+        self.extractors = self.units(UnitTypeId.EXTRACTOR)
+        self.spores = self.units(UnitTypeId.SPORECRAWLER)
+        self.spires = self.units(UnitTypeId.SPIRE)
 
     def initialize_hive_buildings(self):
         """Initialize all our buildings (hive tech)"""
-        self.caverns = self.units(ULTRALISKCAVERN)
+        self.caverns = self.units(UnitTypeId.ULTRALISKCAVERN)
 
     def initialize_lair_buildings(self):
         """Initialize all our buildings(lair tech)"""
-        self.hydradens = self.units(HYDRALISKDEN)
-        self.pits = self.units(INFESTATIONPIT)
+        self.hydradens = self.units(UnitTypeId.HYDRALISKDEN)
+        self.pits = self.units(UnitTypeId.INFESTATIONPIT)
