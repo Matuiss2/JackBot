@@ -1,5 +1,5 @@
 """Everything related to building positioning goes here"""
-from sc2.constants import EVOLUTIONCHAMBER, ENGINEERINGBAY
+from sc2.constants import UnitTypeId
 from sc2.data import ActionResult
 from sc2.position import Point2
 
@@ -14,9 +14,9 @@ class BuildingPositioning:
         """See if its possible to build an evochamber or an engineering bay at the position - checking both is needed
         because it runs at the main base that has creep already(evochamber can be placed) but it also runs on new
         bases as well and on this ones the creep doesn't exist at the position yet(engineering bay can be placed)"""
-        e_bay_ability = self._game_data.units[ENGINEERINGBAY.value].creation_ability
+        e_bay_ability = self._game_data.units[UnitTypeId.ENGINEERINGBAY.value].creation_ability
         e_bay_mask = await self._client.query_building_placement(e_bay_ability, self.viable_points)
-        evo_ability = self._game_data.units[EVOLUTIONCHAMBER.value].creation_ability
+        evo_ability = self._game_data.units[UnitTypeId.EVOLUTIONCHAMBER.value].creation_ability
         evo_mask = await self._client.query_building_placement(evo_ability, self.viable_points)
         for point in [
             point
@@ -35,7 +35,7 @@ class BuildingPositioning:
     async def get_production_position(self):
         """Find the safest position looping through all possible ones"""
         for building_position in self.building_positions:
-            if await self.can_place(EVOLUTIONCHAMBER, building_position):
+            if await self.can_place(UnitTypeId.EVOLUTIONCHAMBER, building_position):
                 return building_position
         return None
 
