@@ -1,22 +1,5 @@
 """Everything related to controlling army units goes here"""
-from sc2.constants import (
-    ADEPTPHASESHIFT,
-    AUTOTURRET,
-    BUNKER,
-    DISRUPTORPHASED,
-    EGG,
-    HYDRALISK,
-    INFESTEDTERRAN,
-    INFESTEDTERRANSEGG,
-    LARVA,
-    MUTALISK,
-    PHOTONCANNON,
-    PLANETARYFORTRESS,
-    QUEEN,
-    SPINECRAWLER,
-    ULTRALISK,
-    ZERGLING,
-)
+from sc2.constants import UnitTypeId
 from actions.micro.army_value_tables import EnemyArmyValue
 from actions.micro.unit.zerglings import ZerglingControl
 from actions.micro.specific_unit_behaviors import UnitsBehavior
@@ -33,7 +16,9 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     async def should_handle(self):
         """Requirements to run handle"""
-        return self.main.units.of_type({ZERGLING, HYDRALISK, MUTALISK, ULTRALISK})
+        return self.main.units.of_type(
+            {UnitTypeId.ZERGLING, UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK}
+        )
 
     async def handle(self):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
@@ -77,7 +62,10 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
-        if unit.type_id in (MUTALISK, QUEEN, HYDRALISK) and self.main.enemy_structures.flying:
+        if (
+            unit.type_id in (UnitTypeId.MUTALISK, UnitTypeId.QUEEN, UnitTypeId.HYDRALISK)
+            and self.main.enemy_structures.flying
+        ):
             self.main.add_action(unit.attack(self.main.enemy_structures.flying.closest_to(unit.position)))
             return True
         return False
@@ -92,7 +80,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         """Requirements to attack the proxy army if it gets too close to the ramp"""
         return (
             self.targets
-            and unit.type_id == ZERGLING
+            and unit.type_id == UnitTypeId.ZERGLING
             and self.targets.closer_than(5, unit)
             and self.micro_zerglings(unit, self.targets)
         )
@@ -161,14 +149,30 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
     def set_unit_groups(self):
         """Set the targets and atk_force, separating then by type"""
         if self.main.enemies:
-            excluded_units = {ADEPTPHASESHIFT, DISRUPTORPHASED, EGG, LARVA, INFESTEDTERRANSEGG, INFESTEDTERRAN}
+            excluded_units = {
+                UnitTypeId.ADEPTPHASESHIFT,
+                UnitTypeId.DISRUPTORPHASED,
+                UnitTypeId.EGG,
+                UnitTypeId.LARVA,
+                UnitTypeId.INFESTEDTERRANSEGG,
+                UnitTypeId.INFESTEDTERRAN,
+            }
             filtered_enemies = self.main.enemies.not_structure.exclude_type(excluded_units)
             static_defence = self.main.enemy_structures.of_type(
-                {SPINECRAWLER, PHOTONCANNON, BUNKER, PLANETARYFORTRESS, AUTOTURRET}
+                {
+                    UnitTypeId.SPINECRAWLER,
+                    UnitTypeId.PHOTONCANNON,
+                    UnitTypeId.BUNKER,
+                    UnitTypeId.PLANETARYFORTRESS,
+                    UnitTypeId.AUTOTURRET,
+                }
             )
             self.targets = static_defence | filtered_enemies.not_flying
             self.hydra_targets = static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot)
-        self.atk_force = self.main.units.of_type({HYDRALISK, MUTALISK, ULTRALISK}) | self.main.zerglings
+        self.atk_force = (
+            self.main.units.of_type({UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK})
+            | self.main.zerglings
+        )
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
