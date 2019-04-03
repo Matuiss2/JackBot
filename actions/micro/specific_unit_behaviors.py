@@ -1,5 +1,5 @@
 """Everything related to units behavior changers goes here"""
-from sc2.constants import HYDRALISK
+from sc2.constants import UnitTypeId
 from actions.micro.micro_helpers import Micro
 from actions.micro.unit.hydralisks import HydraControl
 
@@ -19,7 +19,7 @@ class UnitsBehavior(HydraControl, Micro):
         -------
         Actions(micro or retreat) if conditions are met False if not
         """
-        if hydra_targets and unit.type_id == HYDRALISK:
+        if hydra_targets and unit.type_id == UnitTypeId.HYDRALISK:
             close_hydra_targets = hydra_targets.closer_than(15, unit.position)
             if close_hydra_targets:
                 if self.retreat_unit(unit, close_hydra_targets):
