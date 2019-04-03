@@ -1,5 +1,5 @@
 """Everything related to controlling zerglings"""
-from sc2.constants import BANELING, ZERGLINGATTACKSPEED
+from sc2.constants import UnitTypeId, UpgradeId
 from actions.micro.micro_helpers import Micro
 
 
@@ -20,7 +20,7 @@ class ZerglingControl(Micro):
         """If the enemy has banelings, run baneling dodging code. It can be improved,
          its a little bugged and just avoid the baneling not pop it"""
         self.handling_anti_banelings_group()
-        if self.main.enemies.of_type(BANELING):
+        if self.main.enemies.of_type(UnitTypeId.BANELING):
             banelings = self.baneling_group(unit, targets)
             for baneling in banelings:
                 # Check for close banelings and if we've triggered any banelings
@@ -53,7 +53,7 @@ class ZerglingControl(Micro):
         """
         threats = self.trigger_threats(targets, unit, 5)
         for threat in threats:
-            if threat.type_id == BANELING:
+            if threat.type_id == UnitTypeId.BANELING:
                 yield threat
 
     def baneling_trigger(self, unit, baneling):
@@ -111,7 +111,7 @@ class ZerglingControl(Micro):
         The chosen action depending on the modifiers
         """
         if unit.weapon_cooldown <= 8.85 or (
-            unit.weapon_cooldown <= 6.35 and self.main.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
+            unit.weapon_cooldown <= 6.35 and self.main.already_pending_upgrade(UpgradeId.ZERGLINGATTACKSPEED) == 1
         ):
             return self.attack_close_target(unit, targets)
         return self.move_to_next_target(unit, targets)
