@@ -1,14 +1,6 @@
 """Every helper for controlling units go here"""
 from sc2 import Race
-from sc2.constants import (
-    DISRUPTORPHASED,
-    # GUARDIANSHIELDPERSISTENT,
-    # LIBERATORTARGETMORPHDELAYPERSISTENT,
-    # LIBERATORTARGETMORPHPERSISTENT,
-    # SCANNERSWEEP,
-    ULTRALISK,
-    ZERGLING,
-)
+from sc2.constants import UnitTypeId  # EffectId
 from sc2.position import Point2
 
 # from sc2.unit import Unit
@@ -35,13 +27,13 @@ class Micro:
     # TODO - fix
     '''def dodge_effects(self, unit: Unit) -> bool:
         """Dodge any effects"""
-        if not self.main.state.effects or unit.type_id == ULTRALISK:
+        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
             return False
         excluded_effects = (
-            SCANNERSWEEP,
-            GUARDIANSHIELDPERSISTENT,
-            LIBERATORTARGETMORPHDELAYPERSISTENT,
-            LIBERATORTARGETMORPHPERSISTENT,
+            EffectId.SCANNERSWEEP,
+            EffectId.GUARDIANSHIELDPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHPERSISTENT,
         )  # Placeholder(must find better way to handle some of these)
         for effect in self.main.state.effects:
             if effect.id in excluded_effects:
@@ -131,9 +123,9 @@ class Micro:
         -------
         True and the action(dodge the shot) if it meets the conditions
         """
-        if unit.type_id == ULTRALISK:
+        if unit.type_id == UnitTypeId.ULTRALISK:
             return False
-        for ball in self.main.enemies.of_type(DISRUPTORPHASED):
+        for ball in self.main.enemies.of_type(UnitTypeId.DISRUPTORPHASED):
             if ball.distance_to(unit) < 5:
                 retreat_point = self.find_retreat_point(ball, unit)
                 self.main.add_action(unit.move(retreat_point))
@@ -186,7 +178,7 @@ class Micro:
         True and the action(attack closest or overall micro logic) if it meets the conditions
         """
         if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
-            if unit.type_id == ZERGLING:
+            if unit.type_id == UnitTypeId.ZERGLING:
                 return self.micro_zerglings(unit, target)
             self.main.add_action(unit.attack(target.closest_to(unit.position)))
             return True
