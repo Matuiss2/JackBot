@@ -10,6 +10,7 @@ class SituationalData:
     def __init__(self):
         self.close_enemies_to_base = self.counter_attack_vs_flying = False
         self.basic_production_types = {UnitTypeId.BARRACKS, UnitTypeId.GATEWAY, UnitTypeId.HATCHERY}
+        self.base_types = {UnitTypeId.NEXUS, UnitTypeId.COMMANDCENTER, UnitTypeId.HATCHERY}
 
     def check_for_floating_buildings(self) -> bool:
         """Check if some terran wants to be funny with lifting up"""
@@ -41,9 +42,9 @@ class SituationalData:
         """Check if its a one base play"""
         return bool(
             self.overlords
-            and not self.enemy_structures.of_type(
-                {UnitTypeId.NEXUS, UnitTypeId.COMMANDCENTER, UnitTypeId.HATCHERY}
-            ).closer_than(25, self.overlords.furthest_to(self.start_location))
+            and not self.enemy_structures.of_type(self.base_types).closer_than(
+                25, self.overlords.furthest_to(self.start_location)
+            )
             and self.time > 165
             and not self.check_for_proxy_buildings
         )
