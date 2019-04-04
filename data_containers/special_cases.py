@@ -9,6 +9,7 @@ class SituationalData:
 
     def __init__(self):
         self.close_enemies_to_base = self.counter_attack_vs_flying = False
+        self.basic_production_types = {UnitTypeId.BARRACKS, UnitTypeId.GATEWAY, UnitTypeId.HATCHERY}
 
     def check_for_floating_buildings(self) -> bool:
         """Check if some terran wants to be funny with lifting up"""
@@ -20,11 +21,7 @@ class SituationalData:
 
     def check_for_proxy_buildings(self) -> bool:
         """Check if there are any proxy buildings"""
-        return bool(
-            self.enemy_structures.of_type({UnitTypeId.BARRACKS, UnitTypeId.GATEWAY, UnitTypeId.HATCHERY}).closer_than(
-                75, self.start_location
-            )
-        )
+        return bool(self.enemy_structures.of_type(self.basic_production_types).closer_than(75, self.start_location))
 
     def check_for_rushes(self):
         """Got and adapted from SeeBot"""
