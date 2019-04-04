@@ -168,10 +168,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             )
             self.targets = static_defence | filtered_enemies.not_flying
             self.hydra_targets = static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot)
-        self.atk_force = (
-            self.main.units.of_type({UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK})
-            | self.main.zerglings
-        )
+        self.atk_force = self.main.units.of_type(self.army_types)
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
