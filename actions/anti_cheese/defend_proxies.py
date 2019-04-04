@@ -10,13 +10,14 @@ class DefendProxies:
         self.rush_buildings = None
         self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
         self.atk_b = {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
+        self.enemy_basic_production = {UnitTypeId.AUTOTURRET, UnitTypeId.BARRACKS, UnitTypeId.GATEWAY}
 
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
         if self.main.townhalls:
-            self.rush_buildings = self.main.enemy_structures.exclude_type(
-                {UnitTypeId.AUTOTURRET, UnitTypeId.BARRACKS, UnitTypeId.GATEWAY}
-            ).closer_than(50, self.main.furthest_townhall_to_center)
+            self.rush_buildings = self.main.enemy_structures.exclude_type(self.enemy_basic_production).closer_than(
+                50, self.main.furthest_townhall_to_center
+            )
         return (
             self.rush_buildings
             and self.main.time <= 270
