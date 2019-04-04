@@ -8,6 +8,8 @@ class DefendProxies:
     def __init__(self, main):
         self.main = main
         self.rush_buildings = None
+        self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
+        self.atk_b = {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
 
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
@@ -26,14 +28,12 @@ class DefendProxies:
         """Send workers aggressively to handle the near proxy / cannon rush, need to learn how to get the max
          surface area possible when attacking the buildings"""
         available = self.main.drones.filter(lambda x: x.is_collecting and not x.is_attacking)
-        for worker in self.main.enemies.of_type({UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}).filter(
+        for worker in self.main.enemies.of_type(self.worker_types).filter(
             lambda unit: any(unit.distance_to(our_building) <= 50 for our_building in self.main.structures)
         ):
             if not self.is_being_attacked(worker) and available:
                 self.main.add_action(available.closest_to(worker).attack(worker))
-        attacking_buildings = self.rush_buildings.of_type(
-            {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
-        )
+        attacking_buildings = self.rush_buildings.of_type(self.atk_b)
         not_attacking_buildings = self.rush_buildings - attacking_buildings
         if attacking_buildings:
             available = self.main.drones.filter(lambda x: x.order_target not in [y.tag for y in attacking_buildings])
