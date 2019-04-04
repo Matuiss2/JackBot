@@ -13,12 +13,11 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         self.retreat_units = set()
         self.baneling_sacrifices = {}
         self.targets = self.atk_force = self.hydra_targets = None
+        self.army_types = {UnitTypeId.ZERGLING, UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK}
 
     async def should_handle(self):
         """Requirements to run handle"""
-        return self.main.units.of_type(
-            {UnitTypeId.ZERGLING, UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK}
-        )
+        return self.main.units.of_type(self.army_types)
 
     async def handle(self):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
