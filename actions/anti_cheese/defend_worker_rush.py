@@ -10,15 +10,14 @@ class DefendWorkerRush(Micro):
     def __init__(self, main):
         self.main = main
         self.base = self.enemy_units_close = self.defenders = self.defender_tags = self.pulling_force = None
+        self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
 
     async def should_handle(self):
         """Requirements to run handle"""
         self.base = self.main.hatcheries.ready
         if not self.base:
             return False
-        self.enemy_units_close = self.main.enemies.closer_than(8, self.base.first).of_type(
-            {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
-        )
+        self.enemy_units_close = self.main.enemies.closer_than(8, self.base.first).of_type(self.worker_types)
         return self.enemy_units_close or self.defender_tags
 
     async def handle(self):
