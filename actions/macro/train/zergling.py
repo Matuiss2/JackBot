@@ -32,6 +32,6 @@ class TrainZergling:
         """ Don't make zerglings if the zergling speed isn't done yet after 2:25"""
         return (
             not self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED)
-            and self.main.time < 145
+            and self.main.time > 145
             and not self.main.close_enemy_production
         )
