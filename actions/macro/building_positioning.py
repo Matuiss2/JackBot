@@ -42,16 +42,17 @@ class BuildingPositioning:
     def initial_viable_locations(self, center):
         """ Find all positions behind the mineral line"""
         close_points = range(-11, 12)
-        self.viable_points = [
-            point
-            for point in (
-                Point2((x + center.x, y + center.y))
-                for x in close_points
-                for y in close_points
-                if 121 >= x * x + y * y >= 81
-            )
-            if abs(point.distance_to(self.state.mineral_field.closer_than(10, center).closest_to(point)) - 3) < 0.5
-        ]
+        if self.state.mineral_field.closer_than(10, center):
+            self.viable_points = [
+                point
+                for point in (
+                    Point2((x + center.x, y + center.y))
+                    for x in close_points
+                    for y in close_points
+                    if 121 >= x * x + y * y >= 81
+                )
+                if abs(point.distance_to(self.state.mineral_field.closer_than(10, center).closest_to(point)) - 3) < 0.5
+            ]
 
     async def prepare_building_positions(self, center):
         """Check all possible positions behind the mineral line when a hatchery is built"""
