@@ -42,7 +42,8 @@ class BuildingPositioning:
     def initial_viable_locations(self, center):
         """ Find all positions behind the mineral line"""
         close_points = range(-11, 12)
-        if self.state.mineral_field.closer_than(10, center):
+        close_mineral_fields = self.state.mineral_field.closer_than(10, center)
+        if close_mineral_fields:
             self.viable_points = [
                 point
                 for point in (
@@ -51,7 +52,7 @@ class BuildingPositioning:
                     for y in close_points
                     if 121 >= x * x + y * y >= 81
                 )
-                if abs(point.distance_to(self.state.mineral_field.closer_than(10, center).closest_to(point)) - 3) < 0.5
+                if abs(point.distance_to(close_mineral_fields.closest_to(point)) - 3) < 0.5
             ]
 
     async def prepare_building_positions(self, center):

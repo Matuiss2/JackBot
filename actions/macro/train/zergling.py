@@ -10,9 +10,7 @@ class TrainZergling:
 
     async def should_handle(self):
         """Requirements to train zerglings, good enough for now but ratio values can probably be improved"""
-        if self.upgrades_lock():
-            return False
-        if not self.main.can_train(UnitTypeId.ZERGLING, self.main.pools.ready):
+        if self.upgrades_lock() or not self.main.can_train(UnitTypeId.ZERGLING, self.main.pools.ready):
             return False
         if self.main.minerals >= 600 and self.main.ready_base_amount <= 5:
             return True
