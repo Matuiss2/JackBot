@@ -1,4 +1,5 @@
 """Everything related to distributing drones to the right resource goes here"""
+from itertools import repeat
 from sc2.constants import UnitTypeId, UpgradeId
 
 
@@ -35,7 +36,7 @@ class DistributeWorkers:
         for mining_place in self.mining_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
             if difference > 0:
-                for _ in range(difference):
+                for _ in repeat(None, difference):
                     if mining_place.name == "Extractor":
                         moving_drones = self.main.drones.filter(
                             lambda x: x.order_target in self.geyser_tags and x not in workers_to_distribute
