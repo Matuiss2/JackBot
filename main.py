@@ -121,7 +121,8 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
             await self.run_commands(self.train_commands)
         await self.run_commands(self.unit_commands)
         await self.run_commands(self.build_commands)
-        await self.run_commands(self.upgrade_commands)
+        if self.minerals >= 100 and self.vespene >= 100:
+            await self.run_commands(self.upgrade_commands)
         if actions:
             await self.do_actions(actions)
 
