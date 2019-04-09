@@ -8,6 +8,8 @@ class ZerglingControl(Micro):
 
     def baneling_dodge(self, unit, targets):
         """
+        If the enemy has banelings, run baneling dodging code. It can be improved,
+        its a little bugged and just avoid the baneling not pop it
         Parameters
         ----------
         unit: One zergling from the attacking force
@@ -17,8 +19,6 @@ class ZerglingControl(Micro):
         -------
         Chosen action when a baneling is near(attack, move away or pop the baneling)
         """
-        """If the enemy has banelings, run baneling dodging code. It can be improved,
-         its a little bugged and just avoid the baneling not pop it"""
         self.handling_anti_banelings_group()
         if self.main.enemies.of_type(UnitTypeId.BANELING):
             banelings = self.baneling_group(unit, targets)

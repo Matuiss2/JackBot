@@ -71,7 +71,6 @@ class EnemyArmyValue:
         -------
         The sum of all values(quantity * chosen values) based on our unit type
         """
-        """"""
         if unit.type_id == UnitTypeId.ZERGLING:
             return self.protoss_value_for_zerglings(target_group)
         if unit.type_id == UnitTypeId.HYDRALISK:
