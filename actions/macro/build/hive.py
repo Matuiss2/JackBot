@@ -13,7 +13,7 @@ class BuildHive:
         """Requirement to build the hive, maybe its too greedy maybe we should raise the lock for it"""
         self.selected_lairs = self.main.lairs.ready.idle
         return self.selected_lairs and self.main.can_build_unique(
-            UnitTypeId.HIVE, self.main.caverns, self.main.pits.ready, all_units=True
+            UnitTypeId.HIVE, self.main.caverns, self.main.pits.ready
         )
 
     async def handle(self):

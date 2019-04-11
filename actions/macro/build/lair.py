@@ -16,9 +16,7 @@ class BuildLair:
                 self.main.base_amount >= 3
                 or (self.main.close_enemy_production and len(self.main.evochambers.ready) >= 2)
             )
-            and self.main.can_build_unique(
-                UnitTypeId.LAIR, self.main.caverns, self.main.hatcheries.ready.idle, all_units=True
-            )
+            and self.main.can_build_unique(UnitTypeId.LAIR, self.main.caverns, self.main.hatcheries.ready.idle)
         )
 
     async def handle(self):

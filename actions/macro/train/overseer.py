@@ -11,9 +11,7 @@ class TrainOverseer:
     async def should_handle(self):
         """Requirements to morph overseers"""
         return (
-            self.main.building_requirement(
-                UnitTypeId.OVERSEER, (self.main.lairs or self.main.hives), one_at_time=True, morphing=True
-            )
+            self.main.building_requirement(UnitTypeId.OVERSEER, (self.main.lairs or self.main.hives), one_at_time=True)
             and self.main.overlords
             and len(self.main.overseers) < self.main.ready_base_amount
         )
