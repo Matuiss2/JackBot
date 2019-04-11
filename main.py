@@ -1,5 +1,4 @@
 """SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
-import sys
 import sc2
 from sc2.constants import UnitTypeId
 from sc2.position import Point2
@@ -102,7 +101,6 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
 
     def on_end(self, game_result):
         print(game_result.name)
-        sys.exit()
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
