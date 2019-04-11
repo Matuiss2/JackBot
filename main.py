@@ -101,7 +101,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
             await self.prepare_building_positions(unit.position)
 
     def on_end(self, game_result):
-        print(game_result)
+        print(game_result.name)
         sys.exit()
 
     async def on_step(self, iteration):
