@@ -129,5 +129,6 @@ class DistributeWorkers:
             and self.main.minerals >= 75
             or self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED) not in (0, 1)
         ):
-            for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
-                self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
+            if self.mineral_fields:
+                for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
+                    self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))

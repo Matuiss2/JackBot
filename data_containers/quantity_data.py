@@ -29,5 +29,5 @@ class OurQuantityData:
         """Defines the amount of units on our possession separating by type"""
         self.hydra_amount = len(self.hydras)
         self.zergling_amount = len(self.zerglings)
-        self.drone_amount = len(self.drones)
+        self.drone_amount = self.supply_workers
         self.overlord_amount = len(self.overlords)
