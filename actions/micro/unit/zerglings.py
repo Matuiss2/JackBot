@@ -1,5 +1,5 @@
 """Everything related to controlling zerglings"""
-from sc2.constants import UnitTypeId, UpgradeId
+from sc2.constants import UnitTypeId
 from actions.micro.micro_helpers import Micro
 
 
@@ -110,8 +110,6 @@ class ZerglingControl(Micro):
         -------
         The chosen action depending on the modifiers
         """
-        if unit.weapon_cooldown <= 8.85 or (
-            unit.weapon_cooldown <= 6.35 and self.main.already_pending_upgrade(UpgradeId.ZERGLINGATTACKSPEED) == 1
-        ):
+        if unit.weapon_cooldown <= 8.85 or (unit.weapon_cooldown <= 6.35 and self.main.zergling_atk_spd):
             return self.attack_close_target(unit, targets)
         return self.move_to_next_target(unit, targets)

@@ -22,7 +22,7 @@ class UpgradesFromHydraden:
             self.main.can_upgrade(
                 UpgradeId.EVOLVEMUSCULARAUGMENTS, AbilityId.RESEARCH_MUSCULARAUGMENTS, self.main.hydradens.ready.idle
             )
-            and self.main.already_pending_upgrade(UpgradeId.EVOLVEGROOVEDSPINES) == 1
+            and self.main.hydra_range
         ):
             self.selected_research = AbilityId.RESEARCH_MUSCULARAUGMENTS
             return True

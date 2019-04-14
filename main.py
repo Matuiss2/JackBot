@@ -1,6 +1,6 @@
 """SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
 import sc2
-from sc2.constants import UnitTypeId
+from sc2.constants import UnitTypeId, UpgradeId
 from sc2.position import Point2
 from actions.anti_cheese.defend_proxies import DefendProxies
 from actions.anti_cheese.defend_worker_rush import DefendWorkerRush
@@ -49,7 +49,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         CreepControl.__init__(self)
         MainDataContainer.__init__(self)
         BuildingPositioning.__init__(self)
-        self.iteration = self.add_action = None
+        self.iteration = self.add_action = self.hydra_range = self.hydra_speed = self.zergling_atk_spd = None
         self.unit_commands = (
             DefendWorkerRush(self),
             DefendProxies(self),
@@ -98,6 +98,14 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         """Prepares all the building placements near a new expansion"""
         if unit.type_id == UnitTypeId.HATCHERY:
             await self.prepare_building_positions(unit.position)
+
+    async def on_upgrade_complete(self, upgrade):
+        if upgrade == UpgradeId.EVOLVEGROOVEDSPINES:
+            self.hydra_range = True
+        if upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
+            self.hydra_speed = True
+        if upgrade == UpgradeId.ZERGLINGATTACKSPEED:
+            self.zergling_atk_spd = True
 
     def on_end(self, game_result):
         print(game_result.name)
