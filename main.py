@@ -107,9 +107,6 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
         if upgrade == UpgradeId.ZERGLINGATTACKSPEED:
             self.zergling_atk_spd = True
 
-    def on_end(self, game_result):
-        print(game_result.name)
-
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
         if self.iteration == iteration:
@@ -123,7 +120,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
             await self.prepare_building_positions(self.townhalls.first.position)
             await self.prepare_expansions()
             self.split_workers()
-        if self.minerals >= 25:
+        if self.minerals >= 50:
             await self.run_commands(self.train_commands)
         await self.run_commands(self.unit_commands)
         await self.run_commands(self.build_commands)
