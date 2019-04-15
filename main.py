@@ -102,9 +102,9 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
     async def on_upgrade_complete(self, upgrade):
         if upgrade == UpgradeId.EVOLVEGROOVEDSPINES:
             self.hydra_range = True
-        if upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
+        elif upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
             self.hydra_speed = True
-        if upgrade == UpgradeId.ZERGLINGATTACKSPEED:
+        elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
             self.zergling_atk_spd = True
 
     async def on_step(self, iteration):
