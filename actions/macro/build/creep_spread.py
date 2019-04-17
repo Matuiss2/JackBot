@@ -12,12 +12,6 @@ class CreepControl:
         self.used_tumors = []
         self.valid_placements = self.unit_ability = None
 
-    async def spread_creep(self):
-        """ Iterate over all tumors to spread itself remove used creeps and creeps that failed in finding a placement"""
-        for tumor in self.tumors:
-            if tumor.tag not in self.used_tumors:
-                await self.place_tumor(tumor)
-
     async def place_tumor(self, unit):
         """ Find a nice placement for the tumor and build it if possible, avoid expansion locations
         Makes creep to the enemy base, needs a better value function for the spreading, it gets stuck on ramps"""

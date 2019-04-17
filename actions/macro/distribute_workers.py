@@ -87,9 +87,10 @@ class DistributeWorkers:
     def gather_gas(self):
         """Performs the action of sending drones to geysers"""
         if self.require_gas:
+            drones_gathering_amount = len(self.main.drones.gathering)
             for extractor in self.main.extractors:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
-                if 0 < required_drones < len(self.main.drones.gathering):
+                if 0 < required_drones < drones_gathering_amount:
                     for drone in self.main.drones.gathering.sorted_by_distance_to(extractor).take(required_drones):
                         self.main.add_action(drone.gather(extractor))
 

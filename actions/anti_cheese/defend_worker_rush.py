@@ -41,8 +41,9 @@ class DefendWorkerRush(Micro):
     def clear_defense_force(self):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
         if self.defenders:
+            selected_mineral_field = self.main.state.mineral_field.closest_to(self.base.first)
             for drone in self.defenders:
-                self.main.add_action(drone.gather(self.main.state.mineral_field.closest_to(self.base.first)))
+                self.main.add_action(drone.gather(selected_mineral_field))
             self.defender_tags = []
             self.defenders = None
 
@@ -77,7 +78,6 @@ class DefendWorkerRush(Micro):
         -------
         True if the drone got removed from the force, False if the drone doesn't need to be removed
         """
-
         if drone.health <= 6:
             if not drone.is_collecting:
                 self.main.add_action(drone.gather(self.main.state.mineral_field.closest_to(self.base.first.position)))

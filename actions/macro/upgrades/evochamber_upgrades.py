@@ -31,7 +31,8 @@ class UpgradesFromEvochamber:
         if self.main.hydradens and not self.upgrades_added:
             self.upgrades_added = True
             self.upgrade_list.extend(self.ranged_upgrades)
-        for evo in self.main.evochambers.ready.prefer_idle:
-            for upgrade in await self.main.get_available_abilities(evo):
-                if upgrade in self.upgrade_list and self.main.can_afford(upgrade):
-                    self.main.add_action(evo(upgrade))
+        evo = self.main.evochambers.ready.prefer_idle[0]
+        available_abilities = await self.main.get_available_abilities(evo)
+        for upgrade in self.upgrade_list:
+            if self.main.can_afford(upgrade) and upgrade in available_abilities:
+                self.main.add_action(evo(upgrade))
