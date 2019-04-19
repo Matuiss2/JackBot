@@ -61,10 +61,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
-        if (
-            unit.type_id in (UnitTypeId.MUTALISK, UnitTypeId.QUEEN, UnitTypeId.HYDRALISK)
-            and self.main.enemy_structures.flying
-        ):
+        if self.main.enemy_structures.flying and unit.can_attack_air:
             self.main.add_action(unit.attack(self.main.enemy_structures.flying.closest_to(unit.position)))
             return True
         return False

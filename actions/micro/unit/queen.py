@@ -37,8 +37,5 @@ class QueensAbilities:
                     if self.main.enemies.not_structure.closer_than(10, queen.position):
                         self.main.add_action(queen.attack(self.main.enemies.not_structure.closest_to(queen.position)))
                         continue
-                    if queen.is_moving and self.main.close_enemies_to_base:
-                        self.main.add_action(queen.stop())
-                        continue
                     if not self.main.townhalls.closer_than(5, queen):
                         self.main.add_action(queen.move(base.position))
