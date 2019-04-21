@@ -43,9 +43,9 @@ class Micro:
         for effect in self.main.state.effects:
             if effect.id in excluded_effects:
                 continue
-            danger_zone = effects_radius[effect.id] + unit.radius + 0.2
+            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
-                continue
+                break
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
             self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
