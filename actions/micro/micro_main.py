@@ -24,8 +24,8 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         self.set_unit_groups()
         await self.hail_mary_rebuild_main()
         for attacking_unit in self.atk_force:
-            # if self.dodge_effects(attacking_unit):
-            #    continue
+            if self.dodge_effects(attacking_unit):
+                continue
             if self.disruptor_dodge(attacking_unit):
                 continue
             if self.anti_proxy_trigger():

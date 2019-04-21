@@ -1,9 +1,7 @@
 """Every helper for controlling units go here"""
 from sc2 import Race
-from sc2.constants import UnitTypeId  # EffectId
+from sc2.constants import UnitTypeId, EffectId
 from sc2.position import Point2
-
-# from sc2.unit import Unit
 
 
 def filter_in_attack_range_of(unit, targets):
@@ -24,11 +22,18 @@ def filter_in_attack_range_of(unit, targets):
 class Micro:
     """Group all helpers, for unit control and targeting here"""
 
-    # TODO - fix
-    '''def dodge_effects(self, unit: Unit) -> bool:
+    def dodge_effects(self, unit):
         """Dodge any effects"""
         if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
             return False
+        effects_radius = {
+            EffectId.PSISTORMPERSISTENT: 1.5,
+            EffectId.THERMALLANCESFORWARD: 0.3,
+            EffectId.NUKEPERSISTENT: 8,
+            EffectId.BLINDINGCLOUDCP: 2,
+            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
+            EffectId.LURKERMP: 0.3,
+        }  # Exchange it for '.radius' when the data gets implemented
         excluded_effects = (
             EffectId.SCANNERSWEEP,
             EffectId.GUARDIANSHIELDPERSISTENT,
@@ -38,13 +43,13 @@ class Micro:
         for effect in self.main.state.effects:
             if effect.id in excluded_effects:
                 continue
-            danger_zone = effect.radius + unit.radius + 0.2
+            danger_zone = effects_radius[effect] + unit.radius + 0.2
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
                 continue
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
             self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
-        return False'''
+        return False
 
     def attack_close_target(self, unit, enemies):
         """
