@@ -12,7 +12,7 @@ class DistributeWorkers:
 
     async def should_handle(self):
         """Requirements to run handle"""
-        return not self.main.iteration % 5
+        return not self.main.iteration % 4
 
     async def handle(self):
         """Groups the resulting actions from all functions below"""
