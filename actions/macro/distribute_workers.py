@@ -8,17 +8,11 @@ class DistributeWorkers:
 
     def __init__(self, main):
         self.main = main
-        self.mining_bases = self.mineral_fields = self.bases_deficit = self.workers_to_distribute = None
-        self.geyser_tags = None
+        self.mineral_fields = self.geyser_tags = None
 
     async def should_handle(self):
         """Requirements to run handle"""
-        self.mining_bases = self.main.ready_bases.filter(lambda base: base.ideal_harvesters > 0)
-        self.mineral_fields = self.main.state.mineral_field.filter(
-            lambda field: any(field.distance_to(base) <= 8 for base in self.mining_bases)
-        )
-        self.bases_deficit, self.workers_to_distribute = self.calculate_distribution()
-        return self.workers_to_distribute or self.bases_deficit
+        return not self.main.iteration % 5
 
     async def handle(self):
         """Groups the resulting actions from all functions below"""
@@ -29,11 +23,15 @@ class DistributeWorkers:
 
     def calculate_distribution(self):
         """Calculate the ideal distribution for workers"""
+        mining_bases = self.main.ready_bases.filter(lambda base: base.ideal_harvesters > 0)
+        self.mineral_fields = self.main.state.mineral_field.filter(
+            lambda field: any(field.distance_to(base) <= 8 for base in mining_bases)
+        )
         workers_to_distribute = self.main.drones.idle
         mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
         self.geyser_tags = {ref.tag for ref in self.main.extractors}
         bases_deficit = []
-        for mining_place in self.mining_bases | self.main.extractors.ready:
+        for mining_place in mining_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
             if difference > 0:
                 for _ in repeat(None, difference):
@@ -58,11 +56,12 @@ class DistributeWorkers:
 
     def distribute_to_deficits(self):
         """Distribute workers so it saturates the bases"""
-        bases_deficit = [x for x in self.bases_deficit if x[0].type_id != UnitTypeId.EXTRACTOR]
-        if bases_deficit and self.workers_to_distribute:
+        bases_deficit, workers_to_distribute = self.calculate_distribution()
+        bases_deficit = [x for x in bases_deficit if x[0].type_id != UnitTypeId.EXTRACTOR]
+        if bases_deficit and workers_to_distribute:
             mineral_fields_deficit = self.mineral_fields_deficit(bases_deficit)
             extractors_deficit = [x for x in bases_deficit if x[0].type_id == UnitTypeId.EXTRACTOR]
-            for worker in self.workers_to_distribute:
+            for worker in workers_to_distribute:
                 self.distribute_to_mineral_field(mineral_fields_deficit, worker, bases_deficit)
                 self.distribute_to_extractor(extractors_deficit, worker)
 

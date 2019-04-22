@@ -24,9 +24,8 @@ class BuildSpores:
 
     async def handle(self):
         """Build the spore right on the middle of the base"""
-        state = self.main.state
         for base in self.main.ready_bases:
-            spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
+            spore_position = self.main.state.resources.closer_than(10, base).center.towards(base, 1)
             selected_drone = self.main.select_build_worker(spore_position)
             if (
                 not self.main.ground_enemies.closer_than(20, spore_position)
