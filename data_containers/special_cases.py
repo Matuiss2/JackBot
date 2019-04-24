@@ -1,6 +1,5 @@
 """All situational data are here"""
 from sc2.constants import UnitTypeId
-
 from sc2 import Race
 
 
@@ -12,15 +11,15 @@ class SituationalData:
         self.basic_production_types = {UnitTypeId.BARRACKS, UnitTypeId.GATEWAY, UnitTypeId.HATCHERY}
         self.base_types = {UnitTypeId.NEXUS, UnitTypeId.COMMANDCENTER, UnitTypeId.HATCHERY}
 
-    def check_for_floating_buildings(self) -> bool:
+    def check_for_floating_buildings(self):
         """Check if some terran wants to be funny with lifting up"""
-        return bool(
+        return (
             self.enemy_structures.flying
             and len(self.enemy_structures) == len(self.enemy_structures.flying)
             and self.time > 300
         )
 
-    def check_for_proxy_buildings(self) -> bool:
+    def check_for_proxy_buildings(self):
         """Check if there are any proxy buildings"""
         return bool(self.enemy_structures.of_type(self.basic_production_types).closer_than(75, self.start_location))
 
@@ -38,9 +37,9 @@ class SituationalData:
             ) and len(self.enemy_structures.of_type(UnitTypeId.NEXUS)) == 1
         return None
 
-    def check_for_second_bases(self) -> bool:
+    def check_for_second_bases(self):
         """Check if its a one base play"""
-        return bool(
+        return (
             self.overlords
             and not self.enemy_structures.of_type(self.base_types).closer_than(
                 25, self.overlords.furthest_to(self.start_location)
