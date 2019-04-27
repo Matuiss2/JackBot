@@ -92,7 +92,18 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
             UpgradesFromHydraden(self),
             UpgradesFromCavern(self),
         )
-        self.ordered_expansions = []
+        self.ordered_expansions, self.finished_upgrades = [], []
+
+    def already_pending_upgrade(self, upg):
+        """todo: remove when bug is fixed"""
+        pending = super().already_pending_upgrade(upg)
+        if 0 < pending < 0.99:
+            return pending
+        if pending >= 0.99:
+            self.finished_upgrades.append(upg)
+        if upg in self.finished_upgrades:
+            return 1
+        return 0
 
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
