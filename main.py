@@ -149,7 +149,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepControl, BuildingPositioning, G
             if await self._client.query_pathing(start, point)
         ]  # remove all None values for pathing
         # p1 is the expansion location - p0 is the pathing distance to the starting base
-        self.ordered_expansions = [Point2((p[1])) for p in sorted(waypoints, key=lambda p: p[0])]
+        self.ordered_expansions = [start] + [Point2((p[1])) for p in sorted(waypoints, key=lambda p: p[0])]
 
     @staticmethod
     async def run_commands(commands):
