@@ -11,17 +11,14 @@ class MainDataContainer(SituationalData, OurStuffData, OtherData):
         SituationalData.__init__(self)
         OurStuffData.__init__(self)
         OtherData.__init__(self)
-        self.close_enemy_production = self.one_base_play = self.floating_buildings_bm = None
-        self.rush_detected = self.counter_attack_vs_flying = self.close_enemies_to_base = False
+        self.close_enemy_production = self.floating_buildings_bm = None
+        self.counter_attack_vs_flying = self.close_enemies_to_base = False
 
     def enemy_special_cases(self):
         """Pretty much makes SituationalData be updated all iterations"""
         self.prepare_enemy_data_points()
         self.close_enemy_production = self.check_for_proxy_buildings()
         self.floating_buildings_bm = self.check_for_floating_buildings()
-        self.one_base_play = self.check_for_second_bases()
-        if 75 < self.time < 130:
-            self.rush_detected = self.check_for_rushes()
 
     def prepare_data(self):
         """Prepares the data every iteration"""

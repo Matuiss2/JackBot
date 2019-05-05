@@ -1,8 +1,8 @@
 """Everything related to building logic for the spores goes here"""
-from sc2.constants import SPORECRAWLER
+from sc2.constants import UnitTypeId
 
 
-class BuildSpores:
+class SporeConstruction:
     """Ok for now"""
 
     def __init__(self, main):
@@ -18,20 +18,18 @@ class BuildSpores:
         if self.main.ready_bases:
             return (
                 (spore_building_trigger or self.main.time >= 420)
-                and not self.main.already_pending(SPORECRAWLER)
-                and self.main.building_requirement(SPORECRAWLER, self.main.pools.ready)
+                and not self.main.already_pending(UnitTypeId.SPORECRAWLER)
+                and self.main.building_requirement(UnitTypeId.SPORECRAWLER, self.main.pools.ready)
             )
 
     async def handle(self):
         """Build the spore right on the middle of the base"""
-        state = self.main.state
         for base in self.main.ready_bases:
-            spore_position = (state.mineral_field | state.vespene_geyser).closer_than(10, base).center.towards(base, 1)
+            spore_position = self.main.state.resources.closer_than(10, base).center.towards(base, 1)
             selected_drone = self.main.select_build_worker(spore_position)
             if (
                 not self.main.ground_enemies.closer_than(20, spore_position)
                 and selected_drone
                 and not self.main.spores.closer_than(15, spore_position)
             ):
-                self.main.add_action(selected_drone.build(SPORECRAWLER, spore_position))
-                return True
+                self.main.add_action(selected_drone.build(UnitTypeId.SPORECRAWLER, spore_position))

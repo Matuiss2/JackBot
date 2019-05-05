@@ -1,13 +1,15 @@
 """Everything related to controlling zerglings"""
-from sc2.constants import BANELING, ZERGLINGATTACKSPEED
-from actions.micro.micro_helpers import Micro
+from sc2.constants import UnitTypeId
+from actions.micro.micro_helpers import MicroHelpers
 
 
-class ZerglingControl(Micro):
+class ZerglingControl(MicroHelpers):
     """Can be improved in many ways"""
 
-    def baneling_dodge(self, unit, targets):
+    def baneling_dodging(self, unit, targets):
         """
+        If the enemy has banelings, run baneling dodging code. It can be improved,
+        its a little bugged and just avoid the baneling not pop it
         Parameters
         ----------
         unit: One zergling from the attacking force
@@ -17,10 +19,8 @@ class ZerglingControl(Micro):
         -------
         Chosen action when a baneling is near(attack, move away or pop the baneling)
         """
-        """If the enemy has banelings, run baneling dodging code. It can be improved,
-         its a little bugged and just avoid the baneling not pop it"""
         self.handling_anti_banelings_group()
-        if self.main.enemies.of_type(BANELING):
+        if self.main.enemies.of_type(UnitTypeId.BANELING):
             banelings = self.baneling_group(unit, targets)
             for baneling in banelings:
                 # Check for close banelings and if we've triggered any banelings
@@ -35,8 +35,8 @@ class ZerglingControl(Micro):
                         self.main.add_action(unit.move(self.find_retreat_point(baneling, unit)))
                         return True
                     # If this baneling is not targeted yet, trigger it.
-                    return self.baneling_trigger(unit, baneling)
-                return self.baneling_trigger(unit, baneling)
+                    return self.triggering_banelings(unit, baneling)
+                return self.triggering_banelings(unit, baneling)
         return False
 
     def baneling_group(self, unit, targets):
@@ -53,10 +53,10 @@ class ZerglingControl(Micro):
         """
         threats = self.trigger_threats(targets, unit, 5)
         for threat in threats:
-            if threat.type_id == BANELING:
+            if threat.type_id == UnitTypeId.BANELING:
                 yield threat
 
-    def baneling_trigger(self, unit, baneling):
+    def triggering_banelings(self, unit, baneling):
         """
         If we haven't triggered any banelings, trigger it.
         Parameters
@@ -90,16 +90,16 @@ class ZerglingControl(Micro):
         -------
         The chosen action depending on the zergling situation
         """
-        if self.baneling_dodge(unit, targets):
+        if self.baneling_dodging(unit, targets):
             return True
-        if self.zergling_modifiers(unit, targets):
+        if self.check_zergling_modifiers(unit, targets):
             return True
         if self.move_to_next_target(unit, targets):
             return True
         self.main.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
-    def zergling_modifiers(self, unit, targets):
+    def check_zergling_modifiers(self, unit, targets):
         """
         Modifiers for zerglings
         Parameters
@@ -110,8 +110,6 @@ class ZerglingControl(Micro):
         -------
         The chosen action depending on the modifiers
         """
-        if unit.weapon_cooldown <= 8.85 or (
-            unit.weapon_cooldown <= 6.35 and self.main.already_pending_upgrade(ZERGLINGATTACKSPEED) == 1
-        ):
+        if unit.weapon_cooldown <= 8.85 or (unit.weapon_cooldown <= 6.35 and self.main.zergling_atk_spd):
             return self.attack_close_target(unit, targets)
         return self.move_to_next_target(unit, targets)

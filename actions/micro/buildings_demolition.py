@@ -1,8 +1,8 @@
 """Everything related to cancelling buildings goes here"""
-from sc2.constants import CANCEL, HATCHERY
+from sc2.constants import AbilityId, UnitTypeId
 
 
-class Buildings:
+class BuildingsDemolition:
     """Ok for now"""
 
     def __init__(self, main):
@@ -18,6 +18,6 @@ class Buildings:
             build_progress = building.build_progress
             relative_health = building.health_percentage
             if (relative_health < build_progress - 0.5 or relative_health < 0.05 and build_progress > 0.1) or (
-                building.type_id == HATCHERY and self.main.close_enemy_production
+                building.type_id == UnitTypeId.HATCHERY and self.main.close_enemy_production
             ):
-                self.main.add_action((building(CANCEL)))
+                self.main.add_action((building(AbilityId.CANCEL)))

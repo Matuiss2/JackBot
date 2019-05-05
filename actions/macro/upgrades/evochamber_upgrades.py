@@ -1,35 +1,25 @@
 """Upgrades made by evolution chambers"""
-from sc2.constants import (
-    RESEARCH_ZERGGROUNDARMORLEVEL1,
-    RESEARCH_ZERGGROUNDARMORLEVEL2,
-    RESEARCH_ZERGGROUNDARMORLEVEL3,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL1,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL2,
-    RESEARCH_ZERGMELEEWEAPONSLEVEL3,
-    RESEARCH_ZERGMISSILEWEAPONSLEVEL1,
-    RESEARCH_ZERGMISSILEWEAPONSLEVEL2,
-    RESEARCH_ZERGMISSILEWEAPONSLEVEL3,
-)
+from sc2.constants import AbilityId
 
 
-class UpgradesFromEvochamber:
+class EvochamberUpgrades:
     """Ok for now"""
 
     def __init__(self, main):
         self.main = main
         self.upgrades_added = False
         self.upgrade_list = [
-            RESEARCH_ZERGMELEEWEAPONSLEVEL1,
-            RESEARCH_ZERGMELEEWEAPONSLEVEL2,
-            RESEARCH_ZERGMELEEWEAPONSLEVEL3,
-            RESEARCH_ZERGGROUNDARMORLEVEL1,
-            RESEARCH_ZERGGROUNDARMORLEVEL2,
-            RESEARCH_ZERGGROUNDARMORLEVEL3,
+            AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL1,
+            AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL2,
+            AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL3,
+            AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL1,
+            AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL2,
+            AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL3,
         ]
         self.ranged_upgrades = {
-            RESEARCH_ZERGMISSILEWEAPONSLEVEL1,
-            RESEARCH_ZERGMISSILEWEAPONSLEVEL2,
-            RESEARCH_ZERGMISSILEWEAPONSLEVEL3,
+            AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL1,
+            AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL2,
+            AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL3,
         }
 
     async def should_handle(self):
@@ -41,9 +31,8 @@ class UpgradesFromEvochamber:
         if self.main.hydradens and not self.upgrades_added:
             self.upgrades_added = True
             self.upgrade_list.extend(self.ranged_upgrades)
-        for evo in self.main.evochambers.ready.prefer_idle:
-            for upgrade in await self.main.get_available_abilities(evo):
-                if upgrade in self.upgrade_list and self.main.can_afford(upgrade):
-                    self.main.add_action(evo(upgrade))
-                    return True
-        return True
+        evo = self.main.evochambers.ready.prefer_idle[0]
+        available_abilities = await self.main.get_available_abilities(evo)
+        for upgrade in self.upgrade_list:
+            if self.main.can_afford(upgrade) and upgrade in available_abilities:
+                self.main.add_action(evo(upgrade))

@@ -1,5 +1,5 @@
 """All data that are on our possession are here"""
-from sc2.constants import HATCHERY, HIVE, LAIR
+from sc2.constants import UnitTypeId
 from data_containers.our_structures import OurBuildingsData
 from data_containers.our_units import OurUnitsData
 from data_containers.quantity_data import OurQuantityData
@@ -22,9 +22,9 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
 
     def initialize_bases(self):
         """Initialize our bases"""
-        self.hatcheries = self.units(HATCHERY)
-        self.lairs = self.units(LAIR)
-        self.hives = self.units(HIVE)
+        self.hatcheries = self.units(UnitTypeId.HATCHERY)
+        self.lairs = self.units(UnitTypeId.LAIR)
+        self.hives = self.units(UnitTypeId.HIVE)
         self.ready_bases = self.townhalls.ready
 
     def initialize_buildings(self):

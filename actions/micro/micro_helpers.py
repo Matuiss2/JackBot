@@ -1,17 +1,7 @@
 """Every helper for controlling units go here"""
 from sc2 import Race
-from sc2.constants import (
-    DISRUPTORPHASED,
-    # GUARDIANSHIELDPERSISTENT,
-    # LIBERATORTARGETMORPHDELAYPERSISTENT,
-    # LIBERATORTARGETMORPHPERSISTENT,
-    # SCANNERSWEEP,
-    ULTRALISK,
-    ZERGLING,
-)
+from sc2.constants import UnitTypeId, EffectId
 from sc2.position import Point2
-
-# from sc2.unit import Unit
 
 
 def filter_in_attack_range_of(unit, targets):
@@ -29,30 +19,37 @@ def filter_in_attack_range_of(unit, targets):
     return targets.subgroup(target for target in targets if unit.target_in_range(target))
 
 
-class Micro:
+class MicroHelpers:
     """Group all helpers, for unit control and targeting here"""
 
-    # TODO - fix
-    '''def dodge_effects(self, unit: Unit) -> bool:
+    def dodge_effects(self, unit):
         """Dodge any effects"""
-        if not self.main.state.effects or unit.type_id == ULTRALISK:
+        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
             return False
+        effects_radius = {
+            EffectId.PSISTORMPERSISTENT: 1.5,
+            EffectId.THERMALLANCESFORWARD: 0.3,
+            EffectId.NUKEPERSISTENT: 8,
+            EffectId.BLINDINGCLOUDCP: 2,
+            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
+            EffectId.LURKERMP: 0.3,
+        }  # Exchange it for '.radius' when the data gets implemented
         excluded_effects = (
-            SCANNERSWEEP,
-            GUARDIANSHIELDPERSISTENT,
-            LIBERATORTARGETMORPHDELAYPERSISTENT,
-            LIBERATORTARGETMORPHPERSISTENT,
+            EffectId.SCANNERSWEEP,
+            EffectId.GUARDIANSHIELDPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHPERSISTENT,
         )  # Placeholder(must find better way to handle some of these)
         for effect in self.main.state.effects:
             if effect.id in excluded_effects:
                 continue
-            danger_zone = effect.radius + unit.radius + 0.2
+            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
-                continue
+                break
             perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
             self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
             return True
-        return False'''
+        return False
 
     def attack_close_target(self, unit, enemies):
         """
@@ -97,7 +94,7 @@ class Micro:
 
     def attack_lowhp(self, unit, enemies):
         """Attack close enemy with lowest HP"""
-        self.main.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
+        self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, enemies)))
 
     def attack_start_location(self, unit):
         """
@@ -116,11 +113,11 @@ class Micro:
         return False
 
     @staticmethod
-    def closest_lowest_hp(unit, enemies):
+    def find_closest_lowest_hp(unit, enemies):
         """Find the closest within the lowest hp enemies"""
         return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
-    def disruptor_dodge(self, unit):
+    def dodging_disruptor_shots(self, unit):
         """
         If the enemy has disruptor's, run a dodging code. Exclude ultralisks
         Parameters
@@ -131,9 +128,9 @@ class Micro:
         -------
         True and the action(dodge the shot) if it meets the conditions
         """
-        if unit.type_id == ULTRALISK:
+        if unit.type_id == UnitTypeId.ULTRALISK:
             return False
-        for ball in self.main.enemies.of_type(DISRUPTORPHASED):
+        for ball in self.main.enemies.of_type(UnitTypeId.DISRUPTORPHASED):
             if ball.distance_to(unit) < 5:
                 retreat_point = self.find_retreat_point(ball, unit)
                 self.main.add_action(unit.move(retreat_point))
@@ -186,7 +183,7 @@ class Micro:
         True and the action(attack closest or overall micro logic) if it meets the conditions
         """
         if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
-            if unit.type_id == ZERGLING:
+            if unit.type_id == UnitTypeId.ZERGLING:
                 return self.micro_zerglings(unit, target)
             self.main.add_action(unit.attack(target.closest_to(unit.position)))
             return True
@@ -234,7 +231,7 @@ class Micro:
 
     def move_lowhp(self, unit, enemies):
         """Move to enemy with lowest HP"""
-        self.main.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
+        self.main.add_action(unit.move(self.find_closest_lowest_hp(unit, enemies)))
 
     def move_to_next_target(self, unit, enemies):
         """
