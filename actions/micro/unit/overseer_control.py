@@ -1,7 +1,7 @@
 """Everything related to controlling overseers goes here"""
 
 
-class Overseer:
+class OverseerControl:
     """Can be improved a lot, make one follow the army and improve existing logic as well"""
 
     def __init__(self, main):

@@ -1,12 +1,12 @@
 """Everything related to controlling zerglings"""
 from sc2.constants import UnitTypeId
-from actions.micro.micro_helpers import Micro
+from actions.micro.micro_helpers import MicroHelpers
 
 
-class ZerglingControl(Micro):
+class ZerglingControl(MicroHelpers):
     """Can be improved in many ways"""
 
-    def baneling_dodge(self, unit, targets):
+    def baneling_dodging(self, unit, targets):
         """
         If the enemy has banelings, run baneling dodging code. It can be improved,
         its a little bugged and just avoid the baneling not pop it
@@ -35,8 +35,8 @@ class ZerglingControl(Micro):
                         self.main.add_action(unit.move(self.find_retreat_point(baneling, unit)))
                         return True
                     # If this baneling is not targeted yet, trigger it.
-                    return self.baneling_trigger(unit, baneling)
-                return self.baneling_trigger(unit, baneling)
+                    return self.triggering_banelings(unit, baneling)
+                return self.triggering_banelings(unit, baneling)
         return False
 
     def baneling_group(self, unit, targets):
@@ -56,7 +56,7 @@ class ZerglingControl(Micro):
             if threat.type_id == UnitTypeId.BANELING:
                 yield threat
 
-    def baneling_trigger(self, unit, baneling):
+    def triggering_banelings(self, unit, baneling):
         """
         If we haven't triggered any banelings, trigger it.
         Parameters
@@ -90,16 +90,16 @@ class ZerglingControl(Micro):
         -------
         The chosen action depending on the zergling situation
         """
-        if self.baneling_dodge(unit, targets):
+        if self.baneling_dodging(unit, targets):
             return True
-        if self.zergling_modifiers(unit, targets):
+        if self.check_zergling_modifiers(unit, targets):
             return True
         if self.move_to_next_target(unit, targets):
             return True
         self.main.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
-    def zergling_modifiers(self, unit, targets):
+    def check_zergling_modifiers(self, unit, targets):
         """
         Modifiers for zerglings
         Parameters

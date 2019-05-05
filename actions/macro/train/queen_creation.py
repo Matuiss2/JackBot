@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class TrainQueen:
+class QueenCreation:
     """It possibly can get better but it seems good enough for now"""
 
     def __init__(self, main):

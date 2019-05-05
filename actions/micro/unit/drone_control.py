@@ -1,7 +1,7 @@
 """Everything related to scouting with drones goes here"""
 
 
-class Drone:
+class DroneControl:
     """Ok for now, maybe can be replaced later for zerglings"""
 
     def __init__(self, main):

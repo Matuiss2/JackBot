@@ -22,4 +22,4 @@ if __name__ == "__main__":
         # )
         # 797 - 203 / 782 - 218 / 795 - 205 / 820 - 180
         # 658 - 342 / 692 - 308 /
-        sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Zerg, Difficulty.CheatMoney)], realtime=False)
+        sc2.run_game(sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Terran, Difficulty.CheatMoney)], realtime=False)

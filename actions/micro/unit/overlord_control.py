@@ -1,7 +1,7 @@
 """Everything related to controlling overlords goes here"""
 
 
-class Overlord:
+class OverlordControl:
     """Can be expanded further to spread vision better on the map and be more dynamic(run away from enemies f.e)"""
 
     def __init__(self, main):

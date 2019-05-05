@@ -1,13 +1,13 @@
 """Everything related to controlling hydralisks"""
 import math
 from sc2.constants import BuffId
-from actions.micro.micro_helpers import Micro
+from actions.micro.micro_helpers import MicroHelpers
 
 
-class HydraControl(Micro):
+class HydraControl(MicroHelpers):
     """Some mistakes mostly due to values I believe, can be improved"""
 
-    def hydra_modifiers(self, unit):
+    def check_hydra_modifiers(self, unit):
         """
         Modifiers for hydras
         Parameters
@@ -45,7 +45,7 @@ class HydraControl(Micro):
         -------
         Choose which action is better for which situation(hit and run, stutter_step or attacking the closest target)
         """
-        our_move_speed, our_range = self.hydra_modifiers(unit)
+        our_move_speed, our_range = self.check_hydra_modifiers(unit)
         closest_threat = None  # Find the closest threat.
         closest_threat_distance = math.inf
         for threat in self.trigger_threats(targets, unit, 14):

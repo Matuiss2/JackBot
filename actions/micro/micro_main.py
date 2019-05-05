@@ -1,7 +1,7 @@
 """Everything related to controlling army units goes here"""
 from sc2.constants import UnitTypeId
 from actions.micro.army_value_tables import EnemyArmyValue
-from actions.micro.unit.zerglings import ZerglingControl
+from actions.micro.unit.zergling_control import ZerglingControl
 from actions.micro.specific_unit_behaviors import UnitsBehavior
 
 
@@ -26,7 +26,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
         for attacking_unit in self.atk_force:
             if self.dodge_effects(attacking_unit):
                 continue
-            if self.disruptor_dodge(attacking_unit):
+            if self.dodging_disruptor_shots(attacking_unit):
                 continue
             if self.anti_proxy_trigger():
                 if self.attack_enemy_proxy_units(attacking_unit):

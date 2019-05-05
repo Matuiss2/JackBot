@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class TrainUltralisk:
+class UltraliskCreation:
     """Good for now but it might need to be changed vs particular enemy units compositions"""
 
     def __init__(self, main):

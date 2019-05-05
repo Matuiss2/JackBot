@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildExtractor:
+class ExtractorConstruction:
     """Can probably be improved,
     but I think the problem is more on the vespene collection than the extractor building"""
 

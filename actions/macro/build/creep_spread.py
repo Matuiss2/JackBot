@@ -5,7 +5,7 @@ from sc2.data import ActionResult
 from sc2.position import Point2
 
 
-class CreepControl:
+class CreepSpread:
     """It spreads creeps, finds 'optimal' locations for it(have trouble with ramps, many improvements can be made)"""
 
     def __init__(self):

@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildSpines:
+class SpineConstruction:
     """New placement untested"""
 
     def __init__(self, main):

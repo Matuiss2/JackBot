@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, BuffId
 
 
-class QueensAbilities:
+class QueenControl:
     """Can be improved(Defense not utility), cancel other orders so it can defend better"""
 
     def __init__(self, main):

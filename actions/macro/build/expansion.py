@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildExpansion:
+class Expansion:
     """Can be improved"""
 
     def __init__(self, main):
@@ -11,8 +11,8 @@ class BuildExpansion:
     async def should_handle(self):
         """Fourth base sometimes are not build at the expected time maybe reduce the lock for it,
          also maybe the 7th or more hatchery can be postponed for when extra mining patches or production are needed """
-        if self.expansion_lock():
-            if self.mineral_overflow_logic():
+        if self.allow_expansion():
+            if self.handle_mineral_overflow():
                 return True
             if not self.main.hatcheries_in_queue:  # This is a mess and surely can be simplified
                 base_amount = self.main.base_amount  # added to save lines
@@ -31,7 +31,7 @@ class BuildExpansion:
                     self.main.add_action(drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
                     break
 
-    def expansion_lock(self):
+    def allow_expansion(self):
         """ Check if its safe to expand and if we have the necessary minerals
          if its not don't even run the remaining expansion logic"""
         return (
@@ -41,7 +41,7 @@ class BuildExpansion:
             and (not self.main.close_enemy_production or self.main.time > 690)
         )
 
-    def mineral_overflow_logic(self):
+    def handle_mineral_overflow(self):
         """ When overflowing with minerals run this condition check"""
         return (
             self.main.minerals >= 900

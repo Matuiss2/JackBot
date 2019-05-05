@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildEvochamber:
+class EvochamberConstruction:
     """Can maybe be improved"""
 
     def __init__(self, main):

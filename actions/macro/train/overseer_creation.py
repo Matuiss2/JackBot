@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UnitTypeId
 
 
-class TrainOverseer:
+class OverseerCreation:
     """Should be expanded a little, it needs at least one more to run alongside the offensive army"""
 
     def __init__(self, main):

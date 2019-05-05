@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UpgradeId
 
 
-class UpgradesFromCavern:
+class CavernUpgrades:
     """Ok for now"""
 
     def __init__(self, main):

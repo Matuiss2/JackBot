@@ -3,7 +3,7 @@ from itertools import repeat
 from sc2.constants import UnitTypeId, UpgradeId
 
 
-class DistributeWorkers:
+class WorkerDistribution:
     """Some things can be improved(mostly about the ratio mineral-vespene)"""
 
     def __init__(self, main):
@@ -59,7 +59,7 @@ class DistributeWorkers:
         bases_deficit, workers_to_distribute = self.calculate_distribution()
         bases_deficit = [x for x in bases_deficit if x[0].type_id != UnitTypeId.EXTRACTOR]
         if bases_deficit and workers_to_distribute:
-            mineral_fields_deficit = self.mineral_fields_deficit(bases_deficit)
+            mineral_fields_deficit = self.calculate_mineral_fields_deficit(bases_deficit)
             extractors_deficit = [x for x in bases_deficit if x[0].type_id == UnitTypeId.EXTRACTOR]
             for worker in workers_to_distribute:
                 self.distribute_to_mineral_field(mineral_fields_deficit, worker, bases_deficit)
@@ -67,7 +67,7 @@ class DistributeWorkers:
 
     def distribute_to_extractor(self, extractors_deficit, worker):
         """Check vespene actual saturation and when the requirement are filled saturate the geyser"""
-        if self.main.extractors.ready and extractors_deficit and self.require_gas:
+        if self.main.extractors.ready and extractors_deficit and self.check_gas_requirements:
             self.main.add_action(worker.gather(extractors_deficit[0][0]))
             extractors_deficit[0][1] += 1
             if not extractors_deficit[0][1]:
@@ -85,7 +85,7 @@ class DistributeWorkers:
 
     def gather_gas(self):
         """Performs the action of sending drones to geysers"""
-        if self.require_gas:
+        if self.check_gas_requirements:
             drones_gathering_amount = len(self.main.drones.gathering)
             for extractor in self.main.extractors:
                 required_drones = extractor.ideal_harvesters - extractor.assigned_harvesters
@@ -93,7 +93,7 @@ class DistributeWorkers:
                     for drone in self.main.drones.gathering.sorted_by_distance_to(extractor).take(required_drones):
                         self.main.add_action(drone.gather(extractor))
 
-    def mineral_fields_deficit(self, bases_deficit):
+    def calculate_mineral_fields_deficit(self, bases_deficit):
         """Calculate how many workers are left to saturate the base"""
         return sorted(
             [mf for mf in self.mineral_fields.closer_than(8, bases_deficit[0][0])],
@@ -104,7 +104,7 @@ class DistributeWorkers:
         )
 
     @property
-    def require_gas(self):
+    def check_gas_requirements(self):
         """One of the requirements for gas collecting"""
         return (
             self.require_gas_for_speedlings

@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId
 
 
-class UpgradesFromEvochamber:
+class EvochamberUpgrades:
     """Ok for now"""
 
     def __init__(self, main):

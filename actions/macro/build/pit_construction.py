@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildPit:
+class PitConstruction:
     """Can be improved so its more situational and less greedy"""
 
     def __init__(self, main):

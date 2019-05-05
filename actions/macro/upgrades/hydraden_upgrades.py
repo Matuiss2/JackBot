@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UpgradeId
 
 
-class UpgradesFromHydraden:
+class HydradenUpgrades:
     """Ok for now"""
 
     def __init__(self, main):

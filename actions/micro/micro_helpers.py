@@ -19,7 +19,7 @@ def filter_in_attack_range_of(unit, targets):
     return targets.subgroup(target for target in targets if unit.target_in_range(target))
 
 
-class Micro:
+class MicroHelpers:
     """Group all helpers, for unit control and targeting here"""
 
     def dodge_effects(self, unit):
@@ -94,7 +94,7 @@ class Micro:
 
     def attack_lowhp(self, unit, enemies):
         """Attack close enemy with lowest HP"""
-        self.main.add_action(unit.attack(self.closest_lowest_hp(unit, enemies)))
+        self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, enemies)))
 
     def attack_start_location(self, unit):
         """
@@ -113,11 +113,11 @@ class Micro:
         return False
 
     @staticmethod
-    def closest_lowest_hp(unit, enemies):
+    def find_closest_lowest_hp(unit, enemies):
         """Find the closest within the lowest hp enemies"""
         return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
-    def disruptor_dodge(self, unit):
+    def dodging_disruptor_shots(self, unit):
         """
         If the enemy has disruptor's, run a dodging code. Exclude ultralisks
         Parameters
@@ -231,7 +231,7 @@ class Micro:
 
     def move_lowhp(self, unit, enemies):
         """Move to enemy with lowest HP"""
-        self.main.add_action(unit.move(self.closest_lowest_hp(unit, enemies)))
+        self.main.add_action(unit.move(self.find_closest_lowest_hp(unit, enemies)))
 
     def move_to_next_target(self, unit, enemies):
         """

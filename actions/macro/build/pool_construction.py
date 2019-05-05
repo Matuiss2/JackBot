@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildPool:
+class PoolConstruction:
     """Ok for now"""
 
     def __init__(self, main):

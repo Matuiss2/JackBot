@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UpgradeId
 
 
-class UpgradesFromSpawningPool:
+class SpawningPoolUpgrades:
     """Ok for now"""
 
     def __init__(self, main):

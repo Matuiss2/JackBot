@@ -1,10 +1,10 @@
 """Everything related to defending a worker rush goes here"""
 import heapq
 from sc2.constants import UnitTypeId
-from actions.micro.micro_helpers import Micro
+from actions.micro.micro_helpers import MicroHelpers
 
 
-class DefendWorkerRush(Micro):
+class WorkerRushDefense(MicroHelpers):
     """Ok for now, but probably can be expanded to handle more than just worker rushes"""
 
     def __init__(self, main):
@@ -36,7 +36,7 @@ class DefendWorkerRush(Micro):
             else:
                 self.clear_defense_force()
         elif close_workers:
-            self.defender_tags = self.defense_force(self.pulling_force)
+            self.defender_tags = self.select_defense_force(self.pulling_force)
 
     def clear_defense_force(self):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
@@ -47,7 +47,7 @@ class DefendWorkerRush(Micro):
             self.defender_tags = []
             self.defenders = None
 
-    def defense_force(self, count):
+    def select_defense_force(self, count):
         """
         Select all drones needed on the defenders force
         Parameters
@@ -65,7 +65,7 @@ class DefendWorkerRush(Micro):
         self.defenders = self.main.drones.filter(lambda worker: worker.tag in self.defender_tags and worker.health > 0)
         defender_deficit = min(self.main.drone_amount - 1, self.pulling_force) - len(self.defenders)
         if defender_deficit > 0:
-            self.defender_tags += self.defense_force(defender_deficit)
+            self.defender_tags += self.select_defense_force(defender_deficit)
 
     def save_lowhp_drone(self, drone):
         """

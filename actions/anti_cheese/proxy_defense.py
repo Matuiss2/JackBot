@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class DefendProxies:
+class ProxyDefense:
     """Needs improvements on the quantity, also on the follow up(its overly defensive)"""
 
     def __init__(self, main):

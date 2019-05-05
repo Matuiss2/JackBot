@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class TrainDrone:
+class DroneCreation:
     """Needs improvements, its very greedy sometimes"""
 
     def __init__(self, main):

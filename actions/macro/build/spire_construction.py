@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildSpire:
+class SpireConstruction:
     """Untested"""
 
     def __init__(self, main):

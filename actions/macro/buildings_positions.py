@@ -4,13 +4,13 @@ from sc2.data import ActionResult
 from sc2.position import Point2
 
 
-class BuildingPositioning:
+class BuildingsPositions:
     """Ok for now"""
 
     def __init__(self):
         self.building_positions, self.viable_points = [], []
 
-    async def filtered_viable_locations(self):
+    async def final_triage_for_viable_locations(self):
         """See if its possible to build an evochamber or an engineering bay at the position - checking both is needed
         because it runs at the main base that has creep already(evochamber can be placed) but it also runs on new
         bases as well and on this ones the creep doesn't exist at the position yet(engineering bay can be placed)"""
@@ -39,7 +39,7 @@ class BuildingPositioning:
                 return building_position
         return None
 
-    def initial_viable_locations(self, center):
+    def initial_triage_for_viable_locations(self, center):
         """ Find all positions behind the mineral line"""
         close_points = range(-11, 12)
         close_mineral_fields = self.state.mineral_field.closer_than(10, center)
@@ -57,5 +57,5 @@ class BuildingPositioning:
 
     async def prepare_building_positions(self, center):
         """Check all possible positions behind the mineral line when a hatchery is built"""
-        self.initial_viable_locations(center)
-        await self.filtered_viable_locations()
+        self.initial_triage_for_viable_locations(center)
+        await self.final_triage_for_viable_locations()

@@ -2,7 +2,7 @@
 from sc2.constants import UnitTypeId
 
 
-class BuildCavern:
+class CavernConstruction:
     """Ok for now"""
 
     def __init__(self, main):
