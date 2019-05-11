@@ -2,42 +2,14 @@
 import sc2
 from sc2.constants import UnitTypeId, UpgradeId
 from sc2.position import Point2
-from actions.anti_cheese.proxy_defense import ProxyDefense
-from actions.anti_cheese.worker_rush_defense import WorkerRushDefense
-from actions.macro.build.cavern_construction import CavernConstruction
+from actions.anti_cheese import get_cheese_defense_commands
+from actions.macro.build import get_build_commands
 from actions.macro.build.creep_spread import CreepSpread
-from actions.macro.build.creep_tumor import CreepTumor
-from actions.macro.build.evochamber_construction import EvochamberConstruction
-from actions.macro.build.expansion import Expansion
-from actions.macro.build.extractor_construction import ExtractorConstruction
-from actions.macro.build.hive_transformation import HiveTransformation
-from actions.macro.build.hydraden_construction import HydradenConstruction
-from actions.macro.build.lair_transformation import LairTransformation
-from actions.macro.build.pit_construction import PitConstruction
-from actions.macro.build.pool_construction import PoolConstruction
-from actions.macro.build.spine_construction import SpineConstruction
-from actions.macro.build.spire_construction import SpireConstruction
-from actions.macro.build.spore_construction import SporeConstruction
+from actions.macro.train import get_train_commands
 from actions.macro.buildings_positions import BuildingsPositions
-from actions.micro.buildings_demolition import BuildingsDemolition
-from actions.macro.worker_distribution import WorkerDistribution
-from actions.micro.micro_main import ArmyControl
-from actions.micro.unit.drone_control import DroneControl
-from actions.micro.unit.overlord_control import OverlordControl
-from actions.micro.unit.overseer_control import OverseerControl
-from actions.micro.unit.queen_control import QueenControl
-from actions.macro.train.hydra_creation import HydraliskCreation
-from actions.macro.train.mutalisk_creation import MutaliskCreation
-from actions.macro.train.overlord_creation import OverlordCreation
-from actions.macro.train.overseer_creation import OverseerCreation
-from actions.macro.train.queen_creation import QueenCreation
-from actions.macro.train.ultralisk_creation import UltraliskCreation
-from actions.macro.train.drone_creation import DroneCreation
-from actions.macro.train.zergling_creation import ZerglingCreation
-from actions.macro.upgrades.spawning_pool_upgrades import SpawningPoolUpgrades
-from actions.macro.upgrades.evochamber_upgrades import EvochamberUpgrades
-from actions.macro.upgrades.hydraden_upgrades import HydradenUpgrades
-from actions.macro.upgrades.cavern_upgrades import CavernUpgrades
+from actions.macro.upgrades import get_upgrade_commands
+from actions.micro import get_army_and_building_commands
+from actions.micro.unit import get_macro_units_commands
 from data_containers.data_container import MainDataContainer
 from global_helpers import Globals
 
@@ -51,47 +23,11 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         BuildingsPositions.__init__(self)
         self.iteration = self.add_action = self.hydra_range = self.hydra_speed = self.zergling_atk_spd = None
         self.unit_commands = (
-            WorkerRushDefense(self),
-            ProxyDefense(self),
-            WorkerDistribution(self),
-            ArmyControl(self),
-            QueenControl(self),
-            CreepTumor(self),
-            DroneControl(self),
-            OverseerControl(self),
-            OverlordControl(self),
-            BuildingsDemolition(self),
+            get_macro_units_commands(self) + get_army_and_building_commands(self) + get_cheese_defense_commands(self)
         )
-        self.train_commands = (
-            OverlordCreation(self),
-            DroneCreation(self),
-            QueenCreation(self),
-            UltraliskCreation(self),
-            ZerglingCreation(self),
-            OverseerCreation(self),
-            MutaliskCreation(self),
-            HydraliskCreation(self),
-        )
-        self.build_commands = (
-            PoolConstruction(self),
-            Expansion(self),
-            ExtractorConstruction(self),
-            EvochamberConstruction(self),
-            CavernConstruction(self),
-            PitConstruction(self),
-            HiveTransformation(self),
-            LairTransformation(self),
-            SpineConstruction(self),
-            SporeConstruction(self),
-            SpireConstruction(self),
-            HydradenConstruction(self),
-        )
-        self.upgrade_commands = (
-            SpawningPoolUpgrades(self),
-            EvochamberUpgrades(self),
-            HydradenUpgrades(self),
-            CavernUpgrades(self),
-        )
+        self.train_commands = get_train_commands(self)
+        self.build_commands = get_build_commands(self)
+        self.upgrade_commands = get_upgrade_commands(self)
         self.ordered_expansions, self.finished_upgrades = [], []
 
     def already_pending_upgrade(self, upg):
