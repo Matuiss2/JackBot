@@ -1,4 +1,10 @@
-"""SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
+"""SC2 zerg bot by Matuiss with help of:
+Thommath(made the initial creep spread code),
+Tweakimp(made the initial building positioning, anti-drone-rush, worker distribution, among other helps),
+Burny(this bot is derived from his CreepyBot, it's already very different but give credit where it's due),
+Helfull(the idea and implementation of this bots structure came from him, also made the initial effect dodging code),
+Niknoc(made the initial hydra micro code) ,
+Turing's Ego(helped with the code cleaning)"""
 import sc2
 from sc2.constants import UnitTypeId, UpgradeId
 from sc2.position import Point2
