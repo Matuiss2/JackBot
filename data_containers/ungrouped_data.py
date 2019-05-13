@@ -3,7 +3,7 @@ from sc2.constants import UnitTypeId
 
 
 class OtherData:
-    """This is the data container for all ungroupable stuff"""
+    """This is the data container for all not grouped stuff"""
 
     def __init__(self):
         self.enemies = self.flying_enemies = self.ground_enemies = self.enemy_structures = None

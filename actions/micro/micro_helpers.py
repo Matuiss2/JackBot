@@ -65,7 +65,7 @@ class MicroHelpers:
         """
         targets_close = filter_in_attack_range_of(unit, enemies)
         if targets_close:
-            self.attack_lowhp(unit, targets_close)
+            self.attack_low_hp(unit, targets_close)
             return True
         if self.attack_in_range(unit):
             return True
@@ -88,11 +88,11 @@ class MicroHelpers:
         """
         target_in_range = filter_in_attack_range_of(unit, self.main.enemies)
         if target_in_range:
-            self.attack_lowhp(unit, target_in_range)
+            self.attack_low_hp(unit, target_in_range)
             return True
         return False
 
-    def attack_lowhp(self, unit, enemies):
+    def attack_low_hp(self, unit, enemies):
         """Attack close enemy with lowest HP"""
         self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, enemies)))
 
@@ -229,7 +229,7 @@ class MicroHelpers:
         self.main.add_action(unit.move(self.find_pursuit_point(target, unit)))  # If our unit is too far, run towards.
         return True
 
-    def move_lowhp(self, unit, enemies):
+    def move_low_hp(self, unit, enemies):
         """Move to enemy with lowest HP"""
         self.main.add_action(unit.move(self.find_closest_lowest_hp(unit, enemies)))
 
@@ -247,7 +247,7 @@ class MicroHelpers:
         """
         targets_in_melee_range = enemies.closer_than(1, unit)
         if targets_in_melee_range:
-            self.move_lowhp(unit, targets_in_melee_range)
+            self.move_low_hp(unit, targets_in_melee_range)
             return True
         return None
 

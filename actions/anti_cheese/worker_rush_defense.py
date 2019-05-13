@@ -28,11 +28,11 @@ class WorkerRushDefense(MicroHelpers):
             if close_workers:
                 self.refill_defense_force()
                 for drone in self.defenders:
-                    if not self.save_lowhp_drone(drone):
+                    if not self.save_low_hp_drone(drone):
                         if drone.weapon_cooldown <= 13.4:  # Wanted cd value * 22.4
                             self.attack_close_target(drone, close_workers)
                         elif not self.move_to_next_target(drone, close_workers):
-                            self.move_lowhp(drone, close_workers)
+                            self.move_low_hp(drone, close_workers)
             else:
                 self.clear_defense_force()
         elif close_workers:
@@ -67,7 +67,7 @@ class WorkerRushDefense(MicroHelpers):
         if defender_deficit > 0:
             self.defender_tags += self.select_defense_force(defender_deficit)
 
-    def save_lowhp_drone(self, drone):
+    def save_low_hp_drone(self, drone):
         """
         Remove drones with less 6 hp(one worker hit) from the defending force
         Parameters
