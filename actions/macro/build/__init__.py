@@ -15,19 +15,19 @@ from . import (
 )
 
 
-def get_build_commands(command):
+def get_build_commands(cmd):
     """ Getter for all commands from macro/build"""
     return (
-        pool_construction.PoolConstruction(command),
-        expansion.Expansion(command),
-        extractor_construction.ExtractorConstruction(command),
-        evochamber_construction.EvochamberConstruction(command),
-        cavern_construction.CavernConstruction(command),
-        pit_construction.PitConstruction(command),
-        hive_transformation.HiveTransformation(command),
-        lair_transformation.LairTransformation(command),
-        spine_construction.SpineConstruction(command),
-        spore_construction.SporeConstruction(command),
-        spire_construction.SpireConstruction(command),
-        hydraden_construction.HydradenConstruction(command),
+        pool_construction.PoolConstruction(cmd),
+        expansion.Expansion(cmd),
+        extractor_construction.ExtractorConstruction(cmd),
+        evochamber_construction.EvochamberConstruction(cmd),
+        cavern_construction.CavernConstruction(cmd),
+        pit_construction.PitConstruction(cmd),
+        hive_transformation.HiveTransformation(cmd),
+        lair_transformation.LairTransformation(cmd),
+        spine_construction.SpineConstruction(cmd),
+        spore_construction.SporeConstruction(cmd),
+        spire_construction.SpireConstruction(cmd),
+        hydraden_construction.HydradenConstruction(cmd),
     )

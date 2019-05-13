@@ -11,15 +11,15 @@ from . import (
 )
 
 
-def get_train_commands(command):
+def get_train_commands(cmd):
     """ Getter for all commands from macro/train"""
     return (
-        drone_creation.DroneCreation(command),
-        hydra_creation.HydraliskCreation(command),
-        mutalisk_creation.MutaliskCreation(command),
-        overlord_creation.OverlordCreation(command),
-        overseer_creation.OverseerCreation(command),
-        queen_creation.QueenCreation(command),
-        ultralisk_creation.UltraliskCreation(command),
-        zergling_creation.ZerglingCreation(command),
+        drone_creation.DroneCreation(cmd),
+        hydra_creation.HydraliskCreation(cmd),
+        mutalisk_creation.MutaliskCreation(cmd),
+        overlord_creation.OverlordCreation(cmd),
+        overseer_creation.OverseerCreation(cmd),
+        queen_creation.QueenCreation(cmd),
+        ultralisk_creation.UltraliskCreation(cmd),
+        zergling_creation.ZerglingCreation(cmd),
     )

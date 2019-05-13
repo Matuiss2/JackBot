@@ -2,11 +2,11 @@
 from . import cavern_upgrades, evochamber_upgrades, hydraden_upgrades, spawning_pool_upgrades
 
 
-def get_upgrade_commands(command):
+def get_upgrade_commands(cmd):
     """ Getter for all commands from macro/upgrades"""
     return (
-        cavern_upgrades.CavernUpgrades(command),
-        evochamber_upgrades.EvochamberUpgrades(command),
-        hydraden_upgrades.HydradenUpgrades(command),
-        spawning_pool_upgrades.SpawningPoolUpgrades(command),
+        cavern_upgrades.CavernUpgrades(cmd),
+        evochamber_upgrades.EvochamberUpgrades(cmd),
+        hydraden_upgrades.HydradenUpgrades(cmd),
+        spawning_pool_upgrades.SpawningPoolUpgrades(cmd),
     )

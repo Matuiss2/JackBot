@@ -2,14 +2,12 @@
 import sc2
 from sc2.constants import UnitTypeId, UpgradeId
 from sc2.position import Point2
-from actions.anti_cheese import get_cheese_defense_commands
+from actions import get_unit_commands
 from actions.macro.build import get_build_commands
 from actions.macro.build.creep_spread import CreepSpread
 from actions.macro.train import get_train_commands
 from actions.macro.buildings_positions import BuildingsPositions
 from actions.macro.upgrades import get_upgrade_commands
-from actions.micro import get_army_and_building_commands
-from actions.micro.unit import get_macro_units_commands
 from data_containers.data_container import MainDataContainer
 from global_helpers import Globals
 
@@ -22,9 +20,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         MainDataContainer.__init__(self)
         BuildingsPositions.__init__(self)
         self.iteration = self.add_action = self.hydra_range = self.hydra_speed = self.zergling_atk_spd = None
-        self.unit_commands = (
-            get_macro_units_commands(self) + get_army_and_building_commands(self) + get_cheese_defense_commands(self)
-        )
+        self.unit_commands = get_unit_commands(self)
         self.train_commands = get_train_commands(self)
         self.build_commands = get_build_commands(self)
         self.upgrade_commands = get_upgrade_commands(self)
