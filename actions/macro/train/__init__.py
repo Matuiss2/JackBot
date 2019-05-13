@@ -1,3 +1,4 @@
+""" Group all classes from macro/train"""
 from . import (
     drone_creation,
     hydra_creation,
@@ -11,6 +12,7 @@ from . import (
 
 
 def get_train_commands(command):
+    """ Getter for all commands from macro/train"""
     return (
         drone_creation.DroneCreation(command),
         hydra_creation.HydraliskCreation(command),

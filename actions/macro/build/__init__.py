@@ -1,3 +1,4 @@
+""" Group all classes from macro/build"""
 from . import (
     cavern_construction,
     evochamber_construction,
@@ -15,6 +16,7 @@ from . import (
 
 
 def get_build_commands(command):
+    """ Getter for all commands from macro/build"""
     return (
         pool_construction.PoolConstruction(command),
         expansion.Expansion(command),
