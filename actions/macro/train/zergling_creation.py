@@ -10,7 +10,7 @@ class ZerglingCreation:
 
     async def should_handle(self):
         """Requirements to train zerglings, good enough for now but ratio values can probably be improved"""
-        if self.block_production_for_upgrade() or not self.main.can_train(UnitTypeId.ZERGLING, self.main.pools.ready):
+        if self.block_production_for_upgrade or not self.main.can_train(UnitTypeId.ZERGLING, self.main.pools.ready):
             return False
         if self.main.minerals >= 600 and self.main.ready_base_amount <= 5:
             return True
@@ -26,6 +26,7 @@ class ZerglingCreation:
         """Execute the action of training zerglings"""
         self.main.add_action(self.main.larvae.random.train(UnitTypeId.ZERGLING))
 
+    @property
     def block_production_for_upgrade(self):
         """ Don't make zerglings if the zergling speed isn't done yet after 2:25"""
         return (

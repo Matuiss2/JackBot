@@ -12,7 +12,7 @@ class OverlordCreation:
         """We still get supply blocked sometimes, can be improved a lot still"""
         if self.main.supply_cap < 200 and self.main.supply_left < (8 + self.main.supply_used // 7):
             if self.main.can_train(UnitTypeId.OVERLORD):
-                if self.block_overlords_on_beginning():
+                if self.block_overlords_on_beginning:
                     return self.main.close_enemy_production
                 if (self.main.base_amount in (1, 2) and self.main.ovs_in_queue) or (self.main.ovs_in_queue >= 3):
                     return False
@@ -24,6 +24,7 @@ class OverlordCreation:
         """Execute the action of training overlords"""
         self.main.add_action(self.main.larvae.random.train(UnitTypeId.OVERLORD))
 
+    @property
     def block_overlords_on_beginning(self):
         """ Few locks for overlords on the early game, could be replaced for a hardcoded build order list"""
         return (
