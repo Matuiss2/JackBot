@@ -6,7 +6,7 @@ Helfull(the idea and implementation of this bots structure came from him, also m
 Niknoc(made the initial hydra micro code) ,
 Turing's Ego(helped with the code cleaning)"""
 import sc2
-from sc2.constants import UnitTypeId, UpgradeId
+from sc2.constants import UnitTypeId  # UpgradeId
 from sc2.position import Point2
 from actions import get_unit_commands
 from actions.macro.build import get_build_commands
@@ -25,7 +25,8 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         CreepSpread.__init__(self)
         MainDataContainer.__init__(self)
         BuildingsPositions.__init__(self)
-        self.iteration = self.add_action = self.hydra_range = self.hydra_speed = self.zergling_atk_spd = None
+        # self.hydra_range = self.hydra_speed = self.zergling_atk_spd = None
+        self.iteration = self.add_action = None
         self.unit_commands = get_unit_commands(self)
         self.train_commands = get_train_commands(self)
         self.build_commands = get_build_commands(self)
@@ -48,13 +49,13 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         if unit.type_id == UnitTypeId.HATCHERY:
             await self.prepare_building_positions(unit.position)
 
-    async def on_upgrade_complete(self, upgrade):
-        if upgrade == UpgradeId.EVOLVEGROOVEDSPINES:
-            self.hydra_range = True
-        elif upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
-            self.hydra_speed = True
-        elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
-            self.zergling_atk_spd = True
+    # async def on_upgrade_complete(self, upgrade):
+    # if upgrade == UpgradeId.EVOLVEGROOVEDSPINES:
+    # self.hydra_range = True
+    # elif upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
+    # self.hydra_speed = True
+    # elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
+    # self.zergling_atk_spd = True
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
