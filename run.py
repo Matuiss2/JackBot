@@ -21,7 +21,7 @@ if __name__ == "__main__":
             (sc2.AIBuild.Rush, sc2.AIBuild.Timing, sc2.AIBuild.Power, sc2.AIBuild.Macro, sc2.AIBuild.Air)
         )
         # 797 - 203 / 782 - 218 / 795 - 205 / 820 - 180
-        # 658 - 342 / 692 - 308 /
+        # 658 - 342 / 692 - 308 / 730 - 270 /
         sc2.run_game(
-            sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Terran, Difficulty.CheatMoney, RANDOM_BUILD)], realtime=False
+            sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Protoss, Difficulty.CheatMoney, RANDOM_BUILD)], realtime=False
         )
