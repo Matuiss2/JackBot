@@ -44,6 +44,9 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             return 1
         return 0
 
+    def on_end(self, game_result):
+        print(game_result)
+
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
         if unit.type_id == UnitTypeId.HATCHERY:
