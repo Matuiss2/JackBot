@@ -1,6 +1,7 @@
 **JackBot**
 
-Its a bot does an early aggression, then tries to make a transition to hydralisks then ultralisks
+Its a bot does an early aggression, then tries to make a transition to hydralisks then ultralisks (derived from 
+CreepyBot)
 
 **Achievements** 
 
@@ -11,6 +12,8 @@ Its a bot does an early aggression, then tries to make a transition to hydralisk
 - Python 3.7 +
 
 - The most recent Sc2 version
+
+- The most recent s2clientprotocol
 
 - The most recent Python-sc2 library (pip install sc2 or pip3 install --upgrade git+https://github.com/Dentosal/python-sc2@develop -- force-reinstall)
 
