@@ -79,8 +79,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         await self.run_commands(self.build_commands)
         if not self.iteration % 10 and self.minerals >= 100 and self.vespene >= 100:
             await self.run_commands(self.upgrade_commands)
-        if actions:
-            await self.do_actions(actions)
+        await self.do_actions(actions)
 
     async def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on pathing distance"""
