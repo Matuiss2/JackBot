@@ -14,6 +14,8 @@ class ProxyDefense:
 
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
+        if not self.main.iteration % 10:
+            return False
         if self.main.townhalls:
             self.rush_buildings = self.main.enemy_structures.exclude_type(self.enemy_basic_production).closer_than(
                 50, self.main.furthest_townhall_to_center
