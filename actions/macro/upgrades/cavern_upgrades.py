@@ -18,10 +18,10 @@ class CavernUpgrades:
             return True
         if self.main.can_upgrade(
             UpgradeId.ANABOLICSYNTHESIS,
-            AbilityId.ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2,
+            AbilityId.RESEARCH_ANABOLICSYNTHESIS,
             self.main.caverns.idle,
         ):
-            self.selected_research = AbilityId.ULTRALISKCAVERNRESEARCH_EVOLVEANABOLICSYNTHESIS2
+            self.selected_research = AbilityId.RESEARCH_ANABOLICSYNTHESIS
             return True
 
     async def handle(self):

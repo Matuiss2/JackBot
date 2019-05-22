@@ -7,6 +7,6 @@ def get_upgrade_commands(cmd):
     return (
         cavern_upgrades.CavernUpgrades(cmd),
         evochamber_upgrades.EvochamberUpgrades(cmd),
-        # hydraden_upgrades.HydradenUpgrades(cmd),
+        hydraden_upgrades.HydradenUpgrades(cmd),
         spawning_pool_upgrades.SpawningPoolUpgrades(cmd),
     )

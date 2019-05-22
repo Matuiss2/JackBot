@@ -20,10 +20,10 @@ class HydraControl(MicroHelpers):
         """
         our_move_speed = unit.movement_speed
         our_range = unit.ground_range + unit.radius
-        # if self.main.hydra_range:  # If we've researched grooved spines, hydras gets 1 more range.
-        # our_range += 1
-        # if self.main.hydra_speed:  # If we've researched muscular augments, our move speed is 25% more.
-        # our_move_speed *= 1.25
+        if self.main.hydra_range:  # If we've researched grooved spines, hydras gets 1 more range.
+            our_range += 1
+        if self.main.hydra_speed:  # If we've researched muscular augments, our move speed is 25% more.
+            our_move_speed *= 1.25
         if self.main.has_creep(unit):
             our_move_speed *= 1.30  # If we're on creep, it's 30% more.
         if unit.has_buff(BuffId.SLOW):

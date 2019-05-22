@@ -110,6 +110,6 @@ class ZerglingControl(MicroHelpers):
         -------
         The chosen action depending on the modifiers
         """
-        if unit.weapon_cooldown <= 8.85:  # or (unit.weapon_cooldown <= 6.35 and self.main.zergling_atk_spd):
+        if unit.weapon_cooldown <= 8.85 or (unit.weapon_cooldown <= 6.35 and self.main.zergling_atk_spd):
             return self.attack_close_target(unit, targets)
         return self.move_to_next_target(unit, targets)

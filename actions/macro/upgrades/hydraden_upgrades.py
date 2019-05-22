@@ -18,14 +18,14 @@ class HydradenUpgrades:
         ):
             self.selected_research = AbilityId.RESEARCH_GROOVEDSPINES
             return True
-            # if (
-            #    self.main.can_upgrade(
-            # UpgradeId.EVOLVEMUSCULARAUGMENTS, AbilityId.RESEARCH_MUSCULARAUGMENTS, self.main.hydradens.ready.idle
-            #   )
-            #  and self.main.hydra_range
-            # ):
-            # self.selected_research = AbilityId.RESEARCH_MUSCULARAUGMENTS
-            # return True
+        if (
+            self.main.can_upgrade(
+                UpgradeId.EVOLVEMUSCULARAUGMENTS, AbilityId.RESEARCH_MUSCULARAUGMENTS, self.main.hydradens.ready.idle
+            )
+            and self.main.hydra_range
+        ):
+            self.selected_research = AbilityId.RESEARCH_MUSCULARAUGMENTS
+            return True
 
     async def handle(self):
         """Execute the action of upgrading hydras speed and range"""
