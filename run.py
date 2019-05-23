@@ -17,10 +17,6 @@ if __name__ == "__main__":
         MAPS = ["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"]
         BUILDS = [AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air]
         DIFFICULTIES = [
-            Difficulty.VeryEasy,
-            Difficulty.Easy,
-            Difficulty.Medium,
-            Difficulty.MediumHard,
             Difficulty.Hard,
             Difficulty.Harder,
             Difficulty.VeryHard,
