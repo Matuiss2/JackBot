@@ -29,7 +29,7 @@ if __name__ == "__main__":
             Difficulty.CheatMoney,
             Difficulty.CheatInsane,
         ]
-        RACES = [Race.Zerg, Race.Terran, Race.Protoss, Race.Random]
+        RACES = [Race.Zerg, Race.Terran, Race.Protoss]
         for selected_map, build, dif, race in itertools.product(MAPS, BUILDS, DIFFICULTIES, RACES):
             print("\n" + str(dif.name), str(race.name))
             builtin_bot = Computer(race, dif, build)
