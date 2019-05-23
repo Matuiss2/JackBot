@@ -34,7 +34,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         self.ordered_expansions, self.finished_upgrades = [], []
 
     def on_end(self, game_result):
-        print(game_result)
+        print(game_result.name)
 
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""

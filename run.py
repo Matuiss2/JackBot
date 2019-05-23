@@ -31,6 +31,6 @@ if __name__ == "__main__":
         ]
         RACES = [Race.Zerg, Race.Terran, Race.Protoss, Race.Random]
         for selected_map, build, dif, race in itertools.product(MAPS, BUILDS, DIFFICULTIES, RACES):
-            print("\n" + str(dif), str(race))
+            print("\n" + str(dif.name), str(race.name))
             builtin_bot = Computer(race, dif, build)
             run_game(maps.get(selected_map), [BOT, builtin_bot], realtime=False)
