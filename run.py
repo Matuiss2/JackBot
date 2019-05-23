@@ -1,8 +1,7 @@
 """Run the ladder or local game"""
-import random
+import itertools
 import sys
-import sc2
-from sc2 import Race, Difficulty, AIBuild
+from sc2 import Race, Difficulty, AIBuild, run_game, maps
 from sc2.player import Bot, Computer
 from __init__ import run_ladder_game
 from main import JackBot
@@ -16,12 +15,22 @@ if __name__ == "__main__":
     else:
         # Local game
         print("Starting local game...")
-        RANDOM_MAP = random.choice(("BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"))
-        RANDOM_BUILD = random.choice(
-            (sc2.AIBuild.Rush, sc2.AIBuild.Timing, sc2.AIBuild.Power, sc2.AIBuild.Macro, sc2.AIBuild.Air)
-        )
-        # 797 - 203 / 782 - 218 / 795 - 205 / 820 - 180
-        # 658 - 342 / 692 - 308 / 730 - 270 /
-        sc2.run_game(
-            sc2.maps.get(RANDOM_MAP), [BOT, Computer(Race.Protoss, Difficulty.CheatMoney, RANDOM_BUILD)], realtime=False
-        )
+        MAPS = ["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"]
+        BUILDS = [AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air]
+        DIFFICULTIES = [
+            Difficulty.VeryEasy,
+            Difficulty.Easy,
+            Difficulty.Medium,
+            Difficulty.MediumHard,
+            Difficulty.Hard,
+            Difficulty.Harder,
+            Difficulty.VeryHard,
+            Difficulty.CheatVision,
+            Difficulty.CheatMoney,
+            Difficulty.CheatInsane,
+        ]
+        RACES = [Race.Zerg, Race.Terran, Race.Protoss, Race.Random]
+        for selected_map, build, dif, race in itertools.product(MAPS, BUILDS, DIFFICULTIES, RACES):
+            print("\n" + str(dif), str(race))
+            builtin_bot = Computer(race, dif, build)
+            run_game(maps.get(selected_map), [BOT, builtin_bot], realtime=False)
