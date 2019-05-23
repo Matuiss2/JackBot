@@ -31,7 +31,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         self.train_commands = get_train_commands(self)
         self.build_commands = get_build_commands(self)
         self.upgrade_commands = get_upgrade_commands(self)
-        self.ordered_expansions, self.finished_upgrades = [], []
+        self.ordered_expansions = []
 
     def on_end(self, game_result):
         print(game_result.name)
