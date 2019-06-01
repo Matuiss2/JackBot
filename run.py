@@ -17,7 +17,6 @@ if __name__ == "__main__":
         MAPS = ["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"]
         BUILDS = [AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air]
         DIFFICULTIES = [
-            Difficulty.Hard,
             Difficulty.Harder,
             Difficulty.VeryHard,
             Difficulty.CheatVision,
@@ -26,7 +25,7 @@ if __name__ == "__main__":
         ]
         RACES = [Race.Zerg, Race.Terran, Race.Protoss]
         for selected_map, build, dif, race in itertools.product(MAPS, BUILDS, DIFFICULTIES, RACES):
-            print("\n" + str(dif.name), str(race.name))
+            print("\n" + dif.name, race.name, build.name, selected_map)
             bot = Bot(Race.Zerg, JackBot())
             builtin_bot = Computer(race, dif, build)
             run_game(maps.get(selected_map), [bot, builtin_bot], realtime=False)
