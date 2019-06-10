@@ -19,6 +19,5 @@ class DroneControl:
         self.proxy_scout = True
         for point in self.main.ordered_expansions[1:6]:
             self.main.add_action(selected_drone.move(point, queue=True))
-        another_drone = self.main.drones.random
         for point in self.main.enemy_start_locations:
-            self.main.add_action(another_drone.move(point, queue=True))
+            self.main.add_action(selected_drone.move(point, queue=True))
