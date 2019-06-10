@@ -17,9 +17,7 @@ class CavernUpgrades:
             self.selected_research = AbilityId.RESEARCH_CHITINOUSPLATING
             return True
         if self.main.can_upgrade(
-            UpgradeId.ANABOLICSYNTHESIS,
-            AbilityId.RESEARCH_ANABOLICSYNTHESIS,
-            self.main.caverns.idle,
+            UpgradeId.ANABOLICSYNTHESIS, AbilityId.RESEARCH_ANABOLICSYNTHESIS, self.main.caverns.idle
         ):
             self.selected_research = AbilityId.RESEARCH_ANABOLICSYNTHESIS
             return True
