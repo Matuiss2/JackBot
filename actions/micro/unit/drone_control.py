@@ -13,7 +13,7 @@ class DroneControl:
         return not (self.rush_scout and self.proxy_scout)
 
     async def handle(self):
-        """It sends 2 drones to scout the map, for bases or proxies"""
+        """It sends a drone to scout the map, for bases or proxies"""
         selected_drone = self.main.drones.random
         self.rush_scout = True
         self.proxy_scout = True
