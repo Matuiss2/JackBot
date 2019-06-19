@@ -13,6 +13,6 @@ class ChangelingControl:
 
     async def handle(self):
         """It sends all changelings to scout the bases periodically"""
-        for changeling in self.main.changelings:
+        for changeling in self.main.changelings.idle:
             for point in self.main.ordered_expansions[self.main.ready_base_amount :]:
                 self.main.add_action(changeling.move(point, queue=True))
