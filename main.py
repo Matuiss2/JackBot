@@ -51,8 +51,6 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
-        if self.iteration == iteration:
-            return None
         self.iteration = iteration
         self.prepare_data()
         self.set_game_step()

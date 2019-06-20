@@ -28,4 +28,4 @@ if __name__ == "__main__":
             print("\n" + dif.name, race.name, build.name, selected_map)
             bot = Bot(Race.Zerg, JackBot())
             builtin_bot = Computer(race, dif, build)
-            run_game(maps.get(selected_map), [bot, builtin_bot], realtime=False)
+            run_game(maps.get(selected_map), [bot, builtin_bot], realtime=True)
