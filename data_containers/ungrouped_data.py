@@ -15,7 +15,7 @@ class OtherData:
         self.enemies = self.known_enemy_units
         self.flying_enemies = self.enemies.flying
         self.ground_enemies = self.enemies.not_flying.not_structure.exclude_type(self.worker_types)
-        self.enemy_structures = self.known_enemy_structures
+        self.enemy_structures = self.known_enemy_structures.exclude_type(UnitTypeId.AUTOTURRET)
 
     def prepare_bases_data(self):
         """Global variable for the furthest townhall to center"""

@@ -160,7 +160,6 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                     UnitTypeId.PHOTONCANNON,
                     UnitTypeId.BUNKER,
                     UnitTypeId.PLANETARYFORTRESS,
-                    UnitTypeId.AUTOTURRET,
                 }
             )
             self.targets = static_defence | filtered_enemies.not_flying

@@ -10,7 +10,7 @@ class ProxyDefense:
         self.rush_buildings = None
         self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
         self.atk_b = {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
-        self.enemy_basic_production = {UnitTypeId.AUTOTURRET, UnitTypeId.BARRACKS, UnitTypeId.GATEWAY}
+        self.enemy_basic_production = {UnitTypeId.BARRACKS, UnitTypeId.GATEWAY}
 
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
