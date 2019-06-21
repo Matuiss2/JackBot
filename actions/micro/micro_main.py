@@ -155,12 +155,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             }
             filtered_enemies = self.main.enemies.not_structure.exclude_type(excluded_units)
             static_defence = self.main.enemy_structures.of_type(
-                {
-                    UnitTypeId.SPINECRAWLER,
-                    UnitTypeId.PHOTONCANNON,
-                    UnitTypeId.BUNKER,
-                    UnitTypeId.PLANETARYFORTRESS,
-                }
+                {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
             )
             self.targets = static_defence | filtered_enemies.not_flying
             self.hydra_targets = static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot)
