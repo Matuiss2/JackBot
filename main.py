@@ -25,7 +25,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         CreepSpread.__init__(self)
         MainDataContainer.__init__(self)
         BuildingsPositions.__init__(self)
-        self.hydra_range = self.hydra_speed = self.zergling_atk_spd = None
+        self.hydra_range = self.hydra_speed = self.zergling_atk_spd = self.second_armor = None
         self.iteration = self.add_action = None
         self.unit_commands = get_unit_commands(self)
         self.train_commands = get_train_commands(self)
@@ -48,6 +48,8 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             self.hydra_speed = True
         elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
             self.zergling_atk_spd = True
+        elif upgrade == UpgradeId.ZERGGROUNDARMORSLEVEL2:
+            self.second_armor = True
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
