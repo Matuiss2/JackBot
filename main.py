@@ -34,6 +34,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         self.ordered_expansions = []
 
     def on_end(self, game_result):
+        """Prints the game result on the console on the end of each game"""
         print(game_result.name)
 
     async def on_building_construction_complete(self, unit):
@@ -42,6 +43,8 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             await self.prepare_building_positions(unit.position)
 
     async def on_upgrade_complete(self, upgrade):
+        """Optimization, it changes the flag to True for the selected finished upgrade
+        to try to avoid the very slow already_pending_upgrade calls (it calls this flags instead)"""
         if upgrade == UpgradeId.EVOLVEGROOVEDSPINES:
             self.hydra_range = True
         elif upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
