@@ -154,11 +154,17 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 UnitTypeId.INFESTEDTERRAN,
             }
             filtered_enemies = self.main.enemies.not_structure.exclude_type(excluded_units)
+            enemy_base_on_construction = self.main.enemy_structures.filter(
+                lambda base: base.type_id in {UnitTypeId.NEXUS, UnitTypeId.COMMANDCENTER, UnitTypeId.HATCHERY}
+                and 0 < base.build_progress < 1
+            )
             static_defence = self.main.enemy_structures.of_type(
                 {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
             )
-            self.targets = static_defence | filtered_enemies.not_flying
-            self.hydra_targets = static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot)
+            self.targets = static_defence | filtered_enemies.not_flying | enemy_base_on_construction
+            self.hydra_targets = (
+                static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot) | enemy_base_on_construction
+            )
         self.atk_force = self.main.units.of_type(self.army_types)
         if self.main.floating_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
