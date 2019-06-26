@@ -1,5 +1,5 @@
 """Run the ladder or local game"""
-import itertools
+import random
 import sys
 from sc2 import Race, Difficulty, AIBuild, run_game, maps
 from sc2.player import Bot, Computer
@@ -14,18 +14,15 @@ if __name__ == "__main__":
     else:
         # Local game
         print("Starting local game...")
-        MAPS = ["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"]
-        BUILDS = [AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air]
-        DIFFICULTIES = [
-            Difficulty.Harder,
-            Difficulty.VeryHard,
+        MAP = random.choice(["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"])
+        BUILD = random.choice([AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air])
+        DIFFICULTY = random.choice([
             Difficulty.CheatVision,
             Difficulty.CheatMoney,
             Difficulty.CheatInsane,
-        ]
-        RACES = [Race.Zerg, Race.Terran, Race.Protoss]
-        for selected_map, build, dif, race in itertools.product(MAPS, BUILDS, DIFFICULTIES, RACES):
-            print("\n" + dif.name, race.name, build.name, selected_map)
-            bot = Bot(Race.Zerg, JackBot())
-            builtin_bot = Computer(race, dif, build)
-            run_game(maps.get(selected_map), [bot, builtin_bot], realtime=False)
+        ])
+        RACE = random.choice([Race.Zerg, Race.Terran, Race.Protoss])
+        print(f"\n{DIFFICULTY.name} {RACE.name} {BUILD.name} {MAP}")
+        BOT = Bot(Race.Zerg, JackBot())
+        BUILTIN_BOT = Computer(RACE, DIFFICULTY, BUILD)
+        run_game(maps.get(MAP), [BOT, BUILTIN_BOT], realtime=False)
