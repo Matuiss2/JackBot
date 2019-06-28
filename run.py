@@ -16,11 +16,7 @@ if __name__ == "__main__":
         print("Starting local game...")
         MAP = random.choice(["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"])
         BUILD = random.choice([AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air])
-        DIFFICULTY = random.choice([
-            Difficulty.CheatVision,
-            Difficulty.CheatMoney,
-            Difficulty.CheatInsane,
-        ])
+        DIFFICULTY = random.choice([Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane])
         RACE = random.choice([Race.Zerg, Race.Terran, Race.Protoss])
         print(f"\n{DIFFICULTY.name} {RACE.name} {BUILD.name} {MAP}")
         BOT = Bot(Race.Zerg, JackBot())

@@ -13,7 +13,9 @@ class UltraliskCreation:
         if not self.main.can_train(UnitTypeId.ULTRALISK, self.main.caverns.ready):
             return False
         if self.main.second_armor and not self.main.already_pending_upgrade(UpgradeId.ZERGGROUNDARMORSLEVEL3):
+            self.main.armor_three_lock = True
             return False
+        self.main.armor_three_lock = False
         return True
 
     async def handle(self):

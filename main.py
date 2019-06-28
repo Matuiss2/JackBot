@@ -27,6 +27,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         BuildingsPositions.__init__(self)
         self.hydra_range = self.hydra_speed = self.zergling_atk_spd = self.second_armor = None
         self.iteration = self.add_action = None
+        self.armor_three_lock = False
         self.unit_commands = get_unit_commands(self)
         self.train_commands = get_train_commands(self)
         self.build_commands = get_build_commands(self)
