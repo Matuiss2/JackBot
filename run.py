@@ -18,7 +18,7 @@ if __name__ == "__main__":
         BUILD = random.choice([AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air])
         DIFFICULTY = random.choice([Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane])
         RACE = random.choice([Race.Zerg, Race.Terran, Race.Protoss])
-        print(f"\n{DIFFICULTY.name} {RACE.name} {BUILD.name} {MAP}")
+        print(f"\n{DIFFICULTY.name} {RACE.name} {BUILD.name}")
         BOT = Bot(Race.Zerg, JackBot())
         BUILTIN_BOT = Computer(RACE, DIFFICULTY, BUILD)
         run_game(maps.get(MAP), [BOT, BUILTIN_BOT], realtime=False)
