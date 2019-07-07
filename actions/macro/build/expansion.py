@@ -7,10 +7,12 @@ class Expansion:
 
     def __init__(self, main):
         self.main = main
+        self.drones = None
 
     async def should_handle(self):
         """Fourth base sometimes are not build at the expected time maybe reduce the lock for it,
          also maybe the 7th or more hatchery can be postponed for when extra mining patches or production are needed """
+        self.drones = self.main.drones.gathering
         if self.allow_expansion:
             if self.handle_mineral_overflow:
                 return True
@@ -24,11 +26,10 @@ class Expansion:
 
     async def handle(self):
         """Expands to the nearest expansion location using the nearest drone to it"""
-        drones = self.main.drones.gathering
         for expansion in self.main.ordered_expansions:
             if await self.main.can_place(UnitTypeId.HATCHERY, expansion):
-                if not self.main.ground_enemies.closer_than(15, expansion) and drones:
-                    self.main.add_action(drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
+                if not self.main.ground_enemies.closer_than(15, expansion):
+                    self.main.add_action(self.drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
                     break
 
     @property
@@ -40,6 +41,7 @@ class Expansion:
             and self.main.can_afford(UnitTypeId.HATCHERY)
             and not self.main.close_enemies_to_base
             and (not self.main.close_enemy_production or self.main.time > 690)
+            and self.drones
         )
 
     @property
