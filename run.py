@@ -18,12 +18,13 @@ if __name__ == "__main__":
             BUILD = random.choice([AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air])
             DIFFICULTY = random.choice([Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane])
             RACE = random.choice([Race.Zerg, Race.Terran, Race.Protoss])
-            FINISHED_SETS = {BUILD == AIBuild.Timing and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Protoss,
-                             BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Zerg,
-                             BUILD == AIBuild.Macro and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Terran,
-                             BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Terran,
-                             BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Terran,
-                             }
+            FINISHED_SETS = {
+                BUILD == AIBuild.Timing and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Protoss,
+                BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Zerg,
+                BUILD == AIBuild.Macro and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Terran,
+                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Terran,
+                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Terran,
+            }
             if any(FINISHED_SETS):
                 print(f"{DIFFICULTY.name} {RACE.name} {BUILD.name} already done")
                 continue
