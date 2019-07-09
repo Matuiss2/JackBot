@@ -7,21 +7,19 @@ class OverseerCreation:
 
     def __init__(self, main):
         self.main = main
+        self.overseers = self.selected_ov = None
 
     async def should_handle(self):
         """Requirements to morph overseers"""
+        self.overseers = self.main.overseers | self.main.units(UnitTypeId.OVERLORDCOCOON)
+        self.selected_ov = self.main.overlords.random
         return (
             self.main.building_requirement(UnitTypeId.OVERSEER, (self.main.lairs or self.main.hives), one_at_time=True)
             and self.main.overlords
             and len(self.main.overseers) < self.main.ready_base_amount
+            and (not self.overseers or self.selected_ov.distance_to(self.overseers.closest_to(self.selected_ov)) > 10)
         )
 
     async def handle(self):
         """Morph the overseer"""
-        selected_ov = self.main.overlords.random
-        overseers = self.main.overseers | self.main.units(UnitTypeId.OVERLORDCOCOON)
-        if overseers:
-            if selected_ov.distance_to(overseers.closest_to(selected_ov)) > 10:
-                self.main.add_action(selected_ov(AbilityId.MORPH_OVERSEER))
-        else:
-            self.main.add_action(selected_ov(AbilityId.MORPH_OVERSEER))
+        self.main.add_action(self.selected_ov(AbilityId.MORPH_OVERSEER))
