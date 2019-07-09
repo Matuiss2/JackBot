@@ -24,6 +24,9 @@ if __name__ == "__main__":
                 BUILD == AIBuild.Macro and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Terran,
                 BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Terran,
                 BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Terran,
+                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Terran,
+                BUILD == AIBuild.Power and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Protoss,
+                BUILD == AIBuild.Power and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Protoss,
             }
             if any(FINISHED_SETS):
                 print(f"{DIFFICULTY.name} {RACE.name} {BUILD.name} already done")
