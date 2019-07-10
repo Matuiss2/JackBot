@@ -12,13 +12,17 @@ class OverseerCreation:
     async def should_handle(self):
         """Requirements to morph overseers"""
         self.overseers = self.main.overseers | self.main.units(UnitTypeId.OVERLORDCOCOON)
-        self.selected_ov = self.main.overlords.random
-        return (
-            self.main.building_requirement(UnitTypeId.OVERSEER, (self.main.lairs or self.main.hives), one_at_time=True)
-            and self.main.overlords
-            and len(self.main.overseers) < self.main.ready_base_amount
-            and (not self.overseers or self.selected_ov.distance_to(self.overseers.closest_to(self.selected_ov)) > 10)
-        )
+        if self.main.overlords:
+            self.selected_ov = self.main.overlords.random
+            return (
+                self.main.building_requirement(
+                    UnitTypeId.OVERSEER, (self.main.lairs or self.main.hives), one_at_time=True
+                )
+                and len(self.main.overseers) < self.main.ready_base_amount
+                and (
+                    not self.overseers or self.selected_ov.distance_to(self.overseers.closest_to(self.selected_ov)) > 10
+                )
+            )
 
     async def handle(self):
         """Morph the overseer"""
