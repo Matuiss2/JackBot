@@ -20,17 +20,19 @@ if __name__ == "__main__":
             RACE = random.choice([Race.Zerg, Race.Terran, Race.Protoss])
             FINISHED_SETS = {
                 BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Protoss,
-                BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Zerg,
-                BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Zerg,
+                BUILD == AIBuild.Air and RACE == Race.Zerg,
                 BUILD == AIBuild.Macro and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Terran,
                 BUILD == AIBuild.Macro and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Terran,
+                BUILD == AIBuild.Macro and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Zerg,
                 BUILD == AIBuild.Power and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Protoss,
                 BUILD == AIBuild.Power and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Terran,
                 BUILD == AIBuild.Power and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Protoss,
-                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Terran,
-                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Terran,
+                BUILD == AIBuild.Rush and RACE == Race.Terran,
+                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Protoss,
                 BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Zerg,
-                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Terran,
+                BUILD == AIBuild.Timing and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Terran,
+                BUILD == AIBuild.Timing and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Zerg,
+                BUILD == AIBuild.Timing and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Protoss,
                 BUILD == AIBuild.Timing and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Protoss,
             }
             if any(FINISHED_SETS):
