@@ -15,9 +15,9 @@ if __name__ == "__main__":
         # Local game
         while True:
             MAP = random.choice(["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"])
-            BUILD = random.choice([AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Macro, AIBuild.Air])
-            DIFFICULTY = random.choice([Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane])
-            RACE = random.choice([Race.Zerg, Race.Terran, Race.Protoss])
+            BUILD = random.choice([AIBuild.Macro])  # AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Air
+            DIFFICULTY = random.choice([Difficulty.CheatInsane])  # Difficulty.CheatVision, Difficulty.CheatMoney,
+            RACE = random.choice([Race.Protoss])  # Race.Zerg, Race.Terran,
             ''' FINISHED_SETS = {
                 BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Protoss,
                 BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Terran,

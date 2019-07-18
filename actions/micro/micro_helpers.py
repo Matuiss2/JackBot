@@ -131,10 +131,11 @@ class MicroHelpers:
         if unit.type_id == UnitTypeId.ULTRALISK:
             return False
         for ball in self.main.enemies.filter(
-            lambda enemy: enemy.of_type(UnitTypeId.DISRUPTORPHASED) and enemy.distance_to(unit) < 5
+            lambda enemy: enemy.type_id == UnitTypeId.DISRUPTORPHASED and enemy.distance_to(unit) < 5
         ):
             retreat_point = self.find_retreat_point(ball, unit)
             self.main.add_action(unit.move(retreat_point))
+            return True
         return None
 
     @staticmethod
