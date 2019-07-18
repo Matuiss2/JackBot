@@ -130,11 +130,11 @@ class MicroHelpers:
         """
         if unit.type_id == UnitTypeId.ULTRALISK:
             return False
-        for ball in self.main.enemies.of_type(UnitTypeId.DISRUPTORPHASED):
-            if ball.distance_to(unit) < 5:
-                retreat_point = self.find_retreat_point(ball, unit)
-                self.main.add_action(unit.move(retreat_point))
-                return True
+        for ball in self.main.enemies.filter(
+            lambda enemy: enemy.of_type(UnitTypeId.DISRUPTORPHASED) and enemy.distance_to(unit) < 5
+        ):
+            retreat_point = self.find_retreat_point(ball, unit)
+            self.main.add_action(unit.move(retreat_point))
         return None
 
     @staticmethod
@@ -325,6 +325,5 @@ class MicroHelpers:
         -------
         A generator with all threats within the range
         """
-        for enemy in targets:
-            if enemy.distance_to(unit) < trigger_range:
-                yield enemy
+        for enemy in targets.filter(lambda target: target.distance_to(unit) < trigger_range):
+            yield enemy
