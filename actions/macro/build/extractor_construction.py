@@ -12,18 +12,19 @@ class ExtractorConstruction:
     async def should_handle(self):
         """Couldn't find another way to build the geysers its heavily based on Burny's approach,
          still trying to find the optimal number"""
+        available_geysers = len(self.main.extractors.filter(lambda vg: vg.vespene_contents > 0))
         if (
             self.main.vespene > self.main.minerals
             or not self.main.building_requirement(UnitTypeId.EXTRACTOR, self.main.ready_bases, one_at_time=True)
-            or len(self.main.extractors) >= 10
+            or available_geysers >= 10
         ):
             return False
-        if not self.main.hives and len(self.main.extractors) >= 6:
+        if not self.main.hives and available_geysers >= 6:
             return False
         if (
             not self.main.extractors
             and self.main.pools
-            or len(self.main.extractors) < 3 <= self.main.ready_base_amount
+            or available_geysers < 3 <= self.main.ready_base_amount
             or self.main.ready_base_amount > 3
         ):
             return True

@@ -230,7 +230,6 @@ class EnemyArmyValue:
         The final enemy army value for hydralisks vs terran after the calculations
         """
         terran_as_hydralisk_table = {
-            UnitTypeId.AUTOTURRET: self.advantage,
             UnitTypeId.BUNKER: self.normal,
             UnitTypeId.HELLION: self.countered,
             UnitTypeId.HELLIONTANK: self.advantage,
@@ -264,7 +263,6 @@ class EnemyArmyValue:
         The final enemy army value for ultralisks vs terran after the calculations
         """
         terran_as_ultralisk_table = {
-            UnitTypeId.AUTOTURRET: self.countered,
             UnitTypeId.BUNKER: self.countered,
             UnitTypeId.HELLION: self.massive_countered,
             UnitTypeId.HELLIONTANK: self.countered,
@@ -293,7 +291,6 @@ class EnemyArmyValue:
         The final enemy army value for zerglings vs terran after the calculations
         """
         terran_as_zergling_table = {
-            UnitTypeId.AUTOTURRET: self.counter,
             UnitTypeId.BUNKER: self.counter,
             UnitTypeId.HELLION: self.counter,
             UnitTypeId.HELLIONTANK: self.massive_counter,

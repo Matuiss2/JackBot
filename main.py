@@ -1,15 +1,19 @@
-"""SC2 zerg bot by Matuiss with huge help of Thommath, Tweakimp, Burny, Helfull and Niknoc"""
+"""SC2 zerg bot by Matuiss with help of:
+Thommath(made the initial creep spread code),
+Tweakimp(made the initial building positioning, anti-drone-rush, worker distribution, among other helps),
+Burny(this bot is derived from his CreepyBot, it's already very different but give credit where it's due),
+Helfull(the idea and implementation of this bots structure came from him, also made the initial effect dodging code),
+Niknoc(made the initial hydra micro code) ,
+Turing's Ego(helped with the code cleaning)"""
 import sc2
 from sc2.constants import UnitTypeId, UpgradeId
 from sc2.position import Point2
-from actions.anti_cheese import get_cheese_defense_commands
+from actions import get_unit_commands
 from actions.macro.build import get_build_commands
 from actions.macro.build.creep_spread import CreepSpread
 from actions.macro.train import get_train_commands
 from actions.macro.buildings_positions import BuildingsPositions
 from actions.macro.upgrades import get_upgrade_commands
-from actions.micro import get_army_and_building_commands
-from actions.micro.unit import get_macro_units_commands
 from data_containers.data_container import MainDataContainer
 from global_helpers import Globals
 
@@ -21,25 +25,18 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         CreepSpread.__init__(self)
         MainDataContainer.__init__(self)
         BuildingsPositions.__init__(self)
-        self.iteration = self.add_action = self.hydra_range = self.hydra_speed = self.zergling_atk_spd = None
-        self.unit_commands = (
-            get_macro_units_commands(self) + get_army_and_building_commands(self) + get_cheese_defense_commands(self)
-        )
+        self.hydra_range = self.hydra_speed = self.zergling_atk_spd = self.second_armor = None
+        self.iteration = self.add_action = None
+        self.armor_three_lock = False
+        self.unit_commands = get_unit_commands(self)
         self.train_commands = get_train_commands(self)
         self.build_commands = get_build_commands(self)
         self.upgrade_commands = get_upgrade_commands(self)
-        self.ordered_expansions, self.finished_upgrades = [], []
+        self.ordered_expansions = []
 
-    def already_pending_upgrade(self, upg):
-        """todo: remove when bug is fixed"""
-        pending = super().already_pending_upgrade(upg)
-        if 0 < pending < 0.99:
-            return pending
-        if pending >= 0.99:
-            self.finished_upgrades.append(upg)
-        if upg in self.finished_upgrades:
-            return 1
-        return 0
+    def on_end(self, game_result):
+        """Prints the game result on the console on the end of each game"""
+        print(game_result.name)
 
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
@@ -47,17 +44,19 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             await self.prepare_building_positions(unit.position)
 
     async def on_upgrade_complete(self, upgrade):
+        """Optimization, it changes the flag to True for the selected finished upgrade
+        to try to avoid the very slow already_pending_upgrade calls (it calls this flags instead)"""
         if upgrade == UpgradeId.EVOLVEGROOVEDSPINES:
             self.hydra_range = True
         elif upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
             self.hydra_speed = True
         elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
             self.zergling_atk_spd = True
+        elif upgrade == UpgradeId.ZERGGROUNDARMORSLEVEL2:
+            self.second_armor = True
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
-        if self.iteration == iteration:
-            return None
         self.iteration = iteration
         self.prepare_data()
         self.set_game_step()
@@ -71,10 +70,9 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             await self.run_commands(self.train_commands)
         await self.run_commands(self.unit_commands)
         await self.run_commands(self.build_commands)
-        if self.minerals >= 100 and self.vespene >= 100:
+        if not iteration % 10 and self.minerals >= 100 and self.vespene >= 100:
             await self.run_commands(self.upgrade_commands)
-        if actions:
-            await self.do_actions(actions)
+        await self.do_actions(actions)
 
     async def prepare_expansions(self):
         """Prepare all expansion locations and put it in order based on pathing distance"""
