@@ -13,7 +13,7 @@ class HydraliskCreation:
         if not self.main.can_train(UnitTypeId.HYDRALISK, self.main.hydradens.ready):
             return False
         if self.main.caverns.ready:
-            return len(self.main.ultralisks) * 4 > self.main.hydra_amount or (
+            return self.main.ultra_amount * 4 > self.main.hydra_amount or (
                 self.main.armor_three_lock and self.main.hydra_amount < 4
             )
         return not self.main.floating_buildings_bm
