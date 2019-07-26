@@ -8,7 +8,7 @@ class WorkerDistribution:
 
     def __init__(self, main):
         self.main = main
-        self.mineral_fields = self.geyser_tags = None
+        self.mineral_fields = self.geyser_tags = self.workers_to_distribute = self.mineral_tags = None
 
     async def should_handle(self):
         """Requirements to run handle"""
@@ -27,26 +27,17 @@ class WorkerDistribution:
         self.mineral_fields = self.main.state.mineral_field.filter(
             lambda field: any(field.distance_to(base) <= 8 for base in mining_bases)
         )
-        workers_to_distribute = self.main.drones.idle
-        mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
+        self.mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
         self.geyser_tags = {ref.tag for ref in self.main.extractors}
+        self.workers_to_distribute = self.main.drones.idle
         bases_deficit = []
         for mining_place in mining_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
             if difference > 0:
-                for _ in repeat(None, difference):
-                    if mining_place.name == "Extractor":
-                        moving_drones = self.main.drones.filter(
-                            lambda x: x.order_target in self.geyser_tags and x not in workers_to_distribute
-                        )
-                    else:
-                        moving_drones = self.main.drones.filter(
-                            lambda x: x.order_target in mineral_tags and x not in workers_to_distribute
-                        )
-                    workers_to_distribute.append(moving_drones.closest_to(mining_place))
+                self.fill_workers_to_distribute(mining_place, difference)
             elif difference < 0:
                 bases_deficit.append([mining_place, difference])
-        return bases_deficit, workers_to_distribute
+        return bases_deficit, self.workers_to_distribute
 
     def distribute_idle_workers(self):
         """If the worker is idle send to the closest mineral"""
@@ -82,6 +73,15 @@ class WorkerDistribution:
             bases_deficit[0][1] += 1
             if not bases_deficit[0][1]:
                 del bases_deficit[0]
+
+    def fill_workers_to_distribute(self, mining_place, iterations):
+        """Select the workers and their quantity to distribute"""
+        for _ in repeat(None, iterations):
+            selected_tag = self.geyser_tags if mining_place.name == "Extractor" else self.mineral_tags
+            moving_drones = self.main.drones.filter(
+                lambda x: x.order_target in selected_tag and x not in self.workers_to_distribute
+            )
+            self.workers_to_distribute.append(moving_drones.closest_to(mining_place))
 
     def gather_gas(self):
         """Performs the action of sending drones to geysers"""
