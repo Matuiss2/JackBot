@@ -22,35 +22,6 @@ def filter_in_attack_range_of(unit, targets):
 class MicroHelpers:
     """Group all helpers, for unit control and targeting here"""
 
-    def dodge_effects(self, unit):
-        """Dodge any effects"""
-        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
-            return False
-        effects_radius = {
-            EffectId.PSISTORMPERSISTENT: 1.5,
-            EffectId.THERMALLANCESFORWARD: 0.3,
-            EffectId.NUKEPERSISTENT: 8,
-            EffectId.BLINDINGCLOUDCP: 2,
-            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
-            EffectId.LURKERMP: 0.3,
-        }  # Exchange it for '.radius' when the data gets implemented
-        excluded_effects = (
-            EffectId.SCANNERSWEEP,
-            EffectId.GUARDIANSHIELDPERSISTENT,
-            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
-            EffectId.LIBERATORTARGETMORPHPERSISTENT,
-        )  # Placeholder(must find better way to handle some of these)
-        for effect in self.main.state.effects:
-            if effect.id in excluded_effects:
-                continue
-            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
-            if unit.position.distance_to_closest(effect.positions) > danger_zone:
-                break
-            perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
-            self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
-            return True
-        return False
-
     def attack_close_target(self, unit, enemies):
         """
         It targets lowest hp units on its range, if there is any attack the closest
@@ -116,6 +87,35 @@ class MicroHelpers:
     def find_closest_lowest_hp(unit, enemies):
         """Find the closest within the lowest hp enemies"""
         return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
+
+    def dodge_effects(self, unit):
+        """Dodge any effects"""
+        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
+            return False
+        effects_radius = {
+            EffectId.PSISTORMPERSISTENT: 1.5,
+            EffectId.THERMALLANCESFORWARD: 0.3,
+            EffectId.NUKEPERSISTENT: 8,
+            EffectId.BLINDINGCLOUDCP: 2,
+            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
+            EffectId.LURKERMP: 0.3,
+        }  # Exchange it for '.radius' when the data gets implemented
+        excluded_effects = (
+            EffectId.SCANNERSWEEP,
+            EffectId.GUARDIANSHIELDPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHPERSISTENT,
+        )  # Placeholder(must find better way to handle some of these)
+        for effect in self.main.state.effects:
+            if effect.id in excluded_effects:
+                continue
+            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
+            if unit.position.distance_to_closest(effect.positions) > danger_zone:
+                break
+            perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
+            self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
+            return True
+        return False
 
     def dodging_disruptor_shots(self, unit):
         """
