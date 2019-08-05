@@ -9,7 +9,7 @@ class WorkerRushDefense(MicroHelpers):
 
     def __init__(self, main):
         self.main = main
-        self.base = self.enemy_units_close = self.defenders = self.defender_tags = self.defense_force = None
+        self.base = self.close_enemy_workers = self.defense_force = self.defender_tags = self.defense_force_size = None
         self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
 
     async def should_handle(self):
@@ -17,35 +17,34 @@ class WorkerRushDefense(MicroHelpers):
         self.base = self.main.hatcheries.ready
         if not self.base:
             return False
-        self.enemy_units_close = self.main.enemies.closer_than(8, self.base.first).of_type(self.worker_types)
-        return self.enemy_units_close or self.defender_tags
+        self.close_enemy_workers = self.main.enemies.closer_than(8, self.base.first).of_type(self.worker_types)
+        return self.close_enemy_workers or self.defender_tags
 
     async def handle(self):
         """It destroys every worker rush without losing more than 2 workers"""
-        close_enemy_workers = self.enemy_units_close
-        self.defense_force = int(len(close_enemy_workers) * 1.25)
+        self.defense_force_size = int(len(self.close_enemy_workers) * 1.25)
         if self.defender_tags:
-            if close_enemy_workers:
+            if self.close_enemy_workers:
                 self.refill_defense_force()
-                for drone in self.defenders:
+                for drone in self.defense_force:
                     if not self.save_low_hp_drone(drone):
                         if drone.weapon_cooldown <= 13.4:  # Wanted cd value * 22.4
-                            self.attack_close_target(drone, close_enemy_workers)
-                        elif not self.move_to_next_target(drone, close_enemy_workers):
-                            self.move_low_hp(drone, close_enemy_workers)
+                            self.attack_close_target(drone, self.close_enemy_workers)
+                        elif not self.move_to_next_target(drone, self.close_enemy_workers):
+                            self.move_low_hp(drone, self.close_enemy_workers)
             else:
                 self.clear_defense_force()
-        elif close_enemy_workers:
-            self.defender_tags = self.select_defense_force(self.defense_force)
+        elif self.close_enemy_workers:
+            self.defender_tags = self.select_defense_force(self.defense_force_size)
 
     def clear_defense_force(self):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
-        if self.defenders:
+        if self.defense_force:
             selected_mineral_field = self.main.state.mineral_field.closest_to(self.base.first)
-            for drone in self.defenders:
+            for drone in self.defense_force:
                 self.main.add_action(drone.gather(selected_mineral_field))
             self.defender_tags = []
-            self.defenders = None
+            self.defense_force = None
 
     def select_defense_force(self, count):
         """
@@ -62,8 +61,8 @@ class WorkerRushDefense(MicroHelpers):
 
     def refill_defense_force(self):
         """If there are less workers on the defenders force than the ideal refill it"""
-        self.defenders = self.main.drones.filter(lambda worker: worker.tag in self.defender_tags and worker.health > 0)
-        defender_deficit = min(self.main.drone_amount - 1, self.defense_force) - len(self.defenders)
+        self.defense_force = self.main.drones.filter(lambda worker: worker.tag in self.defender_tags and worker.health)
+        defender_deficit = min(self.main.drone_amount - 1, self.defense_force_size) - len(self.defense_force)
         if defender_deficit > 0:
             self.defender_tags += self.select_defense_force(defender_deficit)
 

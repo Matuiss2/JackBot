@@ -84,7 +84,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
     async def hail_mary_rebuild_main(self):
         """Just something to stop it going idle, attack with everything if nothing else can be done,
          or rebuild the main if we can, probably won't make much difference since its very different"""
-        if not self.main.townhalls.ready:
+        if not self.main.ready_bases:
             if self.main.minerals < 300:
                 for unit in self.atk_force | self.main.drones:
                     self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))

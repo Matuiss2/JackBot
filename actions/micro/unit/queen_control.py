@@ -33,7 +33,7 @@ class QueenControl:
 
     def handle_queen_distribution(self):
         """Logic for distributing and attacking for queens - adding transfusion would be good"""
-        for base in self.main.townhalls.ready.idle:
+        for base in self.main.ready_bases.idle:
             if not self.main.queens.closer_than(5, base):
                 for queen in self.main.queens:
                     if self.main.enemies.not_structure.closer_than(10, queen.position):
