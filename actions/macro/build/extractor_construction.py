@@ -12,19 +12,19 @@ class ExtractorConstruction:
     async def should_handle(self):
         """Couldn't find another way to build the geysers its heavily based on Burny's approach,
          still trying to find the optimal number"""
-        available_geysers = len(self.main.extractors.filter(lambda vg: vg.vespene_contents > 0))
+        nonempty_geysers_amount = len(self.main.extractors.filter(lambda vg: vg.vespene_contents > 0))
         if (
             self.main.vespene > self.main.minerals
             or not self.main.building_requirement(UnitTypeId.EXTRACTOR, self.main.ready_bases, one_at_time=True)
-            or available_geysers >= 10
+            or nonempty_geysers_amount >= 10
         ):
             return False
-        if not self.main.hives and available_geysers >= 6:
+        if not self.main.hives and nonempty_geysers_amount >= 6:
             return False
         if (
             not self.main.extractors
             and self.main.pools
-            or available_geysers < 3 <= self.main.ready_base_amount
+            or nonempty_geysers_amount < 3 <= self.main.ready_base_amount
             or self.main.ready_base_amount > 3
         ):
             return True
@@ -32,6 +32,6 @@ class ExtractorConstruction:
     async def handle(self):
         """Just finish the action of building the extractor"""
         for geyser in self.main.state.vespene_geyser.closer_than(10, self.main.ready_bases.random):
-            drone = self.main.select_build_worker(geyser.position)
-            if drone:
-                self.main.add_action(drone.build(UnitTypeId.EXTRACTOR, geyser))
+            selected_drone = self.main.select_build_worker(geyser.position)
+            if selected_drone:
+                self.main.add_action(selected_drone.build(UnitTypeId.EXTRACTOR, geyser))
