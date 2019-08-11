@@ -15,7 +15,7 @@ class EvochamberConstruction:
             and len(self.main.evochambers) < 2
         ):
 
-            return self.main.base_amount >= 3 if not self.main.evochambers.ready else self.main.ready_base_amount >= 3
+            return self.main.base_amount >= 3 if not self.main.settled_evochambers else self.main.ready_base_amount >= 3
 
     async def handle(self):
         """Build the evochamber"""

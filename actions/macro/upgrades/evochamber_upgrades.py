@@ -24,14 +24,14 @@ class EvochamberUpgrades:
 
     async def should_handle(self):
         """Requirements to upgrade stuff from evochambers"""
-        return self.main.evochambers.ready
+        return self.main.settled_evochambers
 
     async def handle(self):
         """Execute the action of upgrading armor, melee and ranged attacks"""
         if self.main.hydradens and not self.upgrades_added:
             self.upgrades_added = True
             self.upgrade_list.extend(self.ranged_upgrades)
-        evo = self.main.evochambers.ready.prefer_idle[0]
+        evo = self.main.settled_evochambers.prefer_idle[0]
         available_abilities = await self.main.get_available_abilities(evo)
         for upgrade in self.upgrade_list:
             if self.main.can_afford(upgrade) and upgrade in available_abilities:

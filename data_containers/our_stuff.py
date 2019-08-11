@@ -33,6 +33,7 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
         self.initialize_hatchery_buildings()
         self.initialize_lair_buildings()
         self.initialize_hive_buildings()
+        self.initialize_finished_buildings()
 
     def initialize_our_stuff(self):
         """Initializes our stuff"""

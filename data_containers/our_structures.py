@@ -7,7 +7,7 @@ class OurBuildingsData:
 
     def __init__(self):
         self.evochambers = self.pools = self.spines = self.tumors = self.extractors = self.spores = self.spires = None
-        self.hydradens = self.pits = self.caverns = None
+        self.hydradens = self.pits = self.caverns = self.settled_evochambers = None
         self.creep_types = {UnitTypeId.CREEPTUMORQUEEN, UnitTypeId.CREEPTUMOR, UnitTypeId.CREEPTUMORBURROWED}
 
     def initialize_hatchery_buildings(self):
@@ -28,3 +28,6 @@ class OurBuildingsData:
         """Initialize all our buildings(lair tech)"""
         self.hydradens = self.units(UnitTypeId.HYDRALISKDEN)
         self.pits = self.units(UnitTypeId.INFESTATIONPIT)
+
+    def initialize_finished_buildings(self):
+        self.settled_evochambers = self.evochambers.ready
