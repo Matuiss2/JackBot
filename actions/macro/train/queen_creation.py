@@ -17,7 +17,7 @@ class QueenCreation:
             and self.hatchery
             and len(self.main.queens) <= self.main.ready_base_amount
             and not self.main.already_pending(UnitTypeId.QUEEN)
-            and self.main.can_train(UnitTypeId.QUEEN, self.main.pools.ready, larva=False)
+            and self.main.can_train(UnitTypeId.QUEEN, self.main.settled_pool, larva=False)
         )
 
     async def handle(self):

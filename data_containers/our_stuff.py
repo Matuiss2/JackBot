@@ -11,7 +11,7 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
     def __init__(self):
         OurBuildingsData.__init__(self)
         OurUnitsData.__init__(self)
-        self.structures = self.hatcheries = self.lairs = self.hives = self.ready_bases = None
+        self.structures = self.hatcheries = self.lairs = self.hives = self.ready_bases = self.upgraded_bases = None
 
     def initialize_all_amounts(self):
         """Initialize the amount of everything(repeated) on our possession"""
@@ -25,6 +25,7 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
         self.hatcheries = self.units(UnitTypeId.HATCHERY)
         self.lairs = self.units(UnitTypeId.LAIR)
         self.hives = self.units(UnitTypeId.HIVE)
+        self.upgraded_bases = self.lairs or self.hives
         self.ready_bases = self.townhalls.ready
 
     def initialize_buildings(self):

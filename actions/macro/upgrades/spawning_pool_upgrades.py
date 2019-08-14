@@ -12,13 +12,13 @@ class SpawningPoolUpgrades:
     async def should_handle(self):
         """Requirements to upgrade stuff from pools"""
         if self.main.can_upgrade(
-            UpgradeId.ZERGLINGMOVEMENTSPEED, AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST, self.main.pools.ready.idle
+            UpgradeId.ZERGLINGMOVEMENTSPEED, AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST, self.main.settled_pool.idle
         ):
             self.selected_research = AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST
             return True
         if (
             self.main.can_upgrade(
-                UpgradeId.ZERGLINGATTACKSPEED, AbilityId.RESEARCH_ZERGLINGADRENALGLANDS, self.main.pools.ready.idle
+                UpgradeId.ZERGLINGATTACKSPEED, AbilityId.RESEARCH_ZERGLINGADRENALGLANDS, self.main.settled_pool.idle
             )
             and self.main.hives
         ):
@@ -27,4 +27,4 @@ class SpawningPoolUpgrades:
 
     async def handle(self):
         """Execute the action of upgrading zergling atk-speed and speed"""
-        self.main.add_action(self.main.pools.ready.idle.first(self.selected_research))
+        self.main.add_action(self.main.settled_pool.idle.first(self.selected_research))

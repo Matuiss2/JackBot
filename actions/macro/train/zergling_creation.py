@@ -10,7 +10,7 @@ class ZerglingCreation:
 
     async def should_handle(self):
         """Requirements to train zerglings, good enough for now but ratio values can probably be improved"""
-        if self.block_production_for_upgrade or not self.main.can_train(UnitTypeId.ZERGLING, self.main.pools.ready):
+        if self.block_production_for_upgrade or not self.main.can_train(UnitTypeId.ZERGLING, self.main.settled_pool):
             return False
         if self.train_to_avoid_mineral_overflow:
             return True

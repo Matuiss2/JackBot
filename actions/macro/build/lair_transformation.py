@@ -11,7 +11,7 @@ class LairTransformation:
     async def should_handle(self):
         """Requirements to build the lair"""
         return (
-            not (self.main.lairs or self.main.hives)
+            not self.main.upgraded_bases
             and (
                 self.main.base_amount >= 3
                 or (self.main.close_enemy_production and len(self.main.settled_evochambers) >= 2)
