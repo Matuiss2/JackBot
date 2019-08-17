@@ -12,12 +12,12 @@ class DroneCreation:
     async def should_handle(self):
         """Should this action be handled, needs more smart limitations, its very greedy sometimes"""
         self.workers_total = self.main.drone_amount
-        geysers = self.main.extractors
+        extractors = self.main.extractors  # to save lines
         if self.general_drone_requirements:
             if self.drone_building_on_beginning:
                 return True
-            optimal_workers = min(sum(x.ideal_harvesters * 1.15 for x in self.main.townhalls | geysers), 91)
-            if self.workers_total + self.main.drones_in_queue < optimal_workers:
+            workers_optimal_amount = min(sum(mp.ideal_harvesters * 1.15 for mp in self.main.townhalls | extractors), 91)
+            if self.workers_total + self.main.drones_in_queue < workers_optimal_amount:
                 return self.main.zergling_amount >= 18 or (self.main.time >= 840 and self.main.drones_in_queue < 3)
         return False
 
