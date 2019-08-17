@@ -10,7 +10,7 @@ class OverlordCreation:
 
     async def should_handle(self):
         """We still get supply blocked sometimes, can be improved a lot still"""
-        if self.main.supply_cap < 200 and self.main.supply_left < (8 + self.main.supply_used // 7):
+        if self.main.supply_cap < 200 and self.main.supply_left < 8 + self.main.supply_used // 7:
             if self.main.can_train(UnitTypeId.OVERLORD):
                 if self.block_overlords_on_beginning:
                     return self.main.close_enemy_production
