@@ -10,7 +10,7 @@ class UltraliskCreation:
 
     async def should_handle(self):
         """Requirement for training ultralisks"""
-        if not self.main.can_train(UnitTypeId.ULTRALISK, self.main.caverns.ready):
+        if not self.main.can_train(UnitTypeId.ULTRALISK, self.main.settled_cavern):
             return False
         if self.main.second_armor and not self.main.already_pending_upgrade(UpgradeId.ZERGGROUNDARMORSLEVEL3):
             self.main.armor_three_lock = True

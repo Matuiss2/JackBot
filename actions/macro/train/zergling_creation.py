@@ -36,8 +36,8 @@ class ZerglingCreation:
     @property
     def block_production_for_better_units(self):
         """ Block zerglings if there are better units to be made"""
-        return (self.main.hydradens.ready and self.main.hydra_amount * 3 <= self.main.zergling_amount) or (
-            self.main.caverns.ready and self.main.ultra_amount * 8.5 <= self.main.zergling_amount
+        return (self.main.settled_hydraden and self.main.hydra_amount * 3 <= self.main.zergling_amount) or (
+            self.main.settled_cavern and self.main.ultra_amount * 8.5 <= self.main.zergling_amount
         )
 
     @property

@@ -11,7 +11,7 @@ class OverseerCreation:
 
     async def should_handle(self):
         """Requirements to morph overseers"""
-        overseers = self.main.overseers | self.main.units(UnitTypeId.OVERLORDCOCOON) # too save lines
+        overseers = self.main.overseers | self.main.units(UnitTypeId.OVERLORDCOCOON)  # to save lines
         if self.main.overlords:
             self.random_ov = self.main.overlords.random
             return (

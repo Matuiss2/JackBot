@@ -10,9 +10,9 @@ class HydraliskCreation:
 
     async def should_handle(self):
         """Requirements to train the hydralisks"""
-        if not self.main.can_train(UnitTypeId.HYDRALISK, self.main.hydradens.ready):
+        if not self.main.can_train(UnitTypeId.HYDRALISK, self.main.settled_hydraden):
             return False
-        if self.main.caverns.ready:
+        if self.main.settled_cavern:
             return self.main.ultra_amount * 4 > self.main.hydra_amount or (
                 self.main.armor_three_lock and self.main.hydra_amount < 4
             )
