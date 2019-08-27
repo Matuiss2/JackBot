@@ -7,20 +7,21 @@ class HydradenUpgrades:
 
     def __init__(self, main):
         self.main = main
-        self.selected_research = None
+        self.selected_research = self.available_hydraden = None
 
     async def should_handle(self):
         """Requirements to upgrade stuff from hydradens"""
+        self.available_hydraden = self.main.settled_hydraden.idle
         if self.main.floating_buildings_bm:
             return False
         if self.main.can_upgrade(
-            UpgradeId.EVOLVEGROOVEDSPINES, AbilityId.RESEARCH_GROOVEDSPINES, self.main.settled_hydraden.idle
+            UpgradeId.EVOLVEGROOVEDSPINES, AbilityId.RESEARCH_GROOVEDSPINES, self.available_hydraden
         ):
             self.selected_research = AbilityId.RESEARCH_GROOVEDSPINES
             return True
         if (
             self.main.can_upgrade(
-                UpgradeId.EVOLVEMUSCULARAUGMENTS, AbilityId.RESEARCH_MUSCULARAUGMENTS, self.main.settled_hydraden.idle
+                UpgradeId.EVOLVEMUSCULARAUGMENTS, AbilityId.RESEARCH_MUSCULARAUGMENTS, self.available_hydraden
             )
             and self.main.hydra_range
         ):
@@ -29,4 +30,4 @@ class HydradenUpgrades:
 
     async def handle(self):
         """Execute the action of upgrading hydras speed and range"""
-        self.main.add_action(self.main.settled_hydraden.idle.first(self.selected_research))
+        self.main.add_action(self.available_hydraden.first(self.selected_research))
