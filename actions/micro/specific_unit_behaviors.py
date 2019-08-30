@@ -24,7 +24,7 @@ class UnitsBehavior(HydraControl, MicroHelpers):
             if close_hydra_targets:
                 if self.retreat_unit(unit, close_hydra_targets):
                     return True
-                if self.micro_hydras(hydra_targets, unit):
+                if self.microing_hydras(hydra_targets, unit):
                     return True
         return False
 

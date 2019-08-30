@@ -27,13 +27,13 @@ class HydraControl(MicroHelpers):
         if self.main.has_creep(unit):
             our_move_speed *= 1.30  # If we're on creep, it's 30% more.
         if unit.has_buff(BuffId.SLOW):
-            our_move_speed *= 0.5  # If we've been hit with concussive shells, our move speed is half.
+            our_move_speed *= 0.5  # If we've been hit with concussive shells, our move speed is halved.
         if unit.has_buff(BuffId.FUNGALGROWTH):
             our_move_speed *= 0.25  # If we've been hit with fungal growth, our move speed is a quarter.
         # movement_speed returns the speed on normal speed not fastest so x 1.4 is necessary
         return our_move_speed * 1.4, our_range
 
-    def micro_hydras(self, targets, unit):
+    def microing_hydras(self, targets, unit):
         """
         Control the hydras
         Parameters
@@ -46,7 +46,7 @@ class HydraControl(MicroHelpers):
         Choose which action is better for which situation(hit and run, stutter_step or attacking the closest target)
         """
         our_move_speed, our_range = self.check_hydra_modifiers(unit)
-        closest_threat = None  # Find the closest threat.
+        closest_threat = None
         closest_threat_distance = math.inf
         for threat in self.trigger_threats(targets, unit, 14):
             if threat.distance_to(unit) < closest_threat_distance:

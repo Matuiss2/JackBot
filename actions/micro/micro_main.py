@@ -78,7 +78,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             self.targets
             and unit.type_id == UnitTypeId.ZERGLING
             and self.targets.closer_than(5, unit)
-            and self.micro_zerglings(unit, self.targets)
+            and self.microing_zerglings(unit, self.targets)
         )
 
     async def hail_mary_rebuild_main(self):

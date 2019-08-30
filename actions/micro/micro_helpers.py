@@ -185,7 +185,7 @@ class MicroHelpers:
         """
         if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
             if unit.type_id == UnitTypeId.ZERGLING:
-                return self.micro_zerglings(unit, target)
+                return self.microing_zerglings(unit, target)
             self.main.add_action(unit.attack(target.closest_to(unit.position)))
             return True
         if self.main.enemies.not_flying:
