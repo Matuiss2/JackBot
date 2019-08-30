@@ -21,7 +21,7 @@ class ZerglingControl(MicroHelpers):
         """
         self.handling_anti_banelings_group()
         if self.main.enemies.of_type(UnitTypeId.BANELING):
-            for baneling in self.baneling_group(unit, targets):  # todo test if it still working
+            for baneling in self.baneling_group(unit, targets):
                 # Check for close banelings and if we've triggered any banelings
                 if baneling.distance_to(unit) < 4 and self.baneling_sacrifices:
                     # If we've triggered this specific baneling
