@@ -1,11 +1,11 @@
 """Everything related to controlling army units goes here"""
 from sc2.constants import UnitTypeId
-from actions.micro.army_value_tables import EnemyArmyValue
+from actions.micro.army_value_tables import ArmyValues
 from actions.micro.unit.zergling_control import ZerglingControl
 from actions.micro.specific_unit_behaviors import UnitsBehavior
 
 
-class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
+class ArmyControl(ZerglingControl, UnitsBehavior, ArmyValues):
     """Can be improved performance wise also few bugs on some of it's elements"""
 
     def __init__(self, main):

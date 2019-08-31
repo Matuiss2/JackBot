@@ -278,16 +278,16 @@ class MicroHelpers:
         if self.main.townhalls.closer_than(15, unit) or self.main.counter_attack_vs_flying:
             return False
         if self.main.enemy_race == Race.Zerg:
-            enemy_value = self.enemy_value_zerg(unit, target)
+            enemy_value = self.enemy_zerg_value(unit, target)
         elif self.main.enemy_race == Race.Terran:
-            enemy_value = self.enemy_value_terran(unit, target)
+            enemy_value = self.enemy_terran_value(unit, target)
         else:
-            enemy_value = self.enemy_value_protoss(unit, target)
+            enemy_value = self.enemy_protoss_value(unit, target)
         if (
             self.main.townhalls
             and not self.main.close_enemies_to_base
             and not self.main.structures.closer_than(7, unit.position)
-            and enemy_value >= self.battling_force_value(unit.position, 1, 5, 13)
+            and enemy_value >= self.combatants_value(unit.position, 1, 5, 13)
         ):
             self.move_to_rallying_point(target, unit)
             self.retreat_units.add(unit.tag)
