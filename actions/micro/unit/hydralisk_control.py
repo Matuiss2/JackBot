@@ -48,7 +48,7 @@ class HydraControl(MicroHelpers):
         our_move_speed, our_range = self.check_hydra_modifiers(unit)
         closest_threat = None
         closest_threat_distance = math.inf
-        for threat in self.trigger_threats(targets, unit, 14):
+        for threat in self.threats_on_trigger_range(targets, unit, 14):
             if threat.distance_to(unit) < closest_threat_distance:
                 closest_threat = threat
                 closest_threat_distance = threat.distance_to(unit)

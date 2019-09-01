@@ -19,13 +19,13 @@ class MicroHelpers:
         -------
         True and the action(attack low hp enemy or any in range) if it meets the conditions
         """
-        targets_close = enemies.subgroup(target for target in enemies if unit.target_in_range(target))
-        if targets_close:
-            self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, targets_close)))
+        close_targets = enemies.subgroup(target for target in enemies if unit.target_in_range(target))
+        if close_targets:
+            self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, close_targets)))
             return True
-        target = enemies.closest_to(unit)
-        if target:
-            self.main.add_action(unit.attack(target))
+        closest_target = enemies.closest_to(unit)
+        if closest_target:
+            self.main.add_action(unit.attack(closest_target))
             return True
         return None
 
@@ -50,7 +50,7 @@ class MicroHelpers:
         """Find the closest within the lowest hp enemies"""
         return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
-    def dodge_effects(self, unit):
+    def avoid_effects(self, unit):
         """Dodge any effects"""
         if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
             return False
@@ -62,14 +62,14 @@ class MicroHelpers:
             EffectId.RAVAGERCORROSIVEBILECP: 0.5,
             EffectId.LURKERMP: 0.3,
         }  # Exchange it for '.radius' when the data gets implemented
-        excluded_effects = (
+        ignored_effects = (
             EffectId.SCANNERSWEEP,
             EffectId.GUARDIANSHIELDPERSISTENT,
             EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
             EffectId.LIBERATORTARGETMORPHPERSISTENT,
         )  # Placeholder(must find better way to handle some of these)
         for effect in self.main.state.effects:
-            if effect.id in excluded_effects:
+            if effect.id in ignored_effects:
                 continue
             danger_zone = effects_radius[effect.id] + unit.radius + 0.4
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
@@ -79,7 +79,7 @@ class MicroHelpers:
             return True
         return False
 
-    def dodging_disruptor_shots(self, unit):
+    def avoid_disruptor_shots(self, unit):
         """
         If the enemy has disruptor's, run a dodging code. Exclude ultralisks
         Parameters
@@ -92,11 +92,10 @@ class MicroHelpers:
         """
         if unit.type_id == UnitTypeId.ULTRALISK:
             return False
-        for ball in self.main.enemies.filter(
+        for disruptor_ball in self.main.enemies.filter(
             lambda enemy: enemy.type_id == UnitTypeId.DISRUPTORPHASED and enemy.distance_to(unit) < 5
         ):
-            retreat_point = self.find_retreat_point(ball, unit)
-            self.main.add_action(unit.move(retreat_point))
+            self.main.add_action(unit.move(self.find_retreat_point(disruptor_ball, unit)))
             return True
         return None
 
@@ -217,8 +216,8 @@ class MicroHelpers:
     def move_to_rallying_point(self, targets, unit):
         """Set the point where the units should gather"""
         if self.main.ready_bases:
-            enemy_base = self.main.enemy_start_locations[0]
-            rally_point = self.main.ready_bases.closest_to(enemy_base).position.towards(enemy_base, 10)
+            enemy_main_base = self.main.enemy_start_locations[0]
+            rally_point = self.main.ready_bases.closest_to(enemy_main_base).position.towards(enemy_main_base, 10)
             if unit.position.distance_to_point2(rally_point) > 5:
                 self.main.add_action(unit.move(rally_point))
         elif targets:
@@ -275,7 +274,7 @@ class MicroHelpers:
         return True
 
     @staticmethod
-    def trigger_threats(targets, unit, trigger_range):
+    def threats_on_trigger_range(targets, unit, trigger_range):
         """
         Identify threats based on given range
         Parameters

@@ -50,7 +50,7 @@ class ZerglingControl(MicroHelpers):
         -------
         A group that includes every close baneling
         """
-        threats = self.trigger_threats(targets, unit, 5)
+        threats = self.threats_on_trigger_range(targets, unit, 5)
         for threat in threats:
             if threat.type_id == UnitTypeId.BANELING:
                 yield threat
