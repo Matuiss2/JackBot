@@ -4,21 +4,6 @@ from sc2.constants import UnitTypeId, EffectId
 from sc2.position import Point2
 
 
-def filter_in_attack_range_of(unit, targets):
-    """
-    Filter targets who are in attack range of the unit
-    Parameters
-    ----------
-    unit: Unit from the attacking force
-    targets: All enemy targets
-
-    Returns
-    -------
-    A subgroup from all the targets select only the ones that are in range
-    """
-    return targets.subgroup(target for target in targets if unit.target_in_range(target))
-
-
 class MicroHelpers:
     """Group all helpers, for unit control and targeting here"""
 
@@ -34,38 +19,15 @@ class MicroHelpers:
         -------
         True and the action(attack low hp enemy or any in range) if it meets the conditions
         """
-        targets_close = filter_in_attack_range_of(unit, enemies)
+        targets_close = enemies.subgroup(target for target in enemies if unit.target_in_range(target))
         if targets_close:
-            self.attack_low_hp(unit, targets_close)
-            return True
-        if self.attack_in_range(unit):
+            self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, targets_close)))
             return True
         target = enemies.closest_to(unit)
         if target:
             self.main.add_action(unit.attack(target))
             return True
         return None
-
-    def attack_in_range(self, unit):
-        """
-        Attacks the lowest hp enemy in range of the unit
-        Parameters
-        ----------
-        unit: Unit from the attacking force
-
-        Returns
-        -------
-        True and the action(attack low hp enemy) if it meets the conditions
-        """
-        target_in_range = filter_in_attack_range_of(unit, self.main.enemies)
-        if target_in_range:
-            self.attack_low_hp(unit, target_in_range)
-            return True
-        return False
-
-    def attack_low_hp(self, unit, enemies):
-        """Attack close enemy with lowest HP"""
-        self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, enemies)))
 
     def attack_start_location(self, unit):
         """
