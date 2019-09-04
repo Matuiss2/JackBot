@@ -22,13 +22,13 @@ class ArmyControl(ZerglingControl, UnitsBehavior, ArmyValues):
     async def handle(self):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
         self.set_unit_groups()
-        await self.hail_mary_rebuild_main()
+        await self.do_or_die_prompt()
         for attacking_unit in self.atk_force:
             if self.avoid_effects(attacking_unit):
                 continue
             if self.avoid_disruptor_shots(attacking_unit):
                 continue
-            if self.anti_proxy_trigger():
+            if self.anti_proxy_prompt:
                 if self.attack_enemy_proxy_units(attacking_unit):
                     continue
                 self.move_to_rallying_point(self.targets, attacking_unit)
@@ -45,13 +45,14 @@ class ArmyControl(ZerglingControl, UnitsBehavior, ArmyValues):
             if self.target_buildings(attacking_unit):
                 continue
             if not self.main.close_enemies_to_base:
-                self.idle_unit(attacking_unit)
+                self.delegate_idle_unit(attacking_unit)
                 continue
             if self.keep_attacking(attacking_unit):
                 continue
             self.move_to_rallying_point(self.targets, attacking_unit)
 
-    def anti_proxy_trigger(self):
+    @property
+    def anti_proxy_prompt(self):
         """Requirements for the anti-proxy logic"""
         return (
             self.main.close_enemy_production
@@ -81,7 +82,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, ArmyValues):
             and self.microing_zerglings(unit, self.targets)
         )
 
-    async def hail_mary_rebuild_main(self):
+    async def do_or_die_prompt(self):
         """Just something to stop it going idle, attack with everything if nothing else can be done,
          or rebuild the main if we can, probably won't make much difference since its very different"""
         if not self.main.ready_bases:
@@ -93,10 +94,10 @@ class ArmyControl(ZerglingControl, UnitsBehavior, ArmyValues):
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
-        if self.main.townhalls.closer_than(15, unit.position):
+        if self.main.townhalls.closer_than(15, unit):
             self.retreat_units.remove(unit.tag)
 
-    def idle_unit(self, unit):
+    def delegate_idle_unit(self, unit):
         """
         Control the idle units, by gathering then or telling then to attack
         Parameters
