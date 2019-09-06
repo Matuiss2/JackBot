@@ -8,7 +8,7 @@ class WorkerDistribution:
 
     def __init__(self, main):
         self.main = main
-        self.mineral_fields = self.geyser_tags = self.workers_to_distribute = self.mineral_tags = None
+        self.close_mineral_fields = self.geyser_tags = self.workers_to_distribute = self.mineral_tags = None
 
     async def should_handle(self):
         """Requirements to run handle"""
@@ -17,21 +17,21 @@ class WorkerDistribution:
     async def handle(self):
         """Groups the resulting actions from all functions below"""
         self.distribute_idle_workers()
-        self.gather_gas()
-        self.transfer_to_minerals()
-        self.distribute_to_deficits()
+        self.switch_to_vespene()
+        self.switch_to_minerals()
+        self.distribute_to_bases()
 
     def calculate_distribution(self):
         """Calculate the ideal distribution for workers"""
-        mining_bases = self.main.ready_bases.filter(lambda base: base.ideal_harvesters > 0)
-        self.mineral_fields = self.main.state.mineral_field.filter(
-            lambda field: any(field.distance_to(base) <= 8 for base in mining_bases)
+        unsaturated_bases = self.main.ready_bases.filter(lambda base: base.ideal_harvesters > 0)
+        self.close_mineral_fields = self.main.state.mineral_field.filter(
+            lambda field: any(field.distance_to(base) <= 8 for base in unsaturated_bases)
         )
         self.mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
         self.geyser_tags = {ref.tag for ref in self.main.extractors}
         self.workers_to_distribute = self.main.drones.idle
         bases_deficit = []
-        for mining_place in mining_bases | self.main.extractors.ready:
+        for mining_place in unsaturated_bases | self.main.extractors.ready:
             difference = mining_place.surplus_harvesters
             if difference > 0:
                 self.fill_workers_to_distribute(mining_place, difference)
@@ -41,11 +41,11 @@ class WorkerDistribution:
 
     def distribute_idle_workers(self):
         """If the worker is idle send to the closest mineral"""
-        if self.mineral_fields:
+        if self.close_mineral_fields:
             for drone in self.main.drones.idle:
-                self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
+                self.main.add_action(drone.gather(self.close_mineral_fields.closest_to(drone)))
 
-    def distribute_to_deficits(self):
+    def distribute_to_bases(self):
         """Distribute workers so it saturates the bases"""
         bases_deficit, workers_to_distribute = self.calculate_distribution()
         bases_deficit = [x for x in bases_deficit if x[0].type_id != UnitTypeId.EXTRACTOR]
@@ -83,7 +83,7 @@ class WorkerDistribution:
             )
             self.workers_to_distribute.append(moving_drones.closest_to(mining_place))
 
-    def gather_gas(self):
+    def switch_to_vespene(self):
         """Performs the action of sending drones to geysers"""
         if self.check_gas_requirements:
             drones_gathering_amount = len(self.main.drones.gathering)
@@ -96,7 +96,7 @@ class WorkerDistribution:
     def calculate_mineral_fields_deficit(self, bases_deficit):
         """Calculate how many workers are left to saturate the base"""
         return sorted(
-            [mf for mf in self.mineral_fields.closer_than(8, bases_deficit[0][0])],
+            [mf for mf in self.close_mineral_fields.closer_than(8, bases_deficit[0][0])],
             key=lambda mineral_field: (
                 mineral_field.tag not in {worker.order_target for worker in self.main.drones.collecting},
                 mineral_field.mineral_contents,
@@ -107,13 +107,13 @@ class WorkerDistribution:
     def check_gas_requirements(self):
         """One of the requirements for gas collecting"""
         return (
-            self.require_gas_for_speedlings
+            self.gas_requirements_for_speedlings
             or self.main.vespene * 1.5 < self.main.minerals
             and self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED) in (0, 1)
         )
 
     @property
-    def require_gas_for_speedlings(self):
+    def gas_requirements_for_speedlings(self):
         """Gas collecting on the beginning so it research zergling speed fast"""
         return (
             len(self.main.extractors.ready) == 1
@@ -121,7 +121,7 @@ class WorkerDistribution:
             and self.main.vespene < 100
         )
 
-    def transfer_to_minerals(self):
+    def switch_to_minerals(self):
         """ Transfer drones from vespene to minerals when vespene count is way to high
          or early when zergling speed is being upgraded"""
         if (
@@ -129,6 +129,6 @@ class WorkerDistribution:
             and self.main.minerals >= 75
             or self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED) not in (0, 1)
         ):
-            if self.mineral_fields:
+            if self.close_mineral_fields:
                 for drone in self.main.drones.gathering.filter(lambda x: x.order_target in self.geyser_tags):
-                    self.main.add_action(drone.gather(self.mineral_fields.closest_to(drone)))
+                    self.main.add_action(drone.gather(self.close_mineral_fields.closest_to(drone)))
