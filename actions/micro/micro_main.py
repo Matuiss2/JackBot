@@ -167,7 +167,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, ArmyValues):
                 static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot) | enemy_base_on_construction
             )
         self.atk_force = self.main.units.of_type(self.army_types)
-        if self.main.floating_buildings_bm and self.main.supply_used >= 199:
+        if self.main.floated_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
     def target_buildings(self, unit):

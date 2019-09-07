@@ -13,7 +13,7 @@ class QueenControl:
         return (
             self.main.queens
             and self.main.townhalls
-            and not (self.main.floating_buildings_bm and self.main.supply_used >= 199)
+            and not (self.main.floated_buildings_bm and self.main.supply_used >= 199)
         )
 
     async def handle(self):

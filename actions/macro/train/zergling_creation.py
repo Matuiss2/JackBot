@@ -16,7 +16,7 @@ class ZerglingCreation:
             return True
         if self.block_production_for_better_units:
             return False
-        if self.main.floating_buildings_bm:
+        if self.main.floated_buildings_bm:
             return not (self.main.supply_used > 150 or len(self.main.mutalisks) * 10 <= self.main.zergling_amount)
         return True
 

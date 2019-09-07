@@ -15,7 +15,7 @@ class HydradenConstruction:
                 UnitTypeId.HYDRALISKDEN, self.main.hydradens, (self.main.lairs and self.main.pools)
             )
             and not self.main.close_enemy_production
-            and not self.main.floating_buildings_bm
+            and not self.main.floated_buildings_bm
             and self.main.base_amount >= 3
         )
 

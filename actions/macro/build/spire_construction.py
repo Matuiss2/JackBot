@@ -12,7 +12,7 @@ class SpireConstruction:
         """Build the spire if only floating buildings left"""
         return (
             self.main.can_build_unique(UnitTypeId.SPIRE, self.main.spires)
-            and self.main.floating_buildings_bm
+            and self.main.floated_buildings_bm
             and self.main.upgraded_bases
         )
 

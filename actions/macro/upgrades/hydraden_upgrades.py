@@ -12,7 +12,7 @@ class HydradenUpgrades:
     async def should_handle(self):
         """Requirements to upgrade stuff from hydradens"""
         self.available_hydraden = self.main.settled_hydraden.idle
-        if self.main.floating_buildings_bm:
+        if self.main.floated_buildings_bm:
             return False
         if self.main.can_upgrade(
             UpgradeId.EVOLVEGROOVEDSPINES, AbilityId.RESEARCH_GROOVEDSPINES, self.available_hydraden

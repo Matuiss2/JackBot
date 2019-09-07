@@ -9,7 +9,7 @@ class SituationalData:
         self.close_enemies_to_base = self.counter_attack_vs_flying = False
         self.basic_production_types = {UnitTypeId.BARRACKS, UnitTypeId.GATEWAY, UnitTypeId.HATCHERY}
 
-    def check_for_floating_buildings(self):
+    def check_for_floated_buildings(self):
         """Check if some terran wants to be funny with lifting up"""
         return (
             self.enemy_structures.flying
@@ -39,6 +39,7 @@ class SituationalData:
                 UnitTypeId.VIPER,
                 UnitTypeId.CORRUPTOR,
             }
+            self.counter_attack_vs_flying = self.close_enemies_to_base = False
             for hatch in self.townhalls:
                 close_enemy = self.ground_enemies.closer_than(20, hatch.position)
                 close_enemy_flying = self.flying_enemies.filter(
