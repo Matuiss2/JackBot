@@ -11,10 +11,10 @@ class LairTransformation:
     async def should_handle(self):
         """Requirements to build the lair"""
         return (
-            not self.main.upgraded_bases
+            not self.main.upgraded_base
             and (
                 self.main.base_amount >= 3
-                or (self.main.close_enemy_production and len(self.main.settled_evochambers) >= 2)
+                or (self.main.close_enemy_production and len(self.main.settled_evochamber) >= 2)
             )
             and self.main.can_build_unique(UnitTypeId.LAIR, self.main.caverns, self.main.hatcheries.ready.idle)
         )

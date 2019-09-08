@@ -13,7 +13,7 @@ class SpireConstruction:
         return (
             self.main.can_build_unique(UnitTypeId.SPIRE, self.main.spires)
             and self.main.floated_buildings_bm
-            and self.main.upgraded_bases
+            and self.main.upgraded_base
         )
 
     async def handle(self):

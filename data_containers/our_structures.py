@@ -7,11 +7,11 @@ class OurBuildingsData:
 
     def __init__(self):
         self.evochambers = self.pools = self.spines = self.tumors = self.extractors = self.spores = self.spires = None
-        self.hydradens = self.pits = self.caverns = self.settled_evochambers = self.settled_pool = None
+        self.hydradens = self.pits = self.caverns = self.settled_evochamber = self.settled_pool = None
         self.settled_cavern = self.settled_hydraden = None
         self.creep_types = {UnitTypeId.CREEPTUMORQUEEN, UnitTypeId.CREEPTUMOR, UnitTypeId.CREEPTUMORBURROWED}
 
-    def initialize_hatchery_buildings(self):
+    def hatchery_buildings(self):
         """Initialize all our buildings(hatchery tech)"""
         self.evochambers = self.units(UnitTypeId.EVOLUTIONCHAMBER)
         self.pools = self.units(UnitTypeId.SPAWNINGPOOL)
@@ -21,17 +21,17 @@ class OurBuildingsData:
         self.spores = self.units(UnitTypeId.SPORECRAWLER)
         self.spires = self.units(UnitTypeId.SPIRE)
 
-    def initialize_hive_buildings(self):
+    def hive_buildings(self):
         """Initialize all our buildings (hive tech)"""
         self.caverns = self.units(UnitTypeId.ULTRALISKCAVERN)
 
-    def initialize_lair_buildings(self):
+    def lair_buildings(self):
         """Initialize all our buildings(lair tech)"""
         self.hydradens = self.units(UnitTypeId.HYDRALISKDEN)
         self.pits = self.units(UnitTypeId.INFESTATIONPIT)
 
-    def initialize_finished_buildings(self):
-        self.settled_evochambers = self.evochambers.ready
+    def finished_buildings(self):
+        self.settled_evochamber = self.evochambers.ready
         self.settled_pool = self.pools.ready
         self.settled_cavern = self.caverns.ready
         self.settled_hydraden = self.hydradens.ready
