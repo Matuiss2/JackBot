@@ -28,6 +28,7 @@ class SituationalData:
 
     def prepare_enemy_data_points(self):
         """Prepare data related to enemy units"""
+        self.counter_attack_vs_flying = self.close_enemies_to_base = False
         if self.enemies:
             excluded_from_flying = {
                 UnitTypeId.OVERLORD,
@@ -39,7 +40,6 @@ class SituationalData:
                 UnitTypeId.VIPER,
                 UnitTypeId.CORRUPTOR,
             }
-            self.counter_attack_vs_flying = self.close_enemies_to_base = False
             for hatch in self.townhalls:
                 close_enemy = self.ground_enemies.closer_than(20, hatch.position)
                 close_enemy_flying = self.flying_enemies.filter(
