@@ -10,22 +10,22 @@ class OurQuantityData:
         self.ready_overlord_amount = self.ready_base_amount = self.hatcheries_in_queue = self.base_amount = None
         self.drones_in_queue = self.ultra_amount = None
 
-    def initialize_building_amounts(self):
+    def buildings_amounts(self):
         """Defines the amount of buildings on our possession separating by type"""
         self.base_amount = len(self.townhalls)
 
-    def initialize_completed_amounts(self):
+    def completed_asset_amounts(self):
         """Defines the amount of units and buildings that are finished on our possession separating by type"""
         self.ready_overlord_amount = len(self.overlords.ready)
         self.ready_base_amount = len(self.ready_bases)
 
-    def initialize_pending_amounts(self):
+    def incomplete_asset_amounts(self):
         """Defines the amount of units and buildings that are in progress on our possession separating by type"""
         self.hatcheries_in_queue = self.already_pending(UnitTypeId.HATCHERY)
         self.ovs_in_queue = self.already_pending(UnitTypeId.OVERLORD)
         self.drones_in_queue = self.already_pending(UnitTypeId.DRONE)
 
-    def initialize_unit_amounts(self):
+    def unit_amounts(self):
         """Defines the amount of units on our possession separating by type"""
         self.hydra_amount = len(self.hydras)
         self.ultra_amount = len(self.ultralisks)

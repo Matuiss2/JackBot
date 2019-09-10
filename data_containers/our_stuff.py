@@ -15,10 +15,10 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
 
     def initialize_our_amounts(self):
         """Initialize the amount of everything(repeated) on our possession"""
-        self.initialize_building_amounts()
-        self.initialize_unit_amounts()
-        self.initialize_completed_amounts()
-        self.initialize_pending_amounts()
+        self.buildings_amounts()
+        self.unit_amounts()
+        self.completed_asset_amounts()
+        self.incomplete_asset_amounts()
 
     def initialize_bases(self):
         """Initialize our bases"""
@@ -45,6 +45,6 @@ class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
 
     def initialize_units(self):
         """Initialize our units"""
-        self.initialize_hatchery_units()
-        self.initialize_lair_units()
-        self.initialize_hive_units()
+        self.hatchery_units()
+        self.lair_units()
+        self.hive_units()
