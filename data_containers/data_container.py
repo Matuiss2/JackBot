@@ -21,6 +21,7 @@ class MainDataContainer(SituationalData, OurStuffData, OtherData):
 
     def prepare_data(self):
         """Prepares the data every iteration"""
+        self.counter_attack_vs_flying = self.close_enemies_to_base = False
         self.initialize_our_stuff()
         self.initialize_enemies()
         self.prepare_bases_data()
