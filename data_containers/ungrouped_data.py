@@ -7,7 +7,7 @@ class OtherData:
 
     def __init__(self):
         self.enemies = self.flying_enemies = self.ground_enemies = self.enemy_structures = None
-        self.furthest_townhall_to_center = None
+        self.furthest_townhall_to_center = self.flying_enemy_structures = None
         self.worker_types = {UnitTypeId.DRONE, UnitTypeId.SCV, UnitTypeId.PROBE}
 
     def initialize_enemies(self):
@@ -16,6 +16,7 @@ class OtherData:
         self.flying_enemies = self.enemies.flying
         self.ground_enemies = self.enemies.not_flying.not_structure.exclude_type(self.worker_types)
         self.enemy_structures = self.known_enemy_structures.exclude_type(UnitTypeId.AUTOTURRET)
+        self.flying_enemy_structures = self.enemy_structures.flying
 
     def prepare_bases_data(self):
         """Global variable for the furthest townhall to center"""

@@ -12,8 +12,8 @@ class SituationalData:
     def check_for_floated_buildings(self):
         """Check if some terran wants to be funny with lifting up"""
         return (
-            self.enemy_structures.flying
-            and len(self.enemy_structures) == len(self.enemy_structures.flying)
+            self.flying_enemy_structures
+            and len(self.enemy_structures) == len(self.flying_enemy_structures)
             and self.time > 300
         )
 
@@ -26,7 +26,7 @@ class SituationalData:
             )
         )
 
-    def prepare_enemy_data_points(self):
+    def prepare_enemy_data(self):
         """Prepare data related to enemy units"""
         if self.enemies:
             excluded_from_flying = {

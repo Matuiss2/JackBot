@@ -15,7 +15,7 @@ class MainDataContainer(SituationalData, OurStuffData, OtherData):
 
     def enemy_special_cases(self):
         """Pretty much makes SituationalData be updated all iterations"""
-        self.prepare_enemy_data_points()
+        self.prepare_enemy_data()
         self.close_enemy_production = self.check_for_proxy_buildings()
         self.floated_buildings_bm = self.check_for_floated_buildings()
 
