@@ -15,7 +15,7 @@ class ExtractorConstruction:
         nonempty_geysers_amount = len(self.main.extractors.filter(lambda vg: vg.vespene_contents > 0))
         if (
             self.main.vespene > self.main.minerals
-            or not self.main.building_requirement(UnitTypeId.EXTRACTOR, self.main.ready_bases, one_at_time=True)
+            or not self.main.building_requirements(UnitTypeId.EXTRACTOR, self.main.ready_bases, one_at_time=True)
             or nonempty_geysers_amount >= 10
         ):
             return False

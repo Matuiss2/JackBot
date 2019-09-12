@@ -11,7 +11,7 @@ class EvochamberConstruction:
     async def should_handle(self):
         """Requirements for building the evolution chambers, maybe its to early can probably be improved"""
         if (
-            self.main.building_requirement(UnitTypeId.EVOLUTIONCHAMBER, self.main.settled_pool, one_at_time=True)
+            self.main.building_requirements(UnitTypeId.EVOLUTIONCHAMBER, self.main.settled_pool, one_at_time=True)
             and len(self.main.evochambers) < 2
         ):
 

@@ -25,7 +25,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         CreepSpread.__init__(self)
         MainDataContainer.__init__(self)
         BuildingsPositions.__init__(self)
-        self.hydra_range = self.hydra_speed = self.zergling_atk_spd = self.second_armor = None
+        self.hydra_range = self.hydra_speed = self.zergling_atk_spd = self.second_tier_armor = None
         self.iteration = self.add_action = None
         self.armor_three_lock = False
         self.unit_commands = get_unit_commands(self)
@@ -53,7 +53,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
             self.zergling_atk_spd = True
         elif upgrade == UpgradeId.ZERGGROUNDARMORSLEVEL2:
-            self.second_armor = True
+            self.second_tier_armor = True
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
@@ -64,8 +64,8 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         self.add_action = actions.append
         if not iteration:
             await self.prepare_building_positions(self.townhalls.first.position)
-            await self.prepare_expansions()
-            self.split_workers()
+            await self.prepare_expansion_locations()
+            self.split_workers_on_beginning()
         if self.minerals >= 50:
             await self.run_commands(self.train_commands)
         await self.run_commands(self.unit_commands)
@@ -74,7 +74,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             await self.run_commands(self.upgrade_commands)
         await self.do_actions(actions)
 
-    async def prepare_expansions(self):
+    async def prepare_expansion_locations(self):
         """Prepare all expansion locations and put it in order based on pathing distance"""
         start = self.start_location
         waypoints = [
@@ -102,7 +102,7 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         else:
             self._client.game_step = 3
 
-    def split_workers(self):
+    def split_workers_on_beginning(self):
         """Split the workers on the beginning """
         for drone in self.drones:
             self.add_action(drone.gather(self.state.mineral_field.closest_to(drone)))

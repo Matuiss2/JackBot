@@ -15,7 +15,7 @@ class OverseerCreation:
         if self.main.overlords:
             self.random_ov = self.main.overlords.random
             return (
-                self.main.building_requirement(UnitTypeId.OVERSEER, self.main.upgraded_base, one_at_time=True)
+                self.main.building_requirements(UnitTypeId.OVERSEER, self.main.upgraded_base, one_at_time=True)
                 and len(self.main.overseers) < self.main.ready_base_amount
                 and (not overseers or self.random_ov.distance_to(overseers.closest_to(self.random_ov)) > 10)
             )

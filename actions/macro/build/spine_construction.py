@@ -14,7 +14,7 @@ class SpineConstruction:
         if (
             len(self.main.spines) < 4
             and self.main.already_pending(UnitTypeId.SPINECRAWLER) < 2
-            and self.main.building_requirement(UnitTypeId.SPINECRAWLER, self.main.settled_pool)
+            and self.main.building_requirements(UnitTypeId.SPINECRAWLER, self.main.settled_pool)
             and self.main.townhalls
         ):
             self.placement_position = self.main.furthest_townhall_to_center.position.towards(

@@ -5,7 +5,7 @@ from sc2.constants import UnitTypeId
 class Globals:
     """Global wrappers"""
 
-    def building_requirement(self, unit_type, requirement=True, one_at_time=False):
+    def building_requirements(self, unit_type, requirement=True, one_at_time=False):
         """
         Global requirements for building every structure
         Parameters
@@ -38,7 +38,7 @@ class Globals:
         return (
             self.can_afford(unit_type)
             and not building
-            and self.building_requirement(unit_type, requirement, one_at_time=True)
+            and self.building_requirements(unit_type, requirement, one_at_time=True)
         )
 
     def can_train(self, unit_type, requirement=True, larva=True):
