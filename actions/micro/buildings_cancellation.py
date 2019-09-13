@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UnitTypeId
 
 
-class BuildingsDemolition:
+class BuildingsCancellation:
     """Ok for now"""
 
     def __init__(self, main):

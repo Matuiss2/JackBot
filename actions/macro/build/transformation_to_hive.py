@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UnitTypeId
 
 
-class HiveTransformation:
+class TransformationToHive:
     """Maybe can be improved"""
 
     def __init__(self, main):

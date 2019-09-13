@@ -1,15 +1,15 @@
 """All global variables and triggers are grouped here"""
 from data_containers.special_cases import SituationalData
-from data_containers.our_stuff import OurStuffData
+from data_containers.our_possessions import OurPossessionsData
 from data_containers.ungrouped_data import OtherData
 
 
-class MainDataContainer(SituationalData, OurStuffData, OtherData):
+class MainDataContainer(SituationalData, OurPossessionsData, OtherData):
     """This is the main data container for all data the bot requires"""
 
     def __init__(self):
         SituationalData.__init__(self)
-        OurStuffData.__init__(self)
+        OurPossessionsData.__init__(self)
         OtherData.__init__(self)
         self.close_enemy_production = self.floated_buildings_bm = None
 

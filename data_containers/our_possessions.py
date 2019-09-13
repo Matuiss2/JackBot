@@ -5,7 +5,7 @@ from data_containers.our_units import OurUnitsData
 from data_containers.quantity_data import OurQuantityData
 
 
-class OurStuffData(OurBuildingsData, OurUnitsData, OurQuantityData):
+class OurPossessionsData(OurBuildingsData, OurUnitsData, OurQuantityData):
     """This is the data container for all our units and buildings"""
 
     def __init__(self):

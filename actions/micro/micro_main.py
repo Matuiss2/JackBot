@@ -2,10 +2,10 @@
 from sc2.constants import UnitTypeId
 from actions.micro.army_value_tables import ArmyValues
 from actions.micro.unit.zergling_control import ZerglingControl
-from actions.micro.specific_unit_behaviors import UnitsBehavior
+from actions.micro.specific_units_behaviors import SpecificUnitsBehaviors
 
 
-class ArmyControl(ZerglingControl, UnitsBehavior, ArmyValues):
+class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
     """Can be improved performance wise also few bugs on some of it's elements"""
 
     def __init__(self, main):

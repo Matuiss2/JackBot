@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UnitTypeId
 
 
-class LairTransformation:
+class TransformationToLair:
     """Maybe can be improved, probably its a bit greedy it leaves a gap where the bot is vulnerable"""
 
     def __init__(self, main):
