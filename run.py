@@ -14,10 +14,12 @@ if __name__ == "__main__":
     else:
         # Local game
         while True:
-            MAP = random.choice(["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"])
-            BUILD = random.choice([AIBuild.Macro, AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Air])
-            DIFFICULTY = random.choice([Difficulty.CheatInsane, Difficulty.CheatVision, Difficulty.CheatMoney])
-            RACE = random.choice([Race.Protoss, Race.Zerg, Race.Terran])
+            # for security purposes, pointless in this scenario but do it anyway to get used to it
+            SECURE_RANDOM = random.SystemRandom()
+            MAP = SECURE_RANDOM.choice(["BlueshiftLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE"])
+            BUILD = SECURE_RANDOM.choice([AIBuild.Macro, AIBuild.Rush, AIBuild.Timing, AIBuild.Power, AIBuild.Air])
+            DIFFICULTY = SECURE_RANDOM.choice([Difficulty.CheatInsane, Difficulty.CheatVision, Difficulty.CheatMoney])
+            RACE = SECURE_RANDOM.choice([Race.Protoss, Race.Zerg, Race.Terran])
             """ FINISHED_SETS = {
                 BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatVision and RACE == Race.Protoss,
                 BUILD == AIBuild.Air and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Terran,
