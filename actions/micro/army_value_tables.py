@@ -1,339 +1,414 @@
 """Everything related to army value tables go here"""
 import numpy as np
-from sc2.constants import (
-    ADEPT,
-    ARCHON,
-    BANELING,
-    BANSHEE,
-    BATTLECRUISER,
-    BROODLING,
-    BROODLORD,
-    BUNKER,
-    CARRIER,
-    CYCLONE,
-    COLOSSUS,
-    CORRUPTOR,
-    DARKTEMPLAR,
-    DISRUPTOR,
-    DRONE,
-    GHOST,
-    HELLION,
-    HELLIONTANK,
-    HYDRALISK,
-    HIGHTEMPLAR,
-    IMMORTAL,
-    LARVA,
-    INFESTEDTERRAN,
-    INFESTEDTERRANSEGG,
-    INFESTOR,
-    LIBERATOR,
-    LOCUSTMP,
-    LOCUSTMPFLYING,
-    LURKERMP,
-    LURKERMPBURROWED,
-    MARAUDER,
-    MARINE,
-    MEDIVAC,
-    MOTHERSHIP,
-    MUTALISK,
-    ORACLE,
-    OVERLORD,
-    OVERSEER,
-    PHOENIX,
-    PHOTONCANNON,
-    PROBE,
-    QUEEN,
-    RAVAGER,
-    REAPER,
-    ROACH,
-    SCV,
-    SENTRY,
-    SIEGETANK,
-    SIEGETANKSIEGED,
-    SPINECRAWLER,
-    STALKER,
-    SWARMHOSTMP,
-    TEMPEST,
-    THOR,
-    ULTRALISK,
-    VIKINGASSAULT,
-    VIKINGFIGHTER,
-    VIPER,
-    VOIDRAY,
-    ZEALOT,
-    ZERGLING,
-)
+from sc2.constants import UnitTypeId
 
 
-def general_calculation(table, targets):
-    """Returns the sum of all targets unit values, if the id is unknown, add it as value 1"""
-    total = 0
+def calculate_army_value(table, targets):
+    """
+    Returns the sum of all targets unit values, if the id is unknown, add it as value 1
+    Parameters
+    ----------
+    table: Value table based on our unit type and their race
+    targets: Close enemy threats
+
+    Returns
+    -------
+    The final enemy army value
+    """
+    enemy_army_value = 0
     for enemy in targets:
         table.setdefault(enemy.type_id, 1)
-        total += table[enemy.type_id]
-    return total
+        enemy_army_value += table[enemy.type_id]
+    return enemy_army_value
 
 
-class EnemyArmyValue:
-    """Separate the enemy army values by unit and race"""
+class ArmyValues:
+    """Separate the enemy army values by unit and race
+    (can be improved by tuning and considering upgrades, position, distance...might be a little to hard)"""
 
-    massive_counter = 2.5
+    big_counter = 2.5
     counter = 1.75
-    advantage = 1.2
-    normal = 1
-    countered = 0.5
-    massive_countered = 0.2
-    worker = 0.05
+    enemy_advantage = 1.2
+    even = 1
+    countering = 0.5
+    countering_a_lot = 0.2
+    worker = 0.01
 
-    def protoss_value_for_zerglings(self, combined_enemies):
-        """Calculate the enemy army value for zerglings vs protoss"""
-        protoss_as_zergling_table = {
-            COLOSSUS: self.massive_counter,
-            ADEPT: self.advantage,
-            ARCHON: self.counter,
-            STALKER: self.countered,
-            DARKTEMPLAR: self.normal,
-            PHOTONCANNON: self.counter,
-            ZEALOT: self.advantage,
-            SENTRY: self.countered,
-            PROBE: self.worker,
-            HIGHTEMPLAR: self.countered,
-            DISRUPTOR: self.counter,
-            IMMORTAL: self.advantage,
-        }
-        return general_calculation(protoss_as_zergling_table, combined_enemies)
+    def combatants_value(self, unit_position, zvalue, hvalue, uvalue):
+        """
+        Calculate value for our army that is in battle
+        Parameters
+        ----------
+        unit_position: The position of the unit in question
+        zvalue: Chosen zergling value
+        hvalue: Chosen hydras value
+        uvalue: Chosen ultras value
 
-    def protoss_value_for_hydralisks(self, combined_enemies):
-        """Calculate the enemy army value for hydralisks vs protoss"""
-        protoss_as_hydralisks_table = {
-            PHOENIX: self.countered,
-            ORACLE: self.countered,
-            COLOSSUS: self.counter,
-            ADEPT: self.normal,
-            ARCHON: self.advantage,
-            STALKER: self.normal,
-            DARKTEMPLAR: self.countered,
-            PHOTONCANNON: self.counter,
-            ZEALOT: self.countered,
-            SENTRY: self.massive_countered,
-            PROBE: self.worker,
-            HIGHTEMPLAR: self.countered,
-            CARRIER: self.massive_counter,
-            DISRUPTOR: self.advantage,
-            IMMORTAL: self.counter,
-            TEMPEST: self.normal,
-            VOIDRAY: self.countered,
-            MOTHERSHIP: self.normal,
-        }
-        return general_calculation(protoss_as_hydralisks_table, combined_enemies)
+        Returns
+        -------
+        The sum of all values(quantity * chosen values)
+        """
+        return np.sum(
+            np.array(
+                [
+                    len(self.main.zerglings.closer_than(13, unit_position)),
+                    len(self.main.hydras.closer_than(13, unit_position)),
+                    len(self.main.ultralisks.closer_than(13, unit_position)),
+                ]
+            )
+            * np.array([zvalue, hvalue, uvalue])
+        )
 
-    def protoss_value_for_ultralisks(self, combined_enemies):
-        """Calculate the enemy army value for ultralisks vs protoss"""
-        protoss_as_ultralisks_table = {
-            COLOSSUS: self.countered,
-            ADEPT: self.countered,
-            ARCHON: self.advantage,
-            STALKER: self.countered,
-            DARKTEMPLAR: self.countered,
-            PHOTONCANNON: self.normal,
-            ZEALOT: self.normal,
-            SENTRY: self.countered,
-            PROBE: self.worker,
-            HIGHTEMPLAR: self.massive_countered,
-            DISRUPTOR: self.normal,
-            IMMORTAL: self.massive_counter,
-        }
-        return general_calculation(protoss_as_ultralisks_table, combined_enemies)
+    def enemy_protoss_value(self, unit, target_group):
+        """
+        Calculates the right enemy value based on our unit type vs protoss
+        Parameters
+        ----------
+        unit: Our units
+        target_group: Our targets
 
-    def terran_value_for_zerglings(self, combined_enemies):
-        """Calculate the enemy army value for zerglings vs terran"""
-        terran_as_zergling_table = {
-            BUNKER: self.counter,
-            HELLION: self.counter,
-            HELLIONTANK: self.massive_counter,
-            CYCLONE: self.countered,
-            GHOST: self.countered,
-            MARAUDER: self.countered,
-            MARINE: self.normal,
-            REAPER: self.countered,
-            SCV: self.worker,
-            SIEGETANKSIEGED: self.massive_counter,
-            SIEGETANK: self.advantage,
-            THOR: self.countered,
-            VIKINGASSAULT: self.countered,
-        }
-        return general_calculation(terran_as_zergling_table, combined_enemies)
-
-    def terran_value_for_hydralisks(self, combined_enemies):
-        """Calculate the enemy army value for hydralisks vs terran"""
-        terran_as_hydralisk_table = {
-            BUNKER: self.normal,
-            HELLION: self.countered,
-            HELLIONTANK: self.advantage,
-            CYCLONE: self.normal,
-            GHOST: self.normal,
-            MARAUDER: self.counter,
-            MARINE: self.countered,
-            REAPER: self.countered,
-            SCV: self.worker,
-            SIEGETANKSIEGED: self.massive_counter,
-            SIEGETANK: self.advantage,
-            THOR: self.normal,
-            VIKINGASSAULT: self.countered,
-            BANSHEE: self.countered,
-            BATTLECRUISER: self.normal,
-            LIBERATOR: self.counter,
-            MEDIVAC: self.massive_countered,
-            VIKINGFIGHTER: self.massive_countered,
-        }
-        return general_calculation(terran_as_hydralisk_table, combined_enemies)
-
-    def terran_value_for_ultralisks(self, combined_enemies):
-        """Calculate the enemy army value for ultralisks vs terran"""
-        terran_as_ultralisk_table = {
-            BUNKER: self.countered,
-            HELLION: self.massive_countered,
-            HELLIONTANK: self.countered,
-            CYCLONE: self.countered,
-            GHOST: self.counter,
-            MARAUDER: self.advantage,
-            MARINE: self.massive_countered,
-            REAPER: self.massive_countered,
-            SCV: self.worker,
-            SIEGETANKSIEGED: self.counter,
-            SIEGETANK: self.countered,
-            THOR: self.counter,
-            VIKINGASSAULT: self.countered,
-        }
-        return general_calculation(terran_as_ultralisk_table, combined_enemies)
-
-    def zerg_value_for_zerglings(self, combined_enemies):
-        """Calculate the enemy army value for zerglings vs zerg"""
-        zerg_as_zergling_table = {
-            LARVA: 0,
-            QUEEN: self.normal,
-            ZERGLING: self.normal,
-            BANELING: self.advantage,
-            ROACH: self.normal,
-            RAVAGER: self.normal,
-            HYDRALISK: self.normal,
-            LURKERMP: self.normal,
-            DRONE: self.worker,
-            LURKERMPBURROWED: self.massive_counter,
-            INFESTOR: self.countered,
-            INFESTEDTERRAN: self.normal,
-            INFESTEDTERRANSEGG: self.massive_countered,
-            SWARMHOSTMP: self.countered,
-            LOCUSTMP: self.counter,
-            ULTRALISK: self.massive_counter,
-            SPINECRAWLER: self.counter,
-            BROODLING: self.normal,
-        }
-        return general_calculation(zerg_as_zergling_table, combined_enemies)
-
-    def zerg_value_for_hydralisk(self, combined_enemies):
-        """Calculate the enemy army value for hydralisks vs zerg"""
-        zerg_as_hydralisk_table = {
-            LARVA: 0,
-            QUEEN: self.normal,
-            ZERGLING: self.normal,
-            BANELING: self.counter,
-            ROACH: self.normal,
-            RAVAGER: self.normal,
-            HYDRALISK: self.normal,
-            LURKERMP: self.countered,
-            DRONE: self.worker,
-            LURKERMPBURROWED: self.massive_counter,
-            INFESTOR: self.countered,
-            INFESTEDTERRAN: self.countered,
-            INFESTEDTERRANSEGG: self.massive_countered,
-            SWARMHOSTMP: self.massive_countered,
-            LOCUSTMP: self.normal,
-            ULTRALISK: self.massive_counter,
-            SPINECRAWLER: self.normal,
-            LOCUSTMPFLYING: self.countered,
-            OVERLORD: 0,
-            OVERSEER: 0,
-            MUTALISK: self.countered,
-            CORRUPTOR: 0,
-            VIPER: self.countered,
-            BROODLORD: self.normal,
-            BROODLING: self.countered,
-        }
-        return general_calculation(zerg_as_hydralisk_table, combined_enemies)
-
-    def zerg_value_for_ultralisks(self, combined_enemies):
-        """Calculate the enemy army value for ultralisks vs zerg"""
-        zerg_as_ultralisk_table = {
-            LARVA: 0,
-            QUEEN: self.countered,
-            ZERGLING: self.massive_countered,
-            BANELING: self.massive_countered,
-            ROACH: self.countered,
-            RAVAGER: self.countered,
-            HYDRALISK: self.countered,
-            LURKERMP: self.countered,
-            DRONE: self.worker,
-            LURKERMPBURROWED: self.counter,
-            INFESTOR: self.countered,
-            INFESTEDTERRAN: self.countered,
-            INFESTEDTERRANSEGG: self.massive_countered,
-            SWARMHOSTMP: self.massive_countered,
-            LOCUSTMP: self.counter,
-            ULTRALISK: self.normal,
-            SPINECRAWLER: self.normal,
-            BROODLING: self.countered,
-        }
-        return general_calculation(zerg_as_ultralisk_table, combined_enemies)
-
-    def enemy_value_terran(self, unit, target_group):
-        """Returns the right enemy value based on the unit vs terran"""
-        if unit.type_id == ZERGLING:
-            return self.terran_value_for_zerglings(target_group)
-        if unit.type_id == HYDRALISK:
-            return self.terran_value_for_hydralisks(target_group)
-        return self.terran_value_for_ultralisks(target_group)
-
-    def enemy_value_protoss(self, unit, target_group):
-        """Returns the right enemy value based on the unit vs protoss"""
-        if unit.type_id == ZERGLING:
+        Returns
+        -------
+        The sum of all values(quantity * chosen values) based on our unit type
+        """
+        if unit.type_id == UnitTypeId.ZERGLING:
             return self.protoss_value_for_zerglings(target_group)
-        if unit.type_id == HYDRALISK:
+        if unit.type_id == UnitTypeId.HYDRALISK:
             return self.protoss_value_for_hydralisks(target_group)
         return self.protoss_value_for_ultralisks(target_group)
 
-    def enemy_value_zerg(self, unit, target_group):
-        """Returns the right enemy value based on the unit vs zerg"""
-        if unit.type_id == ZERGLING:
+    def enemy_terran_value(self, unit, target_group):
+        """
+        Calculates the right enemy value based on our unit type vs terran
+        Parameters
+        ----------
+        unit: Our units
+        target_group: Our targets
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values) based on our unit type
+        """
+        if unit.type_id == UnitTypeId.ZERGLING:
+            return self.terran_value_for_zerglings(target_group)
+        if unit.type_id == UnitTypeId.HYDRALISK:
+            return self.terran_value_for_hydralisks(target_group)
+        return self.terran_value_for_ultralisks(target_group)
+
+    def enemy_zerg_value(self, unit, target_group):
+        """
+        Calculates the right enemy value based on our unit type vs zerg
+        Parameters
+        ----------
+        unit: Our units
+        target_group: Our targets
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values) based on our unit type
+        """
+        if unit.type_id == UnitTypeId.ZERGLING:
             return self.zerg_value_for_zerglings(target_group)
-        if unit.type_id == HYDRALISK:
+        if unit.type_id == UnitTypeId.HYDRALISK:
             return self.zerg_value_for_hydralisk(target_group)
         return self.zerg_value_for_ultralisks(target_group)
 
-    def battling_force_value(self, unit_position, zvalue, hvalue, uvalue):
-        """Returns the right value for our army that is in battle"""
-        local_controller = self.controller
+    def gathering_force_value(self, zvalue, hvalue, uvalue):
+        """
+        Calculate value for our army that is gathering on the rally point
+        Parameters
+        ----------
+        zvalue: Chosen zergling value
+        hvalue: Chosen hydras value
+        uvalue: Chosen ultras value
+
+        Returns
+        -------
+        The sum of all values(quantity * chosen values)
+        """
         return np.sum(
-            np.array(
-                [
-                    len(local_controller.zerglings.closer_than(13, unit_position)),
-                    len(local_controller.ultralisks.closer_than(13, unit_position)),
-                    len(local_controller.hydras.closer_than(13, unit_position)),
-                ]
-            )
+            np.array([len(self.main.zerglings.ready), len(self.main.hydras.ready), len(self.main.ultralisks.ready)])
             * np.array([zvalue, hvalue, uvalue])
         )
 
-    def gathering_force_value(self, zvalue, hvalue, uvalue):
-        """Returns the right value for our army that is gathering"""
-        local_controller = self.controller
-        return np.sum(
-            np.array(
-                [
-                    len(local_controller.zerglings.ready),
-                    len(local_controller.hydras.ready),
-                    len(local_controller.ultralisks.ready),
-                ]
-            )
-            * np.array([zvalue, hvalue, uvalue])
-        )
+    def protoss_value_for_hydralisks(self, combined_enemies):
+        """
+        Calculate the enemy army value for hydralisks vs protoss
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for hydralisks vs protoss after the calculations
+        """
+        hydralisks_vs_protoss_table = {
+            UnitTypeId.PHOENIX: self.countering,
+            UnitTypeId.ORACLE: self.countering,
+            UnitTypeId.COLOSSUS: self.counter,
+            UnitTypeId.ADEPT: self.even,
+            UnitTypeId.ARCHON: self.enemy_advantage,
+            UnitTypeId.STALKER: self.even,
+            UnitTypeId.DARKTEMPLAR: self.countering,
+            UnitTypeId.PHOTONCANNON: self.counter,
+            UnitTypeId.ZEALOT: self.countering,
+            UnitTypeId.SENTRY: self.countering_a_lot,
+            UnitTypeId.PROBE: self.worker,
+            UnitTypeId.HIGHTEMPLAR: self.countering,
+            UnitTypeId.CARRIER: self.big_counter,
+            UnitTypeId.DISRUPTOR: self.enemy_advantage,
+            UnitTypeId.IMMORTAL: self.counter,
+            UnitTypeId.TEMPEST: self.even,
+            UnitTypeId.VOIDRAY: self.countering,
+            UnitTypeId.MOTHERSHIP: self.even,
+        }
+        return calculate_army_value(hydralisks_vs_protoss_table, combined_enemies)
+
+    def protoss_value_for_ultralisks(self, combined_enemies):
+        """
+        Calculate the enemy army value for ultralisks vs protoss
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for ultralisks vs protoss after the calculations
+        """
+        ultralisks_vs_protoss_table = {
+            UnitTypeId.COLOSSUS: self.countering,
+            UnitTypeId.ADEPT: self.countering,
+            UnitTypeId.ARCHON: self.enemy_advantage,
+            UnitTypeId.STALKER: self.countering,
+            UnitTypeId.DARKTEMPLAR: self.countering,
+            UnitTypeId.PHOTONCANNON: self.even,
+            UnitTypeId.ZEALOT: self.even,
+            UnitTypeId.SENTRY: self.countering,
+            UnitTypeId.PROBE: self.worker,
+            UnitTypeId.HIGHTEMPLAR: self.countering_a_lot,
+            UnitTypeId.DISRUPTOR: self.even,
+            UnitTypeId.IMMORTAL: self.big_counter,
+        }
+        return calculate_army_value(ultralisks_vs_protoss_table, combined_enemies)
+
+    def protoss_value_for_zerglings(self, combined_enemies):
+        """
+        Calculate the enemy army value for zerglings vs protoss
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for zerglings vs protoss after the calculations
+        """
+        zerglings_vs_protoss_table = {
+            UnitTypeId.COLOSSUS: self.big_counter,
+            UnitTypeId.ADEPT: self.enemy_advantage,
+            UnitTypeId.ARCHON: self.counter,
+            UnitTypeId.STALKER: self.countering,
+            UnitTypeId.DARKTEMPLAR: self.even,
+            UnitTypeId.PHOTONCANNON: self.counter,
+            UnitTypeId.ZEALOT: self.enemy_advantage,
+            UnitTypeId.SENTRY: self.countering,
+            UnitTypeId.PROBE: self.worker,
+            UnitTypeId.HIGHTEMPLAR: self.countering,
+            UnitTypeId.DISRUPTOR: self.counter,
+            UnitTypeId.IMMORTAL: self.enemy_advantage,
+        }
+        return calculate_army_value(zerglings_vs_protoss_table, combined_enemies)
+
+    def terran_value_for_hydralisks(self, combined_enemies):
+        """
+        Calculate the enemy army value for hydralisks vs terran
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for hydralisks vs terran after the calculations
+        """
+        hydralisks_vs_terran_table = {
+            UnitTypeId.BUNKER: self.even,
+            UnitTypeId.HELLION: self.countering,
+            UnitTypeId.HELLIONTANK: self.enemy_advantage,
+            UnitTypeId.CYCLONE: self.even,
+            UnitTypeId.GHOST: self.even,
+            UnitTypeId.MARAUDER: self.counter,
+            UnitTypeId.MARINE: self.countering,
+            UnitTypeId.REAPER: self.countering,
+            UnitTypeId.SCV: self.worker,
+            UnitTypeId.SIEGETANKSIEGED: self.big_counter,
+            UnitTypeId.SIEGETANK: self.enemy_advantage,
+            UnitTypeId.THOR: self.even,
+            UnitTypeId.VIKINGASSAULT: self.countering,
+            UnitTypeId.BANSHEE: self.countering,
+            UnitTypeId.BATTLECRUISER: self.even,
+            UnitTypeId.LIBERATOR: self.counter,
+            UnitTypeId.MEDIVAC: self.countering_a_lot,
+            UnitTypeId.VIKINGFIGHTER: self.countering_a_lot,
+        }
+        return calculate_army_value(hydralisks_vs_terran_table, combined_enemies)
+
+    def terran_value_for_ultralisks(self, combined_enemies):
+        """
+        Calculate the enemy army value for ultralisks vs terran
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for ultralisks vs terran after the calculations
+        """
+        ultralisks_vs_terran_table = {
+            UnitTypeId.BUNKER: self.countering,
+            UnitTypeId.HELLION: self.countering_a_lot,
+            UnitTypeId.HELLIONTANK: self.countering,
+            UnitTypeId.CYCLONE: self.countering,
+            UnitTypeId.GHOST: self.counter,
+            UnitTypeId.MARAUDER: self.enemy_advantage,
+            UnitTypeId.MARINE: self.countering_a_lot,
+            UnitTypeId.REAPER: self.countering_a_lot,
+            UnitTypeId.SCV: self.worker,
+            UnitTypeId.SIEGETANKSIEGED: self.counter,
+            UnitTypeId.SIEGETANK: self.countering,
+            UnitTypeId.THOR: self.counter,
+            UnitTypeId.VIKINGASSAULT: self.countering,
+        }
+        return calculate_army_value(ultralisks_vs_terran_table, combined_enemies)
+
+    def terran_value_for_zerglings(self, combined_enemies):
+        """
+        Calculate the enemy army value for zerglings vs terran
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for zerglings vs terran after the calculations
+        """
+        zerglings_vs_terran_table = {
+            UnitTypeId.BUNKER: self.counter,
+            UnitTypeId.HELLION: self.counter,
+            UnitTypeId.HELLIONTANK: self.big_counter,
+            UnitTypeId.CYCLONE: self.countering,
+            UnitTypeId.GHOST: self.countering,
+            UnitTypeId.MARAUDER: self.countering,
+            UnitTypeId.MARINE: self.even,
+            UnitTypeId.REAPER: self.countering,
+            UnitTypeId.SCV: self.worker,
+            UnitTypeId.SIEGETANKSIEGED: self.big_counter,
+            UnitTypeId.SIEGETANK: self.enemy_advantage,
+            UnitTypeId.THOR: self.countering,
+            UnitTypeId.VIKINGASSAULT: self.countering,
+        }
+        return calculate_army_value(zerglings_vs_terran_table, combined_enemies)
+
+    def zerg_value_for_hydralisk(self, combined_enemies):
+        """
+        Calculate the enemy army value for hydralisks vs zerg
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for hydralisks vs zerg after the calculations
+        """
+        hydralisks_vs_zerg_table = {
+            UnitTypeId.LARVA: 0,
+            UnitTypeId.QUEEN: self.even,
+            UnitTypeId.ZERGLING: self.even,
+            UnitTypeId.BANELING: self.counter,
+            UnitTypeId.ROACH: self.even,
+            UnitTypeId.RAVAGER: self.even,
+            UnitTypeId.HYDRALISK: self.even,
+            UnitTypeId.LURKERMP: self.countering,
+            UnitTypeId.DRONE: self.worker,
+            UnitTypeId.LURKERMPBURROWED: self.big_counter,
+            UnitTypeId.INFESTOR: self.countering,
+            UnitTypeId.INFESTEDTERRAN: self.countering,
+            UnitTypeId.INFESTEDTERRANSEGG: self.countering_a_lot,
+            UnitTypeId.SWARMHOSTMP: self.countering_a_lot,
+            UnitTypeId.LOCUSTMP: self.even,
+            UnitTypeId.ULTRALISK: self.big_counter,
+            UnitTypeId.SPINECRAWLER: self.even,
+            UnitTypeId.LOCUSTMPFLYING: self.countering,
+            UnitTypeId.OVERLORD: 0,
+            UnitTypeId.OVERSEER: 0,
+            UnitTypeId.MUTALISK: self.countering,
+            UnitTypeId.CORRUPTOR: 0,
+            UnitTypeId.VIPER: self.countering,
+            UnitTypeId.BROODLORD: self.even,
+            UnitTypeId.BROODLING: self.countering,
+        }
+        return calculate_army_value(hydralisks_vs_zerg_table, combined_enemies)
+
+    def zerg_value_for_ultralisks(self, combined_enemies):
+        """
+        Calculate the enemy army value for ultralisks vs zerg
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for ultralisks vs zerg after the calculations
+        """
+        ultralisks_vs_zerg_table = {
+            UnitTypeId.LARVA: 0,
+            UnitTypeId.QUEEN: self.countering,
+            UnitTypeId.ZERGLING: self.countering_a_lot,
+            UnitTypeId.BANELING: self.countering_a_lot,
+            UnitTypeId.ROACH: self.countering,
+            UnitTypeId.RAVAGER: self.countering,
+            UnitTypeId.HYDRALISK: self.countering,
+            UnitTypeId.LURKERMP: self.countering,
+            UnitTypeId.DRONE: self.worker,
+            UnitTypeId.LURKERMPBURROWED: self.counter,
+            UnitTypeId.INFESTOR: self.countering,
+            UnitTypeId.INFESTEDTERRAN: self.countering,
+            UnitTypeId.INFESTEDTERRANSEGG: self.countering_a_lot,
+            UnitTypeId.SWARMHOSTMP: self.countering_a_lot,
+            UnitTypeId.LOCUSTMP: self.counter,
+            UnitTypeId.ULTRALISK: self.even,
+            UnitTypeId.SPINECRAWLER: self.even,
+            UnitTypeId.BROODLING: self.countering,
+        }
+        return calculate_army_value(ultralisks_vs_zerg_table, combined_enemies)
+
+    def zerg_value_for_zerglings(self, combined_enemies):
+        """
+        Calculate the enemy army value for zerglings vs zerg
+        Parameters
+        ----------
+        combined_enemies: All enemies in range
+
+        Returns
+        -------
+        The final enemy army value for zerglings vs zerg after the calculations
+        """
+        zerglings_vs_zerg_table = {
+            UnitTypeId.LARVA: 0,
+            UnitTypeId.QUEEN: self.even,
+            UnitTypeId.ZERGLING: self.even,
+            UnitTypeId.BANELING: self.enemy_advantage,
+            UnitTypeId.ROACH: self.even,
+            UnitTypeId.RAVAGER: self.even,
+            UnitTypeId.HYDRALISK: self.even,
+            UnitTypeId.LURKERMP: self.even,
+            UnitTypeId.DRONE: self.worker,
+            UnitTypeId.LURKERMPBURROWED: self.big_counter,
+            UnitTypeId.INFESTOR: self.countering,
+            UnitTypeId.INFESTEDTERRAN: self.even,
+            UnitTypeId.INFESTEDTERRANSEGG: self.countering_a_lot,
+            UnitTypeId.SWARMHOSTMP: self.countering,
+            UnitTypeId.LOCUSTMP: self.counter,
+            UnitTypeId.ULTRALISK: self.big_counter,
+            UnitTypeId.SPINECRAWLER: self.counter,
+            UnitTypeId.BROODLING: self.even,
+        }
+        return calculate_army_value(zerglings_vs_zerg_table, combined_enemies)
