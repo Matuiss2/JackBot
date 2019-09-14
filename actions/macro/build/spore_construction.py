@@ -19,7 +19,7 @@ class SporeConstruction:
             return (
                 (spore_building_trigger or self.main.time >= 420)
                 and not self.main.already_pending(UnitTypeId.SPORECRAWLER)
-                and self.main.building_requirement(UnitTypeId.SPORECRAWLER, self.main.pools.ready)
+                and self.main.building_requirements(UnitTypeId.SPORECRAWLER, self.main.settled_pool)
             )
 
     async def handle(self):

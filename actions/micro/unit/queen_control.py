@@ -13,7 +13,7 @@ class QueenControl:
         return (
             self.main.queens
             and self.main.townhalls
-            and not (self.main.floating_buildings_bm and self.main.supply_used >= 199)
+            and not (self.main.floated_buildings_bm and self.main.supply_used >= 199)
         )
 
     async def handle(self):
@@ -33,7 +33,7 @@ class QueenControl:
 
     def handle_queen_distribution(self):
         """Logic for distributing and attacking for queens - adding transfusion would be good"""
-        for base in self.main.townhalls.ready.idle:
+        for base in self.main.ready_bases.idle:
             if not self.main.queens.closer_than(5, base):
                 for queen in self.main.queens:
                     if self.main.enemies.not_structure.closer_than(10, queen.position):

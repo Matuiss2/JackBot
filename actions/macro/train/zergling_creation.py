@@ -10,15 +10,13 @@ class ZerglingCreation:
 
     async def should_handle(self):
         """Requirements to train zerglings, good enough for now but ratio values can probably be improved"""
-        if self.block_production_for_upgrade or not self.main.can_train(UnitTypeId.ZERGLING, self.main.pools.ready):
+        if self.block_production_for_upgrade or not self.main.can_train(UnitTypeId.ZERGLING, self.main.settled_pool):
             return False
-        if self.main.minerals >= 600 and self.main.ready_base_amount <= 5:
+        if self.train_to_avoid_mineral_overflow:
             return True
-        if self.main.hydradens.ready and self.main.hydra_amount * 3 <= self.main.zergling_amount:
+        if self.block_production_for_better_units:
             return False
-        if self.main.caverns.ready and len(self.main.ultralisks) * 8.5 <= self.main.zergling_amount:
-            return False
-        if self.main.floating_buildings_bm:
+        if self.main.floated_buildings_bm:
             return not (self.main.supply_used > 150 or len(self.main.mutalisks) * 10 <= self.main.zergling_amount)
         return True
 
@@ -34,3 +32,15 @@ class ZerglingCreation:
             and self.main.time > 145
             and not self.main.close_enemy_production
         )
+
+    @property
+    def block_production_for_better_units(self):
+        """ Block zerglings if there are better units to be made"""
+        return (self.main.settled_hydraden and self.main.hydra_amount * 3 <= self.main.zergling_amount) or (
+            self.main.settled_cavern and self.main.ultra_amount * 8.5 <= self.main.zergling_amount
+        )
+
+    @property
+    def train_to_avoid_mineral_overflow(self):
+        """ When overflowing with minerals and have a low amount of bases build zerglings"""
+        return self.main.minerals >= 600 and self.main.ready_base_amount <= 5

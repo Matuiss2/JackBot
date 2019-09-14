@@ -10,13 +10,13 @@ class HydraliskCreation:
 
     async def should_handle(self):
         """Requirements to train the hydralisks"""
-        if not self.main.can_train(UnitTypeId.HYDRALISK, self.main.hydradens.ready):
+        if not self.main.can_train(UnitTypeId.HYDRALISK, self.main.settled_hydraden):
             return False
-        if self.main.caverns.ready:
-            return len(self.main.ultralisks) * 4 > self.main.hydra_amount or (
+        if self.main.settled_cavern:
+            return self.main.ultra_amount * 4 > self.main.hydra_amount or (
                 self.main.armor_three_lock and self.main.hydra_amount < 4
             )
-        return not self.main.floating_buildings_bm
+        return not self.main.floated_buildings_bm
 
     async def handle(self):
         """Execute the action of training hydras"""

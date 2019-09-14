@@ -13,8 +13,8 @@ class Expansion:
         """Fourth base sometimes are not build at the expected time maybe reduce the lock for it,
          also maybe the 7th or more hatchery can be postponed for when extra mining patches or production are needed """
         self.drones = self.main.drones.gathering
-        if self.allow_expansion:
-            if self.handle_mineral_overflow:
+        if self.expansion_prerequisites:
+            if self.expand_to_avoid_mineral_overflow:
                 return True
             if not self.main.hatcheries_in_queue:  # This is a mess and surely can be simplified
                 base_amount = self.main.base_amount  # added to save lines
@@ -33,7 +33,7 @@ class Expansion:
                     break
 
     @property
-    def allow_expansion(self):
+    def expansion_prerequisites(self):
         """ Check if its safe to expand and if we have the necessary minerals
          if its not don't even run the remaining expansion logic"""
         return (
@@ -45,7 +45,7 @@ class Expansion:
         )
 
     @property
-    def handle_mineral_overflow(self):
+    def expand_to_avoid_mineral_overflow(self):
         """ When overflowing with minerals run this condition check"""
         return (
             self.main.minerals >= 900

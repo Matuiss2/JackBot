@@ -4,52 +4,8 @@ from sc2.constants import UnitTypeId, EffectId
 from sc2.position import Point2
 
 
-def filter_in_attack_range_of(unit, targets):
-    """
-    Filter targets who are in attack range of the unit
-    Parameters
-    ----------
-    unit: Unit from the attacking force
-    targets: All enemy targets
-
-    Returns
-    -------
-    A subgroup from all the targets select only the ones that are in range
-    """
-    return targets.subgroup(target for target in targets if unit.target_in_range(target))
-
-
 class MicroHelpers:
     """Group all helpers, for unit control and targeting here"""
-
-    def dodge_effects(self, unit):
-        """Dodge any effects"""
-        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
-            return False
-        effects_radius = {
-            EffectId.PSISTORMPERSISTENT: 1.5,
-            EffectId.THERMALLANCESFORWARD: 0.3,
-            EffectId.NUKEPERSISTENT: 8,
-            EffectId.BLINDINGCLOUDCP: 2,
-            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
-            EffectId.LURKERMP: 0.3,
-        }  # Exchange it for '.radius' when the data gets implemented
-        excluded_effects = (
-            EffectId.SCANNERSWEEP,
-            EffectId.GUARDIANSHIELDPERSISTENT,
-            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
-            EffectId.LIBERATORTARGETMORPHPERSISTENT,
-        )  # Placeholder(must find better way to handle some of these)
-        for effect in self.main.state.effects:
-            if effect.id in excluded_effects:
-                continue
-            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
-            if unit.position.distance_to_closest(effect.positions) > danger_zone:
-                break
-            perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
-            self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
-            return True
-        return False
 
     def attack_close_target(self, unit, enemies):
         """
@@ -63,38 +19,15 @@ class MicroHelpers:
         -------
         True and the action(attack low hp enemy or any in range) if it meets the conditions
         """
-        targets_close = filter_in_attack_range_of(unit, enemies)
-        if targets_close:
-            self.attack_low_hp(unit, targets_close)
+        close_targets = enemies.subgroup(target for target in enemies if unit.target_in_range(target))
+        if close_targets:
+            self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, close_targets)))
             return True
-        if self.attack_in_range(unit):
-            return True
-        target = enemies.closest_to(unit)
-        if target:
-            self.main.add_action(unit.attack(target))
+        closest_target = enemies.closest_to(unit)
+        if closest_target:
+            self.main.add_action(unit.attack(closest_target))
             return True
         return None
-
-    def attack_in_range(self, unit):
-        """
-        Attacks the lowest hp enemy in range of the unit
-        Parameters
-        ----------
-        unit: Unit from the attacking force
-
-        Returns
-        -------
-        True and the action(attack low hp enemy) if it meets the conditions
-        """
-        target_in_range = filter_in_attack_range_of(unit, self.main.enemies)
-        if target_in_range:
-            self.attack_low_hp(unit, target_in_range)
-            return True
-        return False
-
-    def attack_low_hp(self, unit, enemies):
-        """Attack close enemy with lowest HP"""
-        self.main.add_action(unit.attack(self.find_closest_lowest_hp(unit, enemies)))
 
     def attack_start_location(self, unit):
         """
@@ -117,7 +50,36 @@ class MicroHelpers:
         """Find the closest within the lowest hp enemies"""
         return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
-    def dodging_disruptor_shots(self, unit):
+    def avoid_effects(self, unit):
+        """Dodge any effects"""
+        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
+            return False
+        effects_radius = {
+            EffectId.PSISTORMPERSISTENT: 1.5,
+            EffectId.THERMALLANCESFORWARD: 0.3,
+            EffectId.NUKEPERSISTENT: 8,
+            EffectId.BLINDINGCLOUDCP: 2,
+            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
+            EffectId.LURKERMP: 0.3,
+        }  # Exchange it for '.radius' when the data gets implemented
+        ignored_effects = (
+            EffectId.SCANNERSWEEP,
+            EffectId.GUARDIANSHIELDPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHPERSISTENT,
+        )  # Placeholder(must find better way to handle some of these)
+        for effect in self.main.state.effects:
+            if effect.id in ignored_effects:
+                continue
+            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
+            if unit.position.distance_to_closest(effect.positions) > danger_zone:
+                break
+            perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
+            self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
+            return True
+        return False
+
+    def avoid_disruptor_shots(self, unit):
         """
         If the enemy has disruptor's, run a dodging code. Exclude ultralisks
         Parameters
@@ -130,11 +92,10 @@ class MicroHelpers:
         """
         if unit.type_id == UnitTypeId.ULTRALISK:
             return False
-        for ball in self.main.enemies.filter(
+        for disruptor_ball in self.main.enemies.filter(
             lambda enemy: enemy.type_id == UnitTypeId.DISRUPTORPHASED and enemy.distance_to(unit) < 5
         ):
-            retreat_point = self.find_retreat_point(ball, unit)
-            self.main.add_action(unit.move(retreat_point))
+            self.main.add_action(unit.move(self.find_retreat_point(disruptor_ball, unit)))
             return True
         return None
 
@@ -185,7 +146,7 @@ class MicroHelpers:
         """
         if await self.main._client.query_pathing(unit, target.closest_to(unit).position):
             if unit.type_id == UnitTypeId.ZERGLING:
-                return self.micro_zerglings(unit, target)
+                return self.microing_zerglings(unit, target)
             self.main.add_action(unit.attack(target.closest_to(unit.position)))
             return True
         if self.main.enemies.not_flying:
@@ -255,8 +216,8 @@ class MicroHelpers:
     def move_to_rallying_point(self, targets, unit):
         """Set the point where the units should gather"""
         if self.main.ready_bases:
-            enemy_base = self.main.enemy_start_locations[0]
-            rally_point = self.main.ready_bases.closest_to(enemy_base).position.towards(enemy_base, 10)
+            enemy_main_base = self.main.enemy_start_locations[0]
+            rally_point = self.main.ready_bases.closest_to(enemy_main_base).position.towards(enemy_main_base, 10)
             if unit.position.distance_to_point2(rally_point) > 5:
                 self.main.add_action(unit.move(rally_point))
         elif targets:
@@ -278,16 +239,16 @@ class MicroHelpers:
         if self.main.townhalls.closer_than(15, unit) or self.main.counter_attack_vs_flying:
             return False
         if self.main.enemy_race == Race.Zerg:
-            enemy_value = self.enemy_value_zerg(unit, target)
+            enemy_value = self.enemy_zerg_value(unit, target)
         elif self.main.enemy_race == Race.Terran:
-            enemy_value = self.enemy_value_terran(unit, target)
+            enemy_value = self.enemy_terran_value(unit, target)
         else:
-            enemy_value = self.enemy_value_protoss(unit, target)
+            enemy_value = self.enemy_protoss_value(unit, target)
         if (
             self.main.townhalls
             and not self.main.close_enemies_to_base
             and not self.main.structures.closer_than(7, unit.position)
-            and enemy_value >= self.battling_force_value(unit.position, 1, 5, 13)
+            and enemy_value >= self.combatants_value(unit.position, 1, 5, 13)
         ):
             self.move_to_rallying_point(target, unit)
             self.retreat_units.add(unit.tag)
@@ -313,7 +274,7 @@ class MicroHelpers:
         return True
 
     @staticmethod
-    def trigger_threats(targets, unit, trigger_range):
+    def threats_on_trigger_range(targets, unit, trigger_range):
         """
         Identify threats based on given range
         Parameters

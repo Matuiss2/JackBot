@@ -6,7 +6,7 @@ from actions.micro.micro_helpers import MicroHelpers
 class ZerglingControl(MicroHelpers):
     """Can be improved in many ways"""
 
-    def baneling_dodging(self, unit, targets):
+    def dodging_banelings(self, unit, targets):
         """
         If the enemy has banelings, run baneling dodging code. It can be improved,
         its a little bugged and just avoid the baneling not pop it
@@ -21,8 +21,7 @@ class ZerglingControl(MicroHelpers):
         """
         self.handling_anti_banelings_group()
         if self.main.enemies.of_type(UnitTypeId.BANELING):
-            banelings = self.baneling_group(unit, targets)
-            for baneling in banelings:
+            for baneling in self.baneling_group(unit, targets):
                 # Check for close banelings and if we've triggered any banelings
                 if baneling.distance_to(unit) < 4 and self.baneling_sacrifices:
                     # If we've triggered this specific baneling
@@ -51,7 +50,7 @@ class ZerglingControl(MicroHelpers):
         -------
         A group that includes every close baneling
         """
-        threats = self.trigger_threats(targets, unit, 5)
+        threats = self.threats_on_trigger_range(targets, unit, 5)
         for threat in threats:
             if threat.type_id == UnitTypeId.BANELING:
                 yield threat
@@ -78,7 +77,7 @@ class ZerglingControl(MicroHelpers):
             if zergling not in self.main.units() or self.baneling_sacrifices[zergling] not in self.main.enemies:
                 del self.baneling_sacrifices[zergling]
 
-    def micro_zerglings(self, unit, targets):
+    def microing_zerglings(self, unit, targets):
         """
         Target low hp units smartly, and surrounds when attack cd is down
         Parameters
@@ -90,7 +89,7 @@ class ZerglingControl(MicroHelpers):
         -------
         The chosen action depending on the zergling situation
         """
-        if self.baneling_dodging(unit, targets):
+        if self.dodging_banelings(unit, targets):
             return True
         if self.check_zergling_modifiers(unit, targets):
             return True

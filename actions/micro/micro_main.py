@@ -1,11 +1,11 @@
 """Everything related to controlling army units goes here"""
 from sc2.constants import UnitTypeId
-from actions.micro.army_value_tables import EnemyArmyValue
+from actions.micro.army_value_tables import ArmyValues
 from actions.micro.unit.zergling_control import ZerglingControl
-from actions.micro.specific_unit_behaviors import UnitsBehavior
+from actions.micro.specific_units_behaviors import SpecificUnitsBehaviors
 
 
-class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
+class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
     """Can be improved performance wise also few bugs on some of it's elements"""
 
     def __init__(self, main):
@@ -22,13 +22,13 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
     async def handle(self):
         """Run the logic for all unit types, it can be improved a lot but is already much better than a-move"""
         self.set_unit_groups()
-        await self.hail_mary_rebuild_main()
+        await self.do_or_die_prompt()
         for attacking_unit in self.atk_force:
-            if self.dodge_effects(attacking_unit):
+            if self.avoid_effects(attacking_unit):
                 continue
-            if self.dodging_disruptor_shots(attacking_unit):
+            if self.avoid_disruptor_shots(attacking_unit):
                 continue
-            if self.anti_proxy_trigger():
+            if self.anti_proxy_prompt:
                 if self.attack_enemy_proxy_units(attacking_unit):
                     continue
                 self.move_to_rallying_point(self.targets, attacking_unit)
@@ -45,13 +45,14 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             if self.target_buildings(attacking_unit):
                 continue
             if not self.main.close_enemies_to_base:
-                self.idle_unit(attacking_unit)
+                self.delegate_idle_unit(attacking_unit)
                 continue
             if self.keep_attacking(attacking_unit):
                 continue
             self.move_to_rallying_point(self.targets, attacking_unit)
 
-    def anti_proxy_trigger(self):
+    @property
+    def anti_proxy_prompt(self):
         """Requirements for the anti-proxy logic"""
         return (
             self.main.close_enemy_production
@@ -61,8 +62,8 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     def anti_terran_bm(self, unit):
         """Logic for countering the floating buildings bm"""
-        if self.main.enemy_structures.flying and unit.can_attack_air:
-            self.main.add_action(unit.attack(self.main.enemy_structures.flying.closest_to(unit.position)))
+        if self.main.flying_enemy_structures and unit.can_attack_air:
+            self.main.add_action(unit.attack(self.main.flying_enemy_structures.closest_to(unit.position)))
             return True
         return False
 
@@ -78,13 +79,13 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
             self.targets
             and unit.type_id == UnitTypeId.ZERGLING
             and self.targets.closer_than(5, unit)
-            and self.micro_zerglings(unit, self.targets)
+            and self.microing_zerglings(unit, self.targets)
         )
 
-    async def hail_mary_rebuild_main(self):
+    async def do_or_die_prompt(self):
         """Just something to stop it going idle, attack with everything if nothing else can be done,
          or rebuild the main if we can, probably won't make much difference since its very different"""
-        if not self.main.townhalls.ready:
+        if not self.main.ready_bases:
             if self.main.minerals < 300:
                 for unit in self.atk_force | self.main.drones:
                     self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
@@ -93,10 +94,10 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
 
     def has_retreated(self, unit):
         """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
-        if self.main.townhalls.closer_than(15, unit.position):
+        if self.main.townhalls.closer_than(15, unit):
             self.retreat_units.remove(unit.tag)
 
-    def idle_unit(self, unit):
+    def delegate_idle_unit(self, unit):
         """
         Control the idle units, by gathering then or telling then to attack
         Parameters
@@ -166,7 +167,7 @@ class ArmyControl(ZerglingControl, UnitsBehavior, EnemyArmyValue):
                 static_defence | filtered_enemies.filter(lambda unit: not unit.is_snapshot) | enemy_base_on_construction
             )
         self.atk_force = self.main.units.of_type(self.army_types)
-        if self.main.floating_buildings_bm and self.main.supply_used >= 199:
+        if self.main.floated_buildings_bm and self.main.supply_used >= 199:
             self.atk_force = self.atk_force | self.main.queens
 
     def target_buildings(self, unit):

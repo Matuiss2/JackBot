@@ -4,7 +4,7 @@ from actions.micro.micro_helpers import MicroHelpers
 from actions.micro.unit.hydralisk_control import HydraControl
 
 
-class UnitsBehavior(HydraControl, MicroHelpers):
+class SpecificUnitsBehaviors(HydraControl, MicroHelpers):
     """Ok for now"""
 
     def specific_hydra_behavior(self, hydra_targets, unit):
@@ -24,7 +24,7 @@ class UnitsBehavior(HydraControl, MicroHelpers):
             if close_hydra_targets:
                 if self.retreat_unit(unit, close_hydra_targets):
                     return True
-                if self.micro_hydras(hydra_targets, unit):
+                if self.microing_hydras(hydra_targets, unit):
                     return True
         return False
 

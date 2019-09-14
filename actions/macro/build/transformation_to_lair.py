@@ -2,7 +2,7 @@
 from sc2.constants import AbilityId, UnitTypeId
 
 
-class LairTransformation:
+class TransformationToLair:
     """Maybe can be improved, probably its a bit greedy it leaves a gap where the bot is vulnerable"""
 
     def __init__(self, main):
@@ -11,10 +11,10 @@ class LairTransformation:
     async def should_handle(self):
         """Requirements to build the lair"""
         return (
-            not (self.main.lairs or self.main.hives)
+            not self.main.upgraded_base
             and (
                 self.main.base_amount >= 3
-                or (self.main.close_enemy_production and len(self.main.evochambers.ready) >= 2)
+                or (self.main.close_enemy_production and len(self.main.settled_evochamber) >= 2)
             )
             and self.main.can_build_unique(UnitTypeId.LAIR, self.main.caverns, self.main.hatcheries.ready.idle)
         )
