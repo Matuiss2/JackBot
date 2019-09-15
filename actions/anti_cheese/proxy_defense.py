@@ -8,8 +8,8 @@ class ProxyDefense:
     def __init__(self, main):
         self.main = main
         self.proxy_buildings = None
-        self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
-        self.atk_b = {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
+        self.worker_types = {UnitTypeId.DRONE, UnitTypeId.PROBE, UnitTypeId.SCV}
+        self.atk_b = {UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS, UnitTypeId.PHOTONCANNON, UnitTypeId.SPINECRAWLER}
         self.enemy_basic_production = {UnitTypeId.BARRACKS, UnitTypeId.GATEWAY}
 
     async def should_handle(self):
