@@ -12,6 +12,17 @@ class CreepSpread:
         self.used_tumors = []
         self.ordered_placements = self.unit_ability = None
 
+    def avoid_blocking_expansions(self, unit):
+        """ This is very expensive to the cpu, need optimization, keeps creep outside expansion locations"""
+        for creep_location in self.ordered_placements:
+            if all(creep_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
+                if self.unit_ability == AbilityId.BUILD_CREEPTUMOR_QUEEN or not self.tumors:
+                    self.add_action(unit(self.unit_ability, creep_location))
+                    break
+                if creep_location.distance_to_closest(self.tumors) >= 4:
+                    self.add_action(unit(self.unit_ability, creep_location))
+                    break
+
     async def place_tumor(self, unit):
         """ Find a nice placement for the tumor and build it if possible, avoid expansion locations
         Makes creep to the enemy base, needs a better value function for the spreading, it gets stuck on ramps"""
@@ -57,14 +68,3 @@ class CreepSpread:
             self.avoid_blocking_expansions(unit)
             if self.unit_ability == AbilityId.BUILD_CREEPTUMOR_TUMOR:
                 self.used_tumors.append(unit.tag)
-
-    def avoid_blocking_expansions(self, unit):
-        """ This is very expensive to the cpu, need optimization, keeps creep outside expansion locations"""
-        for creep_location in self.ordered_placements:
-            if all(creep_location.distance_to_point2(el) > 8.5 for el in self.expansion_locations):
-                if self.unit_ability == AbilityId.BUILD_CREEPTUMOR_QUEEN or not self.tumors:
-                    self.add_action(unit(self.unit_ability, creep_location))
-                    break
-                if creep_location.distance_to_closest(self.tumors) >= 4:
-                    self.add_action(unit(self.unit_ability, creep_location))
-                    break
