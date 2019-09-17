@@ -25,19 +25,19 @@ class ZerglingCreation:
         self.main.add_action(self.main.larvae.random.train(UnitTypeId.ZERGLING))
 
     @property
+    def block_production_for_better_units(self):
+        """ Block zerglings if there are better units to be made"""
+        return (self.main.settled_hydraden and self.main.hydra_amount * 3 <= self.main.zergling_amount) or (
+            self.main.settled_cavern and self.main.ultra_amount * 8.5 <= self.main.zergling_amount
+        )
+
+    @property
     def block_production_for_upgrade(self):
         """ Don't make zerglings if the zergling speed isn't done yet after 2:25"""
         return (
             not self.main.already_pending_upgrade(UpgradeId.ZERGLINGMOVEMENTSPEED)
             and self.main.time > 145
             and not self.main.close_enemy_production
-        )
-
-    @property
-    def block_production_for_better_units(self):
-        """ Block zerglings if there are better units to be made"""
-        return (self.main.settled_hydraden and self.main.hydra_amount * 3 <= self.main.zergling_amount) or (
-            self.main.settled_cavern and self.main.ultra_amount * 8.5 <= self.main.zergling_amount
         )
 
     @property
