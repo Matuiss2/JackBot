@@ -1,6 +1,6 @@
 """Every helper for controlling units go here"""
 from sc2 import Race
-from sc2.constants import UnitTypeId, EffectId
+from sc2.constants import EffectId, UnitTypeId
 from sc2.position import Point2
 
 
@@ -45,10 +45,25 @@ class MicroHelpers:
             return True
         return False
 
-    @staticmethod
-    def find_closest_lowest_hp(unit, enemies):
-        """Find the closest within the lowest hp enemies"""
-        return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
+    def avoid_disruptor_shots(self, unit):
+        """
+        If the enemy has disruptor's, run a dodging code. Exclude ultralisks
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(dodge the shot) if it meets the conditions
+        """
+        if unit.type_id == UnitTypeId.ULTRALISK:
+            return False
+        for disruptor_ball in self.main.enemies.filter(
+            lambda enemy: enemy.type_id == UnitTypeId.DISRUPTORPHASED and enemy.distance_to(unit) < 5
+        ):
+            self.main.add_action(unit.move(self.find_retreat_point(disruptor_ball, unit)))
+            return True
+        return None
 
     def avoid_effects(self, unit):
         """Dodge any effects"""
@@ -79,25 +94,10 @@ class MicroHelpers:
             return True
         return False
 
-    def avoid_disruptor_shots(self, unit):
-        """
-        If the enemy has disruptor's, run a dodging code. Exclude ultralisks
-        Parameters
-        ----------
-        unit: Unit from the attacking force
-
-        Returns
-        -------
-        True and the action(dodge the shot) if it meets the conditions
-        """
-        if unit.type_id == UnitTypeId.ULTRALISK:
-            return False
-        for disruptor_ball in self.main.enemies.filter(
-            lambda enemy: enemy.type_id == UnitTypeId.DISRUPTORPHASED and enemy.distance_to(unit) < 5
-        ):
-            self.main.add_action(unit.move(self.find_retreat_point(disruptor_ball, unit)))
-            return True
-        return None
+    @staticmethod
+    def find_closest_lowest_hp(unit, enemies):
+        """Find the closest within the lowest hp enemies"""
+        return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
     @staticmethod
     def find_pursuit_point(target, unit) -> Point2:

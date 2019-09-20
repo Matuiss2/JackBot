@@ -1,8 +1,8 @@
 """Everything related to controlling army units goes here"""
 from sc2.constants import UnitTypeId
 from actions.micro.army_value_tables import ArmyValues
-from actions.micro.unit.zergling_control import ZerglingControl
 from actions.micro.specific_units_behaviors import SpecificUnitsBehaviors
+from actions.micro.unit.zergling_control import ZerglingControl
 
 
 class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
@@ -82,21 +82,6 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
             and self.microing_zerglings(unit, self.targets)
         )
 
-    async def do_or_die_prompt(self):
-        """Just something to stop it going idle, attack with everything if nothing else can be done,
-         or rebuild the main if we can, probably won't make much difference since its very different"""
-        if not self.main.ready_bases:
-            if self.main.minerals < 300:
-                for unit in self.atk_force | self.main.drones:
-                    self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
-            else:
-                await self.main.expand_now()
-
-    def has_retreated(self, unit):
-        """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
-        if self.main.townhalls.closer_than(15, unit):
-            self.retreat_units.remove(unit.tag)
-
     def delegate_idle_unit(self, unit):
         """
         Control the idle units, by gathering then or telling then to attack
@@ -121,6 +106,21 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
                 self.attack_closest_building(unit)
             return self.attack_start_location(unit)
         return False
+
+    async def do_or_die_prompt(self):
+        """Just something to stop it going idle, attack with everything if nothing else can be done,
+         or rebuild the main if we can, probably won't make much difference since its very different"""
+        if not self.main.ready_bases:
+            if self.main.minerals < 300:
+                for unit in self.atk_force | self.main.drones:
+                    self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
+            else:
+                await self.main.expand_now()
+
+    def has_retreated(self, unit):
+        """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
+        if self.main.townhalls.closer_than(15, unit):
+            self.retreat_units.remove(unit.tag)
 
     def keep_attacking(self, unit):
         """
