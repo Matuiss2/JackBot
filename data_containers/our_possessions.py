@@ -13,13 +13,6 @@ class OurPossessionsData(OurBuildingsData, OurUnitsData, OurQuantityData):
         OurUnitsData.__init__(self)
         self.structures = self.hatcheries = self.lairs = self.hives = self.ready_bases = self.upgraded_base = None
 
-    def initialize_our_amounts(self):
-        """Initialize the amount of everything(repeated) on our possession"""
-        self.buildings_amounts()
-        self.unit_amounts()
-        self.completed_asset_amounts()
-        self.incomplete_asset_amounts()
-
     def initialize_bases(self):
         """Initialize our bases"""
         self.hatcheries = self.units(UnitTypeId.HATCHERY)
@@ -35,6 +28,13 @@ class OurPossessionsData(OurBuildingsData, OurUnitsData, OurQuantityData):
         self.lair_buildings()
         self.hive_buildings()
         self.finished_buildings()
+
+    def initialize_our_amounts(self):
+        """Initialize the amount of everything(repeated) on our possession"""
+        self.buildings_amounts()
+        self.unit_amounts()
+        self.completed_asset_amounts()
+        self.incomplete_asset_amounts()
 
     def initialize_our_stuff(self):
         """Initializes our stuff"""

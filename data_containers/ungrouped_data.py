@@ -8,7 +8,7 @@ class OtherData:
     def __init__(self):
         self.enemies = self.flying_enemies = self.ground_enemies = self.enemy_structures = None
         self.furthest_townhall_to_center = self.flying_enemy_structures = None
-        self.worker_types = {UnitTypeId.DRONE, UnitTypeId.SCV, UnitTypeId.PROBE}
+        self.worker_types = {UnitTypeId.DRONE, UnitTypeId.PROBE, UnitTypeId.SCV}
 
     def initialize_enemies(self):
         """Initialize everything related to enemies"""

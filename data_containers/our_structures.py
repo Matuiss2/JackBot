@@ -9,7 +9,13 @@ class OurBuildingsData:
         self.evochambers = self.pools = self.spines = self.tumors = self.extractors = self.spores = self.spires = None
         self.hydradens = self.pits = self.caverns = self.settled_evochamber = self.settled_pool = None
         self.settled_cavern = self.settled_hydraden = None
-        self.creep_types = {UnitTypeId.CREEPTUMORQUEEN, UnitTypeId.CREEPTUMOR, UnitTypeId.CREEPTUMORBURROWED}
+        self.creep_types = {UnitTypeId.CREEPTUMOR, UnitTypeId.CREEPTUMORBURROWED, UnitTypeId.CREEPTUMORQUEEN}
+
+    def finished_buildings(self):
+        self.settled_evochamber = self.evochambers.ready
+        self.settled_pool = self.pools.ready
+        self.settled_cavern = self.caverns.ready
+        self.settled_hydraden = self.hydradens.ready
 
     def hatchery_buildings(self):
         """Initialize all our buildings(hatchery tech)"""
@@ -29,9 +35,3 @@ class OurBuildingsData:
         """Initialize all our buildings(lair tech)"""
         self.hydradens = self.units(UnitTypeId.HYDRALISKDEN)
         self.pits = self.units(UnitTypeId.INFESTATIONPIT)
-
-    def finished_buildings(self):
-        self.settled_evochamber = self.evochambers.ready
-        self.settled_pool = self.pools.ready
-        self.settled_cavern = self.caverns.ready
-        self.settled_hydraden = self.hydradens.ready

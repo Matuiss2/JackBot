@@ -10,11 +10,11 @@ class OurUnitsData:
         self.mutalisks = self.hydras = self.ultralisks = self.changelings = None
         self.changeling_types = {
             UnitTypeId.CHANGELING,
-            UnitTypeId.CHANGELINGZEALOT,
-            UnitTypeId.CHANGELINGMARINESHIELD,
             UnitTypeId.CHANGELINGMARINE,
-            UnitTypeId.CHANGELINGZERGLINGWINGS,
+            UnitTypeId.CHANGELINGMARINESHIELD,
+            UnitTypeId.CHANGELINGZEALOT,
             UnitTypeId.CHANGELINGZERGLING,
+            UnitTypeId.CHANGELINGZERGLINGWINGS,
         }
 
     def hatchery_units(self):
