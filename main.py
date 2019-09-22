@@ -11,8 +11,8 @@ from sc2.position import Point2
 from actions import get_unit_commands
 from actions.macro.build import get_build_commands
 from actions.macro.build.creep_spread import CreepSpread
-from actions.macro.train import get_train_commands
 from actions.macro.buildings_positions import BuildingsPositions
+from actions.macro.train import get_train_commands
 from actions.macro.upgrades import get_upgrade_commands
 from data_containers.data_container import MainDataContainer
 from global_helpers import Globals
@@ -34,14 +34,14 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         self.upgrade_commands = get_upgrade_commands(self)
         self.ordered_expansions = []
 
-    def on_end(self, game_result):
-        """Prints the game result on the console on the end of each game"""
-        print(game_result.name)
-
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
         if unit.type_id == UnitTypeId.HATCHERY:
             await self.prepare_building_positions(unit.position)
+
+    def on_end(self, game_result):
+        """Prints the game result on the console on the end of each game"""
+        print(game_result.name)
 
     async def on_upgrade_complete(self, upgrade):
         """Optimization, it changes the flag to True for the selected finished upgrade
@@ -50,10 +50,10 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             self.hydra_range = True
         elif upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
             self.hydra_speed = True
-        elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
-            self.zergling_atk_spd = True
         elif upgrade == UpgradeId.ZERGGROUNDARMORSLEVEL2:
             self.second_tier_armor = True
+        elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
+            self.zergling_atk_spd = True
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
