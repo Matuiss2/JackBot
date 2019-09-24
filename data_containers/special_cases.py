@@ -30,14 +30,14 @@ class SituationalData:
         """Prepare data related to enemy units"""
         if self.enemies:
             excluded_from_flying = {
+                UnitTypeId.CORRUPTOR,
+                UnitTypeId.MEDIVAC,
+                UnitTypeId.OBSERVER,
                 UnitTypeId.OVERLORD,
                 UnitTypeId.OVERSEER,
                 UnitTypeId.RAVEN,
-                UnitTypeId.OBSERVER,
-                UnitTypeId.WARPPRISM,
-                UnitTypeId.MEDIVAC,
                 UnitTypeId.VIPER,
-                UnitTypeId.CORRUPTOR,
+                UnitTypeId.WARPPRISM,
             }
             for hatch in self.townhalls:
                 close_enemy = self.ground_enemies.closer_than(20, hatch.position)

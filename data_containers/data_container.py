@@ -8,9 +8,9 @@ class MainDataContainer(SituationalData, OurPossessionsData, OtherData):
     """This is the main data container for all data the bot requires"""
 
     def __init__(self):
-        SituationalData.__init__(self)
-        OurPossessionsData.__init__(self)
         OtherData.__init__(self)
+        OurPossessionsData.__init__(self)
+        SituationalData.__init__(self)
         self.close_enemy_production = self.floated_buildings_bm = None
 
     def enemy_special_cases(self):
@@ -20,7 +20,7 @@ class MainDataContainer(SituationalData, OurPossessionsData, OtherData):
         self.floated_buildings_bm = self.check_for_floated_buildings()
 
     def prepare_data(self):
-        """Prepares the data every iteration"""
+        """Prepares the data every iteration(keep this order)"""
         self.counter_attack_vs_flying = self.close_enemies_to_base = False
         self.initialize_our_stuff()
         self.initialize_enemies()
