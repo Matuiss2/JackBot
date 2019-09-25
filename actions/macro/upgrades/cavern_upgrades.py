@@ -7,7 +7,7 @@ class CavernUpgrades:
 
     def __init__(self, main):
         self.main = main
-        self.selected_research = self.available_cavern = None
+        self.available_cavern = self.selected_research = None
 
     async def should_handle(self):
         """Requirements to upgrade stuff from caverns"""

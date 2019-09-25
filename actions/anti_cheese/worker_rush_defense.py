@@ -9,7 +9,7 @@ class WorkerRushDefense(MicroHelpers):
 
     def __init__(self, main):
         self.main = main
-        self.base = self.close_enemy_workers = self.defense_force = self.defender_tags = self.defense_force_size = None
+        self.base = self.close_enemy_workers = self.defender_tags = self.defense_force = self.defense_force_size = None
         self.worker_types = {UnitTypeId.DRONE, UnitTypeId.PROBE, UnitTypeId.SCV}
 
     async def should_handle(self):

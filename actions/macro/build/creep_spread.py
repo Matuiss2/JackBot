@@ -9,8 +9,8 @@ class CreepSpread:
     """It spreads creeps, finds 'optimal' locations for it(have trouble with ramps, many improvements can be made)"""
 
     def __init__(self):
-        self.used_tumors = []
         self.ordered_placements = self.unit_ability = None
+        self.used_tumors = []
 
     def avoid_blocking_expansions(self, unit):
         """ This is very expensive to the cpu, need optimization, keeps creep outside expansion locations"""

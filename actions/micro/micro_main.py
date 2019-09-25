@@ -10,10 +10,10 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
 
     def __init__(self, main):
         self.main = main
-        self.retreat_units = set()
+        self.atk_force = self.hydra_targets = self.targets = None
+        self.army_types = {UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK, UnitTypeId.ZERGLING}
         self.baneling_sacrifices = {}
-        self.targets = self.atk_force = self.hydra_targets = None
-        self.army_types = {UnitTypeId.ZERGLING, UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK}
+        self.retreat_units = set()
 
     async def should_handle(self):
         """Requirements to run handle"""

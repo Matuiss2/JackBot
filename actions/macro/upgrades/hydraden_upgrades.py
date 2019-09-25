@@ -7,7 +7,7 @@ class HydradenUpgrades:
 
     def __init__(self, main):
         self.main = main
-        self.selected_research = self.available_hydraden = None
+        self.available_hydraden = self.selected_research = None
 
     async def should_handle(self):
         """Requirements to upgrade stuff from hydradens"""

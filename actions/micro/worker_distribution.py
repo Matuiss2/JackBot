@@ -27,8 +27,8 @@ class WorkerDistribution:
         self.close_mineral_fields = self.main.state.mineral_field.filter(
             lambda field: any(field.distance_to(base) <= 8 for base in unsaturated_bases)
         )
-        self.mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
         self.geyser_tags = {ref.tag for ref in self.main.extractors}
+        self.mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
         self.workers_to_distribute = self.main.drones.idle
         bases_deficit = []
         for mining_place in unsaturated_bases | self.main.extractors.ready:

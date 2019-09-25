@@ -7,7 +7,7 @@ class SpawningPoolUpgrades:
 
     def __init__(self, main):
         self.main = main
-        self.selected_research = self.available_pool = None
+        self.available_pool = self.selected_research = None
 
     async def should_handle(self):
         """Requirements to upgrade stuff from pools"""

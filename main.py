@@ -22,15 +22,15 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
     """It makes periodic attacks with zerglings early, it goes hydras mid-game and ultras end-game"""
 
     def __init__(self):
+        BuildingsPositions.__init__(self)
         CreepSpread.__init__(self)
         MainDataContainer.__init__(self)
-        BuildingsPositions.__init__(self)
-        self.hydra_range = self.hydra_speed = self.zergling_atk_spd = self.second_tier_armor = None
-        self.iteration = self.add_action = None
+        self.hydra_range = self.hydra_speed = self.second_tier_armor = self.zergling_atk_spd = None
+        self.add_action = self.iteration = None
         self.armor_three_lock = False
-        self.unit_commands = get_unit_commands(self)
-        self.train_commands = get_train_commands(self)
         self.build_commands = get_build_commands(self)
+        self.train_commands = get_train_commands(self)
+        self.unit_commands = get_unit_commands(self)
         self.upgrade_commands = get_upgrade_commands(self)
         self.ordered_expansions = []
 
