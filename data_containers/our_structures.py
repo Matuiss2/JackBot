@@ -12,6 +12,7 @@ class OurBuildingsData:
         self.creep_types = {UnitTypeId.CREEPTUMOR, UnitTypeId.CREEPTUMORBURROWED, UnitTypeId.CREEPTUMORQUEEN}
 
     def finished_buildings(self):
+        """Initialize some of our buildings that are finished"""
         self.settled_evochamber = self.evochambers.ready
         self.settled_pool = self.pools.ready
         self.settled_cavern = self.caverns.ready

@@ -98,7 +98,7 @@ class WorkerDistribution:
         for _ in repeat(None, iterations):
             selected_tag = self.geyser_tags if mining_place.name == "Extractor" else self.mineral_tags
             moving_drones = self.main.drones.filter(
-                lambda x: x.order_target in selected_tag and x not in self.workers_to_distribute
+                lambda x, st=selected_tag: x.order_target in st and x not in self.workers_to_distribute
             )
             self.workers_to_distribute.append(moving_drones.closest_to(mining_place))
 

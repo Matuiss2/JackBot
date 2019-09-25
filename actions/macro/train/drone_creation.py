@@ -32,6 +32,7 @@ class DroneCreation:
             return True
         if self.workers_total in (13, 14, 15) and self.main.overlord_amount + self.main.ovs_in_queue > 1:
             return True
+        return False
 
     @property
     def general_drone_requirements(self):
