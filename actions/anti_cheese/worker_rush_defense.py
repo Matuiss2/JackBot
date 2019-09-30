@@ -30,8 +30,8 @@ class WorkerRushDefense(MicroHelpers):
                     if not self.save_low_hp_drone(drone):
                         if drone.weapon_cooldown <= 13.4:  # Wanted cd value * 22.4
                             self.attack_close_target(drone, self.close_enemy_workers)
-                        elif not self.move_to_next_target(drone, self.close_enemy_workers):
-                            self.move_low_hp(drone, self.close_enemy_workers)
+                            continue
+                        self.main.add_action(drone.move(self.find_closest_lowest_hp(drone, self.close_enemy_workers)))
             else:
                 self.clear_defense_force()
         elif self.close_enemy_workers:

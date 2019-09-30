@@ -83,9 +83,7 @@ class MicroHelpers:
             EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
             EffectId.LIBERATORTARGETMORPHPERSISTENT,
         )  # Placeholder(must find better way to handle some of these)
-        for effect in self.main.state.effects:
-            if effect.id in ignored_effects:
-                continue
+        for effect in self.main.state.effects.filter(lambda ef: ef.id not in ignored_effects):
             danger_zone = effects_radius[effect.id] + unit.radius + 0.4
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
                 break
@@ -191,10 +189,6 @@ class MicroHelpers:
         self.main.add_action(unit.move(self.find_pursuit_point(target, unit)))  # If our unit is too far, run towards.
         return True
 
-    def move_low_hp(self, unit, enemies):
-        """Move to enemy with lowest HP"""
-        self.main.add_action(unit.move(self.find_closest_lowest_hp(unit, enemies)))
-
     def move_to_next_target(self, unit, enemies):
         """
         It helps on the targeting and positioning on the attack
@@ -209,7 +203,7 @@ class MicroHelpers:
         """
         targets_in_melee_range = enemies.closer_than(1, unit)
         if targets_in_melee_range:
-            self.move_low_hp(unit, targets_in_melee_range)
+            self.main.add_action(unit.move(self.find_closest_lowest_hp(unit, targets_in_melee_range)))
             return True
         return None
 
