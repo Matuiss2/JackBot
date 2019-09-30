@@ -83,7 +83,7 @@ class MicroHelpers:
             EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
             EffectId.LIBERATORTARGETMORPHPERSISTENT,
         )  # Placeholder(must find better way to handle some of these)
-        for effect in self.main.state.effects.filter(lambda ef: ef.id not in ignored_effects):
+        for effect in (ef for ef in self.main.state.effects if ef.id not in ignored_effects):
             danger_zone = effects_radius[effect.id] + unit.radius + 0.4
             if unit.position.distance_to_closest(effect.positions) > danger_zone:
                 break
