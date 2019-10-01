@@ -1,5 +1,6 @@
 """Everything related to army value tables go here"""
 import numpy as np
+from sc2 import Race
 from sc2.constants import UnitTypeId
 
 
@@ -217,6 +218,23 @@ class ArmyValues:
             UnitTypeId.ZEALOT: self.enemy_advantage,
         }
         return calculate_army_value(zerglings_vs_protoss_table, combined_enemies)
+
+    def select_enemy_value_table_by_race(self, unit, targets):
+        """
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+        targets: All enemy targets
+
+        Returns
+        -------
+        The right table value based on enemy race
+        """
+        if self.main.enemy_race == Race.Zerg:
+            return self.enemy_zerg_value(unit, targets)
+        if self.main.enemy_race == Race.Terran:
+            return self.enemy_terran_value(unit, targets)
+        return self.enemy_protoss_value(unit, targets)
 
     def terran_value_for_hydralisks(self, combined_enemies):
         """
