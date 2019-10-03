@@ -18,3 +18,19 @@ CreepyBot)
 - The most recent Python-sc2 library (pip install sc2 or pip3 install --upgrade git+https://github.com/Dentosal/python-sc2@develop -- force-reinstall)
 
 - Numpy newest version
+
+**Extra modules used**
+
+- heapq
+
+- math
+
+- itertools
+
+- argparse
+
+- asyncio
+
+- logging
+
+- aiohttp
