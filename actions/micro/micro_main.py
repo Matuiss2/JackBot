@@ -44,8 +44,7 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
                 continue
             if self.target_buildings(attacking_unit):
                 continue
-            if not self.main.close_enemies_to_base:
-                self.delegate_idle_unit(attacking_unit)
+            if self.delegate_idle_unit(attacking_unit):
                 continue
             if self.keep_attacking(attacking_unit):
                 continue
@@ -93,18 +92,21 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
         -------
         True and the action(attack starting enemy location or retreat) if it meets the conditions
         """
-        if (
-            self.main.townhalls
-            and not self.main.counter_attack_vs_flying
-            and self.gathering_force_value(1, 2, 4) < 42
-            and self.retreat_units
-        ):
-            self.move_to_rallying_point(self.targets, unit)
-            return True
-        if not self.main.close_enemy_production or self.main.time >= 480:
-            if self.main.townhalls:
-                self.attack_closest_building(unit)
-            return self.attack_start_location(unit)
+        if not self.main.close_enemies_to_base:
+            if (
+                self.main.townhalls
+                and not self.main.counter_attack_vs_flying
+                and self.gathering_force_value(1, 2, 4) < 42
+                and self.retreat_units
+            ):
+                self.move_to_rallying_point(self.targets, unit)
+                return True
+            if not self.main.close_enemy_production or self.main.time >= 480:
+                if self.main.townhalls:
+                    self.attack_closest_building(unit)
+                    return True
+                return self.attack_start_location(unit)
+            return False
         return False
 
     async def do_or_die_prompt(self):
