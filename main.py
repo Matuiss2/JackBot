@@ -96,11 +96,11 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
         if self.ground_enemies:
             if len(self.ground_enemies) >= 15:
-                self._client.game_step = 1
-            else:
                 self._client.game_step = 2
+            else:
+                self._client.game_step = 3
         else:
-            self._client.game_step = 3
+            self._client.game_step = 5
 
     def split_workers_on_beginning(self):
         """Split the workers on the beginning """
