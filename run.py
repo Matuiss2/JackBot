@@ -21,7 +21,11 @@ if __name__ == "__main__":
             DIFFICULTY = SECURE_RANDOM.choice([Difficulty.CheatInsane, Difficulty.CheatVision, Difficulty.CheatMoney])
             RACE = SECURE_RANDOM.choice([Race.Protoss, Race.Zerg, Race.Terran])
             FINISHED_SETS = {
+                BUILD == AIBuild.Macro and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Terran,
+                BUILD == AIBuild.Power and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Zerg,
+                BUILD == AIBuild.Rush and DIFFICULTY == Difficulty.CheatInsane and RACE == Race.Zerg,
                 BUILD == AIBuild.Timing and DIFFICULTY == Difficulty.CheatMoney and RACE == Race.Protoss,
+
             }
             if any(FINISHED_SETS):
                 print(f"{DIFFICULTY.name} {RACE.name} {BUILD.name} already done")
