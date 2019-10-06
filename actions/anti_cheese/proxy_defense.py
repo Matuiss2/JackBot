@@ -8,9 +8,9 @@ class ProxyDefense:
     def __init__(self, main):
         self.main = main
         self.proxy_buildings = None
-        self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
-        self.atk_b = {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
+        self.atk_b = {UnitTypeId.BUNKER, UnitTypeId.PHOTONCANNON, UnitTypeId.PLANETARYFORTRESS, UnitTypeId.SPINECRAWLER}
         self.enemy_basic_production = {UnitTypeId.BARRACKS, UnitTypeId.GATEWAY}
+        self.worker_types = {UnitTypeId.DRONE, UnitTypeId.PROBE, UnitTypeId.SCV}
 
     async def should_handle(self):
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""

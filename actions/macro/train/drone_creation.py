@@ -12,10 +12,10 @@ class DroneCreation:
     async def should_handle(self):
         """Should this action be handled, needs more smart limitations, its very greedy sometimes"""
         self.workers_total = self.main.drone_amount
-        extractors = self.main.extractors  # to save lines
         if self.general_drone_requirements:
             if self.drone_building_on_beginning:
                 return True
+            extractors = self.main.extractors  # to save lines
             workers_optimal_amount = min(sum(mp.ideal_harvesters * 1.15 for mp in self.main.townhalls | extractors), 91)
             if self.workers_total + self.main.drones_in_queue < workers_optimal_amount:
                 return self.main.zergling_amount >= 18 or (self.main.time >= 840 and self.main.drones_in_queue < 3)
@@ -26,6 +26,15 @@ class DroneCreation:
         self.main.add_action(self.main.larvae.random.train(UnitTypeId.DRONE))
 
     @property
+    def drone_building_on_beginning(self):
+        """Requirements for building drones on the early game"""
+        if self.workers_total == 12 and not self.main.drones_in_queue:
+            return True
+        if self.workers_total in (13, 14, 15) and self.main.overlord_amount + self.main.ovs_in_queue > 1:
+            return True
+        return False
+
+    @property
     def general_drone_requirements(self):
         """Constant requirements for building drones"""
         return (
@@ -33,11 +42,3 @@ class DroneCreation:
             and self.main.can_train(UnitTypeId.DRONE)
             and not self.main.counter_attack_vs_flying
         )
-
-    @property
-    def drone_building_on_beginning(self):
-        """Requirements for building drones on the early game"""
-        if self.workers_total == 12 and not self.main.drones_in_queue:
-            return True
-        if self.workers_total in (13, 14, 15) and self.main.overlord_amount + self.main.ovs_in_queue > 1:
-            return True

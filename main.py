@@ -11,8 +11,8 @@ from sc2.position import Point2
 from actions import get_unit_commands
 from actions.macro.build import get_build_commands
 from actions.macro.build.creep_spread import CreepSpread
-from actions.macro.train import get_train_commands
 from actions.macro.buildings_positions import BuildingsPositions
+from actions.macro.train import get_train_commands
 from actions.macro.upgrades import get_upgrade_commands
 from data_containers.data_container import MainDataContainer
 from global_helpers import Globals
@@ -22,26 +22,26 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
     """It makes periodic attacks with zerglings early, it goes hydras mid-game and ultras end-game"""
 
     def __init__(self):
+        BuildingsPositions.__init__(self)
         CreepSpread.__init__(self)
         MainDataContainer.__init__(self)
-        BuildingsPositions.__init__(self)
-        self.hydra_range = self.hydra_speed = self.zergling_atk_spd = self.second_tier_armor = None
-        self.iteration = self.add_action = None
+        self.hydra_range = self.hydra_speed = self.second_tier_armor = self.zergling_atk_spd = None
+        self.add_action = self.iteration = None
         self.armor_three_lock = False
-        self.unit_commands = get_unit_commands(self)
-        self.train_commands = get_train_commands(self)
         self.build_commands = get_build_commands(self)
+        self.train_commands = get_train_commands(self)
+        self.unit_commands = get_unit_commands(self)
         self.upgrade_commands = get_upgrade_commands(self)
         self.ordered_expansions = []
-
-    def on_end(self, game_result):
-        """Prints the game result on the console on the end of each game"""
-        print(game_result.name)
 
     async def on_building_construction_complete(self, unit):
         """Prepares all the building placements near a new expansion"""
         if unit.type_id == UnitTypeId.HATCHERY:
             await self.prepare_building_positions(unit.position)
+
+    def on_end(self, game_result):
+        """Prints the game result on the console on the end of each game"""
+        print(game_result.name)
 
     async def on_upgrade_complete(self, upgrade):
         """Optimization, it changes the flag to True for the selected finished upgrade
@@ -50,10 +50,10 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
             self.hydra_range = True
         elif upgrade == UpgradeId.EVOLVEMUSCULARAUGMENTS:
             self.hydra_speed = True
-        elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
-            self.zergling_atk_spd = True
         elif upgrade == UpgradeId.ZERGGROUNDARMORSLEVEL2:
             self.second_tier_armor = True
+        elif upgrade == UpgradeId.ZERGLINGATTACKSPEED:
+            self.zergling_atk_spd = True
 
     async def on_step(self, iteration):
         """Group all other functions in this bot, its the main"""
@@ -96,11 +96,11 @@ class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Glo
         """It sets the interval of frames that it will take to make the actions, depending of the game situation"""
         if self.ground_enemies:
             if len(self.ground_enemies) >= 15:
-                self._client.game_step = 1
-            else:
                 self._client.game_step = 2
+            else:
+                self._client.game_step = 3
         else:
-            self._client.game_step = 3
+            self._client.game_step = 5
 
     def split_workers_on_beginning(self):
         """Split the workers on the beginning """

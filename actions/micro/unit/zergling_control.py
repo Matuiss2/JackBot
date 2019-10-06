@@ -6,6 +6,38 @@ from actions.micro.micro_helpers import MicroHelpers
 class ZerglingControl(MicroHelpers):
     """Can be improved in many ways"""
 
+    def baneling_group(self, unit, targets):
+        """
+        Put the banelings on one group
+        Parameters
+        ----------
+        unit: One zergling from the attacking force
+        targets: The enemy zergling targets, it groups almost every enemy unit on the ground
+
+        Returns
+        -------
+        A group that includes every close baneling
+        """
+        threats = self.threats_on_trigger_range(targets, unit, 5)
+        for threat in threats:
+            if threat.type_id == UnitTypeId.BANELING:
+                yield threat
+
+    def check_zergling_modifiers(self, unit, targets):
+        """
+        Modifiers for zerglings
+        Parameters
+        ----------
+        unit: One zergling from the attacking force
+        targets: The enemy zergling targets, it groups almost every enemy unit on the ground
+        Returns
+        -------
+        The chosen action depending on the modifiers
+        """
+        if unit.weapon_cooldown <= 8.85 or (unit.weapon_cooldown <= 6.35 and self.main.zergling_atk_spd):
+            return self.attack_close_target(unit, targets)
+        return self.move_to_next_target(unit, targets)
+
     def dodging_banelings(self, unit, targets):
         """
         If the enemy has banelings, run baneling dodging code. It can be improved,
@@ -38,39 +70,6 @@ class ZerglingControl(MicroHelpers):
                 return self.triggering_banelings(unit, baneling)
         return False
 
-    def baneling_group(self, unit, targets):
-        """
-        Put the banelings on one group
-        Parameters
-        ----------
-        unit: One zergling from the attacking force
-        targets: The enemy zergling targets, it groups almost every enemy unit on the ground
-
-        Returns
-        -------
-        A group that includes every close baneling
-        """
-        threats = self.threats_on_trigger_range(targets, unit, 5)
-        for threat in threats:
-            if threat.type_id == UnitTypeId.BANELING:
-                yield threat
-
-    def triggering_banelings(self, unit, baneling):
-        """
-        If we haven't triggered any banelings, trigger it.
-        Parameters
-        ----------
-        unit: One zergling from the attacking force
-        baneling: A baneling from the baneling_group
-
-        Returns
-        -------
-        Action to pop the enemy baneling
-        """
-        self.baneling_sacrifices[unit] = baneling
-        self.main.add_action(unit.attack(baneling))
-        return True
-
     def handling_anti_banelings_group(self):
         """If the sacrificial zergling dies before the missions is over remove him from the group(needs to be fixed)"""
         for zergling in list(self.baneling_sacrifices):
@@ -98,17 +97,18 @@ class ZerglingControl(MicroHelpers):
         self.main.add_action(unit.attack(targets.closest_to(unit.position)))
         return True
 
-    def check_zergling_modifiers(self, unit, targets):
+    def triggering_banelings(self, unit, baneling):
         """
-        Modifiers for zerglings
+        If we haven't triggered any banelings, trigger it.
         Parameters
         ----------
         unit: One zergling from the attacking force
-        targets: The enemy zergling targets, it groups almost every enemy unit on the ground
+        baneling: A baneling from the baneling_group
+
         Returns
         -------
-        The chosen action depending on the modifiers
+        Action to pop the enemy baneling
         """
-        if unit.weapon_cooldown <= 8.85 or (unit.weapon_cooldown <= 6.35 and self.main.zergling_atk_spd):
-            return self.attack_close_target(unit, targets)
-        return self.move_to_next_target(unit, targets)
+        self.baneling_sacrifices[unit] = baneling
+        self.main.add_action(unit.attack(baneling))
+        return True

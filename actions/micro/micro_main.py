@@ -1,8 +1,8 @@
 """Everything related to controlling army units goes here"""
 from sc2.constants import UnitTypeId
 from actions.micro.army_value_tables import ArmyValues
-from actions.micro.unit.zergling_control import ZerglingControl
 from actions.micro.specific_units_behaviors import SpecificUnitsBehaviors
+from actions.micro.unit.zergling_control import ZerglingControl
 
 
 class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
@@ -10,10 +10,10 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
 
     def __init__(self, main):
         self.main = main
-        self.retreat_units = set()
+        self.atk_force = self.hydra_targets = self.targets = None
+        self.army_types = {UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK, UnitTypeId.ZERGLING}
         self.baneling_sacrifices = {}
-        self.targets = self.atk_force = self.hydra_targets = None
-        self.army_types = {UnitTypeId.ZERGLING, UnitTypeId.HYDRALISK, UnitTypeId.MUTALISK, UnitTypeId.ULTRALISK}
+        self.retreat_units = set()
 
     async def should_handle(self):
         """Requirements to run handle"""
@@ -44,8 +44,7 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
                 continue
             if self.target_buildings(attacking_unit):
                 continue
-            if not self.main.close_enemies_to_base:
-                self.delegate_idle_unit(attacking_unit)
+            if self.delegate_idle_unit(attacking_unit):
                 continue
             if self.keep_attacking(attacking_unit):
                 continue
@@ -82,6 +81,34 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
             and self.microing_zerglings(unit, self.targets)
         )
 
+    def delegate_idle_unit(self, unit):
+        """
+        Control the idle units, by gathering then or telling then to attack
+        Parameters
+        ----------
+        unit: Unit from the attacking force
+
+        Returns
+        -------
+        True and the action(attack starting enemy location or retreat) if it meets the conditions
+        """
+        if not self.main.close_enemies_to_base:
+            if (
+                self.main.townhalls
+                and not self.main.counter_attack_vs_flying
+                and self.gathering_force_value(1, 2, 4) < 42
+                and self.retreat_units
+            ):
+                self.move_to_rallying_point(self.targets, unit)
+                return True
+            if not self.main.close_enemy_production or self.main.time >= 480:
+                if self.main.townhalls:
+                    self.attack_closest_building(unit)
+                    return True
+                return self.attack_start_location(unit)
+            return False
+        return False
+
     async def do_or_die_prompt(self):
         """Just something to stop it going idle, attack with everything if nothing else can be done,
          or rebuild the main if we can, probably won't make much difference since its very different"""
@@ -96,31 +123,6 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
         """Identify if the unit has retreated(a little bugged it doesn't always clean it)"""
         if self.main.townhalls.closer_than(15, unit):
             self.retreat_units.remove(unit.tag)
-
-    def delegate_idle_unit(self, unit):
-        """
-        Control the idle units, by gathering then or telling then to attack
-        Parameters
-        ----------
-        unit: Unit from the attacking force
-
-        Returns
-        -------
-        True and the action(attack starting enemy location or retreat) if it meets the conditions
-        """
-        if (
-            self.main.townhalls
-            and not self.main.counter_attack_vs_flying
-            and self.gathering_force_value(1, 2, 4) < 42
-            and self.retreat_units
-        ):
-            self.move_to_rallying_point(self.targets, unit)
-            return True
-        if not self.main.close_enemy_production or self.main.time >= 480:
-            if self.main.townhalls:
-                self.attack_closest_building(unit)
-            return self.attack_start_location(unit)
-        return False
 
     def keep_attacking(self, unit):
         """

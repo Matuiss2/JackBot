@@ -1,4 +1,5 @@
 """Everything related to scouting with drones goes here"""
+from itertools import chain
 
 
 class DroneControl:
@@ -16,7 +17,5 @@ class DroneControl:
         """It sends a drone to scout the map, for bases or proxies"""
         selected_drone = self.main.drones.random
         self.scout = True
-        for point in self.main.ordered_expansions[1:6]:
-            self.main.add_action(selected_drone.move(point, queue=True))
-        for point in self.main.enemy_start_locations:
+        for point in chain(self.main.ordered_expansions[1:6], self.main.enemy_start_locations):
             self.main.add_action(selected_drone.move(point, queue=True))

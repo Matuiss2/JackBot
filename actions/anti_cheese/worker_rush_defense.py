@@ -9,8 +9,8 @@ class WorkerRushDefense(MicroHelpers):
 
     def __init__(self, main):
         self.main = main
-        self.base = self.close_enemy_workers = self.defense_force = self.defender_tags = self.defense_force_size = None
-        self.worker_types = {UnitTypeId.PROBE, UnitTypeId.DRONE, UnitTypeId.SCV}
+        self.base = self.close_enemy_workers = self.defender_tags = self.defense_force = self.defense_force_size = None
+        self.worker_types = {UnitTypeId.DRONE, UnitTypeId.PROBE, UnitTypeId.SCV}
 
     async def should_handle(self):
         """Requirements to run handle"""
@@ -30,8 +30,8 @@ class WorkerRushDefense(MicroHelpers):
                     if not self.save_low_hp_drone(drone):
                         if drone.weapon_cooldown <= 13.4:  # Wanted cd value * 22.4
                             self.attack_close_target(drone, self.close_enemy_workers)
-                        elif not self.move_to_next_target(drone, self.close_enemy_workers):
-                            self.move_low_hp(drone, self.close_enemy_workers)
+                            continue
+                        self.main.add_action(drone.move(self.find_closest_lowest_hp(drone, self.close_enemy_workers)))
             else:
                 self.clear_defense_force()
         elif self.close_enemy_workers:
@@ -45,19 +45,6 @@ class WorkerRushDefense(MicroHelpers):
                 self.main.add_action(drone.gather(selected_mineral_field))
             self.defender_tags = []
             self.defense_force = None
-
-    def select_defense_force(self, count):
-        """
-        Select all drones needed on the defenders force
-        Parameters
-        ----------
-        count: The needed amount of drones to fill the defense force
-
-        Returns
-        -------
-        A list with all drones that are part of the defense force, ordered by health(highest one prioritized)
-        """
-        return [unit.tag for unit in heapq.nlargest(count, self.main.drones.collecting, key=lambda dr: dr.health)]
 
     def refill_defense_force(self):
         """If there are less workers on the defenders force than the ideal refill it"""
@@ -84,3 +71,16 @@ class WorkerRushDefense(MicroHelpers):
                 self.defender_tags.remove(drone.tag)
             return True
         return False
+
+    def select_defense_force(self, count):
+        """
+        Select all drones needed on the defenders force
+        Parameters
+        ----------
+        count: The needed amount of drones to fill the defense force
+
+        Returns
+        -------
+        A list with all drones that are part of the defense force, ordered by health(highest one prioritized)
+        """
+        return [unit.tag for unit in heapq.nlargest(count, self.main.drones.collecting, key=lambda dr: dr.health)]

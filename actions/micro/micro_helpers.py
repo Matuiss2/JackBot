@@ -1,6 +1,5 @@
 """Every helper for controlling units go here"""
-from sc2 import Race
-from sc2.constants import UnitTypeId, EffectId
+from sc2.constants import EffectId, UnitTypeId
 from sc2.position import Point2
 
 
@@ -45,40 +44,6 @@ class MicroHelpers:
             return True
         return False
 
-    @staticmethod
-    def find_closest_lowest_hp(unit, enemies):
-        """Find the closest within the lowest hp enemies"""
-        return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
-
-    def avoid_effects(self, unit):
-        """Dodge any effects"""
-        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
-            return False
-        effects_radius = {
-            EffectId.PSISTORMPERSISTENT: 1.5,
-            EffectId.THERMALLANCESFORWARD: 0.3,
-            EffectId.NUKEPERSISTENT: 8,
-            EffectId.BLINDINGCLOUDCP: 2,
-            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
-            EffectId.LURKERMP: 0.3,
-        }  # Exchange it for '.radius' when the data gets implemented
-        ignored_effects = (
-            EffectId.SCANNERSWEEP,
-            EffectId.GUARDIANSHIELDPERSISTENT,
-            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
-            EffectId.LIBERATORTARGETMORPHPERSISTENT,
-        )  # Placeholder(must find better way to handle some of these)
-        for effect in self.main.state.effects:
-            if effect.id in ignored_effects:
-                continue
-            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
-            if unit.position.distance_to_closest(effect.positions) > danger_zone:
-                break
-            perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
-            self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
-            return True
-        return False
-
     def avoid_disruptor_shots(self, unit):
         """
         If the enemy has disruptor's, run a dodging code. Exclude ultralisks
@@ -98,6 +63,38 @@ class MicroHelpers:
             self.main.add_action(unit.move(self.find_retreat_point(disruptor_ball, unit)))
             return True
         return None
+
+    def avoid_effects(self, unit):
+        """Dodge any effects"""
+        if not self.main.state.effects or unit.type_id == UnitTypeId.ULTRALISK:
+            return False
+        effects_radius = {
+            EffectId.PSISTORMPERSISTENT: 1.5,
+            EffectId.THERMALLANCESFORWARD: 0.3,
+            EffectId.NUKEPERSISTENT: 8,
+            EffectId.BLINDINGCLOUDCP: 2,
+            EffectId.RAVAGERCORROSIVEBILECP: 0.5,
+            EffectId.LURKERMP: 0.3,
+        }  # Exchange it for '.radius' when the data gets implemented
+        ignored_effects = (
+            EffectId.SCANNERSWEEP,
+            EffectId.GUARDIANSHIELDPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHDELAYPERSISTENT,
+            EffectId.LIBERATORTARGETMORPHPERSISTENT,
+        )  # Placeholder(must find better way to handle some of these)
+        for effect in (ef for ef in self.main.state.effects if ef.id not in ignored_effects):
+            danger_zone = effects_radius[effect.id] + unit.radius + 0.4
+            if unit.position.distance_to_closest(effect.positions) > danger_zone:
+                break
+            perimeter_of_effect = Point2.center(effect.positions).furthest(list(unit.position.neighbors8))
+            self.main.add_action(unit.move(perimeter_of_effect.towards(unit.position, -danger_zone)))
+            return True
+        return False
+
+    @staticmethod
+    def find_closest_lowest_hp(unit, enemies):
+        """Find the closest within the lowest hp enemies"""
+        return enemies.filter(lambda x: x.health == min(enemy.health for enemy in enemies)).closest_to(unit)
 
     @staticmethod
     def find_pursuit_point(target, unit) -> Point2:
@@ -191,10 +188,6 @@ class MicroHelpers:
         self.main.add_action(unit.move(self.find_pursuit_point(target, unit)))  # If our unit is too far, run towards.
         return True
 
-    def move_low_hp(self, unit, enemies):
-        """Move to enemy with lowest HP"""
-        self.main.add_action(unit.move(self.find_closest_lowest_hp(unit, enemies)))
-
     def move_to_next_target(self, unit, enemies):
         """
         It helps on the targeting and positioning on the attack
@@ -209,7 +202,7 @@ class MicroHelpers:
         """
         targets_in_melee_range = enemies.closer_than(1, unit)
         if targets_in_melee_range:
-            self.move_low_hp(unit, targets_in_melee_range)
+            self.main.add_action(unit.move(self.find_closest_lowest_hp(unit, targets_in_melee_range)))
             return True
         return None
 
@@ -238,17 +231,11 @@ class MicroHelpers:
         """
         if self.main.townhalls.closer_than(15, unit) or self.main.counter_attack_vs_flying:
             return False
-        if self.main.enemy_race == Race.Zerg:
-            enemy_value = self.enemy_zerg_value(unit, target)
-        elif self.main.enemy_race == Race.Terran:
-            enemy_value = self.enemy_terran_value(unit, target)
-        else:
-            enemy_value = self.enemy_protoss_value(unit, target)
         if (
             self.main.townhalls
             and not self.main.close_enemies_to_base
             and not self.main.structures.closer_than(7, unit.position)
-            and enemy_value >= self.combatants_value(unit.position, 1, 5, 13)
+            and self.select_enemy_value_table_by_race(unit, target) >= self.combatants_value(unit.position, 1, 5, 13)
         ):
             self.move_to_rallying_point(target, unit)
             self.retreat_units.add(unit.tag)

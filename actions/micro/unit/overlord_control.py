@@ -7,7 +7,7 @@ class OverlordControl:
     def __init__(self, main):
         self.main = main
         self.first_ov_scout = self.second_ov_scout = self.third_ov_scout = False
-        self.selected_ov = self.scout_position = self.ready_overlords = None
+        self.ready_overlords = self.scout_position = self.selected_ov = None
 
     async def should_handle(self):
         """Requirements to move the overlords"""
