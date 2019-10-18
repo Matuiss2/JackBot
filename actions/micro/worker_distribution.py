@@ -1,6 +1,7 @@
 """Everything related to distributing drones to the right resource goes here"""
 from itertools import repeat
-from sc2.constants import UnitTypeId, UpgradeId
+from sc2.constants import UnitTypeId
+from sc2.ids.upgrade_id import UpgradeId
 
 
 class WorkerDistribution:

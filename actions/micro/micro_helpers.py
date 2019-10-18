@@ -1,5 +1,6 @@
 """Every helper for controlling units go here"""
-from sc2.constants import EffectId, UnitTypeId
+from sc2.constants import UnitTypeId
+from sc2.ids.effect_id import EffectId
 from sc2.position import Point2
 
 

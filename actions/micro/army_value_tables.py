@@ -1,6 +1,6 @@
 """Everything related to army value tables go here"""
 import numpy as np
-from sc2 import Race
+from sc2.player import RACE
 from sc2.constants import UnitTypeId
 
 
@@ -230,9 +230,9 @@ class ArmyValues:
         -------
         The right table value based on enemy race
         """
-        if self.main.enemy_race == Race.Zerg:
+        if self.main.enemy_race == RACE.Zerg:
             return self.enemy_zerg_value(unit, targets)
-        if self.main.enemy_race == Race.Terran:
+        if self.main.enemy_race == RACE.Terran:
             return self.enemy_terran_value(unit, targets)
         return self.enemy_protoss_value(unit, targets)
 

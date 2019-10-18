@@ -6,7 +6,8 @@ Helfull(the idea and implementation of this bots structure came from him, also m
 Niknoc(made the initial hydra micro code) ,
 Turing's Ego(helped with the code cleaning)"""
 import sc2
-from sc2.constants import UnitTypeId, UpgradeId
+from sc2.constants import UnitTypeId
+from sc2.ids.upgrade_id import UpgradeId
 from sc2.position import Point2
 from actions import get_unit_commands
 from actions.macro.build import get_build_commands
