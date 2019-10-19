@@ -1,5 +1,6 @@
 """Everything related to training ultralisks goes here"""
-from sc2.constants import UnitTypeId, UpgradeId
+from sc2.ids.upgrade_id import UpgradeId
+from sc2.constants import UnitTypeId
 
 
 class UltraliskCreation:

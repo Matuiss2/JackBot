@@ -12,9 +12,7 @@ class TransformationToHive:
     async def should_handle(self):
         """Requirement to build the hive, maybe its too greedy maybe we should raise the lock for it"""
         self.idle_lairs = self.main.lairs.ready.idle
-        return self.idle_lairs and self.main.can_build_unique(
-            UnitTypeId.HIVE, self.main.caverns, self.main.pits.ready
-        )
+        return self.idle_lairs and self.main.can_build_unique(UnitTypeId.HIVE, self.main.caverns, self.main.pits.ready)
 
     async def handle(self):
         """Finishes the action of making the hive"""

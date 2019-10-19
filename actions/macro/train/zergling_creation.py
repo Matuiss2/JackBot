@@ -1,5 +1,6 @@
 """Everything related to training zergling goes here"""
-from sc2.constants import UnitTypeId, UpgradeId
+from sc2.constants import UnitTypeId
+from sc2.ids.upgrade_id import UpgradeId
 
 
 class ZerglingCreation:

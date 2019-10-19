@@ -1,7 +1,7 @@
 """Everything related to calculate the creep spreading goes here"""
 import math
 from sc2.constants import AbilityId
-from sc2.data import ActionResult
+from sc2.data import ACTION_RESULT
 from sc2.position import Point2
 
 
@@ -52,7 +52,7 @@ class CreepSpread:
             self._game_data.abilities[AbilityId.ZERGBUILD_CREEPTUMOR.value], positions
         )
         # filter the successful ones on a list
-        valid_placements = [p2 for idx, p2 in enumerate(positions) if positions_vacancy[idx] == ActionResult.Success]
+        valid_placements = [p2 for idx, p2 in enumerate(positions) if positions_vacancy[idx] == ACTION_RESULT.Success]
         final_destiny = self.enemy_start_locations[0]
         if valid_placements:
             if self.tumors:
