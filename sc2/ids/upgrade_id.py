@@ -302,7 +302,6 @@ class UpgradeId(enum.Enum):
     CARRIERCARRIERCAPACITY = 294
     CARRIERLEASHRANGEUPGRADE = 295
 
-
     def __repr__(self):
         return f"UpgradeId.{self.name}"
 

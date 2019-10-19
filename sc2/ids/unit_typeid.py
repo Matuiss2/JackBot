@@ -1976,7 +1976,6 @@ class UnitTypeId(enum.Enum):
     COLLAPSIBLEROCKTOWERRAMPLEFTGREEN = 1968
     COLLAPSIBLEROCKTOWERRAMPRIGHTGREEN = 1969
 
-
     def __repr__(self):
         return f"UnitTypeId.{self.name}"
 
