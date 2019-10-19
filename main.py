@@ -5,7 +5,7 @@ Burny(this bot is derived from his CreepyBot, it's already very different but gi
 Helfull(the idea and implementation of this bots structure came from him, also made the initial effect dodging code),
 Niknoc(made the initial hydra micro code) ,
 Turing's Ego(helped with the code cleaning)"""
-import sc2
+from sc2.bot_ai import BotAI
 from sc2.constants import UnitTypeId
 from sc2.ids.upgrade_id import UpgradeId
 from sc2.position import Point2
@@ -19,7 +19,7 @@ from data_containers.data_container import MainDataContainer
 from global_helpers import Globals
 
 
-class JackBot(sc2.BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Globals):
+class JackBot(BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Globals):
     """It makes periodic attacks with zerglings early, it goes hydras mid-game and ultras end-game"""
 
     def __init__(self):

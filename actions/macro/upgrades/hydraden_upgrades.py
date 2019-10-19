@@ -1,5 +1,6 @@
 """Upgrading hydras speed and range"""
-from sc2.constants import AbilityId, UpgradeId
+from sc2.constants import AbilityId
+from sc2.ids.upgrade_id import UpgradeId
 
 
 class HydradenUpgrades:
