@@ -25,11 +25,11 @@ class WorkerDistribution:
     def calculate_distribution(self):
         """Calculate the ideal distribution for workers"""
         unsaturated_bases = self.main.ready_bases.filter(lambda base: base.ideal_harvesters > 0)
-        self.close_mineral_fields = self.main.state.mineral_field.filter(
+        self.close_mineral_fields = self.main.mineral_field.filter(
             lambda field: any(field.distance_to(base) <= 8 for base in unsaturated_bases)
         )
         self.geyser_tags = {ref.tag for ref in self.main.extractors}
-        self.mineral_tags = {mf.tag for mf in self.main.state.mineral_field}
+        self.mineral_tags = {mf.tag for mf in self.main.mineral_field}
         self.workers_to_distribute = self.main.drones.idle
         bases_deficit = []
         for mining_place in unsaturated_bases | self.main.extractors.ready:

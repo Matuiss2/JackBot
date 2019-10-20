@@ -42,7 +42,7 @@ class BuildingsPositions:
     def initial_triage_for_viable_locations(self, townhall_center):
         """ Find all positions behind the mineral line"""
         surroundings = range(-11, 12)
-        townhall_mineral_fields = self.state.mineral_field.closer_than(10, townhall_center)
+        townhall_mineral_fields = self.mineral_field.closer_than(10, townhall_center)
         if townhall_mineral_fields:
             self.viable_points = [
                 point

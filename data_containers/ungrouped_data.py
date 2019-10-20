@@ -12,8 +12,8 @@ class OtherData:
 
     def initialize_enemies(self):
         """Initialize everything related to enemies"""
-        self.enemies = self.known_enemy_units
-        self.enemy_structures = self.known_enemy_structures.exclude_type(UnitTypeId.AUTOTURRET)
+        self.enemies = self.enemy_units
+        self.enemy_structures = self.enemy_structures.exclude_type(UnitTypeId.AUTOTURRET)
         self.flying_enemies = self.enemies.flying
         self.flying_enemy_structures = self.enemy_structures.flying
         self.ground_enemies = self.enemies.not_flying.not_structure.exclude_type(self.worker_types)

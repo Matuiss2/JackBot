@@ -40,7 +40,7 @@ class WorkerRushDefense(MicroHelpers):
     def clear_defense_force(self):
         """If there is more workers on the defenders force than the ideal put it back to mining"""
         if self.defense_force:
-            selected_mineral_field = self.main.state.mineral_field.closest_to(self.base.first)
+            selected_mineral_field = self.main.mineral_field.closest_to(self.base.first)
             for drone in self.defense_force:
                 self.main.add_action(drone.gather(selected_mineral_field))
             self.defender_tags = []
@@ -66,7 +66,7 @@ class WorkerRushDefense(MicroHelpers):
         """
         if drone.health <= 6:
             if not drone.is_collecting:
-                self.main.add_action(drone.gather(self.main.state.mineral_field.closest_to(self.base.first.position)))
+                self.main.add_action(drone.gather(self.main.mineral_field.closest_to(self.base.first.position)))
             else:
                 self.defender_tags.remove(drone.tag)
             return True

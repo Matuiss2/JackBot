@@ -106,4 +106,4 @@ class JackBot(BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Globals
     def split_workers_on_beginning(self):
         """Split the workers on the beginning """
         for drone in self.drones:
-            self.add_action(drone.gather(self.state.mineral_field.closest_to(drone)))
+            self.add_action(drone.gather(self.mineral_field.closest_to(drone)))
