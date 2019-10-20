@@ -64,7 +64,6 @@ class Ramp:
         if len(self.upper) > 5:
             # NOTE: this was way too slow on large ramps
             return set()  # HACK: makes this work for now
-            # FIXME: please do
 
         upper2 = sorted(list(self.upper), key=lambda x: x.distance_to_point2(self.bottom_center), reverse=True)
         while len(upper2) > 2:
@@ -279,7 +278,6 @@ class GameInfo:
         painting clusters of points in a rectangular map using flood fill algorithm.
         Returns groups of points as list, like [{p1, p2, p3}, {p4, p5, p6, p7, p8}]
         """
-        # TODO do we actually need colors here? the ramps will never touch anyways.
         not_colored_yet = -1
         map_width = self.pathing_grid.width
         map_height = self.pathing_grid.height

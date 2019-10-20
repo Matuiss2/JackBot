@@ -181,7 +181,6 @@ class Unit:
     @property_immutable_cache
     def can_attack(self) -> bool:
         """ Checks if the unit can attack at all. """
-        # TODO BATTLECRUISER doesnt have weapons in proto?!
         return bool(self._weapons) or self.type_id in {UNIT_BATTLECRUISER, UNIT_ORACLE}
 
     @property_immutable_cache
@@ -257,7 +256,6 @@ class Unit:
     def bonus_damage(self):
         """ Returns a tuple of form '(bonus damage, armor type)' if unit does 'bonus damage' against 'armor type'.
         Possible armor types are: 'Light', 'Armored', 'Biological', 'Mechanical', 'Psionic', 'Massive', 'Structure'. """
-        # TODO: Consider units with ability attacks (Oracle, Baneling) or multiple attacks (Thor).
         if self._weapons():
             for weapon in self._weapons():
                 if weapon.damage_bonus:
@@ -406,8 +404,6 @@ class Unit:
 
         :param target:
         :param bonus_distance: """
-        # TODO: Fix this because immovable units (sieged tank, planetary fortress etc.)
-        #  have a little lower range than this formula
         if self.can_attack_ground and not target.is_flying:
             unit_attack_range = self.ground_range
         elif self.can_attack_air and (target.is_flying or target.type_id == UNIT_COLOSSUS):
@@ -798,7 +794,6 @@ class Unit:
 
     @property
     def engaged_target_tag(self) -> int:
-        # TODO What does this do?
         return self._proto.engaged_target_tag
 
     # Unit functions

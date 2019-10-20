@@ -10,7 +10,6 @@ from .unit_command import UnitCommand
 
 # Set of parts of names of abilities that have no cost
 # E.g every ability that has 'Hold' in its name is free
-# TODO move to constants, add more?
 FREE_ABILITIES = {"Lower", "Raise", "Land", "Lift", "Hold", "Harvest"}
 
 

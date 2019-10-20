@@ -306,7 +306,6 @@ class BotAI(DistanceCalculation):
             https://github.com/Blizzard/s2client-proto/issues/123), so self.supply_used
             and friends return the wrong value when there are an odd number of zerglings
             and banelings. This function corrects the bad values. """
-        # TODO: remove when Blizzard/sc2client-proto#123 gets fixed.
         half_supply_units = {
             UnitTypeId.ZERGLING,
             UnitTypeId.ZERGLINGBURROWED,
@@ -811,7 +810,6 @@ class BotAI(DistanceCalculation):
             return min(possible, key=lambda p: p.distance_to_point2(near))
         return None
 
-    # TODO: improve using cache per frame
     def already_pending_upgrade(self, upgrade_type: UpgradeId) -> Union[int, float]:
         """ Check if an upgrade is being researched
 
@@ -1011,8 +1009,6 @@ class BotAI(DistanceCalculation):
                 and (not requires_techlab or structure.add_on_tag in self.techlab_tags)
             ):
                 # Warp in at location
-                # TODO: find fast warp in locations either random location or closest to the parameter from "closest_to"
-                # TODO: find out which pylons have fast warp in by checking distance to nexus.ready and warp gates
                 if structure.type_id == UnitTypeId.WARPGATE:
                     pylons = self.structures(UnitTypeId.PYLON)
                     location = pylons.random.position.random_on_distance(4)
@@ -1081,9 +1077,6 @@ class BotAI(DistanceCalculation):
             structure_data = self._game_data.units[structure._proto.unit_type]
             # Check the aliases of the structure->
             # -> e.g. progress of barracks_flying should be same as progress of barracks
-            # TODO: change to unit alias instead of tech alias, since techalias has
-            #  commandcenter=commandcenterflying=orbitalcommand=orbitalcommandflying=planetaryfortess,
-            #  while it should only be commandcenter=commandcenterflying
             for tech_alias in list(structure_data._proto.tech_alias) + [structure._proto.unit_type]:
                 if tech_alias == structure_type_value:
                     if structure.build_progress == 1:

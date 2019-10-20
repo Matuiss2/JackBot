@@ -118,8 +118,6 @@ class Units(list):
             return self
         return self.subgroup(random.sample(self, n))
 
-    # TODO: append, insert, remove, pop and extend functions should reset the cache for
-    #  Units.positions because the number of units in the list has changed
     # @property_immutable_cache
     # def positions(self) -> np.ndarray:
     #     flat_units_positions = (coord for unit in self for coord in unit.position)

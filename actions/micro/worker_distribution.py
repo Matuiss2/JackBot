@@ -43,7 +43,7 @@ class WorkerDistribution:
     def calculate_mineral_fields_deficit(self, bases_deficit):
         """Calculate how many workers are left to saturate the base"""
         return sorted(
-            [mf for mf in self.close_mineral_fields.closer_than(8, bases_deficit[0][0])],
+            self.close_mineral_fields.closer_than(8, bases_deficit[0][0]),
             key=lambda mineral_field: (
                 mineral_field.tag not in {worker.order_target for worker in self.main.drones.collecting},
                 mineral_field.mineral_contents,

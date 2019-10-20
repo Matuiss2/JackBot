@@ -34,7 +34,6 @@ PF = os.environ.get("SC2PF", platform.system())
 
 
 def get_env():
-    # TODO: Linux env conf from: https://github.com/deepmind/pysc2/blob/master/pysc2/run_configs/platforms.py
     return None
 
 

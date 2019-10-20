@@ -127,7 +127,6 @@ class Pointlike(tuple):
         """
         pnt = pnt.position
         # assert self != p, f"self is {self}, p is {p}"
-        # TODO test and fix this if statement
         if self == pnt:
             return self
         # end of test
