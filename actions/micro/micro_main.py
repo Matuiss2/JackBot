@@ -68,7 +68,7 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
 
     def attack_closest_building(self, unit):
         """Attack the closest enemy building"""
-        enemy_building = self.main.enemy_structures.not_flying
+        enemy_building = self.main.enemy_buildings.not_flying
         if enemy_building:
             self.main.add_action(unit.attack(enemy_building.closest_to(self.main.furthest_townhall_to_center)))
 
@@ -136,8 +136,8 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
         True and the action(just attack the closest structure or closest enemy) if it meets the conditions
         """
         if not self.retreat_units or self.main.close_enemies_to_base:
-            if self.main.enemy_structures:
-                self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
+            if self.main.enemy_buildings:
+                self.main.add_action(unit.attack(self.main.enemy_buildings.closest_to(unit.position)))
                 return True
             if self.targets:
                 self.main.add_action(unit.attack(self.targets.closest_to(unit.position)))
@@ -157,11 +157,11 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
                 UnitTypeId.INFESTEDTERRAN,
             }
             filtered_enemies = self.main.enemies.not_structure.exclude_type(excluded_units)
-            enemy_base_on_construction = self.main.enemy_structures.filter(
+            enemy_base_on_construction = self.main.enemy_buildings.filter(
                 lambda base: base.type_id in {UnitTypeId.NEXUS, UnitTypeId.COMMANDCENTER, UnitTypeId.HATCHERY}
                 and 0 < base.build_progress < 1
             )
-            static_defence = self.main.enemy_structures.of_type(
+            static_defence = self.main.enemy_buildings.of_type(
                 {UnitTypeId.SPINECRAWLER, UnitTypeId.PHOTONCANNON, UnitTypeId.BUNKER, UnitTypeId.PLANETARYFORTRESS}
             )
             self.targets = static_defence | filtered_enemies.not_flying | enemy_base_on_construction
@@ -183,7 +183,7 @@ class ArmyControl(ZerglingControl, SpecificUnitsBehaviors, ArmyValues):
         -------
         True and the action(just attack closer structures) if it meets the conditions
         """
-        if self.main.enemy_structures.closer_than(30, unit.position):
-            self.main.add_action(unit.attack(self.main.enemy_structures.closest_to(unit.position)))
+        if self.main.enemy_buildings.closer_than(30, unit.position):
+            self.main.add_action(unit.attack(self.main.enemy_buildings.closest_to(unit.position)))
             return True
         return False

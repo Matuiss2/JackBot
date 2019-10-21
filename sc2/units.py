@@ -692,8 +692,7 @@ class Units(list):
 
     @property
     def visible(self) -> Units:
-        """ Returns all units or structures that are visible.
-        TODO: add proper description on which units are exactly visible (not snapshots?) """
+        """ Returns all units or structures that are visible. """
         return self.filter(lambda unit: unit.is_visible)
 
     @property

@@ -16,10 +16,9 @@ class ProxyDefense:
         """Requirements to run handle(can be improved, hard-coding the trigger distance is way to exploitable)"""
         if not self.main.iteration % 10:
             return False
-        if self.main.townhalls:
-            self.proxy_buildings = self.main.enemy_structures.exclude_type(self.enemy_basic_production).closer_than(
-                50, self.main.furthest_townhall_to_center
-            )
+        enemy_proxy = self.main.enemy_buildings.exclude_type(self.enemy_basic_production)
+        if self.main.townhalls and enemy_proxy:
+            self.proxy_buildings = enemy_proxy.closer_than(50, self.main.furthest_townhall_to_center)
         return (
             self.proxy_buildings
             and self.main.time <= 270

@@ -801,7 +801,7 @@ class Unit:
     def has_buff(self, buff: BuffId) -> bool:
         """ Checks if unit has buff 'buff'. """
         assert isinstance(buff, BuffId), f"{buff} is no BuffId"
-        return buff in self.buffs()
+        return buff in self.buffs
 
     def train(self, unit: UnitTypeId, queue: bool = False) -> UnitCommand:
         """ Orders unit to train another 'unit'.

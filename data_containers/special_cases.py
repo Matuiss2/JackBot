@@ -13,14 +13,14 @@ class SituationalData:
         """Check if some terran wants to be funny with lifting up"""
         return (
             self.flying_enemy_structures
-            and len(self.enemy_structures) == len(self.flying_enemy_structures)
+            and len(self.enemy_buildings) == len(self.flying_enemy_structures)
             and self.time > 300
         )
 
     def check_for_proxy_buildings(self):
         """Check if there are any proxy buildings"""
         return bool(
-            self.enemy_structures.filter(
+            self.enemy_buildings.filter(
                 lambda building: building.type_id in self.basic_production_types
                 and building.distance_to(self.start_location) < 75
             )
@@ -40,11 +40,13 @@ class SituationalData:
                 UnitTypeId.WARPPRISM,
             }
             for hatch in self.townhalls:
-                close_enemy = self.ground_enemies.closer_than(20, hatch.position)
+                ground_enemies = self.ground_enemies
+                if ground_enemies:
+                    close_enemy = ground_enemies.closer_than(20, hatch.position)
+                    if close_enemy and not self.close_enemies_to_base:
+                        self.close_enemies_to_base = True
                 close_enemy_flying = self.flying_enemies.filter(
                     lambda unit, h=hatch: unit.type_id not in excluded_from_flying and unit.distance_to(h.position) < 30
                 )
-                if close_enemy and not self.close_enemies_to_base:
-                    self.close_enemies_to_base = True
                 if close_enemy_flying and not self.counter_attack_vs_flying:
                     self.counter_attack_vs_flying = True

@@ -40,7 +40,7 @@ class MicroHelpers:
         -------
         True and the action(attack the starting enemy location) if it meets the conditions
         """
-        if self.main.enemy_start_locations and not self.main.enemy_structures:
+        if self.main.enemy_start_locations and not self.main.enemy_buildings:
             self.main.add_action(unit.attack(self.main.enemy_start_locations[0]))
             return True
         return False

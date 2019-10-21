@@ -28,9 +28,11 @@ class Expansion:
         """Expands to the nearest expansion location using the nearest drone to it"""
         for expansion in self.main.ordered_expansions:
             if await self.main.can_place(UnitTypeId.HATCHERY, expansion):
-                if not self.main.ground_enemies.closer_than(15, expansion):
-                    self.main.add_action(self.drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
-                    break
+                ground_enemies = self.main.ground_enemies
+                if ground_enemies:
+                    if not ground_enemies.closer_than(15, expansion):
+                        self.main.add_action(self.drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
+                        break
 
     @property
     def expand_to_avoid_mineral_overflow(self):
