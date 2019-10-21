@@ -27,7 +27,7 @@ class JackBot(BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Globals
         CreepSpread.__init__(self)
         MainDataContainer.__init__(self)
         self.hydra_range = self.hydra_speed = self.second_tier_armor = self.zergling_atk_spd = None
-        self.add_action = self.iteration = None
+        self.iteration = None
         self.armor_three_lock = False
         self.build_commands = get_build_commands(self)
         self.train_commands = get_train_commands(self)
@@ -61,8 +61,6 @@ class JackBot(BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Globals
         self.iteration = iteration
         self.prepare_data()
         self.set_game_step()
-        actions = []
-        self.add_action = actions.append
         if not iteration:
             await self.prepare_building_positions(self.townhalls.first.position)
             await self.prepare_expansion_locations()
@@ -73,7 +71,6 @@ class JackBot(BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Globals
         await self.run_commands(self.build_commands)
         if not iteration % 10 and self.minerals >= 100 and self.vespene >= 100:
             await self.run_commands(self.upgrade_commands)
-        await self.do_actions(actions)
 
     async def prepare_expansion_locations(self):
         """Prepare all expansion locations and put it in order based on pathing distance"""
@@ -106,4 +103,4 @@ class JackBot(BotAI, MainDataContainer, CreepSpread, BuildingsPositions, Globals
     def split_workers_on_beginning(self):
         """Split the workers on the beginning """
         for drone in self.drones:
-            self.add_action(drone.gather(self.mineral_field.closest_to(drone)))
+            self.do(drone.gather(self.mineral_field.closest_to(drone)))

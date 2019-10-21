@@ -32,4 +32,4 @@ class OverlordControl:
             self.third_ov_scout = True
             self.selected_ov = self.ready_overlords.closest_to(self.main.townhalls.first)
             self.scout_position = map_center
-        self.main.add_action(self.selected_ov.move(self.scout_position))
+        self.main.do(self.selected_ov.move(self.scout_position))

@@ -18,4 +18,4 @@ class DroneControl:
         selected_drone = self.main.drones.random
         self.scout = True
         for point in chain(self.main.ordered_expansions[1:6], self.main.enemy_start_locations):
-            self.main.add_action(selected_drone.move(point, queue=True))
+            self.main.do(selected_drone.move(point, queue=True))
