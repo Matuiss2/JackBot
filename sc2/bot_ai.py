@@ -371,11 +371,7 @@ class BotAI(DistanceCalculation):
         closest = None
         biggest_distance = math.inf
         for expansion_location in self.expansion_locations:
-
-            def is_near_to_expansion(townhall):
-                return townhall.distance_to(expansion_location) < self.EXPANSION_GAP_THRESHOLD
-
-            if any(map(is_near_to_expansion, self.townhalls)):
+            if any(th.distance_to(expansion_location) < self.EXPANSION_GAP_THRESHOLD for th in self.townhalls):
                 # already taken
                 continue
 
@@ -425,20 +421,18 @@ class BotAI(DistanceCalculation):
                 # get all workers that target the gas extraction site
                 # or are on their way back from it
                 local_workers = self.workers.filter(
-                    lambda unit: unit.order_target == mining_place.tag
-                    or (unit.is_carrying_vespene and unit.order_target == bases.closest_to(mining_place).tag)
+                    lambda unit, mp=mining_place: unit.order_target == mp.tag
+                    or (unit.is_carrying_vespene and unit.order_target == bases.closest_to(mp).tag)
                 )
             else:
                 # get tags of minerals around expansion
-                local_minerals_tags = {
-                    mineral.tag for mineral in self.mineral_field if mineral.distance_to(mining_place) <= 8
-                }
                 # get all target tags a worker can have
                 # tags of the minerals he could mine at that base
                 # get workers that work at that gather site
                 local_workers = self.workers.filter(
-                    lambda unit: unit.order_target in local_minerals_tags
-                    or (unit.is_carrying_minerals and unit.order_target == mining_place.tag)
+                    lambda unit, mp=mining_place: unit.order_target
+                    in {mineral.tag for mineral in self.mineral_field if mineral.distance_to(mining_place) <= 8}
+                    or (unit.is_carrying_minerals and unit.order_target == mp.tag)
                 )
             # too many workers
             if difference > 0:
@@ -503,11 +497,9 @@ class BotAI(DistanceCalculation):
 
         owned = {}
         for expansion_location in self.expansion_locations:
-
-            def is_near_to_expansion(base):
-                return base.distance_to(expansion_location) < self.EXPANSION_GAP_THRESHOLD
-
-            townhall = next((x for x in self.townhalls if is_near_to_expansion(x)), None)
+            townhall = next(
+                (x for x in self.townhalls if x.distance_to(expansion_location) < self.EXPANSION_GAP_THRESHOLD), None
+            )
             if townhall:
                 owned[expansion_location] = townhall
 
