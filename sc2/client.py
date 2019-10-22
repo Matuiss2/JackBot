@@ -7,6 +7,7 @@ from s2clientprotocol import debug_pb2 as debug_pb
 from s2clientprotocol import query_pb2 as query_pb
 from s2clientprotocol import raw_pb2 as raw_pb
 from s2clientprotocol import sc2api_pb2 as sc_pb
+from s2clientprotocol import spatial_pb2 as spatial_pb
 
 from .action import combine_actions
 from .data import ACTION_RESULT, CHAT_CHANNEL, RACE, RESULT, STATUS
@@ -393,10 +394,7 @@ class Client(Protocol):
 
     async def move_camera_spatial(self, position: Union[Point2, Point3]):
         """ Moves camera to the target position using the spatial aciton interface
-
         :param position: """
-        from s2clientprotocol import spatial_pb2 as spatial_pb
-
         assert isinstance(position, (Point2, Point3))
         action = sc_pb.Action(
             action_render=spatial_pb.ActionSpatial(

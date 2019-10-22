@@ -2,6 +2,7 @@ from typing import Callable, FrozenSet, List, Set
 
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 from .position import Point2
 
@@ -108,8 +109,6 @@ class PixelMap:
 
     def save_image(self, filename):
         data = [(0, 0, self[x, y]) for y in range(self.height) for x in range(self.width)]
-        from PIL import Image
-
         img = Image.new("RGB", (self.width, self.height))
         img.putdata(data)
         img.save(filename)

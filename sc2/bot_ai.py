@@ -405,7 +405,7 @@ class BotAI(DistanceCalculation):
         :param resource_ratio: """
         if not self.mineral_field or not self.workers or not self.townhalls.ready:
             return
-        worker_pool = [worker for worker in self.workers.idle]
+        worker_pool = list(self.workers.idle)
         bases = self.townhalls.ready
         gas_buildings = self.gas_buildings.ready
 

@@ -1,4 +1,7 @@
 import datetime
+from pyglet.window import Window
+from pyglet.image import ImageData
+from pyglet.text import Label
 
 from s2clientprotocol import score_pb2 as score_pb
 
@@ -36,10 +39,6 @@ class Renderer:
         minimap_pitch = -minimap_width * 3
 
         if not self._window:
-            from pyglet.window import Window
-            from pyglet.image import ImageData
-            from pyglet.text import Label
-
             self._window = Window(width=map_width, height=map_height)
             self._window.on_mouse_press = self._on_mouse_press
             self._window.on_mouse_release = self._on_mouse_release
