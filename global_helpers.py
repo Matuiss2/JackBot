@@ -84,4 +84,4 @@ class Globals:
             return None
         selected_drone = self.select_build_worker(position)
         if selected_drone:
-            self.add_action(selected_drone.build(building, position))
+            self.do(selected_drone.build(building, position))

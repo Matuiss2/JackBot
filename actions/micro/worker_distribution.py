@@ -63,7 +63,7 @@ class WorkerDistribution:
         """If the worker is idle send to the closest mineral"""
         if self.close_mineral_fields:
             for drone in self.main.drones.idle:
-                self.main.add_action(drone.gather(self.close_mineral_fields.closest_to(drone)))
+                self.main.do(drone.gather(self.close_mineral_fields.closest_to(drone)))
 
     def distribute_to_bases(self):
         """Distribute workers so it saturates the bases"""

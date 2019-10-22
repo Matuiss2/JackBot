@@ -30,6 +30,7 @@ class OverlordControl:
             self.scout_position = natural.towards(map_center, 18)
         elif self.second_ov_scout and not self.third_ov_scout and self.main.ready_overlord_amount == 3:
             self.third_ov_scout = True
-            self.selected_ov = self.ready_overlords.closest_to(self.main.townhalls.first)
-            self.scout_position = map_center
+            if self.main.townhalls:
+                self.selected_ov = self.ready_overlords.closest_to(self.main.townhalls.first)
+                self.scout_position = map_center
         self.main.do(self.selected_ov.move(self.scout_position))

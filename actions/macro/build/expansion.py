@@ -31,7 +31,7 @@ class Expansion:
                 ground_enemies = self.main.ground_enemies
                 if ground_enemies:
                     if not ground_enemies.closer_than(15, expansion):
-                        self.main.add_action(self.drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
+                        self.main.do(self.drones.closest_to(expansion).build(UnitTypeId.HATCHERY, expansion))
                         break
 
     @property

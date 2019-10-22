@@ -42,8 +42,7 @@ class SituationalData:
             for hatch in self.townhalls:
                 ground_enemies = self.ground_enemies
                 if ground_enemies:
-                    close_enemy = ground_enemies.closer_than(20, hatch.position)
-                    if close_enemy and not self.close_enemies_to_base:
+                    if ground_enemies.closer_than(20, hatch.position) and not self.close_enemies_to_base:
                         self.close_enemies_to_base = True
                 close_enemy_flying = self.flying_enemies.filter(
                     lambda unit, h=hatch: unit.type_id not in excluded_from_flying and unit.distance_to(h.position) < 30
