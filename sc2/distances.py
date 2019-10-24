@@ -67,7 +67,8 @@ class DistanceCalculation:
             positions_array: np.ndarray = np.fromiter(
                 flat_positions, dtype=np.float, count=2 * self._units_count
             ).reshape((self._units_count, 2))
-            assert len(positions_array) == self._units_count
+            if len(positions_array) != self._units_count:
+                raise AssertionError()
             self._generated_frame2 = self.state.game_loop
             # See performance benchmarks
             self._cached_pdist = pdist(positions_array, "sqeuclidean")
@@ -105,7 +106,8 @@ class DistanceCalculation:
             positions_array: np.ndarray = np.fromiter(
                 flat_positions, dtype=np.float, count=2 * self._units_count
             ).reshape((self._units_count, 2))
-            assert len(positions_array) == self._units_count
+            if len(positions_array) != self._units_count:
+                raise AssertionError()
             self._generated_frame2 = self.state.game_loop
             # See performance benchmarks
             self._cached_cdist = cdist(positions_array, positions_array, "sqeuclidean")
@@ -113,39 +115,43 @@ class DistanceCalculation:
         return self._cached_cdist
 
     def _get_index_of_two_units_method1(self, unit1: Unit, unit2: Unit) -> int:
-        assert unit1.tag in self._unit_index_dict, (
-            f"Unit1 {unit1} is not in index dict for distance calculation."
-            f" Make sure the unit is alive in the current frame."
-            f" Ideally take units from 'self.units' or 'self.structures'"
-            f" as these contain unit data from the current frame. Do not try to save 'Units'"
-            f" objects over several iterations."
-        )
-        assert unit2.tag in self._unit_index_dict, (
-            f"Unit2 {unit2} is not in index dict for distance calculation."
-            f" Make sure the unit is alive in the current frame."
-            f" Ideally take units from 'self.units' or 'self.structures'"
-            f" as these contain unit data from the current frame. Do not try to save 'Units'"
-            f" objects over several iterations."
-        )
+        if unit1.tag not in self._unit_index_dict:
+            raise AssertionError(
+                f"Unit1 {unit1} is not in index dict for distance calculation."
+                f" Make sure the unit is alive in the current frame."
+                f" Ideally take units from 'self.units' or 'self.structures'"
+                f" as these contain unit data from the current frame. Do not try to save 'Units'"
+                f" objects over several iterations."
+            )
+        if unit2.tag not in self._unit_index_dict:
+            raise AssertionError(
+                f"Unit2 {unit2} is not in index dict for distance calculation."
+                f" Make sure the unit is alive in the current frame."
+                f" Ideally take units from 'self.units' or 'self.structures'"
+                f" as these contain unit data from the current frame. Do not try to save 'Units'"
+                f" objects over several iterations."
+            )
         # index1 = self._unit_index_dict[unit1.tag]
         # index2 = self._unit_index_dict[unit2.tag]
         return self.square_to_condensed(self._unit_index_dict[unit1.tag], self._unit_index_dict[unit2.tag])
 
     def _get_index_of_two_units_method2(self, unit1: Unit, unit2: Unit) -> Tuple[int, int]:
-        assert unit1.tag in self._unit_index_dict, (
-            f"Unit1 {unit1} is not in index dict for distance calculation."
-            f" Make sure the unit is alive in the current frame."
-            f" Ideally take units from 'self.units' or 'self.structures'"
-            f" as these contain unit data from the current frame. Do not try to save 'Units' "
-            f" objects over several iterations."
-        )
-        assert unit2.tag in self._unit_index_dict, (
-            f"Unit2 {unit2} is not in index dict for distance calculation."
-            f" Make sure the unit is alive in the current frame."
-            f" Ideally take units from 'self.units' or 'self.structures'"
-            f" as these contain unit data from the current frame. Do not try to save 'Units'"
-            f" objects over several iterations."
-        )
+        if unit1.tag not in self._unit_index_dict:
+            raise AssertionError(
+                f"Unit1 {unit1} is not in index dict for distance calculation."
+                f" Make sure the unit is alive in the current frame."
+                f" Ideally take units from 'self.units' or 'self.structures'"
+                f" as these contain unit data from the current frame. Do not try to save 'Units' "
+                f" objects over several iterations."
+            )
+        if unit2.tag not in self._unit_index_dict:
+            raise AssertionError(
+                f"Unit2 {unit2} is not in index dict for distance calculation."
+                f" Make sure the unit is alive in the current frame."
+                f" Ideally take units from 'self.units' or 'self.structures'"
+                f" as these contain unit data from the current frame. Do not try to save 'Units'"
+                f" objects over several iterations."
+            )
         # index1 = self._unit_index_dict[unit1.tag]
         # index2 = self._unit_index_dict[unit2.tag]
         return self._unit_index_dict[unit1.tag], self._unit_index_dict[unit2.tag]
@@ -155,7 +161,8 @@ class DistanceCalculation:
     def square_to_condensed(self, i, j) -> int:
         # Converts indices of a square matrix to condensed matrix
         # https://stackoverflow.com/a/36867493/10882657
-        assert i != j, "No diagonal elements in condensed matrix! Diagonal elements are zero"
+        if i == j:
+            raise AssertionError("No diagonal elements in condensed matrix! Diagonal elements are zero")
         if i < j:
             i, j = j, i
         return self._units_count * j - j * (j + 1) // 2 + i - 1 - j
@@ -187,11 +194,12 @@ class DistanceCalculation:
             return 0
         # Calculate index, needs to be after pdist has been calculated and cached
         condensed_index = self._get_index_of_two_units(unit1, unit2)
-        assert condensed_index < len(self._cached_pdist), (
-            f"Condensed index is larger than amount of calculated distances:"
-            f" {condensed_index} < {len(self._cached_pdist)}"
-            f", units that caused the assert error: {unit1} and {unit2}"
-        )
+        if condensed_index >= len(self._cached_pdist):
+            raise AssertionError(
+                f"Condensed index is larger than amount of calculated distances:"
+                f" {condensed_index} < {len(self._cached_pdist)}"
+                f", units that caused the assert error: {unit1} and {unit2}"
+            )
         distance = self._pdist[condensed_index]
         return distance
 
@@ -225,7 +233,8 @@ class DistanceCalculation:
         The following methods calculate the distances between all units once:
         method 1: Use scipy's pdist condensed matrix (1d array)
         method 2: Use scipy's cdist square matrix (2d array) """
-        assert 0 <= method <= 2, f"Selected method was: {method}"
+        if method > 2:
+            raise AssertionError(f"Selected method was: {method}")
         if method == 0:
             self._distance_squared_unit_to_unit = self._distance_squared_unit_to_unit_method0
         elif method == 1:

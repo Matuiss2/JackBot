@@ -1262,5 +1262,6 @@ class AbilityId(enum.Enum):
 
 
 for item in AbilityId:
-    assert not item.name in globals()
+    if item.name in globals():
+        raise AssertionError()
     globals()[item.name] = item

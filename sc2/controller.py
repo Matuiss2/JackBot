@@ -18,7 +18,8 @@ class Controller(Protocol):
         return self.__process._process is not None
 
     async def create_game(self, game_map, players, realtime, random_seed=None):
-        assert isinstance(realtime, bool)
+        if not isinstance(realtime, bool):
+            raise AssertionError()
         req = sc_pb.RequestCreateGame(local_map=sc_pb.LocalMap(map_path=str(game_map.relative_path)), realtime=realtime)
         if random_seed is not None:
             req.random_seed = random_seed

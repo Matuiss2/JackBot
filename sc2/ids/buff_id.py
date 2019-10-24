@@ -301,5 +301,6 @@ class BuffId(enum.Enum):
 
 
 for item in BuffId:
-    assert not item.name in globals()
+    if item.name in globals():
+        raise AssertionError()
     globals()[item.name] = item

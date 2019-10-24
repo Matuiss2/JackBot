@@ -46,9 +46,10 @@ class SC2Process:
         render: bool = False,
         sc2_version: str = None,
     ) -> None:
-        assert isinstance(host, str)
-        assert isinstance(port, int) or port is None
-
+        if not isinstance(host, str):
+            raise AssertionError()
+        if not (isinstance(port, int) or port is None):
+            raise AssertionError()
         self._render = render
         self._fullscreen = fullscreen
         self._host = host
@@ -126,10 +127,11 @@ class SC2Process:
             valid_version_string = special_match(self._sc2_version)
             if valid_version_string:
                 data_hash = self.find_data_hash(self._sc2_version)
-                assert data_hash is not None, (
-                    f"StarCraft 2 Client version ({self._sc2_version}) was not found inside sc2/versions.py file."
-                    f" Please check your spelling or check the versions.py file."
-                )
+                if data_hash is None:
+                    raise AssertionError(
+                        f"StarCraft 2 Client version ({self._sc2_version}) was not found inside sc2/versions.py file."
+                        f" Please check your spelling or check the versions.py file."
+                    )
                 args.extend(["-dataVersion", data_hash])
             else:
                 LOGGER.warning(

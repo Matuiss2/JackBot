@@ -7,8 +7,10 @@ class PowerSource:
         return cls(Point2.from_proto(proto.pos), proto.radius, proto.tag)
 
     def __init__(self, position, radius, unit_tag):
-        assert isinstance(position, Point2)
-        assert radius > 0
+        if not isinstance(position, Point2):
+            raise AssertionError()
+        if radius <= 0:
+            raise AssertionError()
         self.position = position
         self.radius = radius
         self.unit_tag = unit_tag

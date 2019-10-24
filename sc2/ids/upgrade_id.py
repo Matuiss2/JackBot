@@ -307,5 +307,6 @@ class UpgradeId(enum.Enum):
 
 
 for item in UpgradeId:
-    assert not item.name in globals()
+    if item.name in globals():
+        raise AssertionError()
     globals()[item.name] = item

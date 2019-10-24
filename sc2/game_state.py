@@ -73,7 +73,8 @@ class Common:
         self._proto = proto
 
     def __getattr__(self, attr):
-        assert attr in self.ATTRIBUTES, f"'{attr}' is not a valid attribute"
+        if attr not in self.ATTRIBUTES:
+            raise AssertionError(f"'{attr}' is not a valid attribute")
         return int(getattr(self._proto, attr))
 
 

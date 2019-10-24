@@ -24,5 +24,6 @@ class EffectId(enum.Enum):
 
 
 for item in EffectId:
-    assert not item.name in globals()
+    if item.name in globals():
+        raise AssertionError()
     globals()[item.name] = item

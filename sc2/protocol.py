@@ -25,7 +25,8 @@ class Protocol:
         """
         :param ws:
         """
-        assert ws
+        if not ws:
+            raise AssertionError()
         self._ws = ws
         self._status = None
 
@@ -60,7 +61,8 @@ class Protocol:
         return response
 
     async def _execute(self, **kwargs):
-        assert len(kwargs) == 1, "Only one request allowed"
+        if len(kwargs) != 1:
+            raise AssertionError("Only one request allowed")
 
         request = sc_pb.Request(**kwargs)
 
