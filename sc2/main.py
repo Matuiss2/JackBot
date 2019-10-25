@@ -57,8 +57,8 @@ async def _play_game_human(client, player_id, realtime, game_time_limit):
 
 
 async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_time_limit):
-    if realtime:
-        assert step_time_limit is None
+    if realtime and step_time_limit is not None:
+        raise AssertionError()
 
     # step_time_limit works like this:
     # * If None, then step time is not limited

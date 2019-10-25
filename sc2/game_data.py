@@ -80,7 +80,8 @@ class AbilityData:
         self._proto = proto
 
         # What happens if we comment this out? Should this not be commented out? What is its purpose?
-        assert self.id != 0
+        if self.id == 0:
+            raise AssertionError()
 
     def __repr__(self) -> str:
         return f"AbilityData(name={self._proto.button_name})"
@@ -156,7 +157,8 @@ class UnitTypeData:
         return self._proto.attributes
 
     def has_attribute(self, attr) -> bool:
-        assert isinstance(attr, ATTRIBUTE)
+        if not isinstance(attr, ATTRIBUTE):
+            raise AssertionError()
         return attr in self.attributes
 
     @property

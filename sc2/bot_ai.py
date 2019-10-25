@@ -656,9 +656,12 @@ class BotAI(DistanceCalculation):
         :param target:
         :param only_check_energy_and_cooldown:
         :param cached_abilities_of_unit: """
-        assert isinstance(unit, Unit), f"{unit} is no Unit object"
-        assert isinstance(ability_id, AbilityId), f"{ability_id} is no AbilityId"
-        assert isinstance(target, (type(None), Unit, Point2, Point3))
+        if not isinstance(unit, Unit):
+            raise AssertionError(f"{unit} is no Unit object")
+        if not isinstance(ability_id, AbilityId):
+            raise AssertionError(f"{ability_id} is no AbilityId")
+        if not isinstance(target, (type(None), Unit, Point2, Point3)):
+            raise AssertionError()
         # check if unit has enough energy to cast or if ability is on cooldown
         if cached_abilities_of_unit:
             abilities = cached_abilities_of_unit
@@ -768,9 +771,10 @@ class BotAI(DistanceCalculation):
         :param random_alternative:
         :param placement_step: """
 
-        assert isinstance(building, (AbilityId, UnitTypeId))
-        assert isinstance(near, Point2), f"{near} is no Point2 object"
-
+        if not isinstance(building, (AbilityId, UnitTypeId)):
+            raise AssertionError()
+        if not isinstance(near, Point2):
+            raise AssertionError(f"{near} is no Point2 object")
         if isinstance(building, UnitTypeId):
             building = self._game_data.units[building.value].creation_ability
         else:  # AbilityId
@@ -817,7 +821,8 @@ class BotAI(DistanceCalculation):
 
         :param upgrade_type:
         """
-        assert isinstance(upgrade_type, UpgradeId), f"{upgrade_type} is no UpgradeId"
+        if not isinstance(upgrade_type, UpgradeId):
+            raise AssertionError(f"{upgrade_type} is no UpgradeId")
         if upgrade_type in self.state.upgrades:
             return 1
         level = None
@@ -892,7 +897,8 @@ class BotAI(DistanceCalculation):
         :param random_alternative:
         :param placement_step: """
 
-        assert isinstance(near, (Unit, Point2, Point3))
+        if not isinstance(near, (Unit, Point2, Point3)):
+            raise AssertionError()
         if isinstance(near, Unit):
             near = near.position
         near = near.to2
@@ -1055,14 +1061,14 @@ class BotAI(DistanceCalculation):
 
         :param structure_type:
         """
-        assert isinstance(
-            structure_type, (int, UnitTypeId)
-        ), f"Needs to be int or UnitTypeId, but was: {type(structure_type)}"
+        if not isinstance(structure_type, (int, UnitTypeId)):
+            raise AssertionError(f"Needs to be int or UnitTypeId, but was: {type(structure_type)}")
         if isinstance(structure_type, int):
             structure_type_value = structure_type
         else:
             structure_type_value = structure_type.value
-        assert structure_type_value, f"structure_type can not be 0 or NOTAUNIT, but was: {structure_type_value}"
+        if not structure_type_value:
+            raise AssertionError(f"structure_type can not be 0 or NOTAUNIT, but was: {structure_type_value}")
 
         return_value = 0
         for structure in self.structures:
@@ -1289,7 +1295,8 @@ class BotAI(DistanceCalculation):
             await self.chat_send("Hello, this is a message from my bot!")
 
         :param message: """
-        assert isinstance(message, str), f"{message} is not a string"
+        if not isinstance(message, str):
+            raise AssertionError(f"{message} is not a string")
         await self._client.chat_send(message, False)
 
     def in_map_bounds(self, pos: Union[Point2, tuple]) -> bool:

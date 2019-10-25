@@ -611,7 +611,8 @@ class Units(list):
     @property
     def center(self) -> Point2:
         """ Returns the central position of all units. """
-        assert self, f"Units object is empty"
+        if not self:
+            raise AssertionError(f"Units object is empty")
         amount = self.amount
         return Point2(
             (
@@ -721,6 +722,5 @@ class UnitSelection(Units):
         elif selection is None:
             super().__init__((unit for unit in parent), parent._bot_object)
         else:
-            assert isinstance(
-                selection, (UnitTypeId, set)
-            ), f"selection is not None or of type UnitTypeId or Set[UnitTypeId]"
+            if not isinstance(selection, (UnitTypeId, set)):
+                raise AssertionError(f"selection is not None or of type UnitTypeId or Set[UnitTypeId]")

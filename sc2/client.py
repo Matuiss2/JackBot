@@ -227,12 +227,18 @@ class Client(Protocol):
 
         :param zipped_list:
         """
-        assert zipped_list, "No zipped_list"
-        assert isinstance(zipped_list, list), f"{type(zipped_list)}"
-        assert isinstance(zipped_list[0], list), f"{type(zipped_list[0])}"
-        assert len(zipped_list[0]) == 2, f"{len(zipped_list[0])}"
-        assert isinstance(zipped_list[0][0], (Point2, Unit)), f"{type(zipped_list[0][0])}"
-        assert isinstance(zipped_list[0][1], Point2), f"{type(zipped_list[0][1])}"
+        if not zipped_list:
+            raise AssertionError("No zipped_list")
+        if not isinstance(zipped_list, list):
+            raise AssertionError(f"{type(zipped_list)}")
+        if not isinstance(zipped_list[0], list):
+            raise AssertionError(f"{type(zipped_list[0])}")
+        if len(zipped_list[0]) != 2:
+            raise AssertionError(f"{len(zipped_list[0])}")
+        if not isinstance(zipped_list[0][0], (Point2, Unit)):
+            raise AssertionError(f"{type(zipped_list[0][0])}")
+        if not isinstance(zipped_list[0][1], Point2):
+            raise AssertionError(f"{type(zipped_list[0][1])}")
         if isinstance(zipped_list[0][0], Point2):
             results = await self._execute(
                 query=query_pb.RequestQuery(
