@@ -425,7 +425,8 @@ class Unit:
         :param target:
         :param bonus_distance: """
         cast_range = self._bot_object._game_data.abilities[ability_id.value]._proto.cast_range
-        assert cast_range > 0, f"Checking for an ability ({ability_id}) that has no cast range"
+        if cast_range <= 0:
+            raise AssertionError(f"Checking for an ability ({ability_id}) that has no cast range")
         ability_target_type = self._bot_object._game_data.abilities[ability_id.value]._proto.target
         # For casting abilities that target other units, like transfuse, feedback, snipe, yamato
         if ability_target_type in {TARGET.Unit.value, TARGET.PointOrUnit.value} and isinstance(target, Unit):
@@ -800,7 +801,8 @@ class Unit:
 
     def has_buff(self, buff: BuffId) -> bool:
         """ Checks if unit has buff 'buff'. """
-        assert isinstance(buff, BuffId), f"{buff} is no BuffId"
+        if not isinstance(buff, BuffId):
+            raise AssertionError(f"{buff} is no BuffId")
         return buff in self.buffs
 
     def train(self, unit: UnitTypeId, queue: bool = False) -> UnitCommand:

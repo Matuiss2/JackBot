@@ -19,9 +19,8 @@ class PixelMap:
         self._in_bits: bool = in_bits
         self._mirrored: bool = mirrored
 
-        assert self.width * self.height == (8 if in_bits else 1) * len(
-            self._proto.data
-        ), f"{self.width * self.height} {(8 if in_bits else 1)*len(self._proto.data)}"
+        if self.width * self.height != (8 if in_bits else 1) * len(self._proto.data):
+            raise AssertionError(f"{self.width * self.height} {(8 if in_bits else 1) * len(self._proto.data)}")
         buffer_data = np.frombuffer(self._proto.data, dtype=np.uint8)
         if in_bits:
             buffer_data = np.unpackbits(buffer_data)
@@ -53,12 +52,14 @@ class PixelMap:
 
     def __setitem__(self, pos, value):
         """ Example usage: self._game_info.pathing_grid[Point2((20, 20))] = 255 """
-        assert 0 <= pos[0] < self.width, f"x is {pos[0]}, self.width is {self.width}"
-        assert 0 <= pos[1] < self.height, f"y is {pos[1]}, self.height is {self.height}"
-        assert (
-            0 <= value <= 254 * self._in_bits + 1
-        ), f"value is {value}, it should be between 0 and {254 * self._in_bits + 1}"
-        assert isinstance(value, int), f"value is of type {type(value)}, it should be an integer"
+        if not (0 <= pos[0] < self.width):
+            raise AssertionError(f"x is {pos[0]}, self.width is {self.width}")
+        if not (0 <= pos[1] < self.height):
+            raise AssertionError(f"y is {pos[1]}, self.height is {self.height}")
+        if value >= 254 * self._in_bits + 1:
+            raise AssertionError(f"value is {value}, it should be between 0 and {254 * self._in_bits + 1}")
+        if not isinstance(value, int):
+            raise AssertionError(f"value is of type {type(value)}, it should be an integer")
         self.data_numpy[pos[1], pos[0]] = value
 
     def is_set(self, point):

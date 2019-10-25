@@ -264,7 +264,8 @@ class Client(Protocol):
     async def query_building_placement(
         self, ability: AbilityData, positions: List[Union[Point2, Point3]], ignore_resources: bool = True
     ) -> List[ACTION_RESULT]:
-        assert isinstance(ability, AbilityData)
+        if not isinstance(ability, AbilityData):
+            raise AssertionError()
         result = await self._execute(
             query=query_pb.RequestQuery(
                 placements=(
@@ -371,7 +372,8 @@ class Client(Protocol):
             unit_tags = unit_tags.tags
         if isinstance(unit_tags, Unit):
             unit_tags = [unit_tags.tag]
-        assert unit_tags
+        if not unit_tags:
+            raise AssertionError()
 
         await self._execute(
             debug=sc_pb.RequestDebug(debug=[debug_pb.DebugCommand(kill_unit=debug_pb.DebugKillUnit(tag=unit_tags))])

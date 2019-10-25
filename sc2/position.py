@@ -95,7 +95,8 @@ class Pointlike(tuple):
         """ This function assumes the 2d distance is meant
 
         :param pos: """
-        assert pos, f"ps is empty"
+        if not pos:
+            raise AssertionError(f"ps is empty")
         furthest_distance = -math.inf
         for po2 in pos:
             po2 = po2.position
@@ -180,10 +181,11 @@ class Point2(Pointlike):
 
     def random_on_distance(self, distance):
         if isinstance(distance, (tuple, list)):  # interval
-            distance = distance[0] + random.random() * (distance[1] - distance[0])
+            distance = distance[0] + random.SystemRandom().random() * (distance[1] - distance[0])
 
-        assert distance > 0, f"Distance is not greater than 0"
-        angle = random.random() * 2 * math.pi
+        if distance <= 0:
+            raise AssertionError(f"Distance is not greater than 0")
+        angle = random.SystemRandom().random() * 2 * math.pi
 
         cos, sen = math.cos(angle), math.sin(angle)
         return Point2((self.x + cos * distance, self.y + sen * distance))
@@ -196,7 +198,7 @@ class Point2(Pointlike):
     ) -> Point2:
         tan_x, tan_y = self.to2.towards(pnt.to2, 1)
         angle = math.atan2(tan_y - self.y, tan_x - self.x)
-        angle = (angle - max_difference) + max_difference * 2 * random.random()
+        angle = (angle - max_difference) + max_difference * 2 * random.SystemRandom().random()
         return Point2((self.x + math.cos(angle) * distance, self.y + math.sin(angle) * distance))
 
     def circle_intersection(self, po2: Point2, radius: Union[int, float]):
@@ -205,9 +207,11 @@ class Point2(Pointlike):
 
         :param po2:
         :param radius: """
-        assert self != po2, f"self is equal to p"
+        if self == po2:
+            raise AssertionError(f"self is equal to p")
         distance_between_points = self.distance_to(po2)
-        assert radius >= distance_between_points / 2
+        if radius < distance_between_points / 2:
+            raise AssertionError()
         # remaining distance from center towards the intersection, using pythagoras
         remaining_distance_from_center = (radius ** 2 - (distance_between_points / 2) ** 2) ** 0.5
         # center of both points
@@ -343,7 +347,8 @@ class Rect(tuple):
         """
         :param data:
         """
-        assert data.p0.x < data.p1.x and data.p0.y < data.p1.y
+        if not (data.p0.x < data.p1.x and data.p0.y < data.p1.y):
+            raise AssertionError()
         return cls((data.p0.x, data.p0.y, data.p1.x - data.p0.x, data.p1.y - data.p0.y))
 
     @property
