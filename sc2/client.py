@@ -286,7 +286,8 @@ class Client(Protocol):
         input_was_a_list = True
         if not isinstance(units, list):
             # Deprecated, accepting a single unit may be removed in the future, query a list of units instead
-            assert isinstance(units, Unit)
+            if not isinstance(units, Unit):
+                raise AssertionError()
             units = [units]
             input_was_a_list = False
         assert units
@@ -315,10 +316,14 @@ class Client(Protocol):
 
         :param units:
         :param ability: """
-        assert units
-        assert isinstance(units, list)
-        assert all(isinstance(u, Unit) for u in units)
-        assert isinstance(ability, AbilityId)
+        if not units:
+            raise AssertionError()
+        if not isinstance(units, list):
+            raise AssertionError()
+        if not all(isinstance(u, Unit) for u in units):
+            raise AssertionError()
+        if not isinstance(ability, AbilityId):
+            raise AssertionError()
 
         await self._execute(
             action=sc_pb.RequestAction(

@@ -18,7 +18,8 @@ LOGGER = logging.getLogger(__name__)
 
 class SlidingTimeWindow:
     def __init__(self, size: int):
-        assert size > 0
+        if size <= 0:
+            raise AssertionError()
 
         self.window_size = size
         self.window = []
@@ -86,7 +87,8 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
         time_window = SlidingTimeWindow(1)
         time_penalty = "resign"
     else:
-        assert isinstance(step_time_limit, dict)
+        if not isinstance(step_time_limit, dict):
+            raise AssertionError()
         time_penalty = step_time_limit.get("penalty", None)
         time_window = SlidingTimeWindow(int(step_time_limit.get("window_size", 1)))
         time_limit = float(step_time_limit.get("time_limit", None))
@@ -303,9 +305,11 @@ async def _host_game(
 async def _host_game_aiter(
     map_settings, players, realtime, portconfig=None, save_replay_as=None, step_time_limit=None, game_time_limit=None
 ):
-    assert players, "Can't create a game without players"
+    if not players:
+        raise AssertionError("Can't create a game without players")
 
-    assert any(isinstance(p, (Human, Bot)) for p in players)
+    if not (any(isinstance(p, (Human, Bot)) for p in players)):
+        raise AssertionError()
 
     async with SC2Process() as server:
         while True:
