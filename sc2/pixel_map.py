@@ -46,8 +46,10 @@ class PixelMap:
 
     def __getitem__(self, pos):
         """ Example usage: is_pathable = self._game_info.pathing_grid[Point2((20, 20))] != 0 """
-        assert 0 <= pos[0] < self.width, f"x is {pos[0]}, self.width is {self.width}"
-        assert 0 <= pos[1] < self.height, f"y is {pos[1]}, self.height is {self.height}"
+        if not (0 <= pos[0] < self.width):
+            raise AssertionError(f"x is {pos[0]}, self.width is {self.width}")
+        if not (0 <= pos[1] < self.height):
+            raise AssertionError(f"y is {pos[1]}, self.height is {self.height}")
         return int(self.data_numpy[pos[1], pos[0]])
 
     def __setitem__(self, pos, value):

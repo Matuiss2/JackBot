@@ -192,7 +192,8 @@ class BotAI(DistanceCalculation):
 
         :param alert_code:
         """
-        assert isinstance(alert_code, ALERT), f"alert_code {alert_code} is no Alert"
+        if not isinstance(alert_code, ALERT):
+            raise AssertionError(f"alert_code {alert_code} is no Alert")
         return alert_code.value in self.state.alerts
 
     @property
@@ -355,7 +356,8 @@ class BotAI(DistanceCalculation):
             }
             building = start_townhall_type[self.race]
 
-        assert isinstance(building, UnitTypeId), f"{building} is no UnitTypeId"
+        if not isinstance(building, UnitTypeId):
+            raise AssertionError(f"{building} is no UnitTypeId")
 
         if not location:
             location = await self.get_next_expansion()
@@ -740,7 +742,8 @@ class BotAI(DistanceCalculation):
         :param building:
         :param position: """
         building_type = type(building)
-        assert building_type in {AbilityData, AbilityId, UnitTypeId}
+        if building_type not in {AbilityData, AbilityId, UnitTypeId}:
+            raise AssertionError()
         if building_type == UnitTypeId:
             building = self._game_data.units[building.value].creation_ability
         elif building_type == AbilityId:
@@ -1136,10 +1139,8 @@ class BotAI(DistanceCalculation):
 
         :param upgrade_type:
         """
-        assert (
-            upgrade_type in UPGRADE_RESEARCHED_FROM
-        ), f"Could not find upgrade {upgrade_type} in 'research from'-dictionary"
-
+        if upgrade_type not in UPGRADE_RESEARCHED_FROM:
+            raise AssertionError(f"Could not find upgrade {upgrade_type} in 'research from'-dictionary")
         # Not affordable
         if not self.can_afford(upgrade_type):
             return False
@@ -1355,7 +1356,8 @@ class BotAI(DistanceCalculation):
         """ Returns True if there is creep on the grid point.
 
         :param pos: """
-        assert isinstance(pos, (Point2, Point3, Unit)), f"pos is not of type Point2, Point3 or Unit"
+        if not isinstance(pos, (Point2, Point3, Unit)):
+            raise AssertionError(f"pos is not of type Point2, Point3 or Unit")
         pos = pos.position.to2.rounded
         return self.state.creep[pos] == 1
 

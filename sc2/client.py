@@ -344,14 +344,22 @@ class Client(Protocol):
         await self._client.debug_create_unit([[UnitTypeId.MARINE, 5, self._game_info.map_center, 1]])
 
         :param unit_spawn_commands: """
-        assert isinstance(unit_spawn_commands, list)
-        assert unit_spawn_commands
-        assert isinstance(unit_spawn_commands[0], list)
-        assert len(unit_spawn_commands[0]) == 4
-        assert isinstance(unit_spawn_commands[0][0], UnitTypeId)
-        assert unit_spawn_commands[0][1] > 0  # careful, in realtime=True this function may create more units
-        assert isinstance(unit_spawn_commands[0][2], (Point2, Point3))
-        assert 1 <= unit_spawn_commands[0][3] <= 2
+        if not isinstance(unit_spawn_commands, list):
+            raise AssertionError()
+        if not unit_spawn_commands:
+            raise AssertionError()
+        if not isinstance(unit_spawn_commands[0], list):
+            raise AssertionError()
+        if len(unit_spawn_commands[0]) != 4:
+            raise AssertionError()
+        if not isinstance(unit_spawn_commands[0][0], UnitTypeId):
+            raise AssertionError()
+        if unit_spawn_commands[0][1] <= 0:
+            raise AssertionError()
+        if not isinstance(unit_spawn_commands[0][2], (Point2, Point3)):
+            raise AssertionError()
+        if unit_spawn_commands[0][3] not in (1, 2):
+            raise AssertionError()
 
         await self._execute(
             debug=sc_pb.RequestDebug(
@@ -566,17 +574,21 @@ class Client(Protocol):
             unit_tags = unit_tags.tags
         if isinstance(unit_tags, Unit):
             unit_tags = [unit_tags.tag]
-        assert hasattr(unit_tags, "__iter__"), (
-            f"unit_tags argument needs to be an iterable (list, dict, set, Units),"
+        if not hasattr(unit_tags, "__iter__"):
+            raise AssertionError("unit_tags argument needs to be an iterable (list, dict, set, Units),"
             f" given argument is {type(unit_tags).__name__}"
         )
-        assert 1 <= unit_value <= 3, (
+        if unit_value not in (1, 2, 3):
+            raise AssertionError(
             f"unit_value needs to be between 1 and 3 (1 for energy, 2 for life, 3 for shields),"
             f" given argument is {unit_value}"
         )
-        assert all(tag > 0 for tag in unit_tags), f"Unit tags have invalid value: {unit_tags}"
-        assert isinstance(value, (int, float)), "Value needs to be of type int or float"
-        assert value >= 0, "Value can't be negative"
+        if not all(tag > 0 for tag in unit_tags):
+            raise AssertionError(f"Unit tags have invalid value: {unit_tags}")
+        if not isinstance(value, (int, float)):
+            raise AssertionError("Value needs to be of type int or float")
+        if value < 0:
+            raise AssertionError("Value can't be negative")
         await self._execute(
             debug=sc_pb.RequestDebug(
                 debug=(

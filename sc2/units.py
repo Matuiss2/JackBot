@@ -353,7 +353,8 @@ class Units(list):
         :param position:
         :param n:
         """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         return self.subgroup(self._list_sorted_by_distance_to(position)[-n:])
 
     def in_distance_of_group(self, other_units: Units, distance: float) -> Units:

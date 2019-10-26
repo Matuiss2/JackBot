@@ -234,7 +234,8 @@ async def _play_game_ai(client, player_id, ai, realtime, step_time_limit, game_t
 async def _play_game(
     player, client, realtime, portconfig, step_time_limit=None, game_time_limit=None, rgb_render_config=None
 ):
-    assert isinstance(realtime, bool), repr(realtime)
+    if not isinstance(realtime, bool):
+        raise AssertionError(repr(realtime))
 
     player_id = await client.join_game(
         player.name, player.race, portconfig=portconfig, rgb_render_config=rgb_render_config
@@ -276,9 +277,11 @@ async def _host_game(
     sc2_version=None,
 ):
 
-    assert players, "Can't create a game without players"
+    if not players:
+        raise AssertionError("Can't create a game without players")
 
-    assert any(isinstance(p, (Human, Bot)) for p in players)
+    if not any(isinstance(p, (Human, Bot)) for p in players):
+        raise AssertionError()
 
     async with SC2Process(
         fullscreen=players[0].fullscreen, render=rgb_render_config is not None, sc2_version=sc2_version
