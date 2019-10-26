@@ -104,7 +104,8 @@ class Units(list):
 
     @property
     def random(self) -> Unit:
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         return random.choice(self)
 
     def random_or(self, other: any) -> Unit:
@@ -335,7 +336,8 @@ class Units(list):
         :param position:
         :param n:
         """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         return self.subgroup(self._list_sorted_by_distance_to(position)[:n])
 
     def furthest_n_units(self, position: Union[Unit, Point2, np.ndarray], n: int) -> Units:

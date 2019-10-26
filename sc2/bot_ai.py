@@ -1348,7 +1348,8 @@ class BotAI(DistanceCalculation):
 
         :param pos: """
         # https://github.com/Blizzard/s2client-proto/blob/9906df71d6909511907d8419b33acc1a3bd51ec0/s2clientprotocol/spatial.proto#L19
-        assert isinstance(pos, (Point2, Point3, Unit)), f"pos is not of type Point2, Point3 or Unit"
+        if not isinstance(pos, (Point2, Point3, Unit)):
+            raise AssertionError(f"pos is not of type Point2, Point3 or Unit")
         pos = pos.position.to2.rounded
         return self.state.visibility[pos] == 2
 

@@ -75,7 +75,8 @@ class Pointlike(tuple):
     def distance_to_closest(self, pos: Union[Units, Iterable[Point2]]) -> Union[int, float]:
         """ This function assumes the 2d distance is meant
         :param pos: """
-        assert pos, f"ps is empty"
+        if not pos:
+            raise AssertionError(f"ps is empty")
         closest_distance = math.inf
         for po2 in pos:
             po2 = po2.position

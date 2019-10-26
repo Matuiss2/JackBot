@@ -54,8 +54,10 @@ class Client(Protocol):
         )
 
         if rgb_render_config:
-            assert isinstance(rgb_render_config, dict)
-            assert "window_size" in rgb_render_config and "minimap_size" in rgb_render_config
+            if not isinstance(rgb_render_config, dict):
+                raise AssertionError()
+            if  "window_size" not in rgb_render_config and "minimap_size" not in rgb_render_config:
+                raise AssertionError()
             window_size = rgb_render_config["window_size"]
             minimap_size = rgb_render_config["minimap_size"]
             self._renderer = Renderer(self, window_size, minimap_size)
@@ -68,11 +70,13 @@ class Client(Protocol):
             ifopts.render.minimap_resolution.y = minimap_height
 
         if race is None:
-            assert isinstance(observed_player_id, int), f"observed_player_id is of type {type(observed_player_id)}"
+            if not isinstance(observed_player_id, int):
+                raise AssertionError(f"observed_player_id is of type {type(observed_player_id)}")
             # join as observer
             req = sc_pb.RequestJoinGame(observed_player_id=observed_player_id, options=ifopts)
         else:
-            assert isinstance(race, RACE)
+            if not isinstance(race, RACE):
+                raise AssertionError()
             req = sc_pb.RequestJoinGame(race=race.value, options=ifopts)
 
         if portconfig:
@@ -86,7 +90,8 @@ class Client(Protocol):
                 request.base_port = ppc[1]
 
         if name is not None:
-            assert isinstance(name, str), f"name is of type {type(name)}"
+            if not isinstance(name, str):
+                raise AssertionError(f"name is of type {type(name)}")
             req.player_name = name
 
         result = await self._execute(join_game=req)
@@ -121,13 +126,15 @@ class Client(Protocol):
             result = await self._execute(observation=sc_pb.RequestObservation(game_loop=game_loop))
         else:
             result = await self._execute(observation=sc_pb.RequestObservation())
-        assert result.HasField("observation")
+        if not result.HasField("observation"):
+            raise AssertionError()
 
         if not self.in_game or result.observation.player_result:
             # Sometimes game ends one step before results are available
             if not result.observation.player_result:
                 result = await self._execute(observation=sc_pb.RequestObservation())
-                assert result.observation.player_result
+                if not result.observation.player_result:
+                    raise AssertionError()
 
             player_id_to_result = {}
             for player_result in result.observation.player_result:
@@ -194,8 +201,10 @@ class Client(Protocol):
 
         :param start:
         :param end: """
-        assert isinstance(start, (Point2, Unit))
-        assert isinstance(end, Point2)
+        if not isinstance(start, (Point2, Unit)):
+            raise AssertionError()
+        if not isinstance(end, Point2):
+            raise AssertionError()
         if isinstance(start, Point2):
             result = await self._execute(
                 query=query_pb.RequestQuery(
@@ -290,7 +299,8 @@ class Client(Protocol):
                 raise AssertionError()
             units = [units]
             input_was_a_list = False
-        assert units
+        if not units:
+            raise AssertionError()
         result = await self._execute(
             query=query_pb.RequestQuery(
                 abilities=(query_pb.RequestQueryAvailableAbilities(unit_tag=unit.tag) for unit in units),
@@ -394,7 +404,8 @@ class Client(Protocol):
 
     async def move_camera(self, position: Union[Unit, Units, Point2, Point3]):
         """ Moves camera to the target position """
-        assert isinstance(position, (Unit, Units, Point2, Point3))
+        if not isinstance(position, (Unit, Units, Point2, Point3)):
+            raise AssertionError()
         if isinstance(position, Units):
             position = position.center
         if isinstance(position, Unit):
@@ -416,7 +427,8 @@ class Client(Protocol):
     async def move_camera_spatial(self, position: Union[Point2, Point3]):
         """ Moves camera to the target position using the spatial aciton interface
         :param position: """
-        assert isinstance(position, (Point2, Point3))
+        if not isinstance(position, (Point2, Point3)):
+            raise AssertionError()
         action = sc_pb.Action(
             action_render=spatial_pb.ActionSpatial(
                 camera_move=spatial_pb.ActionSpatialCameraMove(
@@ -438,9 +450,12 @@ class Client(Protocol):
         size: int = 8,
     ):
         """ Draws a text on the screen (monitor / game window) with coordinates 0 <= x, y <= 1. """
-        assert len(pos) >= 2
-        assert 0 <= pos[0] <= 1
-        assert 0 <= pos[1] <= 1
+        if len(pos) < 2:
+            raise AssertionError()
+        if not (0 <= pos[0] <= 1):
+            raise AssertionError()
+        if not (0 <= pos[1] <= 1):
+            raise AssertionError()
         pos = Point2((pos[0], pos[1]))
         self._debug_texts.append(DrawItemScreenText(text=text, color=color, start_point=pos, font_size=size))
 
