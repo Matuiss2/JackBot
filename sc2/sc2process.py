@@ -148,7 +148,6 @@ class SC2Process:
         return subprocess.Popen(
             args,
             cwd=(str(Paths.CWD) if Paths.CWD else None),
-            shell=False
             # , env=run_config.env
         )
 
