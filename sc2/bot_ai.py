@@ -1339,7 +1339,8 @@ class BotAI(DistanceCalculation):
         """ Returns True if a ground unit can pass through a grid point.
 
         :param pos: """
-        assert isinstance(pos, (Point2, Point3, Unit)), f"pos is not of type Point2, Point3 or Unit"
+        if not isinstance(pos, (Point2, Point3, Unit)):
+            raise AssertionError(f"pos is not of type Point2, Point3 or Unit")
         pos = pos.position.to2.rounded
         return self._game_info.pathing_grid[pos] == 1
 
