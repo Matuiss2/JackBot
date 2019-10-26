@@ -94,7 +94,8 @@ class Units(list):
 
     @property
     def first(self) -> Unit:
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         return self[0]
 
     def take(self, n: int) -> Units:
@@ -165,7 +166,8 @@ class Units(list):
             # Contains the distance between the marine and the closest zergling
 
         :param position: """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         if isinstance(position, Unit):
             return min(self._bot_object._distance_squared_unit_to_unit(unit, position) for unit in self) ** 0.5
         return min(self._bot_object._distance_units_to_pos(self, position))
@@ -184,7 +186,8 @@ class Units(list):
                 # Contains the distance between the marine and the furthest away zergling
 
         :param position: """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         if isinstance(position, Unit):
             return max(self._bot_object._distance_squared_unit_to_unit(unit, position) for unit in self) ** 0.5
         return max(self._bot_object._distance_units_to_pos(self, position))
@@ -202,7 +205,8 @@ class Units(list):
                 # Contains the zergling that is closest to the target marine
 
         :param position: """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         if isinstance(position, Unit):
             return min(
                 (unit1 for unit1 in self),
@@ -225,7 +229,8 @@ class Units(list):
                 # Contains the zergling that is furthest away to the target marine
 
         :param position: """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         if isinstance(position, Unit):
             return max(
                 (unit1 for unit1 in self),
@@ -250,7 +255,8 @@ class Units(list):
         :param distance:
         :param position:
         """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         if isinstance(position, Unit):
             distance_squared = distance ** 2
             return self.subgroup(
@@ -277,7 +283,8 @@ class Units(list):
         :param distance:
         :param position:
         """
-        assert self, "Units object is empty"
+        if not self:
+            raise AssertionError("Units object is empty")
         if isinstance(position, Unit):
             distance_squared = distance ** 2
             return self.subgroup(

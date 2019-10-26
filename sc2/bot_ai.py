@@ -1312,7 +1312,8 @@ class BotAI(DistanceCalculation):
         Caution: terrain height is different from a unit's z-coordinate.
 
         :param pos: """
-        assert isinstance(pos, (Point2, Point3, Unit)), f"pos is not of type Point2, Point3 or Unit"
+        if not isinstance(pos, (Point2, Point3, Unit)):
+            raise AssertionError(f"pos is not of type Point2, Point3 or Unit")
         pos = pos.position.to2.rounded
         return self._game_info.terrain_height[pos]
 
@@ -1320,7 +1321,8 @@ class BotAI(DistanceCalculation):
         """ Returns terrain z-height at a position.
 
         :param pos: """
-        assert isinstance(pos, (Point2, Point3, Unit)), f"pos is not of type Point2, Point3 or Unit"
+        if not isinstance(pos, (Point2, Point3, Unit)):
+            raise AssertionError(f"pos is not of type Point2, Point3 or Unit")
         pos = pos.position.to2.rounded
         return -16 + 32 * self._game_info.terrain_height[pos] / 255
 
@@ -1331,7 +1333,8 @@ class BotAI(DistanceCalculation):
         https://github.com/Dentosal/python-sc2/blob/master/sc2/game_info.py#L17-L18
 
         :param pos: """
-        assert isinstance(pos, (Point2, Point3, Unit)), f"pos is not of type Point2, Point3 or Unit"
+        if not isinstance(pos, (Point2, Point3, Unit)):
+            raise AssertionError(f"pos is not of type Point2, Point3 or Unit")
         pos = pos.position.to2.rounded
         return self._game_info.placement_grid[pos] == 1
 
