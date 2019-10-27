@@ -226,26 +226,6 @@ RESEARCH_INFO: Dict[UnitTypeId, Dict[UpgradeId, Dict[str, Union[AbilityId, bool,
         },
         UpgradeId.ZERGLINGMOVEMENTSPEED: {"ability": AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST},
     },
-    UnitTypeId.SPIRE: {
-        UpgradeId.ZERGFLYERARMORSLEVEL1: {"ability": AbilityId.RESEARCH_ZERGFLYERARMORLEVEL1},
-        UpgradeId.ZERGFLYERARMORSLEVEL2: {
-            "ability": AbilityId.RESEARCH_ZERGFLYERARMORLEVEL2,
-            "required_building": UnitTypeId.GREATERSPIRE,
-        },
-        UpgradeId.ZERGFLYERARMORSLEVEL3: {
-            "ability": AbilityId.RESEARCH_ZERGFLYERARMORLEVEL3,
-            "required_building": UnitTypeId.GREATERSPIRE,
-        },
-        UpgradeId.ZERGFLYERWEAPONSLEVEL1: {"ability": AbilityId.RESEARCH_ZERGFLYERATTACKLEVEL1},
-        UpgradeId.ZERGFLYERWEAPONSLEVEL2: {
-            "ability": AbilityId.RESEARCH_ZERGFLYERATTACKLEVEL2,
-            "required_building": UnitTypeId.GREATERSPIRE,
-        },
-        UpgradeId.ZERGFLYERWEAPONSLEVEL3: {
-            "ability": AbilityId.RESEARCH_ZERGFLYERATTACKLEVEL3,
-            "required_building": UnitTypeId.GREATERSPIRE,
-        },
-    },
     UnitTypeId.STARPORTTECHLAB: {
         UpgradeId.BANSHEECLOAK: {"ability": AbilityId.RESEARCH_BANSHEECLOAKINGFIELD},
         UpgradeId.BANSHEESPEED: {"ability": AbilityId.RESEARCH_BANSHEEHYPERFLIGHTROTORS},
@@ -270,3 +250,4 @@ RESEARCH_INFO: Dict[UnitTypeId, Dict[UpgradeId, Dict[str, Union[AbilityId, bool,
         UpgradeId.CHITINOUSPLATING: {"ability": AbilityId.RESEARCH_CHITINOUSPLATING},
     },
 }
+RESEARCH_INFO[UnitTypeId.SPIRE] = RESEARCH_INFO.get(UnitTypeId.GREATERSPIRE)

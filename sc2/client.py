@@ -56,7 +56,7 @@ class Client(Protocol):
         if rgb_render_config:
             if not isinstance(rgb_render_config, dict):
                 raise AssertionError()
-            if  "window_size" not in rgb_render_config and "minimap_size" not in rgb_render_config:
+            if "window_size" not in rgb_render_config and "minimap_size" not in rgb_render_config:
                 raise AssertionError()
             window_size = rgb_render_config["window_size"]
             minimap_size = rgb_render_config["minimap_size"]
@@ -468,32 +468,6 @@ class Client(Protocol):
     ):
         return self.debug_text_screen(text, pos, color, size)
 
-    def debug_text_world(
-        self, text: str, pos: Union[Unit, Point2, Point3], color: Union[tuple, list, Point3] = None, size: int = 8
-    ):
-        """ Draws a text at Point3 position in the game world.
-        To grab a unit's 3d position, use unit.position3d
-        Usually the Z value of a Point3 is between 8 and 14 (except for flying units). Use self.get_terrain_z_height()
-        from bot_ai.py to get the Z value (height) of the terrain at a 2D position.
-        """
-        if isinstance(pos, Point2) and not isinstance(pos, Point3):  # a Point3 is also a Point2
-            pos = Point3((pos.x, pos.y, 0))
-        self._debug_texts.append(DrawItemWorldText(text=text, color=color, start_point=pos, font_size=size))
-
-    def debug_text_3d(
-        self, text: str, pos: Union[Unit, Point2, Point3], color: Union[tuple, list, Point3] = None, size: int = 8
-    ):
-        return self.debug_text_world(text, pos, color, size)
-
-    def debug_line_out(
-        self,
-        po0: Union[Unit, Point2, Point3],
-        po1: Union[Unit, Point2, Point3],
-        color: Union[tuple, list, Point3] = None,
-    ):
-        """ Draws a line from p0 to p1. """
-        self._debug_lines.append(DrawItemLine(color=color, start_point=po0, end_point=po1))
-
     def debug_box_out(
         self,
         p_min: Union[Unit, Point2, Point3],
@@ -590,14 +564,15 @@ class Client(Protocol):
         if isinstance(unit_tags, Unit):
             unit_tags = [unit_tags.tag]
         if not hasattr(unit_tags, "__iter__"):
-            raise AssertionError("unit_tags argument needs to be an iterable (list, dict, set, Units),"
-            f" given argument is {type(unit_tags).__name__}"
-        )
+            raise AssertionError(
+                "unit_tags argument needs to be an iterable (list, dict, set, Units),"
+                f" given argument is {type(unit_tags).__name__}"
+            )
         if unit_value not in (1, 2, 3):
             raise AssertionError(
-            f"unit_value needs to be between 1 and 3 (1 for energy, 2 for life, 3 for shields),"
-            f" given argument is {unit_value}"
-        )
+                f"unit_value needs to be between 1 and 3 (1 for energy, 2 for life, 3 for shields),"
+                f" given argument is {unit_value}"
+            )
         if not all(tag > 0 for tag in unit_tags):
             raise AssertionError(f"Unit tags have invalid value: {unit_tags}")
         if not isinstance(value, (int, float)):
@@ -735,42 +710,6 @@ class DrawItemScreenText(DrawItem):
 
     def __hash__(self):
         return hash((self._start_point, self._color, self._text, self._font_size))
-
-
-class DrawItemWorldText(DrawItem):
-    def __init__(self, start_point: Point3 = None, color: Point3 = None, text: str = "", font_size: int = 8):
-        self._start_point: Point3 = start_point
-        self._color: Point3 = color
-        self._text: str = text
-        self._font_size: int = font_size
-
-    def to_proto(self):
-        return debug_pb.DebugText(
-            color=self.to_debug_color(self._color),
-            text=self._text,
-            virtual_pos=None,
-            world_pos=self.to_debug_point(self._start_point),
-            size=self._font_size,
-        )
-
-    def __hash__(self):
-        return hash((self._start_point, self._text, self._font_size, self._color))
-
-
-class DrawItemLine(DrawItem):
-    def __init__(self, start_point: Point3 = None, end_point: Point3 = None, color: Point3 = None):
-        self._start_point: Point3 = start_point
-        self._end_point: Point3 = end_point
-        self._color: Point3 = color
-
-    def to_proto(self):
-        return debug_pb.DebugLine(
-            line=debug_pb.Line(p0=self.to_debug_point(self._start_point), p1=self.to_debug_point(self._end_point)),
-            color=self.to_debug_color(self._color),
-        )
-
-    def __hash__(self):
-        return hash((self._start_point, self._end_point, self._color))
 
 
 class DrawItemBox(DrawItem):
