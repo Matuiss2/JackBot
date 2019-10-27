@@ -59,19 +59,23 @@ class DistanceCalculation:
             self._generated_frame = self.state.game_loop
         return self._cached_unit_index_dict
 
+    def shared_calculation(self):
+        # Converts tuple [(1, 2), (3, 4)] to flat list like [1, 2, 3, 4]
+        flat_positions = (coord for unit in self.all_units for coord in unit.position_tuple)
+        # Converts to numpy array, then converts the flat array back to shape (n, 2): [[1, 2], [3, 4]]
+        positions_array: np.ndarray = np.fromiter(
+            flat_positions, dtype=np.float, count=2 * self._units_count
+        ).reshape((self._units_count, 2))
+        if len(positions_array) != self._units_count:
+            raise AssertionError()
+        return positions_array
+
     def _calculate_distances_method1(self) -> np.ndarray:
         if self._generated_frame2 != self.state.game_loop:
-            # Converts tuple [(1, 2), (3, 4)] to flat list like [1, 2, 3, 4]
-            flat_positions = (coord for unit in self.all_units for coord in unit.position_tuple)
-            # Converts to numpy array, then converts the flat array back to shape (n, 2): [[1, 2], [3, 4]]
-            positions_array: np.ndarray = np.fromiter(
-                flat_positions, dtype=np.float, count=2 * self._units_count
-            ).reshape((self._units_count, 2))
-            if len(positions_array) != self._units_count:
-                raise AssertionError()
+            positions = self.shared_calculation()
             self._generated_frame2 = self.state.game_loop
             # See performance benchmarks
-            self._cached_pdist = pdist(positions_array, "sqeuclidean")
+            self._cached_pdist = pdist(positions, "sqeuclidean")
 
             # # Distance check of all units
             # for unit1 in self.all_units:
@@ -100,17 +104,10 @@ class DistanceCalculation:
 
     def _calculate_distances_method2(self) -> np.ndarray:
         if self._generated_frame2 != self.state.game_loop:
-            # Converts tuple [(1, 2), (3, 4)] to flat list like [1, 2, 3, 4]
-            flat_positions = (coord for unit in self.all_units for coord in unit.position_tuple)
-            # Converts to numpy array, then converts the flat array back to shape (n, 2): [[1, 2], [3, 4]]
-            positions_array: np.ndarray = np.fromiter(
-                flat_positions, dtype=np.float, count=2 * self._units_count
-            ).reshape((self._units_count, 2))
-            if len(positions_array) != self._units_count:
-                raise AssertionError()
+            positions = self.shared_calculation()
             self._generated_frame2 = self.state.game_loop
             # See performance benchmarks
-            self._cached_cdist = cdist(positions_array, positions_array, "sqeuclidean")
+            self._cached_cdist = cdist(positions, positions, "sqeuclidean")
 
         return self._cached_cdist
 

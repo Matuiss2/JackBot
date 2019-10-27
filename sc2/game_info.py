@@ -97,39 +97,32 @@ class Ramp:
         pos = Point2((sum(p.x for p in lower) / length, sum(p.y for p in lower) / length))
         return pos
 
+    def calculate_intersections(self, base, exponent):
+        if len(self.upper2_for_ramp_wall) == 2:
+            points = self.upper2_for_ramp_wall
+            po1 = points.pop().offset((self.x_offset, self.y_offset))
+            po2 = points.pop().offset((self.x_offset, self.y_offset))
+            return po1.circle_intersection(po2, base ** exponent)
+        return 0
+
     @property_immutable_cache
     def barracks_in_middle(self) -> Optional[Point2]:
         """ Barracks position in the middle of the 2 depots """
         if len(self.upper) not in {2, 5}:
             return None
-        if len(self.upper2_for_ramp_wall) == 2:
-            points = self.upper2_for_ramp_wall
-            po1 = points.pop().offset((self.x_offset, self.y_offset))
-            po2 = points.pop().offset((self.x_offset, self.y_offset))
-            # Offset from top point to barracks center is (2, 1)
-            intersects = po1.circle_intersection(po2, 5 ** 0.5)
-            any_lower_point = next(iter(self.lower))
-            return max(intersects, key=lambda p: p.distance_to_point2(any_lower_point))
-        raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
+        return max(self.calculate_intersections(5, 0.5), key=lambda p: p.distance_to_point2(next(iter(self.lower))))
 
     @property_immutable_cache
     def depot_in_middle(self) -> Optional[Point2]:
         """ Depot in the middle of the 3 depots """
         if len(self.upper) not in {2, 5}:
             return None
-        if len(self.upper2_for_ramp_wall) == 2:
-            points = self.upper2_for_ramp_wall
-            po1 = points.pop().offset((self.x_offset, self.y_offset))
-            po2 = points.pop().offset((self.x_offset, self.y_offset))
-            # Offset from top point to depot center is (1.5, 0.5)
-            try:
-                intersects = po1.circle_intersection(po2, 2.5 ** 0.5)
-            except AssertionError:
-                # Returns None when no placement was found, this is the case on the map Honorgrounds LE
-                # with an exceptionally large main base ramp
-                return None
-            any_lower_point = next(iter(self.lower))
-            return max(intersects, key=lambda p: p.distance_to_point2(any_lower_point))
+        try:
+            return max(
+                self.calculate_intersections(2.5, 0.5), key=lambda p: p.distance_to_point2(next(iter(self.lower)))
+            )
+        except AssertionError():
+            pass
         raise Exception("Not implemented. Trying to access a ramp that has a wrong amount of upper points.")
 
     @property_mutable_cache
