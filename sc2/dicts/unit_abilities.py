@@ -2,6 +2,7 @@
 # ANY CHANGE WILL BE OVERWRITTEN
 
 from typing import Dict, Set
+from ..constants import IS_CONSTRUCTING_SCV
 from ..ids.unit_typeid import UnitTypeId
 from ..ids.ability_id import AbilityId
 
@@ -981,20 +982,7 @@ UNIT_ABILITIES: Dict[UnitTypeId, Set[AbilityId]] = {
         AbilityId.PATROL_PATROL,
         AbilityId.SMART,
         AbilityId.STOP_STOP,
-        AbilityId.TERRANBUILD_ARMORY,
-        AbilityId.TERRANBUILD_BARRACKS,
-        AbilityId.TERRANBUILD_BUNKER,
-        AbilityId.TERRANBUILD_COMMANDCENTER,
-        AbilityId.TERRANBUILD_ENGINEERINGBAY,
-        AbilityId.TERRANBUILD_FACTORY,
-        AbilityId.TERRANBUILD_FUSIONCORE,
-        AbilityId.TERRANBUILD_GHOSTACADEMY,
-        AbilityId.TERRANBUILD_MISSILETURRET,
-        AbilityId.TERRANBUILD_REFINERY,
-        AbilityId.TERRANBUILD_SENSORTOWER,
-        AbilityId.TERRANBUILD_STARPORT,
-        AbilityId.TERRANBUILD_SUPPLYDEPOT,
-    },
+    } | IS_CONSTRUCTING_SCV,
     UnitTypeId.SENTRY: {
         AbilityId.ATTACK_ATTACK,
         AbilityId.FORCEFIELD_FORCEFIELD,
